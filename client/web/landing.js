@@ -163,6 +163,7 @@
     if (KAL.joinCode) main.append(await joinCard());
     else if (window.KAL_TRIPLY) main.append(...[...choice(), await lists(), steps()].filter(Boolean));
     else main.append(...[createCard(), recentCard(), steps()].filter(Boolean));
+    if (!KAL.joinCode && PL.guide) PL.guide.maybeStart(); // first visit: the friendly guide (guide.js)
   }
 
   PL.landing = {

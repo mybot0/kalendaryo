@@ -18,12 +18,12 @@ const js = ['config', 'util', 'models', 'recurrence', 'store', 'calendar-data', 
 
 const web = target === 'web';
 const styles = css.map((c) => rd('src/styles/' + c + '.css'));
-if (web) styles.push(rd('web/web.css'));
+if (web) styles.push(rd('web/web.css'), rd('web/guide.css'));
 const scripts = [];
 if (web) scripts.push(rd('web/shim.js'));
 for (const j of js) {
   scripts.push(rd('src/js/' + j + '.js'));
-  if (web && j === 'event-ui') scripts.push(rd('web/landing.js'), rd('web/access.js'));
+  if (web && j === 'event-ui') scripts.push(rd('web/landing.js'), rd('web/access.js'), rd('web/guide.js'));
 }
 for (const s of scripts) if (/<\/script/i.test(s)) throw new Error('a script contains </script');
 

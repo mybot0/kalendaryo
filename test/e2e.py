@@ -28,22 +28,34 @@ try:
     with sync_playwright() as p:
         b = p.chromium.launch()
         logs = []
-        def mk(vp):
+        def mk(vp, guide=False):
             ctx = b.new_context(viewport=vp)
+            if not guide:  # the first-visit guide is checked once below; other browsers skip it
+                ctx.add_init_script("try { localStorage.setItem('kal.guideSeen', '1') } catch (e) {}")
             pg = ctx.new_page()
             pg.on('pageerror', lambda e: logs.append(str(e)))
             pg.on('console', lambda m: logs.append(m.text) if m.type == 'error' and 'fonts.g' not in m.text and 'ERR_' not in m.text and 'status of 40' not in m.text and 'status of 429' not in m.text else None)
             return ctx, pg
-        octx, owner = mk({'width': 1280, 'height': 900})
+        octx, owner = mk({'width': 1280, 'height': 900}, guide=True)
 
         # ---- start page, create a family
         owner.goto(BASE); owner.wait_for_timeout(400)
-        check(owner.locator('text=One link for your whole family').count() == 1, 'start page shows')
+        # ---- first-visit guide: shows, can be skipped, and does not come back
+        owner.wait_for_selector('.g-layer', timeout=4000)
+        check(owner.locator('#g-title').inner_text() == 'Welcome to Kalendaryo!', 'guide shows on the first visit')
+        owner.keyboard.press('ArrowRight'); owner.wait_for_timeout(500)
+        check(owner.locator('.g-spot:not(.g-gone)').count() == 1, 'guide lights up part of the page')
+        owner.get_by_role('button', name='Skip').click(); owner.wait_for_timeout(500)
+        check(owner.locator('.g-layer').count() == 0, 'guide can be skipped')
+        check(owner.locator('.g-glow').count() >= 1, 'after the guide, Start here glows')
+        owner.reload(); owner.wait_for_timeout(1200)
+        check(owner.locator('.g-layer').count() == 0, 'guide does not come back')
+        check(owner.locator('text=Where home gets organized').count() == 1, 'start page shows')
         owner.screenshot(path='/home/claude/kal/dist/web-landing.png', full_page=True)
-        owner.get_by_role('button', name='Create my family').click(); owner.wait_for_timeout(200)
+        owner.get_by_role('button', name='Create your home').click(); owner.wait_for_timeout(200)
         check(owner.locator('text=Please type your name').count() == 1, 'name is required')
         owner.fill('input[autocomplete=given-name]', 'Ryan'); owner.fill('input[placeholder*="Rubi"]', 'Rubi family')
-        owner.get_by_role('button', name='Create my family').click(); owner.wait_for_url('**/c/**'); owner.wait_for_timeout(1200)
+        owner.get_by_role('button', name='Create your home').click(); owner.wait_for_url('**/c/**'); owner.wait_for_timeout(1200)
         otoken = owner.url.split('/c/')[1]
         check(len(otoken) >= 30, 'owner got a personal link')
         check(owner.locator('text=Welcome, Ryan!').count() == 1, 'welcome tip with the link')
@@ -61,7 +73,7 @@ try:
         check(owner.locator('text=Soccer practice').count() >= 1, 'event is still there after reload')
 
         # ---- invite as viewer
-        owner.get_by_role('button', name='Family').first.click(); owner.wait_for_timeout(600)
+        owner.get_by_role('button', name='People', exact=True).first.click(); owner.wait_for_timeout(600)
         check(owner.locator('.access-row', has_text='Ryan (you)').count() == 1, 'people with access lists the owner')
         owner.get_by_role('button', name='Invite someone').click(); owner.wait_for_timeout(200)
         owner.fill('input[placeholder*="Grandma"]', 'Ana')
@@ -111,12 +123,12 @@ try:
         check(owner.locator('.list-card', has_text='Groceries').count() == 1, 'editor change reaches the owner live')
 
         # ---- promote to owner, then the last-owner rule
-        owner.get_by_role('button', name='Family').first.click(); owner.wait_for_timeout(500)
+        owner.get_by_role('button', name='People', exact=True).first.click(); owner.wait_for_timeout(500)
         owner.locator('.access-row', has_text='Ana').get_by_role('button', name='Change').click(); owner.wait_for_timeout(200)
         owner.get_by_role('radio', name='Owner').click(); owner.get_by_role('button', name='Save').click(); owner.wait_for_timeout(1200)
         st, me2 = req('GET', '/api/me', atoken)
         check(me2['me']['role'] == 'owner', 'Ana promoted to owner')
-        ana.get_by_role('button', name='Family').first.click(); ana.wait_for_timeout(800)
+        ana.get_by_role('button', name='People', exact=True).first.click(); ana.wait_for_timeout(800)
         check(ana.get_by_role('button', name='Invite someone').count() == 1, 'new owner can invite')
         st, ppl = req('GET', '/api/people', otoken)
         ana_id = [x for x in ppl['people'] if x['name'] == 'Ana'][0]['id']; ryan_id = [x for x in ppl['people'] if x['name'] == 'Ryan'][0]['id']
@@ -152,7 +164,7 @@ try:
         check(st == 404, 'other family cannot open our photo')
 
         # ---- remove Ana: her page closes
-        owner.get_by_role('button', name='Family').first.click(); owner.wait_for_timeout(500)
+        owner.get_by_role('button', name='People', exact=True).first.click(); owner.wait_for_timeout(500)
         owner.locator('.access-row', has_text='Ana').get_by_role('button', name='Change').click(); owner.wait_for_timeout(200)
         owner.get_by_role('button', name='Remove').click(); owner.wait_for_timeout(200)
         owner.get_by_role('button', name='Remove').last.click(); owner.wait_for_timeout(1500)
@@ -167,7 +179,7 @@ try:
         owner.screenshot(path='/home/claude/kal/dist/web-family.png', full_page=True)
 
         # ---- delete the family
-        owner.get_by_role('button', name='Family').first.click(); owner.wait_for_timeout(500)
+        owner.get_by_role('button', name='People', exact=True).first.click(); owner.wait_for_timeout(500)
         owner.screenshot(path='/home/claude/kal/dist/web-access.png', full_page=True)
         owner.get_by_role('button', name='Delete this family').click(); owner.wait_for_timeout(200)
         owner.fill('input[placeholder=DELETE]', 'DELETE'); owner.get_by_role('button', name='Delete forever').click(); owner.wait_for_url(BASE + '/'); owner.wait_for_timeout(400)
