@@ -1,0 +1,18 @@
+{
+  "name": "triply",
+  "version": "0.1.0",
+  "description": "Triply by Kalendaryo: a shared trip planner, itinerary and group chat.",
+  "private": true,
+  "main": "server/handler.js",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "node client/build.js",
+    "start": "node server/index.js",
+    "test": "node --test test/api.test.js"
+  },
+  "dependencies": {
+    "pg": "^8.11.0"
+  }
+}
