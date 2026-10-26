@@ -23,9 +23,20 @@ Only these places outside `triply/` were changed. Each one is marked in the code
   - `createCard(pick)` keeps its old look unless `pick` is passed.
   - The new parts are `pickForm`, `tripCard` and `choice`. They are used only when `window.KAL_TRIPLY` is true.
   - `render()` uses `land-wide` and `choice()` when the switch is on, and the old one-form start page otherwise.
-- The Triply card creates the trip with `POST /triply/api/trips`, with name, dates and owner name, then opens the personal link
-  `/triply/#/t/<token>` that Triply sends back. "Open my trips →" goes to `/triply/`.
-- `web.css` has the block marked `TOUCH POINT B` at the end: the two even cards, with Triply in terracotta `#B8583A`.
+- **Header:** a white banner with the logo and "Where home and trips get organized".
+- **Home card:**
+  - Fields: your name, home name, and **Week starts on**.
+  - After `POST /api/families`, the chosen week start is saved to the new home's `settings/main` document with the new home's own key. This is the same document the Settings screen writes.
+- **Trip card:**
+  - Fields: your name, trip name, and **Dates** (Triply needs a first day).
+  - It creates the trip with `POST /triply/api/trips`, then opens the personal link `/triply/#/t/<token>` that Triply sends back.
+- **"Your homes on this device"** and **"Your trips on this device"** sit side by side.
+  - The trips list reads Triply's saved list on the device (`localStorage['tr.trips']`) and asks `POST /triply/api/my-trips` for the names.
+  - Tapping a trip opens `/triply/#/trip/<id>/overview`.
+  - × removes it from `tr.trips`, the same thing Triply's own "forget" does.
+  - This is the only place Kalendaryo reads Triply's saved data. Remove `tripsCard()` to cut it.
+- **The 3 info cards** use wording for homes and trips when Triply is on, and the old wording when it is off.
+- `web.css` has the blocks marked `TOUCH POINT B` at the end: the banner, the two even cards with Triply in terracotta `#B8583A`, and the two lists.
 - `public/index.html` is rebuilt from these files with `node client/build.js web`.
 
 ### C. Render settings (not in the code)

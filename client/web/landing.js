@@ -15,17 +15,24 @@
     const fam = h('input', { type: 'text', maxlength: '40', placeholder: pick ? 'For example: The Rubi family, Barkada' : 'For example: The Rubi family, Us two, Maple St. roommates, Barkada', autocomplete: 'off' });
     const err = errorBox();
     const btn = ui.button('Create your home', { variant: 'primary', big: true, icon: 'plus', type: 'submit', block: true });
+    let weekStart = 0;
+    const week = pick ? ui.segmented([{ value: 0, label: 'Sunday' }, { value: 1, label: 'Monday' }], 0, (v) => { weekStart = Number(v); }, 'Week starts on') : null;
     async function go(e) {
       e.preventDefault();
       if (!you.value.trim()) { showErr(err, 'Please type your name.'); you.focus(); return; }
       btn.disabled = true; showErr(err, '');
       try {
         const r = await KAL.api('POST', '/api/families', { yourName: you.value.trim(), familyName: fam.value.trim() });
+        if (pick && weekStart) {
+          // Save the chosen week start in the new home's settings (same document the Settings screen writes).
+          await fetch('/api/docs/settings/main', { method: 'PUT', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + r.token },
+            body: JSON.stringify({ data: { householdName: fam.value.trim() || 'Our home', weekStart } }) }).catch(() => {});
+        }
         try { localStorage.setItem('kal.newlink', '1'); } catch (x) { /* fine */ }
         location.href = '/c/' + r.token;
       } catch (x) { showErr(err, x.userMessage); btn.disabled = false; }
     }
-    if (pick) return pickForm(go, 'home', h('span', { class: 'land-pick-ic' }, icon('calendar')), 'Kalendaryo', 'Organize a home', 'Calendar, chores, meals, lists and photos for everyone you live with.', you, 'Home name', fam, err, btn);
+    if (pick) return pickForm(go, 'home', h('span', { class: 'land-pick-ic' }, icon('calendar')), 'Kalendaryo', 'Organize a home', 'Calendar, chores, meals, lists and photos for everyone you live with.', you, 'Home name', fam, err, btn, null, [field('Week starts on', week.el)]);
     return h('form', { class: 'card land-card', onsubmit: go },
       h('h2', {}, 'Start your home’s space'), field('Your name', you), field('Home name', fam), err, btn,
       h('p', { class: 'hint' }, 'You get your own private link. Keep it safe: it is your key. No account or password needed.'));
@@ -65,10 +72,36 @@
     }
     const ic = h('span', { class: 'land-pick-ic' }); ic.innerHTML = PLANE;
     return pickForm(go, 'trip', ic, 'Triply by Kalendaryo', 'Plan a trip', 'One itinerary, every booking and a group chat for everyone going.', you, 'Trip name', trip, err, btn,
-      h('a', { class: 'land-pick-link', href: TRIPLY_BASE + '/' }, ' Open my trips →'), [field('Dates', dates)]);
+      null, [field('Dates', dates)]);
+  }
+  async function tripsCard() {
+    let saved = [];
+    try { saved = (JSON.parse(localStorage.getItem('tr.trips') || '[]') || []).filter((x) => x && x.token && x.tripId); } catch (e) { saved = []; }
+    if (!saved.length) return null;
+    let trips = [];
+    try {
+      const r = await fetch(TRIPLY_BASE + '/api/my-trips', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ tokens: saved.map((x) => x.token) }) });
+      if (r.ok) trips = ((await r.json()).trips || []).map((t) => Object.assign({ saved: saved[t.i] }, t));
+    } catch (e) { /* offline: show nothing */ }
+    if (!trips.length) return null;
+    const forget = (tripId) => {
+      try { localStorage.setItem('tr.trips', JSON.stringify(saved.filter((x) => x.tripId !== tripId))); } catch (e) { /* fine */ }
+      render();
+    };
+    return h('section', { class: 'card land-card land-trips' }, h('h2', {}, 'Your trips on this device'),
+      h('div', { class: 'stack' }, trips.map((t) => {
+        const ic = h('span', { class: 'land-chip-ic' }); ic.innerHTML = PLANE;
+        return h('div', { class: 'land-recent' },
+          h('a', { class: 'btn soft big land-open land-open-trip', href: TRIPLY_BASE + '/#/trip/' + encodeURIComponent(t.id) + '/overview' }, ic, h('span', {}, t.name + (t.owner_name ? ' · ' + t.owner_name : ''))),
+          ui.iconButton('x', 'Forget ' + t.name + ' on this device', () => forget(t.id)));
+      })));
+  }
+  async function lists() {
+    const items = [recentCard(), await tripsCard()].filter(Boolean);
+    return items.length ? h('div', { class: 'land-lists' + (items.length === 1 ? ' one' : '') }, ...items) : null;
   }
   function choice() {
-    return [h('h2', { class: 'land-ask' }, 'What do you want to organize?'), h('div', { class: 'land-picks' }, createCard(true), tripCard())];
+    return [h('div', { class: 'land-picks' }, createCard(true), tripCard())];
   }
 
   function recentCard() {
@@ -81,7 +114,9 @@
   }
 
   function steps() {
-    const s = [['plus', 'Create', 'Make your home’s space in one step.'], ['users', 'Invite', 'Send invite links. Pick who can look, who can edit, and who is an owner.'], ['calendar', 'Share the day', 'Calendar, chores, meals, lists and photos, live for everyone.']];
+    const s = window.KAL_TRIPLY
+      ? [['plus', 'Create', 'Start a home or a trip in one step. No account or password.'], ['users', 'Invite', 'Send invite links. Pick who can look, who can edit, and who is an owner.'], ['calendar', 'Share the day', 'Calendars, chores, meals, itineraries and group chat, live for everyone.']]
+      : [['plus', 'Create', 'Make your home’s space in one step.'], ['users', 'Invite', 'Send invite links. Pick who can look, who can edit, and who is an owner.'], ['calendar', 'Share the day', 'Calendar, chores, meals, lists and photos, live for everyone.']];
     return h('div', { class: 'land-steps' }, s.map(([i, t, d]) => h('div', { class: 'land-step' }, h('span', { class: 'empty-icon' }, icon(i)), h('strong', {}, t), h('span', { class: 'sub' }, d))));
   }
 
@@ -115,13 +150,18 @@
 
   let root;
   async function render(note) {
-    const main = h('main', { class: window.KAL_TRIPLY && !KAL.joinCode ? 'land land-wide' : 'land' },
+    const tri = window.KAL_TRIPLY && !KAL.joinCode;
+    const head = tri
+      ? h('header', { class: 'card land-banner' }, h('span', { class: 'land-logo-mark' }, icon('calendar')),
+          h('div', {}, h('div', { class: 'brand-name land-banner-name' }, PL.config.appName), h('p', { class: 'land-banner-tag' }, 'Where home and trips get organized')))
+      : null;
+    const main = h('main', { class: tri ? 'land land-wide' : 'land' }, head ||
       h('header', { class: 'land-head' }, h('div', { class: 'brand-name land-logo' }, h('span', { class: 'land-logo-mark' }, icon('calendar')), PL.config.appName),
         h('h1', {}, 'Where home gets organized'), h('p', { class: 'land-lead' }, 'One shared place for your calendar, chores, meals and groceries, lists and photos. Everyone sees the same plan, updated live. Simple, calm, and private to your home.')),
       note ? h('p', { class: 'land-note', role: 'alert' }, note) : null);
     root.replaceChildren(main);
     if (KAL.joinCode) main.append(await joinCard());
-    else if (window.KAL_TRIPLY) main.append(...[...choice(), recentCard(), steps()].filter(Boolean));
+    else if (window.KAL_TRIPLY) main.append(...[...choice(), await lists(), steps()].filter(Boolean));
     else main.append(...[createCard(), recentCard(), steps()].filter(Boolean));
   }
 
@@ -129,7 +169,7 @@
     mount(opts) {
       root = document.getElementById('porchlight-root');
       document.body.classList.add('land-body');
-      document.title = PL.config.appName + ' · Where home gets organized';
+      document.title = PL.config.appName + (window.KAL_TRIPLY ? ' · Where home and trips get organized' : ' · Where home gets organized');
       render(opts && opts.note);
     }
   };

@@ -55,3 +55,14 @@ body.land-body {
 .land-dates { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); gap: 8px; align-items: center; }
 .land-dates input { min-width: 0; height: 48px; }
 .land.land-wide { max-width: 920px; }
+.land-banner { flex-direction: row; display: flex; align-items: center; gap: 18px; padding: 22px 26px; }
+.land-banner .land-logo-mark { font-size: clamp(2.4rem, 9vw, 3.1rem); }
+.land-banner-name { color: var(--primary); font: 800 clamp(2.3rem, 8.5vw, 3rem)/1 var(--font-head); letter-spacing: -0.01em; }
+.land-banner-tag { margin: 6px 0 0; color: var(--ink-2); font-weight: 600; font-size: clamp(1.02rem, 3.6vw, 1.25rem); }
+.land-lists { display: grid; grid-template-columns: 1fr; gap: 16px; align-items: start; }
+@media (min-width: 760px) { .land-lists { grid-template-columns: 1fr 1fr; } }
+.land-open-trip { background: #F8E7E0; color: #8E3F27; }
+.land-chip-ic { display: inline-flex; } .land-chip-ic svg { width: 20px; height: 20px; }
+.land-pick .hint { margin: 0; }
+.land-pick .segmented { display: grid; grid-template-columns: 1fr 1fr; width: 100%; height: 48px; box-sizing: border-box; }
+@media (max-width: 559px) { .land-wide .land-steps { grid-template-columns: 1fr; } }
