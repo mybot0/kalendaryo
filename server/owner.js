@@ -5,7 +5,10 @@
  *   Without the right key the owner API answers 404, as if nothing is there.
  *
  * What it counts:
- *   - Visitors: one per device per day. A device is a one-way hash of (address + browser), never the address itself.
+ *   - Visitors: one per browser per day. Each browser gets a small random ID in a cookie ("kv", no personal info),
+ *     so the same phone counts once even when its internet address changes. Without the cookie: a one-way hash
+ *     of (address + browser). The address itself is never saved.
+ *   - Visits from cloud and server companies (Google Cloud, Amazon, Microsoft, hosting…) are robots, not people: not counted.
  *   - Where: city and country only, looked up in the background from the address (ipwho.is, then ipapi.co).
  *     The address is never saved.
  *   - Visitors now: devices that asked the site for anything in the last 2 minutes, or have a page open with live updates.
@@ -22,6 +25,8 @@ const VIEW_TTL = 2 * 60 * 60 * 1000;
 const sha = (s) => crypto.createHash('sha256').update(String(s)).digest('hex');
 // Robots that open pages: search engines, link-preview makers in chat apps, monitors and scripts.
 const BOT_RE = /bot\b|bot\/|crawl|spider|slurp|preview|facebookexternalhit|facebookcatalog|meta-external|whatsapp|telegram|discord|slack|skype|line\/|vkshare|embedly|quora link|pinterest|redditbot|applebot|bingpreview|google-?(inspectiontool|read-aloud|site-verification)|lighthouse|pagespeed|headless|phantom|puppeteer|playwright|selenium|curl|wget|python|go-http|java\/|okhttp|axios|node-fetch|undici|libwww|httpclient|postman|insomnia|uptime|pingdom|monitor|statuscake|render|ahrefs|semrush|mj12|dotbot|petalbot|bytespider|gptbot|claudebot|ccbot|amazonbot|yandex|baidu|duckduck|sogou|exabot|seznam|zgrab|masscan|nmap|scan/i;
+// Internet providers that are server farms, not homes or phones (from the location lookup's company name).
+const CLOUD_RE = /google(?! fiber)|amazon|aws\b|microsoft|azure|digitalocean|linode|akamai|ovh|hetzner|oracle cloud|oracle corporation|alibaba|tencent|cloudflare|fastly|vultr|choopa|contabo|scaleway|leaseweb|m247|datacamp|hosting|data ?cent(er|re)|colocation|\bvps\b|ionos|heroku|render|facebook|meta platforms|hurricane electric|cogent|zscaler|ovh/i;
 const isBot = (req) => { const ua = String(req.headers['user-agent'] || ''); return !ua || ua.length < 12 || BOT_RE.test(ua); };
 
 function createOwner({ db, live, ipOf, fail, triplySchema }) {
@@ -32,6 +37,7 @@ function createOwner({ db, live, ipOf, fail, triplySchema }) {
   const seen = new Map();      // device -> last request time
   const streams = new Map();   // device -> open live connections
   const located = new Map();   // device -> [city, country, cc]
+  const cloud = new Set();      // devices that turned out to be server farms (robots)
   const pending = new Set();
   const placeNoted = new Map(); // kind:ref:device -> time
   const homeActive = new Map(); // familyId -> last request time (finer than access.last_seen)
@@ -44,7 +50,19 @@ function createOwner({ db, live, ipOf, fail, triplySchema }) {
     const a = Buffer.from(String(k)), b = Buffer.from(key);
     return a.length === b.length && crypto.timingSafeEqual(a, b);
   }
-  const deviceOf = (req) => sha(SALT + '|' + ipOf(req) + '|' + (req.headers['user-agent'] || '')).slice(0, 24);
+  const KV_RE = /(?:^|;\s*)kv=([A-Za-z0-9_-]{16,40})/;
+  function deviceOf(req) {
+    const m = req._kv ? [0, req._kv] : String(req.headers.cookie || '').match(KV_RE);
+    if (m) return sha(SALT + '|kv|' + m[1]).slice(0, 24);
+    return sha(SALT + '|' + ipOf(req) + '|' + (req.headers['user-agent'] || '')).slice(0, 24);
+  }
+  // Pages call this: gives a new browser its random ID (kept a year). Same request already uses it.
+  function cookie(req, res) {
+    if (KV_RE.test(String(req.headers.cookie || '')) || isBot(req)) return;
+    req._kv = crypto.randomBytes(18).toString('base64url');
+    const secure = String(req.headers['x-forwarded-proto'] || '').includes('https') ? '; Secure' : '';
+    res.setHeader('Set-Cookie', 'kv=' + req._kv + '; Path=/; Max-Age=31536000; SameSite=Lax; HttpOnly' + secure);
+  }
   const isOwnerRequest = (req) => isOwnerKey(req.headers['x-owner-key']);
 
   /* ---------- where (city and country) ---------- */
@@ -55,14 +73,14 @@ function createOwner({ db, live, ipOf, fail, triplySchema }) {
   }
   async function lookup(ip) {
     const sources = [
-      ['https://ipwho.is/' + encodeURIComponent(ip) + '?fields=success,city,country,country_code', (d) => (d.success ? [d.city || '', d.country || '', d.country_code || ''] : null)],
-      ['https://ipapi.co/' + encodeURIComponent(ip) + '/json/', (d) => (d.error ? null : [d.city || '', d.country_name || '', d.country_code || ''])]
+      ['https://ipwho.is/' + encodeURIComponent(ip) + '?fields=success,city,country,country_code,connection', (d) => (d.success ? [d.city || '', d.country || '', d.country_code || '', ((d.connection || {}).org || '') + ' ' + ((d.connection || {}).isp || '')] : null)],
+      ['https://ipapi.co/' + encodeURIComponent(ip) + '/json/', (d) => (d.error ? null : [d.city || '', d.country_name || '', d.country_code || '', d.org || ''])]
     ];
     for (const [url, parse] of sources) {
       try {
         const r = await fetch(url, { signal: AbortSignal.timeout(4000), headers: { 'User-Agent': 'Mozilla/5.0' } });
         const out = parse(await r.json());
-        if (out && (out[0] || out[1])) return out.map((x) => String(x).slice(0, 60));
+        if (out && (out[0] || out[1])) return out.map((x) => String(x).slice(0, 120));
       } catch (e) { /* try the next one */ }
     }
     return null;
@@ -74,7 +92,18 @@ function createOwner({ db, live, ipOf, fail, triplySchema }) {
     const ip = publicIp(ipOf(req));
     if (!ip) return;
     pending.add(device);
-    lookup(ip).then((loc) => { if (loc) { located.set(device, loc); done(loc); } }).finally(() => pending.delete(device));
+    lookup(ip).then((got) => {
+      if (!got) return;
+      if (CLOUD_RE.test(got[3] || '')) { forgetRobot(device); return; } // a server farm: not a person
+      const loc = got.slice(0, 3).map((x) => x.slice(0, 60));
+      located.set(device, loc); done(loc);
+    }).finally(() => pending.delete(device));
+  }
+  // A device turned out to be a robot: drop what was counted for it today.
+  function forgetRobot(device) {
+    cloud.add(device); seen.delete(device); streams.delete(device);
+    db.q('DELETE FROM visits WHERE vid=$1', [device]).catch(() => {});
+    db.q('DELETE FROM visit_log WHERE vid=$1', [device]).catch(() => {});
   }
 
   /* ---------- counting ---------- */
@@ -82,6 +111,7 @@ function createOwner({ db, live, ipOf, fail, triplySchema }) {
   function touch(req) {
     if (isOwnerRequest(req) || String(req.url).startsWith('/owner') || isBot(req)) return;
     const device = deviceOf(req);
+    if (cloud.has(device)) return;
     seen.set(device, Date.now());
     // Live update connections count as "here now" while they stay open.
     if (/\/stream(\?|$)/.test(String(req.url).split('#')[0]) && !viewingToken(req)) {
@@ -95,6 +125,7 @@ function createOwner({ db, live, ipOf, fail, triplySchema }) {
   function countPage(req, page) {
     if (req.method !== 'GET' || viewingToken(req) || isBot(req)) return;
     const device = deviceOf(req);
+    if (cloud.has(device)) return;
     db.q('INSERT INTO visits (day, vid) VALUES (CURRENT_DATE, $1) ON CONFLICT DO NOTHING', [device]).catch(() => {});
     const k = device + '|' + page, now = Date.now();
     const log = now - (logged.get(k) || 0) > 600000;
@@ -223,7 +254,7 @@ function createOwner({ db, live, ipOf, fail, triplySchema }) {
     });
   }
 
-  return { touch, countPage, noteUse, noteTrip, viewer, viewingToken, install, isOwnerKey, visitorsNow };
+  return { cookie, touch, countPage, noteUse, noteTrip, viewer, viewingToken, install, isOwnerKey, visitorsNow };
 }
 
 module.exports = { createOwner };

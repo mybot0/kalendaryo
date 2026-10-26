@@ -48,11 +48,12 @@ test('the owner API is hidden without the right key', async () => {
 test('visits are counted once per device per day', async () => {
   const before = (await summary()).tiles.today;
   const run = Math.random().toString(36).slice(2); // new devices every run
-  await req('GET', '/', { ua: 'phone-a-' + run, ip: '198.51.100.1' });
-  await req('GET', '/', { ua: 'phone-a-' + run, ip: '198.51.100.1' });
+  const a1 = await req('GET', '/', { ua: 'phone-a-' + run, ip: '198.51.100.1' });
+  const kv = (a1.headers.get('set-cookie') || '').split(';')[0]; // a real browser sends its ID back
+  await fetch(BASE + '/', { headers: { 'User-Agent': 'phone-a-' + run, 'X-Forwarded-For': '198.51.100.1', Cookie: kv } });
   await req('GET', '/', { ua: 'laptop-b-' + run, ip: '198.51.100.2' });
   const s = await summary();
-  assert.strictEqual(s.tiles.today - before, 2, 'two devices, three page loads');
+  assert.strictEqual(s.tiles.today - before, 2, 'two browsers, three page loads');
   assert.ok(s.visitors_now >= 2);
   assert.strictEqual(s.days.length, 14);
 });
@@ -107,4 +108,18 @@ test('bots and link previews are not counted; recent visitors list real visits',
   assert.ok(Array.isArray(s.recent) && s.recent.length >= 1, 'recent visitors listed');
   assert.strictEqual(s.recent[0].page, 'start');
   assert.ok(s.countries.every((c) => 'city' in c), 'places include the city');
+});
+
+test('one browser counts once, even when its internet address changes', async () => {
+  const before = (await summary()).tiles.today;
+  const ua = 'Mozilla/5.0 (Android) moving-phone-' + Math.random().toString(36).slice(2);
+  const first = await req('GET', '/', { ua, ip: '198.51.100.20' });
+  const set = first.headers.get('set-cookie') || '';
+  assert.match(set, /^kv=[A-Za-z0-9_-]+; Path=\/; Max-Age=31536000; SameSite=Lax; HttpOnly/, 'new browsers get a random ID');
+  const kv = set.split(';')[0];
+  for (const ip of ['198.51.100.21', '203.0.113.50', '192.0.2.200']) {
+    const r = await fetch(BASE + '/', { headers: { 'User-Agent': ua, 'X-Forwarded-For': ip, Cookie: kv } });
+    assert.strictEqual(r.headers.get('set-cookie'), null, 'no new ID once it has one');
+  }
+  assert.strictEqual((await summary()).tiles.today, before + 1, 'four visits from three addresses = one visitor');
 });

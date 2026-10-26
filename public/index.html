@@ -3504,13 +3504,14 @@ body.land-body {
  * The page goes dark except the highlighted part, which glows; a bubble with an arrow points at it.
  * After the guide, the "Your name" boxes glow softly until the person starts typing.
  *
- * Shows once per device (kal.guideSeen), never to people who already have a home or trip saved here.
+ * Each page has its own guide. It shows on every visit until the person clicks Skip or finishes it ("Got it");
+ * that choice is saved in this browser for that page only (kal.guide.<page>).
  * Keyboard: Enter or → next, ← back, Esc skip. Respects "reduce motion".
  */
 (function () {
   const PL = (window.PL = window.PL || {});
   const h = PL.h, icon = PL.icon;
-  const SEEN = 'kal.guideSeen';
+  const SEEN = (page) => 'kal.guide.' + page;
   const PLANE = '<svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="5" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><path d="M12 33l40-17-13 33-9-13z"/></svg>';
   const WAVE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 11V6a1.5 1.5 0 0 1 3 0v5M10 10V4.5a1.5 1.5 0 0 1 3 0V10M13 10V5.5a1.5 1.5 0 0 1 3 0V12M16 9.5a1.5 1.5 0 0 1 3 0V14a6 6 0 0 1-6 6h-1a6 6 0 0 1-5-2.7L4.3 13a1.5 1.5 0 0 1 2.4-1.8L8 13"/></svg>';
 
@@ -3518,9 +3519,6 @@ body.land-body {
   const chips = (list, trip) => h('div', { class: 'g-chips' + (trip ? ' trip' : '') }, list.map(([i, t]) => h('span', { class: 'g-chip' }, i ? icon(i) : null, t)));
   const get = (k) => { try { return localStorage.getItem(k); } catch (e) { return null; } };
   const set = (k, v) => { try { localStorage.setItem(k, v); } catch (e) { /* private mode */ } };
-  const hasSaved = () => {
-    try { return JSON.parse(get('kal.families') || '[]').length > 0 || JSON.parse(get('tr.trips') || '[]').length > 0; } catch (e) { return false; }
-  };
 
   /* ---------- the steps (start page) ---------- */
   function startSteps(tri) {
@@ -3658,7 +3656,7 @@ body.land-body {
       removeEventListener('scroll', follow, true); removeEventListener('resize', follow);
       layer.classList.add('g-leave');
       setTimeout(() => { layer.remove(); document.documentElement.classList.remove('g-open'); }, reduce ? 0 : 220);
-      set(SEEN, '1');
+      set(SEEN(opts.page), '1');
       if (opts && opts.onDone) opts.onDone();
       else if (lastFocus && lastFocus.focus) lastFocus.focus({ preventScroll: true });
     }
@@ -3690,9 +3688,9 @@ body.land-body {
 
   PL.guide = {
     // Called by the start page after it draws. Shows the guide on a first visit only.
-    maybeStart() { if (!get(SEEN) && !hasSaved() && !document.querySelector('.g-layer')) setTimeout(() => { if (!document.querySelector('.g-layer')) this.start(); }, 450); },
-    start() { run(startSteps(!!window.KAL_TRIPLY), { onDone: glowStart }); },
-    reset() { try { localStorage.removeItem(SEEN); } catch (e) { /* fine */ } }
+    maybeStart() { if (!get(SEEN('start')) && !document.querySelector('.g-layer')) setTimeout(() => { if (!document.querySelector('.g-layer')) this.start(); }, 450); },
+    start() { run(startSteps(!!window.KAL_TRIPLY), { page: 'start', onDone: glowStart }); },
+    reset(page) { try { localStorage.removeItem(SEEN(page || 'start')); } catch (e) { /* fine */ } }
   };
 })();
 

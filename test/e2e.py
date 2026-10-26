@@ -31,7 +31,7 @@ try:
         def mk(vp, guide=False):
             ctx = b.new_context(viewport=vp)
             if not guide:  # the first-visit guide is checked once below; other browsers skip it
-                ctx.add_init_script("try { localStorage.setItem('kal.guideSeen', '1') } catch (e) {}")
+                ctx.add_init_script("try { localStorage.setItem('kal.guide.start', '1') } catch (e) {}")
             pg = ctx.new_page()
             pg.on('pageerror', lambda e: logs.append(str(e)))
             pg.on('console', lambda m: logs.append(m.text) if m.type == 'error' and 'fonts.g' not in m.text and 'ERR_' not in m.text and 'status of 40' not in m.text and 'status of 429' not in m.text else None)
