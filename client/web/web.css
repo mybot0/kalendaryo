@@ -1,8 +1,10 @@
 /* web.css — web version only: start page, join page, people with access. */
 .land { max-width: 640px; margin: 0 auto; padding: 40px 16px 60px; display: flex; flex-direction: column; gap: 18px; }
 .land-head { display: flex; flex-direction: column; gap: 10px; }
-.land-logo { display: inline-flex; align-items: center; gap: 8px; color: var(--primary); font: 800 1.4rem var(--font-head); }
-.land h1 { font-size: clamp(1.9rem, 6vw, 2.6rem); }
+.land-logo { display: inline-flex; align-items: center; gap: 16px; color: var(--primary); font: 800 clamp(2.6rem, 10vw, 3.4rem) var(--font-head); letter-spacing: -0.01em; margin-bottom: 6px; }
+.land-logo-mark { flex: none; width: 1.55em; height: 1.55em; border-radius: 0.42em; background: var(--primary); color: #fff; display: inline-flex; align-items: center; justify-content: center; }
+.land-logo-mark svg { width: 58%; height: 58%; }
+.land h1 { font-size: clamp(1.5rem, 4.6vw, 2rem); line-height: 1.2; }
 .land-lead { color: var(--ink-2); font-size: 1.1rem; max-width: 46ch; }
 .land-card { display: flex; flex-direction: column; gap: 14px; }
 .land-note { background: #FFF3D6; color: #6B4E00; padding: 12px 16px; border-radius: var(--radius-sm); font-weight: 600; }
@@ -19,3 +21,37 @@
 .access-name strong { overflow-wrap: anywhere; }
 .access-danger { margin-top: 8px; padding-top: 12px; border-top: 1px solid var(--line); }
 .link-input { font-family: ui-monospace, Menlo, monospace; font-size: .85rem !important; }
+
+/* Start page background: soft pastel glow plus faded household doodles (original line drawings). */
+body.land-body {
+  background-color: var(--bg, #F4F3EE);
+  background-image:
+    radial-gradient(600px 420px at 8% 6%, rgba(244,224,220,.85), transparent 70%),
+    radial-gradient(560px 460px at 96% 30%, rgba(233,227,246,.9), transparent 70%),
+    radial-gradient(620px 480px at 30% 100%, rgba(251,244,217,.9), transparent 70%),
+    radial-gradient(ellipse 420px 70% at 50% 30%, rgba(244,243,238,.92), rgba(244,243,238,0) 100%),
+    url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%22680%22%20height%3D%22680%22%20viewBox%3D%220%200%20680%20680%22%3E%3Cg%20fill%3D%22none%22%20stroke%3D%22%233F7360%22%20stroke-opacity%3D%220.13%22%20stroke-width%3D%221.5%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cg%20transform%3D%22translate%2845%2016%29%20rotate%28-3%2024%2024%29%20scale%282.46%29%22%3E%3Cpath%20d%3D%22M5%2010l1-6%204%203h4l4-3%201%206v3a7%207%200%200%201-14%200z%22/%3E%3Ccircle%20cx%3D%229.5%22%20cy%3D%2212%22%20r%3D%22.6%22/%3E%3Ccircle%20cx%3D%2214.5%22%20cy%3D%2212%22%20r%3D%22.6%22/%3E%3Cpath%20d%3D%22M11%2015l1%201%201-1%22/%3E%3C/g%3E%3Cg%20transform%3D%22translate%28246%2020%29%20rotate%285%2024%2024%29%20scale%282.56%29%22%3E%3Ccircle%20cx%3D%2210%22%20cy%3D%2212%22%20r%3D%226%22/%3E%3Cpath%20d%3D%22M16%2012h6%22/%3E%3Cpath%20d%3D%22M8%2011c1-1%202-1%203%200%22/%3E%3C/g%3E%3Cg%20transform%3D%22translate%28426%2056%29%20rotate%2817%2024%2024%29%20scale%282.68%29%22%3E%3Cpath%20d%3D%22M6%2016V11a6%206%200%200%201%2012%200v5l2%202H4z%22/%3E%3Cpath%20d%3D%22M10%2020a2%202%200%200%200%204%200%22/%3E%3C/g%3E%3Cg%20transform%3D%22translate%28524%2079%29%20rotate%28-13%2024%2024%29%20scale%282.60%29%22%3E%3Cpath%20d%3D%22M4%2010h16l-2%209H6z%22/%3E%3Cpath%20d%3D%22M8%2010l3-6M16%2010l-3-6M9%2013v3M12%2013v3M15%2013v3%22/%3E%3C/g%3E%3Cg%20transform%3D%22translate%2819%20205%29%20rotate%28-11%2024%2024%29%20scale%282.97%29%22%3E%3Ccircle%20cx%3D%228%22%20cy%3D%2212%22%20r%3D%224%22/%3E%3Cpath%20d%3D%22M12%2012h9M18%2012v3M21%2012v2%22/%3E%3C/g%3E%3Cg%20transform%3D%22translate%28227%20231%29%20rotate%282%2024%2024%29%20scale%282.66%29%22%3E%3Cpath%20d%3D%22M12%2020s-7-4.5-7-10a4%204%200%200%201%207-2.5A4%204%200%200%201%2019%2010c0%205.5-7%2010-7%2010z%22/%3E%3C/g%3E%3Cg%20transform%3D%22translate%28355%20185%29%20rotate%286%2024%2024%29%20scale%282.54%29%22%3E%3Ccircle%20cx%3D%2212%22%20cy%3D%2215%22%20r%3D%223.5%22/%3E%3Ccircle%20cx%3D%227%22%20cy%3D%2210%22%20r%3D%221.6%22/%3E%3Ccircle%20cx%3D%2210.5%22%20cy%3D%226.5%22%20r%3D%221.6%22/%3E%3Ccircle%20cx%3D%2214.5%22%20cy%3D%226.5%22%20r%3D%221.6%22/%3E%3Ccircle%20cx%3D%2218%22%20cy%3D%2210%22%20r%3D%221.6%22/%3E%3C/g%3E%3Cg%20transform%3D%22translate%28554%20205%29%20rotate%28-2%2024%2024%29%20scale%282.81%29%22%3E%3Cpath%20d%3D%22M12%204l2.4%205%205.4.6-4%203.7%201.1%205.4L12%2016l-4.9%202.7%201.1-5.4-4-3.7%205.4-.6z%22/%3E%3C/g%3E%3Cg%20transform%3D%22translate%2834%20414%29%20rotate%28-9%2024%2024%29%20scale%282.89%29%22%3E%3Cpath%20d%3D%22M5%209h10v7a4%204%200%200%201-4%204H9a4%204%200%200%201-4-4z%22/%3E%3Cpath%20d%3D%22M15%2011h2a2%202%200%200%201%200%204h-2%22/%3E%3Cpath%20d%3D%22M8%203c0%201.5%201%201.5%201%203M12%203c0%201.5%201%201.5%201%203%22/%3E%3C/g%3E%3Cg%20transform%3D%22translate%28226%20392%29%20rotate%288%2024%2024%29%20scale%283.01%29%22%3E%3Cpath%20d%3D%22M4%2011l8-7%208%207v9H4z%22/%3E%3Cpath%20d%3D%22M10%2020v-5h4v5%22/%3E%3C/g%3E%3Cg%20transform%3D%22translate%28373%20428%29%20rotate%28-3%2024%2024%29%20scale%282.48%29%22%3E%3Cpath%20d%3D%22M8%204L4%207l2%203%202-1v11h8V9l2%201%202-3-4-3c-1%201.5-2.5%202-4%202S9%205.5%208%204z%22/%3E%3C/g%3E%3Cg%20transform%3D%22translate%28581%20362%29%20rotate%28-17%2024%2024%29%20scale%282.74%29%22%3E%3Cpath%20d%3D%22M5%206h14v13H5zM5%2010h14M9%204v4M15%204v4%22/%3E%3C/g%3E%3Cg%20transform%3D%22translate%2863%20581%29%20rotate%2814%2024%2024%29%20scale%282.80%29%22%3E%3Cpath%20d%3D%22M7%2014h10l-1.5%207h-7z%22/%3E%3Cpath%20d%3D%22M12%2014V9%22/%3E%3Cpath%20d%3D%22M12%209c-3%200-5-2-5-5%203%200%205%202%205%205zM12%2010c3%200%205-2%205-5-3%200-5%202-5%205z%22/%3E%3C/g%3E%3Cg%20transform%3D%22translate%28205%20576%29%20rotate%283%2024%2024%29%20scale%282.82%29%22%3E%3Ccircle%20cx%3D%2212%22%20cy%3D%2212%22%20r%3D%224%22/%3E%3Cpath%20d%3D%22M12%202v3M12%2019v3M2%2012h3M19%2012h3M4.9%204.9l2.1%202.1M17%2017l2.1%202.1M4.9%2019.1L7%2017M17%207l2.1-2.1%22/%3E%3C/g%3E%3Cg%20transform%3D%22translate%28386%20587%29%20rotate%28-1%2024%2024%29%20scale%283.06%29%22%3E%3Cpath%20d%3D%22M5%2010l1-6%204%203h4l4-3%201%206v3a7%207%200%200%201-14%200z%22/%3E%3Ccircle%20cx%3D%229.5%22%20cy%3D%2212%22%20r%3D%22.6%22/%3E%3Ccircle%20cx%3D%2214.5%22%20cy%3D%2212%22%20r%3D%22.6%22/%3E%3Cpath%20d%3D%22M11%2015l1%201%201-1%22/%3E%3C/g%3E%3Cg%20transform%3D%22translate%28573%20525%29%20rotate%285%2024%2024%29%20scale%282.89%29%22%3E%3Ccircle%20cx%3D%2210%22%20cy%3D%2212%22%20r%3D%226%22/%3E%3Cpath%20d%3D%22M16%2012h6%22/%3E%3Cpath%20d%3D%22M8%2011c1-1%202-1%203%200%22/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  background-size: auto, auto, auto, auto, 680px 680px;
+  background-repeat: no-repeat, no-repeat, no-repeat, no-repeat, repeat;
+  min-height: 100vh;
+}
+
+/* ---------- TOUCH POINT B: home / trip choice (only shown when Triply is on) ---------- */
+.land-ask { margin: 8px 0 0; font-size: 1.25rem; }
+.land-picks { display: grid; grid-template-columns: 1fr; gap: 16px; align-items: stretch; }
+@media (min-width: 760px) { .land-picks { grid-template-columns: 1fr 1fr; } }
+.land-pick { --pick: var(--primary); --pick-soft: var(--primary-soft, #E4EFE9); display: flex; flex-direction: column; gap: 12px; border-top: 6px solid var(--pick); }
+.land-pick-trip { --pick: #B8583A; --pick-soft: #F8E7E0; }
+.land-pick-head { display: flex; align-items: center; gap: 12px; }
+.land-pick-ic { flex: none; width: 52px; height: 52px; border-radius: 16px; background: var(--pick-soft); color: var(--pick); display: inline-flex; align-items: center; justify-content: center; }
+.land-pick-ic svg { width: 26px; height: 26px; }
+.land-kicker { display: block; font-size: .75rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--pick); }
+.land-pick h2 { margin: 2px 0 0; }
+.land-pick-sub { margin: 0; color: var(--ink-2); min-height: 2.9em; }
+.land-pick input { height: 48px; text-overflow: ellipsis; }
+.land-pick .btn.primary { margin-top: auto; background: var(--pick); border-color: var(--pick); }
+.land-pick .btn.primary:hover { filter: brightness(.95); }
+.land-pick-link { color: var(--pick); font-weight: 700; white-space: nowrap; }
+.land-dates { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); gap: 8px; align-items: center; }
+.land-dates input { min-width: 0; height: 48px; }
+.land.land-wide { max-width: 920px; }

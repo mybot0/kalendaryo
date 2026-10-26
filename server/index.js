@@ -73,7 +73,7 @@ const r = router();
 /* ---------- create a family ---------- */
 r.post('/api/families', json, async (req, res) => {
   if (!limit('create:' + ipOf(req), 10, 3600000)) fail(429, 'rate_limited', 'Too many new families from here. Please try again later.');
-  const familyName = clean(req.body.familyName, 40) || 'Our family';
+  const familyName = clean(req.body.familyName, 40) || 'Our home';
   const yourName = clean(req.body.yourName, 30);
   if (!yourName) fail(400, 'bad_request', 'Please type your name.');
   const familyId = hexId(), accessId = hexId(), token = rand(24);
@@ -283,18 +283,34 @@ r.post('/api/ai', auth, json, need('editor'), async (req, res) => {
   send(res, 200, { text, left: await ai.left(req.me.family_id) });
 });
 
+/* ---------- Triply (test only; see triply/INTEGRATION.md) ---------- */
+// TOUCH POINT A (server). Off unless TRIPLY_ENABLED is 1/true/on/yes. When off, Triply's code is never loaded.
+const TRIPLY_ON = /^(1|true|on|yes)$/i.test(String(process.env.TRIPLY_ENABLED || '').trim());
+const triply = TRIPLY_ON ? require('../triply/server/handler').createTriply({
+  basePath: '/triply',
+  databaseUrl: process.env.DATABASE_URL,
+  ssl: process.env.PGSSL === '1' || (process.env.PGSSL !== '0' && /render\.com/.test(process.env.DATABASE_URL || '')), // same rule as server/db.js
+  maxTripMb: Number(process.env.TRIPLY_MAX_TRIP_MB) || 20, // low while testing: shares the 1 GB database
+  maxBlobMb: Number(process.env.TRIPLY_MAX_FILE_MB) || 5
+}) : null;
+
 /* ---------- pages ---------- */
 r.get('/healthz', async (req, res) => send(res, 200, { ok: true }));
 const INDEX = path.join(__dirname, '..', 'public', 'index.html');
 let indexHtml = null;
 const page = async (req, res) => {
-  if (!indexHtml || process.env.NODE_ENV !== 'production') indexHtml = fs.readFileSync(INDEX);
+  if (!indexHtml || process.env.NODE_ENV !== 'production') {
+    indexHtml = fs.readFileSync(INDEX);
+    // TOUCH POINT A (server, part 2): lets the start page show the home/trip choice. Nothing is added when Triply is off.
+    if (triply) indexHtml = Buffer.from(indexHtml.toString('utf8').replace('</head>', '<script>window.KAL_TRIPLY=true;</script></head>'));
+  }
   res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-cache' });
   res.end(req.method === 'HEAD' ? undefined : indexHtml);
 };
 r.get('/', page); r.get('/c/:token', page); r.get('/join/:code', page);
 
 const server = http.createServer(async (req, res) => {
+  if (triply && triply.owns(req.url)) return triply.handle(req, res); // TOUCH POINT A: the mount line
   for (const [k, v] of Object.entries(SECURITY)) res.setHeader(k, v);
   try {
     const found = await r.handle(req, res);
