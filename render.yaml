@@ -1,30 +1,6 @@
-# Render Blueprint: creates the web server and the Postgres database together.
-# In Render: New > Blueprint > pick this repository.
-services:
-  - type: web
-    name: kalendaryo
-    runtime: node
-    plan: 0.5c-512mb
-    buildCommand: npm install
-    startCommand: npm start
-    healthCheckPath: /healthz
-    envVars:
-      - key: NODE_ENV
-        value: production
-      - key: DATABASE_URL
-        fromDatabase:
-          name: kalendaryo-db
-          property: connectionString
-      - key: ANTHROPIC_API_KEY
-        sync: false        # Render asks you for it. Leave empty to turn AI off.
-      - key: ANTHROPIC_MODEL
-        value: claude-haiku-5-5
-      - key: AI_DAILY_LIMIT
-        value: "20"
-      - key: INVITE_DAYS
-        value: "7"
-
+# Render Blueprint: the Postgres database.
+# The website itself is the "kalendaryo-triply" web service, set up in the Render dashboard.
 databases:
   - name: kalendaryo-db
-    plan: free
+    plan: 0.1c-256mb
     databaseName: kalendaryo
