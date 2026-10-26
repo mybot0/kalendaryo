@@ -1,0 +1,61 @@
+/* chores.css — the Chores screen and its Home widget. */
+.chores-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 16px; margin-bottom: 16px; }
+.chores-day { flex: 1; min-width: 10ch; font-size: 1.45rem; }
+.chores-list { display: flex; flex-direction: column; gap: 14px; max-width: 760px; }
+.chore-group { background: var(--surface); border-radius: var(--radius); box-shadow: var(--shadow); padding: 14px 14px 8px; display: flex; flex-direction: column; gap: 6px; }
+.cg-head { display: flex; align-items: center; gap: 12px; padding: 2px 4px; }
+.cg-name { font: 700 1.15rem var(--font-head); }
+.cg-count { margin-left: auto; font-weight: 700; font-size: .9rem; color: var(--ink-2); display: inline-flex; align-items: center; gap: 6px; }
+.cg-count.all { color: var(--primary); }
+.cg-count .ic { width: 18px; height: 18px; stroke-width: 2.6; }
+.cg-bar { height: 8px; border-radius: 999px; background: var(--surface-2); overflow: hidden; margin: 4px 4px 6px; }
+.cg-bar > i { display: block; height: 100%; width: var(--p); background: var(--c); border-radius: 999px; transition: width .3s; }
+.chore-row { display: flex; align-items: center; gap: 12px; min-height: 60px; padding: 4px 4px; border-radius: var(--radius-sm); }
+.chore-check { width: 48px; height: 48px; border-radius: 50%; border: 3px solid var(--line); background: var(--surface); display: grid; place-items: center; color: transparent; flex: none; transition: background .15s, border-color .15s, transform .1s; }
+.chore-check:hover { border-color: var(--c); }
+.chore-check:active { transform: scale(.92); }
+.chore-check[aria-pressed=true] { background: var(--c); border-color: var(--c); color: var(--ink); }
+.chore-check .ic { width: 26px; height: 26px; stroke-width: 2.8; }
+.chore-title { flex: 1; min-width: 0; text-align: left; border: 0; background: none; min-height: 48px; font-weight: 700; font-size: 1.05rem; overflow-wrap: anywhere; border-radius: 10px; padding: 0 4px; display: flex; align-items: center; gap: 8px; }
+.chore-title:hover { background: var(--surface-2); }
+.chore-title .ic { width: 16px; height: 16px; color: var(--ink-3); }
+.chore-row.done .chore-title > span { color: var(--ink-3); text-decoration: line-through; }
+
+/* Home widget */
+.chore-sum { display: flex; flex-direction: column; gap: 6px; }
+.cs-row { display: flex; align-items: center; gap: 12px; border: 0; background: none; text-align: left; padding: 8px 6px; border-radius: 12px; min-height: var(--tap); width: 100%; }
+.cs-row:hover { background: var(--surface-2); }
+.cs-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+.cs-name { font-weight: 700; }
+.cs-main .cg-bar { margin: 0; }
+.cs-count { font-weight: 700; font-size: .9rem; color: var(--ink-2); }
+.cs-count.all { color: var(--primary); }
+
+/* Tabs, stars, routines, rewards */
+.task-tabs { margin-bottom: 14px; }
+.star-chip { display: inline-flex; align-items: center; gap: 3px; padding: 2px 9px; border-radius: 999px; background: #FBF1C9; color: #6B4E00; font-weight: 800; font-size: .85rem; flex: none; }
+.star-chip .ic { width: 14px; height: 14px; fill: currentColor; stroke-width: 1.2; }
+.cs-count { display: inline-flex; align-items: center; gap: 8px; }
+.step-text { flex: 1; min-width: 0; font-weight: 700; font-size: 1.05rem; padding: 12px 4px; cursor: pointer; overflow-wrap: anywhere; }
+.chore-row.done .step-text { color: var(--ink-3); text-decoration: line-through; }
+.rt-titles { display: flex; flex-direction: column; min-width: 0; }
+.routine-card .cg-head { flex-wrap: wrap; }
+.reward-line { display: flex; align-items: center; gap: 6px; padding: 6px 8px 10px; font-weight: 800; color: #6B4E00; }
+.reward-line .ic { width: 20px; height: 20px; fill: #F1DC8B; stroke: #6B4E00; }
+.star-tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; }
+.star-tile { border-radius: var(--radius); background: color-mix(in srgb, var(--c) 28%, #fff); display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 16px 8px; text-align: center; }
+.star-bal { display: inline-flex; align-items: center; gap: 6px; font: 800 1.6rem var(--font-head); }
+.star-bal .ic { width: 26px; height: 26px; fill: #F1DC8B; stroke: #6B4E00; }
+.reward-card, .hist-row { display: flex; align-items: center; gap: 12px; background: var(--surface); border-radius: var(--radius-sm); box-shadow: inset 0 0 0 1px var(--line); padding: 10px 12px; min-height: 64px; }
+.reward-emoji { font-size: 2rem; width: 48px; text-align: center; flex: none; }
+.reward-main, .hist-main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+
+/* PIN pad */
+.pin-pad { display: flex; flex-direction: column; align-items: center; gap: 14px; padding-bottom: 8px; }
+.pin-dots { display: flex; gap: 14px; margin: 6px 0; }
+.pin-dot { width: 18px; height: 18px; border-radius: 50%; border: 2px solid var(--ink-3); }
+.pin-dot.on { background: var(--primary); border-color: var(--primary); }
+.pin-keys { display: grid; grid-template-columns: repeat(3, 72px); gap: 12px; }
+.pin-key { height: 64px; border-radius: 50%; border: 0; background: var(--surface-2); font: 700 1.5rem var(--font-head); }
+.pin-key:hover { background: var(--primary-soft); }
+.pin-key:active { transform: scale(.94); }

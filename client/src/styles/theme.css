@@ -1,0 +1,24 @@
+/* theme.css — colors, fonts, sizes. Light only (by choice). Change the look here. */
+:root {
+  color-scheme: light;
+  --bg: #F4F3EE;
+  --surface: #FFFFFF;
+  --surface-2: #F8F7F3;
+  --line: #E4E2DA;
+  --ink: #26302B;
+  --ink-2: #5C675F;
+  --ink-3: #8A948C;
+  --primary: #3F7360;
+  --primary-ink: #FFFFFF;
+  --primary-soft: #E4EFE9;
+  --danger: #B3402F;
+  --danger-soft: #FBE9E5;
+  --focus: #2F6B8F;
+  --radius: 18px;
+  --radius-sm: 12px;
+  --shadow: 0 1px 2px rgba(38,48,43,.06), 0 4px 14px rgba(38,48,43,.06);
+  --font: 'Figtree', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-head: 'Outfit', 'Figtree', system-ui, sans-serif;
+  --text-scale: 1;
+  --tap: 48px;
+}

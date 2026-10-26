@@ -1,0 +1,24 @@
+/* shell.css — page frame: side rail on wide screens, bottom bar on phones. */
+.app { display: flex; min-height: 100vh; }
+.content { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.main { flex: 1; padding: 24px max(16px, env(safe-area-inset-right)) 120px max(16px, env(safe-area-inset-left)); width: 100%; max-width: 1280px; margin: 0 auto; outline: none; }
+.status-banner { background: #FFF3D6; color: #6B4E00; padding: 10px 16px; text-align: center; font-weight: 600; }
+.rail { position: fixed; z-index: 30; left: 0; right: 0; bottom: 0; background: var(--surface); border-top: 1px solid var(--line); padding-bottom: env(safe-area-inset-bottom); }
+.brand { display: none; }
+.nav { display: flex; justify-content: space-around; padding: 4px 4px; }
+.nav-btn { flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 2px; border: 0; background: none; padding: 8px 2px; min-height: 56px; border-radius: 14px; color: var(--ink-2); font-weight: 700; font-size: .7rem; }
+.nav-btn.on { color: var(--primary); background: var(--primary-soft); }
+.nav-btn.soon:not(.on) { color: var(--ink-3); }
+.nav-label { overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+@media (min-width: 900px) {
+  .rail { position: sticky; top: 0; height: 100vh; width: 210px; flex: none; border-top: 0; border-right: 1px solid var(--line); padding: 22px 14px; align-self: flex-start; }
+  .brand { display: flex; align-items: center; gap: 10px; color: var(--primary); padding: 0 8px 22px; }
+  .brand-text { display: flex; flex-direction: column; line-height: 1.15; }
+  .brand-name { font: 800 1.35rem var(--font-head); }
+  .brand-tag { font: 600 .78rem var(--font); color: var(--ink-3); }
+  .nav { flex-direction: column; justify-content: flex-start; gap: 4px; padding: 0; }
+  .nav-btn { flex: none; flex-direction: row; gap: 14px; padding: 0 14px; min-height: 52px; font-size: 1.02rem; justify-content: flex-start; }
+  .main { padding-bottom: 40px; }
+}
+@media (min-width: 1700px) { html { font-size: calc(112.5% * var(--text-scale)); } .main { max-width: 1700px; } }
+@media (max-width: 520px) { .nav { padding: 4px 0; } .nav-btn { padding: 8px 0; font-size: .62rem; letter-spacing: -.01em; } .nav-btn .ic { width: 21px; height: 21px; } }

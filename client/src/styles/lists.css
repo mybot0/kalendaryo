@@ -1,0 +1,9 @@
+/* lists.css — shared lists. */
+.list-card { border: 0; background: var(--surface); border-radius: var(--radius); box-shadow: var(--shadow); padding: 20px 14px; display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center; min-height: 120px; justify-content: center; color: var(--primary); }
+.list-card strong { color: var(--ink); font-family: var(--font-head); font-size: 1.1rem; overflow-wrap: anywhere; }
+.list-card .ic { width: 28px; height: 28px; }
+.list-card:hover { background: var(--primary-soft); }
+.list-title { margin-bottom: 14px; }
+.add-row { display: flex; gap: 10px; align-items: center; }
+.add-row input { flex: 1; min-width: 0; }
+.list-note { padding: 14px 8px; }
