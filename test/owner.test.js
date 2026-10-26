@@ -58,7 +58,7 @@ test('visits are counted once per device per day', async () => {
 });
 
 test('homes show up, and viewing is read-only with no trace', async () => {
-  const fam = await (await req('POST', '/api/families', { body: { yourName: 'Ryan', familyName: 'Owner test home' } })).json();
+  const fam = await (await req('POST', '/api/families', { body: { yourName: 'Maya', familyName: 'Owner test home' } })).json();
   await req('PUT', '/api/docs/events/e1', { token: fam.token, body: { data: { title: 'Dinner' } } });
   const s = await summary();
   const home = s.homes.find((h) => h.name === 'Owner test home');
@@ -92,4 +92,19 @@ test('homes show up, and viewing is read-only with no trace', async () => {
   assert.strictEqual((await summary()).tiles.today, todayBefore, 'opening a home as owner is not counted as a visit');
 
   assert.strictEqual((await req('GET', '/api/me', { token: 'ov' + 'x'.repeat(32) })).status, 401, 'made-up viewing links do not work');
+});
+
+test('bots and link previews are not counted; recent visitors list real visits', async () => {
+  const before = (await summary()).tiles.today;
+  const run = Math.random().toString(36).slice(2);
+  for (const ua of ['facebookexternalhit/1.1', 'WhatsApp/2.23', 'Mozilla/5.0 (compatible; Googlebot/2.1)', 'Slackbot-LinkExpanding 1.0', 'curl/8.4.0', 'python-requests/2.31']) {
+    await req('GET', '/', { ua: ua + ' ' + run, ip: '198.51.100.9' });
+  }
+  assert.strictEqual((await summary()).tiles.today, before, 'robots leave no visit');
+  await req('GET', '/', { ua: 'Mozilla/5.0 (iPhone) real-person-' + run, ip: '198.51.100.10' });
+  const s = await summary();
+  assert.strictEqual(s.tiles.today, before + 1, 'a real browser is counted');
+  assert.ok(Array.isArray(s.recent) && s.recent.length >= 1, 'recent visitors listed');
+  assert.strictEqual(s.recent[0].page, 'start');
+  assert.ok(s.countries.every((c) => 'city' in c), 'places include the city');
 });

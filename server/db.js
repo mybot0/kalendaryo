@@ -67,6 +67,17 @@ CREATE TABLE IF NOT EXISTS visits (
   cc TEXT,
   PRIMARY KEY (day, vid)
 );
+-- owner view: the latest page opens (start page, a home, a trip), kept 30 days, for "Recent visitors"
+CREATE TABLE IF NOT EXISTS visit_log (
+  id BIGSERIAL PRIMARY KEY,
+  at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  vid TEXT NOT NULL,
+  page TEXT NOT NULL,
+  city TEXT,
+  country TEXT,
+  cc TEXT
+);
+CREATE INDEX IF NOT EXISTS visit_log_at ON visit_log(at);
 CREATE TABLE IF NOT EXISTS places (
   kind TEXT NOT NULL,
   ref TEXT NOT NULL,

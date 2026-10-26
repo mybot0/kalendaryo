@@ -38,7 +38,7 @@ async function unreadFor(q, tripId, memberId) {
   return { trip: group.rows[0].n, mentions: group.rows[0].mentions, dm };
 }
 
-/* ---------- activity posts: "Ryan added a restaurant" ---------- */
+/* ---------- activity posts: "Maya added a restaurant" ---------- */
 // ev: 'added' | 'updated' | 'removed' | 'joined' | 'left'. Skips repeats by the same person within a few minutes.
 async function postActivity(db, hub, tripId, senderId, ev, item) {
   const meta = { event: ev };

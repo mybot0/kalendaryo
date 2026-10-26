@@ -23,7 +23,7 @@ const scripts = [];
 if (web) scripts.push(rd('web/shim.js'));
 for (const j of js) {
   scripts.push(rd('src/js/' + j + '.js'));
-  if (web && j === 'event-ui') scripts.push(rd('web/landing.js'), rd('web/access.js'), rd('web/guide.js'));
+  if (web && j === 'event-ui') scripts.push(rd('web/examples.js'), rd('web/landing.js'), rd('web/access.js'), rd('web/guide.js'));
 }
 for (const s of scripts) if (/<\/script/i.test(s)) throw new Error('a script contains </script');
 

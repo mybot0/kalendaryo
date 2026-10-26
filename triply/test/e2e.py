@@ -37,9 +37,9 @@ with sync_playwright() as p:
     for c in (ctxA, ctxB):
         c.route('**/fonts.googleapis.com/**', lambda r: r.abort())
     A = ctxA.new_page(); Bp = ctxB.new_page()
-    watch(A, 'Ryan'); watch(Bp, 'Bernadette')
+    watch(A, 'Maya'); watch(Bp, 'Leah')
 
-    # ---- Ryan makes a trip on his phone
+    # ---- Maya makes a trip on his phone
     A.goto(BASE + '/')
     expect(A.get_by_role('heading', name='My Trips')).to_be_visible()
     shot(A, '01-empty')
@@ -49,7 +49,7 @@ with sync_playwright() as p:
     A.get_by_label('Route').fill('Vancouver → Madrid → Barcelona')
     A.get_by_label('Starts').fill('2027-07-23')
     A.get_by_label('Ends').fill('2027-08-05')
-    A.get_by_label('Your name').fill('Ryan')
+    A.get_by_label('Your name').fill('Maya')
     shot(A, '02-new-trip')
     A.get_by_role('button', name='Create trip').click()
     expect(A.get_by_role('heading', name='Spain & Mediterranean Cruise')).to_be_visible()
@@ -96,19 +96,19 @@ with sync_playwright() as p:
         A.get_by_role('radio', name=v).click(); shot(A, '06-' + v.replace(' ', '-').lower())
     A.get_by_role('radio', name='Timeline').click()
 
-    # ---- invite Bernadette (editor)
+    # ---- invite Leah (editor)
     nav(A, 'People')
-    A.get_by_label('Note to yourself').fill('Bernadette')
+    A.get_by_label('Note to yourself').fill('Leah')
     A.get_by_role('button', name='Create invitation link').click()
     invite = A.get_by_label('Invitation link').input_value()
     assert '/#/join/' in invite, invite
     shot(A, '07-people')
 
-    # ---- Bernadette joins on a desktop
+    # ---- Leah joins on a desktop
     Bp.goto(invite)
     expect(Bp.get_by_text('You will join as editor')).to_be_visible()
     shot(Bp, '08-join')
-    Bp.get_by_label('Your name').fill('Bernadette')
+    Bp.get_by_label('Your name').fill('Leah')
     Bp.get_by_role('button', name='Join the trip').click()
     expect(Bp.get_by_role('heading', name='Spain & Mediterranean Cruise')).to_be_visible()
     Bp.get_by_role('button', name='Got it').click()
@@ -120,7 +120,7 @@ with sync_playwright() as p:
 
     # ---- chat, live both ways
     Bp.get_by_role('button', name='Chat').first.click()
-    Bp.get_by_role('textbox', name='Message').fill('Should we book the 7:30 dinner at https://example.com/casa ? @Ryan')
+    Bp.get_by_role('textbox', name='Message').fill('Should we book the 7:30 dinner at https://example.com/casa ? @Maya')
     Bp.get_by_role('button', name='Send message').click()
     A.get_by_role('button', name='Chat').first.click()
     expect(A.get_by_text('Should we book the 7:30 dinner')).to_be_visible()
@@ -129,7 +129,7 @@ with sync_playwright() as p:
     expect(Bp.get_by_text('Yes!')).to_be_visible()
     shot(A, '10-chat-phone'); shot(Bp, '11-chat-desktop')
 
-    # a plan added by Ryan appears live for Bernadette (and in the chat as activity)
+    # a plan added by Maya appears live for Leah (and in the chat as activity)
     A.get_by_role('button', name='Itinerary').first.click()
     A.get_by_role('button', name='Add', exact=True).first.click()
     A.get_by_role('button', name='Activity').click()
@@ -140,13 +140,13 @@ with sync_playwright() as p:
 
     # ---- private message + unread badge
     A.get_by_role('button', name='Chat').first.click()
-    A.get_by_role('tab', name=re.compile('Bernadette')).click()
+    A.get_by_role('tab', name=re.compile('Leah')).click()
     A.get_by_role('textbox', name='Message').fill('Psst, surprise dinner?')
     A.get_by_role('button', name='Send message').click()
     Bp.get_by_role('button', name='Overview').first.click()
     expect(Bp.locator('.nav-badge').first).to_be_visible(timeout=8000)
     Bp.get_by_role('button', name='Chat').first.click()
-    Bp.get_by_role('tab', name=re.compile('Ryan')).click()
+    Bp.get_by_role('tab', name=re.compile('Maya')).click()
     expect(Bp.get_by_text('Psst, surprise dinner?')).to_be_visible()
 
     # ---- bookings + permissions
@@ -154,7 +154,7 @@ with sync_playwright() as p:
     expect(Bp.get_by_text('ABC123')).to_be_visible(); expect(Bp.get_by_text('HM-7788')).to_be_visible()
     shot(Bp, '12-bookings')
     nav(A, 'People')
-    A.get_by_label('Role of Bernadette').select_option('viewer')
+    A.get_by_label('Role of Leah').select_option('viewer')
     Bp.get_by_role('button', name='Itinerary').first.click()
     expect(Bp.get_by_role('button', name='Add', exact=True)).to_have_count(0, timeout=8000)
 

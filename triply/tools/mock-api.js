@@ -42,9 +42,9 @@
     const t = { id: uid(), name: 'Spain & Mediterranean Cruise', destination: 'Spain', route: ['Vancouver', 'Madrid', 'Barcelona', 'Mediterranean'], start_date: s, end_date: d(13),
       description: 'Two weeks: Madrid first, then Barcelona and a week at sea. Bring the good walking shoes.', cover_emoji: '🚢', cover_color: '#A8CDEA', cover_blob: null, viewers_chat: true, created_at: now(), updated_at: now() };
     const mk = (name, avatar, color, role) => ({ id: uid(), trip_id: t.id, name, avatar, color, role, token: tok(), joined_at: now(), last_seen_at: now() });
-    const ryan = mk('Ryan', '🦊', PALETTE[0], 'owner'), bern = mk('Bernadette', '🦄', PALETTE[1], 'editor'), marco = mk('Marco', '🐙', PALETTE[2], 'viewer');
-    ryan.token = 'demo-ryan-0000000000000000';
-    const it = (type, title, o) => Object.assign({ id: uid(), trip_id: t.id, type, title, start_date: null, start_time: null, end_date: null, end_time: null, location: '', confirmation: '', notes: '', data: {}, version: 1, created_by: ryan.id, updated_by: ryan.id, created_at: now(), updated_at: now() }, o);
+    const maya = mk('Maya', '🦊', PALETTE[0], 'owner'), bern = mk('Leah', '🦄', PALETTE[1], 'editor'), marco = mk('Marco', '🐙', PALETTE[2], 'viewer');
+    maya.token = 'demo-maya-0000000000000000';
+    const it = (type, title, o) => Object.assign({ id: uid(), trip_id: t.id, type, title, start_date: null, start_time: null, end_date: null, end_time: null, location: '', confirmation: '', notes: '', data: {}, version: 1, created_by: maya.id, updated_by: maya.id, created_at: now(), updated_at: now() }, o);
     const items = [
       it('flight', 'Vancouver (YVR) → Madrid (MAD)', { start_date: s, start_time: '16:40', end_date: d(1), end_time: '11:05', confirmation: 'KX7P2Q', data: { airline: 'Air Canada', flightNo: 'AC836', from: 'Vancouver (YVR)', to: 'Madrid (MAD)', terminal: '3', seat: '24A, 24B' } }),
       it('hotel', 'Hotel Gran Vía Madrid', { start_date: d(1), start_time: '15:00', end_date: d(4), end_time: '11:00', location: 'Gran Vía 41, Madrid', confirmation: 'HM-778821', data: { room: 'Double, city view' } }),
@@ -55,24 +55,24 @@
       it('place', 'Sagrada Família', { location: 'Carrer de Mallorca 401, Barcelona', data: { website: 'https://sagradafamilia.org' }, notes: 'Book tower tickets ahead.', created_by: bern.id, updated_by: bern.id }),
       it('note', 'Packing reminder', { notes: 'Power adapters (type C/F), sunscreen, printed cruise documents.' })
     ];
-    db = { trips: { [t.id]: t }, members: { [ryan.id]: ryan, [bern.id]: bern, [marco.id]: marco }, items: Object.fromEntries(items.map((x) => [x.id, x])), messages: [], invites: {}, reads: {}, blobs: {}, expenses: {}, packing: {}, seq: 0 };
+    db = { trips: { [t.id]: t }, members: { [maya.id]: maya, [bern.id]: bern, [marco.id]: marco }, items: Object.fromEntries(items.map((x) => [x.id, x])), messages: [], invites: {}, reads: {}, blobs: {}, expenses: {}, packing: {}, seq: 0 };
     const ex = (title, amount, cur, payer, split, on, extra) => { const e = Object.assign({ id: uid(), trip_id: t.id, title, amount, currency: cur, paid_by: payer.id, split: split.map((x) => x.id), spent_on: on, item_id: null, note: '', created_by: payer.id, created_at: now() }, extra || {}); db.expenses[e.id] = e; };
-    ex('Hotel Gran Vía deposit', 240, 'EUR', ryan, [ryan, bern, marco], d(1), { item_id: items[1].id });
-    ex('Casa Lucio dinner', 118.5, 'EUR', bern, [ryan, bern, marco], d(2), { item_id: items[2].id });
-    ex('Prado Museum tour', 90, 'EUR', bern, [ryan, bern], d(3), { item_id: items[3].id });
-    ex('Airport taxi', 42, 'EUR', marco, [ryan, bern, marco], d(1));
-    const pk = (title, category, who, done) => { const x = { id: uid(), trip_id: t.id, title, category, assigned_to: who ? who.id : null, done: !!done, done_by: done ? (who || ryan).id : null, created_by: ryan.id, created_at: now() }; db.packing[x.id] = x; };
-    pk('Passports', 'Documents', ryan, true); pk('Cruise boarding passes (printed)', 'Documents', bern, false); pk('Travel insurance papers', 'Documents', null, false);
+    ex('Hotel Gran Vía deposit', 240, 'EUR', maya, [maya, bern, marco], d(1), { item_id: items[1].id });
+    ex('Casa Lucio dinner', 118.5, 'EUR', bern, [maya, bern, marco], d(2), { item_id: items[2].id });
+    ex('Prado Museum tour', 90, 'EUR', bern, [maya, bern], d(3), { item_id: items[3].id });
+    ex('Airport taxi', 42, 'EUR', marco, [maya, bern, marco], d(1));
+    const pk = (title, category, who, done) => { const x = { id: uid(), trip_id: t.id, title, category, assigned_to: who ? who.id : null, done: !!done, done_by: done ? (who || maya).id : null, created_by: maya.id, created_at: now() }; db.packing[x.id] = x; };
+    pk('Passports', 'Documents', maya, true); pk('Cruise boarding passes (printed)', 'Documents', bern, false); pk('Travel insurance papers', 'Documents', null, false);
     pk('Walking shoes', 'Clothes', null, true); pk('Light rain jacket', 'Clothes', marco, false); pk('Swimsuits', 'Clothes', null, false);
-    pk('Power adapters (type C/F)', 'Tech', ryan, false); pk('Phone chargers', 'Tech', null, true); pk('Sunscreen', 'Toiletries', bern, false); pk('Motion sickness tablets', 'Health', null, false);
+    pk('Power adapters (type C/F)', 'Tech', maya, false); pk('Phone chargers', 'Tech', null, true); pk('Sunscreen', 'Toiletries', bern, false); pk('Motion sickness tablets', 'Health', null, false);
     const msg = (sender, body, kind, extra) => { db.seq++; db.messages.push(Object.assign({ id: String(db.seq), trip_id: t.id, sender_id: sender.id, to_member: null, kind: kind || 'text', body: body || '', mentions: [], blob: null, item_id: null, meta: {}, created_at: now() }, extra || {})); };
     msg(bern, 'joined', 'activity', { meta: { event: 'joined' } });
-    msg(ryan, '', 'activity', { item_id: items[1].id, meta: { event: 'added', type: 'hotel', title: items[1].title, date: items[1].start_date } });
+    msg(maya, '', 'activity', { item_id: items[1].id, meta: { event: 'added', type: 'hotel', title: items[1].title, date: items[1].start_date } });
     msg(bern, 'I found a guided Prado tour on day 4, added it. Okay with everyone?');
     msg(marco, 'Looks great 👍 can I just follow along on the plan?');
-    msg(ryan, 'Yes! Everything is in the Itinerary tab. @Bernadette can you look at dinner on the 2nd?', 'text', { mentions: [bern.id] });
-    // this device already has Ryan's link, like a real returning visitor
-    try { localStorage.setItem('tr.trips', JSON.stringify([{ tripId: t.id, token: ryan.token, added: Date.now() }])); localStorage.setItem('tr.profile', JSON.stringify({ name: 'Ryan', avatar: '🦊' })); } catch (e) { /* ignore */ }
+    msg(maya, 'Yes! Everything is in the Itinerary tab. @Leah can you look at dinner on the 2nd?', 'text', { mentions: [bern.id] });
+    // this device already has Maya's link, like a real returning visitor
+    try { localStorage.setItem('tr.trips', JSON.stringify([{ tripId: t.id, token: maya.token, added: Date.now() }])); localStorage.setItem('tr.profile', JSON.stringify({ name: 'Maya', avatar: '🦊' })); } catch (e) { /* ignore */ }
     save();
   }
   try { const raw = store.get(); db = raw ? JSON.parse(raw) : null; } catch (e) { db = null; }
@@ -166,7 +166,7 @@
   /* ---------- the bot: makes the demo chat feel alive ---------- */
   const REPLIES = ['Sounds good to me!', 'Ooh nice, adding that to my list too.', 'Can we do that after the museum?', 'Love it 😍', 'I will check the opening hours and report back.', 'Perfect, thank you!'];
   function botReply(tid, thread, meId) {
-    const bern = members(tid).find((m) => m.name === 'Bernadette'); if (!bern || bern.id === meId) return;
+    const bern = members(tid).find((m) => m.name === 'Leah'); if (!bern || bern.id === meId) return;
     setTimeout(() => {
       const m = { id: String(seq()), trip_id: tid, sender_id: bern.id, to_member: thread === 'trip' ? null : meId, kind: 'text', body: REPLIES[Math.floor(Math.random() * REPLIES.length)], mentions: [], blob: null, item_id: null, meta: {}, created_at: now() };
       db.messages.push(m); save();
@@ -300,7 +300,7 @@
     const out = Object.assign({}, msg, { trip_id: undefined });
     emit(m.trip_id, { kind: 'chat', thread: th === 'trip' ? 'trip' : 'dm', message: out }, th === 'trip' ? null : [m.id, th]);
     (db.reads[m.id] = db.reads[m.id] || {})[th] = msg.id;
-    if (th === 'trip' || (db.members[th] && db.members[th].name === 'Bernadette')) botReply(m.trip_id, th === 'trip' ? 'trip' : 'dm', m.id);
+    if (th === 'trip' || (db.members[th] && db.members[th].name === 'Leah')) botReply(m.trip_id, th === 'trip' ? 'trip' : 'dm', m.id);
     return { message: out };
   });
   R('POST', '/trips/:id/reads', (c) => { const m = auth(c.token, c.p.id); const r = (db.reads[m.id] = db.reads[m.id] || {}); const k = c.body.thread; r[k] = String(Math.max(Number(r[k] || 0), Number(c.body.lastId) || 0)); return {}; });

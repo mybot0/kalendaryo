@@ -111,8 +111,12 @@ button, .btn { font: 700 14px 'Figtree', sans-serif; border: 0; cursor: pointer;
     const mx = Math.max(1, ...d.days.map((x) => x.n));
     const bars = d.days.map((x, i) => '<div class="bar" title="' + esc(day(x.day + 'T12:00:00')) + ': ' + x.n + '"><b>' + (x.n || '') + '</b><i style="height:' + Math.round((x.n / mx) * 100) + '%"></i><span>' +
       (i === 0 || i === 6 || i === d.days.length - 1 ? esc(day(x.day + 'T12:00:00')) : '') + '</span></div>').join('');
-    const countries = d.countries.length ? d.countries.map((c) => '<div class="r"><span>' + flag(c.cc) + esc(c.country) + '</span><b>' + c.n + '</b></div>').join('')
+    const countries = d.countries.length ? d.countries.map((c) => '<div class="r"><span>' + flag(c.cc) + esc(c.city ? c.city + ', ' + c.country : c.country) + '</span><b>' + c.n + '</b></div>').join('')
       : '<p class="empty">No places yet. They show up after the first visits.</p>';
+    const PAGE = { start: 'Start page', home: 'A home', invite: 'An invite link', trip: 'Triply' };
+    const recent = (d.recent || []).length ? '<div class="scroll"><table><tr><th>When</th><th>Where</th><th>Opened</th><th>Device</th></tr>' +
+      d.recent.map((v) => '<tr><td>' + ago(v.at) + '</td><td>' + where(v) + '</td><td>' + esc(PAGE[v.page] || v.page) + '</td><td style="color:var(--muted)">#' + esc(v.who) + '</td></tr>').join('') + '</table></div>'
+      : '<p class="empty">No visits yet. Real people show up here; bots and link previews are left out.</p>';
     const homes = d.homes.length ? '<div class="scroll"><table><tr><th>Home</th><th>Where</th><th class="c">People</th><th>Created</th><th>Last active</th><th class="c">Items</th><th class="c">Photos</th><th></th></tr>' +
       d.homes.map((h) => '<tr><td><b>' + esc(h.name) + '</b>' + (h.online ? '<span class="live">● online</span>' : '') + '</td><td>' + where(h) + '</td><td class="c">' + h.people + '</td><td>' + day(h.created_at) +
         '</td><td>' + ago(h.last_active) + '</td><td class="c">' + h.items + '</td><td class="c">' + mb(h.photo_bytes) + '</td><td><button class="view" data-id="' + esc(h.id) + '">' + EYE + 'View</button></td></tr>').join('') + '</table></div>'
@@ -129,6 +133,7 @@ button, .btn { font: 700 14px 'Figtree', sans-serif; border: 0; cursor: pointer;
         tile(t.people, 'People', 'in homes' + (t.trips != null ? ' and trips' : '')) + tile(t.ai_today, 'AI uses today', d.ai_on ? 'across all homes' : 'AI is off') + '</div>' +
       '<div class="row2"><section class="card"><h2>Visitors, last 14 days</h2><div class="chart">' + bars + '</div><p class="note">Counted once per device per day. Addresses are never saved.</p></section>' +
         '<section class="card where"><h2>Where visitors are</h2>' + countries + '<p class="note">Last 30 days. City and country only.</p></section></div>' +
+      '<section class="card"><h2>Recent visitors</h2>' + recent + '<p class="note">The last 20 visits by real people. Bots, search engines and link previews are not counted. “Device” is a short code, not a name.</p></section>' +
       '<section class="card"><h2><span class="pill">HOMES</span>' + d.homes.length + (d.homes.length === 1 ? ' home' : ' homes') + '</h2>' + homes + '</section>' + trips +
       '<p class="note">Database: ' + mb(t.db_bytes) + ' used. “View” opens that home read-only for 2 hours; your visit doesn’t count as theirs.</p>';
     app.querySelectorAll('.view').forEach((b) => (b.onclick = async () => {

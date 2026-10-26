@@ -54,15 +54,15 @@ try:
         owner.screenshot(path='/home/claude/kal/dist/web-landing.png', full_page=True)
         owner.get_by_role('button', name='Create your home').click(); owner.wait_for_timeout(200)
         check(owner.locator('text=Please type your name').count() == 1, 'name is required')
-        owner.fill('input[autocomplete=given-name]', 'Ryan'); owner.fill('input[placeholder*="Rubi"]', 'Rubi family')
+        owner.fill('input[autocomplete=given-name]', 'Maya'); owner.fill('form.land-card input[autocomplete=off]', 'Santos family')
         owner.get_by_role('button', name='Create your home').click(); owner.wait_for_url('**/c/**'); owner.wait_for_timeout(1200)
         otoken = owner.url.split('/c/')[1]
         check(len(otoken) >= 30, 'owner got a personal link')
-        check(owner.locator('text=Welcome, Ryan!').count() == 1, 'welcome tip with the link')
+        check(owner.locator('text=Welcome, Maya!').count() == 1, 'welcome tip with the link')
         owner.get_by_role('button', name='Got it').click(); owner.wait_for_timeout(200)
-        check('Rubi family' in owner.title(), 'page title is the family name')
+        check('Santos family' in owner.title(), 'page title is the family name')
         st, me = req('GET', '/api/me', otoken)
-        check(st == 200 and me['me']['role'] == 'owner' and me['family']['name'] == 'Rubi family', 'server knows the owner')
+        check(st == 200 and me['me']['role'] == 'owner' and me['family']['name'] == 'Santos family', 'server knows the owner')
 
         # ---- data saves to the server
         owner.evaluate("PL.store.addEvent({title: 'Soccer practice', date: PL.D.today(), allDay: false, start: '17:00', end: '18:00', memberIds: []})")
@@ -74,7 +74,7 @@ try:
 
         # ---- invite as viewer
         owner.get_by_role('button', name='People', exact=True).first.click(); owner.wait_for_timeout(600)
-        check(owner.locator('.access-row', has_text='Ryan (you)').count() == 1, 'people with access lists the owner')
+        check(owner.locator('.access-row', has_text='Maya (you)').count() == 1, 'people with access lists the owner')
         owner.get_by_role('button', name='Invite someone').click(); owner.wait_for_timeout(200)
         owner.fill('input[placeholder*="Grandma"]', 'Ana')
         owner.get_by_role('radio', name='Viewer').click()
@@ -88,11 +88,11 @@ try:
         # ---- second person joins
         actx, ana = mk({'width': 390, 'height': 800})
         ana.goto(invite); ana.wait_for_timeout(800)
-        check(ana.locator('text=You are invited to Rubi family').count() == 1, 'join page shows the family')
+        check(ana.locator('text=You are invited to Santos family').count() == 1, 'join page shows the family')
         check(ana.locator('text=Viewer').count() >= 1, 'join page shows the role')
         ana.screenshot(path='/home/claude/kal/dist/web-join.png')
         ana.fill('input[placeholder="Your name"]', 'Ana')
-        ana.get_by_role('button', name='Join Rubi family').click(); ana.wait_for_url('**/c/**'); ana.wait_for_timeout(1500)
+        ana.get_by_role('button', name='Join Santos family').click(); ana.wait_for_url('**/c/**'); ana.wait_for_timeout(1500)
         atoken = ana.url.split('/c/')[1]
         check(atoken != otoken, 'Ana has her own link')
         ana.get_by_role('button', name='Got it').click(); ana.wait_for_timeout(200)
@@ -131,9 +131,9 @@ try:
         ana.get_by_role('button', name='People', exact=True).first.click(); ana.wait_for_timeout(800)
         check(ana.get_by_role('button', name='Invite someone').count() == 1, 'new owner can invite')
         st, ppl = req('GET', '/api/people', otoken)
-        ana_id = [x for x in ppl['people'] if x['name'] == 'Ana'][0]['id']; ryan_id = [x for x in ppl['people'] if x['name'] == 'Ryan'][0]['id']
+        ana_id = [x for x in ppl['people'] if x['name'] == 'Ana'][0]['id']; maya_id = [x for x in ppl['people'] if x['name'] == 'Maya'][0]['id']
         req('PATCH', '/api/people/' + ana_id, otoken, {'role': 'editor'})
-        st, r = req('PATCH', '/api/people/' + ryan_id, otoken, {'role': 'viewer'})
+        st, r = req('PATCH', '/api/people/' + maya_id, otoken, {'role': 'viewer'})
         check(st == 400 and 'at least one owner' in r['message'], 'cannot remove the last owner')
 
         # ---- photos
@@ -174,8 +174,8 @@ try:
 
         # ---- start page remembers the family on this device
         owner.goto(BASE); owner.wait_for_timeout(500)
-        check(owner.locator('.land-open', has_text='Rubi family').count() == 1, 'start page lists your family')
-        owner.locator('.land-open', has_text='Rubi family').click(); owner.wait_for_url('**/c/**'); owner.wait_for_timeout(800)
+        check(owner.locator('.land-open', has_text='Santos family').count() == 1, 'start page lists your family')
+        owner.locator('.land-open', has_text='Santos family').click(); owner.wait_for_url('**/c/**'); owner.wait_for_timeout(800)
         owner.screenshot(path='/home/claude/kal/dist/web-family.png', full_page=True)
 
         # ---- delete the family

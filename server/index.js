@@ -312,7 +312,7 @@ r.get('/healthz', async (req, res) => send(res, 200, { ok: true }));
 const INDEX = path.join(__dirname, '..', 'public', 'index.html');
 let indexHtml = null;
 const page = async (req, res) => {
-  owner.countPage(req);
+  owner.countPage(req, req.path.startsWith('/c/') ? 'home' : req.path.startsWith('/join/') ? 'invite' : 'start');
   if (!indexHtml || process.env.NODE_ENV !== 'production') {
     indexHtml = fs.readFileSync(INDEX);
     // TOUCH POINT A (server, part 2): lets the start page show the home/trip choice. Nothing is added when Triply is off.
@@ -327,7 +327,7 @@ const server = http.createServer(async (req, res) => {
   owner.touch(req);
   if (triply && triply.owns(req.url)) { // TOUCH POINT A: the mount line
     owner.noteTrip(req);
-    if (req.method === 'GET' && /^\/triply\/?(\?|$)/.test(req.url)) owner.countPage(req);
+    if (req.method === 'GET' && /^\/triply\/?(\?|$)/.test(req.url)) owner.countPage(req, 'trip');
     return triply.handle(req, res);
   }
   for (const [k, v] of Object.entries(SECURITY)) res.setHeader(k, v);

@@ -46,7 +46,7 @@ test('switch off: the site is plain Kalendaryo', async () => {
   assert.strictEqual(r.headers.get('location'), '/');
   const api = await get(3481, '/triply/api/health');
   assert.notStrictEqual(api.status, 200, 'no Triply API');
-  const fam = await post(3481, '/api/families', { yourName: 'Ryan', familyName: 'Off test' });
+  const fam = await post(3481, '/api/families', { yourName: 'Maya', familyName: 'Off test' });
   assert.strictEqual(fam.status, 200, 'Kalendaryo still creates homes');
 });
 
@@ -60,7 +60,7 @@ test('switch on: Triply lives under /triply, Kalendaryo is unchanged', async () 
   assert.match(await page.text(), /Triply/);
   assert.strictEqual((await get(3482, '/triply')).status, 302, '/triply redirects to /triply/');
 
-  const trip = await post(3482, '/triply/api/trips', { name: 'Mount test', start_date: '2027-03-20', end_date: '2027-03-22', owner: { name: 'Ryan' } });
+  const trip = await post(3482, '/triply/api/trips', { name: 'Mount test', start_date: '2027-03-20', end_date: '2027-03-22', owner: { name: 'Maya' } });
   assert.strictEqual(trip.status, 200);
   const j = await trip.json();
   assert.match(j.link, /\/triply\/#\/t\/[A-Za-z0-9_-]+$/, 'personal link points inside /triply');
@@ -68,7 +68,7 @@ test('switch on: Triply lives under /triply, Kalendaryo is unchanged', async () 
   // A Triply link is not a Kalendaryo key, and the other way around.
   const kalWithTriplyToken = await fetch('http://localhost:3482/api/me', { headers: { Authorization: 'Bearer ' + j.token } });
   assert.strictEqual(kalWithTriplyToken.status, 401, 'Triply token does not open Kalendaryo');
-  const fam = await (await post(3482, '/api/families', { yourName: 'Ryan', familyName: 'On test' })).json();
+  const fam = await (await post(3482, '/api/families', { yourName: 'Maya', familyName: 'On test' })).json();
   const triplyWithKalToken = await fetch('http://localhost:3482/triply/api/me', { headers: { Authorization: 'Bearer ' + fam.token } });
   assert.strictEqual(triplyWithKalToken.status, 401, 'Kalendaryo key does not open Triply');
 

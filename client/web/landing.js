@@ -11,8 +11,8 @@
   const showErr = (el, msg) => { el.textContent = msg; el.hidden = !msg; };
 
   function createCard(pick) {
-    const you = h('input', { type: 'text', maxlength: '30', placeholder: 'For example: Ryan', autocomplete: 'given-name' });
-    const fam = h('input', { type: 'text', maxlength: '40', placeholder: pick ? 'For example: The Rubi family, Barkada' : 'For example: The Rubi family, Us two, Maple St. roommates, Barkada', autocomplete: 'off' });
+    const you = h('input', { type: 'text', maxlength: '30', placeholder: 'For example: ' + PL.examples.name(), autocomplete: 'given-name' });
+    const fam = h('input', { type: 'text', maxlength: '40', placeholder: 'For example: ' + PL.examples.home(), autocomplete: 'off' });
     const err = errorBox();
     const btn = ui.button('Create your home', { variant: 'primary', big: true, icon: 'plus', type: 'submit', block: true });
     let weekStart = 0;
@@ -49,8 +49,8 @@
       h('p', { class: 'hint' }, 'You get your own private link. No account needed.', extra || ''));
   }
   function tripCard() {
-    const you = h('input', { type: 'text', maxlength: '30', placeholder: 'For example: Ryan', autocomplete: 'given-name' });
-    const trip = h('input', { type: 'text', maxlength: '60', placeholder: 'For example: Japan 2027, Boracay trip', autocomplete: 'off' });
+    const you = h('input', { type: 'text', maxlength: '30', placeholder: 'For example: ' + PL.examples.name(), autocomplete: 'given-name' });
+    const trip = h('input', { type: 'text', maxlength: '60', placeholder: 'For example: ' + PL.examples.trip(), autocomplete: 'off' });
     const from = h('input', { type: 'date', 'aria-label': 'First day' });
     const to = h('input', { type: 'date', 'aria-label': 'Last day' });
     from.addEventListener('change', () => { if (from.value && (!to.value || to.value < from.value)) to.value = from.value; to.min = from.value; });

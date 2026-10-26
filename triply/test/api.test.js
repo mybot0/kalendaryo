@@ -55,7 +55,7 @@ async function call(method, url, o) {
 }
 const api = (m, p, o) => call(m, '/api' + p, o);
 
-const tripBody = (over) => Object.assign({ name: 'Spain & Mediterranean Cruise', destination: 'Spain', route: ['Vancouver', 'Madrid', 'Barcelona'], start_date: '2027-07-23', end_date: '2027-08-05', owner: { name: 'Ryan', avatar: '🦊' } }, over || {});
+const tripBody = (over) => Object.assign({ name: 'Spain & Mediterranean Cruise', destination: 'Spain', route: ['Vancouver', 'Madrid', 'Barcelona'], start_date: '2027-07-23', end_date: '2027-08-05', owner: { name: 'Maya', avatar: '🦊' } }, over || {});
 
 async function newTrip(over) {
   const r = await api('POST', '/trips', { body: tripBody(over) });
@@ -157,7 +157,7 @@ test('My Trips lists working tokens and reports the gone ones', async () => {
   assert.deepEqual(r.json.trips.map((x) => x.i).sort(), [0, 2]);
   assert.deepEqual(r.json.gone, [1]);
   const mine = r.json.trips.find((x) => x.i === 0);
-  assert.equal(mine.name, 'A'); assert.equal(mine.role, 'owner'); assert.equal(mine.travelers, 2); assert.equal(mine.owner_name, 'Ryan');
+  assert.equal(mine.name, 'A'); assert.equal(mine.role, 'owner'); assert.equal(mine.travelers, 2); assert.equal(mine.owner_name, 'Maya');
   assert.equal(r.json.trips.find((x) => x.i === 2).role, 'viewer');
   assert.ok(!JSON.stringify(r.json).includes('token'));
 });
@@ -218,12 +218,12 @@ test('two people editing the same plan do not overwrite each other', async () =>
   const t = await newTrip();
   const ed = await joined(t, 'editor', 'Ed');
   const it = (await api('POST', '/trips/' + t.id + '/items', { token: t.token, body: flight() })).json.item;
-  const a = await api('PATCH', '/trips/' + t.id + '/items/' + it.id, { token: t.token, body: { version: 1, notes: 'from Ryan' } });
+  const a = await api('PATCH', '/trips/' + t.id + '/items/' + it.id, { token: t.token, body: { version: 1, notes: 'from Maya' } });
   assert.equal(a.status, 200);
   const b = await api('PATCH', '/trips/' + t.id + '/items/' + it.id, { token: ed.token, body: { version: 1, notes: 'from Ed' } });
   assert.equal(b.status, 409);
   assert.equal(b.json.error.code, 'version_conflict');
-  assert.equal(b.json.error.item.notes, 'from Ryan');
+  assert.equal(b.json.error.item.notes, 'from Maya');
   assert.equal((await api('PATCH', '/trips/' + t.id + '/items/' + it.id, { token: ed.token, body: { notes: 'no version' } })).status, 400);
   const c = await api('PATCH', '/trips/' + t.id + '/items/' + it.id, { token: ed.token, body: { version: 2, notes: 'from Ed' } });
   assert.equal(c.status, 200); assert.equal(c.json.item.version, 3);
@@ -232,14 +232,14 @@ test('two people editing the same plan do not overwrite each other', async () =>
 /* ---------- people, roles, invitations ---------- */
 test('invitations work once, and expire', async () => {
   const t = await newTrip();
-  const inv = await invite(t, 'editor', 'For Bernadette');
+  const inv = await invite(t, 'editor', 'For Leah');
   assert.match(inv.link, /#\/join\//);
   const peek = await api('GET', '/invites/peek/' + inv.code);
   assert.equal(peek.status, 200);
   assert.equal(peek.json.trip.name, 'Spain & Mediterranean Cruise');
-  assert.equal(peek.json.inviter, 'Ryan'); assert.equal(peek.json.role, 'editor'); assert.equal(peek.json.label, 'For Bernadette');
+  assert.equal(peek.json.inviter, 'Maya'); assert.equal(peek.json.role, 'editor'); assert.equal(peek.json.label, 'For Leah');
   assert.equal((await api('POST', '/join', { body: { code: inv.code, name: '' } })).status, 400, 'a name is needed');
-  const j = await api('POST', '/join', { body: { code: inv.code, name: 'Bernadette', avatar: '🦄' } });
+  const j = await api('POST', '/join', { body: { code: inv.code, name: 'Leah', avatar: '🦄' } });
   assert.equal(j.status, 200);
   assert.equal(j.json.member.role, 'editor');
   assert.notEqual(j.json.member.color, t.me.color, 'gets their own color');
@@ -312,8 +312,8 @@ test('removing a person ends their access and their private messages', async () 
 
 test('people can change their own name and picture', async () => {
   const t = await newTrip();
-  const r = await api('PATCH', '/trips/' + t.id + '/members/me', { token: t.token, body: { name: 'Ryan R', avatar: '🐯' } });
-  assert.equal(r.json.member.name, 'Ryan R'); assert.equal(r.json.member.avatar, '🐯');
+  const r = await api('PATCH', '/trips/' + t.id + '/members/me', { token: t.token, body: { name: 'Maya R', avatar: '🐯' } });
+  assert.equal(r.json.member.name, 'Maya R'); assert.equal(r.json.member.avatar, '🐯');
   assert.equal((await api('PATCH', '/trips/' + t.id + '/members/me', { token: t.token, body: { name: '  ' } })).status, 400);
   const bad = await api('PATCH', '/trips/' + t.id + '/members/me', { token: t.token, body: { avatar: '<script>' } });
   assert.equal(bad.json.member.avatar, '', 'letters and markup are not accepted as a picture');
@@ -322,13 +322,13 @@ test('people can change their own name and picture', async () => {
 /* ---------- chat ---------- */
 test('group chat: messages, mentions, unread and read marks', async () => {
   const t = await newTrip();
-  const bern = await joined(t, 'editor', 'Bernadette');
+  const bern = await joined(t, 'editor', 'Leah');
   const send = (tok, body, thread) => api('POST', '/trips/' + t.id + '/messages', { token: tok, body: { thread: thread || 'trip', body } });
-  const m1 = await send(t.token, 'Should we book the 7:30 dinner? @Bernadette');
+  const m1 = await send(t.token, 'Should we book the 7:30 dinner? @Leah');
   assert.equal(m1.status, 200);
   assert.deepEqual(m1.json.message.mentions, [bern.id]);
-  assert.equal((await send(t.token, '@Ryan talking to myself')).json.message.mentions.length, 0, 'no self mentions');
-  assert.equal((await send(t.token, '@Bernadettes is not her')).json.message.mentions.length, 0, 'whole names only');
+  assert.equal((await send(t.token, '@Maya talking to myself')).json.message.mentions.length, 0, 'no self mentions');
+  assert.equal((await send(t.token, '@Leahs is not her')).json.message.mentions.length, 0, 'whole names only');
   assert.equal((await send(t.token, '   ')).status, 400);
   let st = await api('GET', '/trips/' + t.id + '/state', { token: bern.token });
   assert.equal(st.json.unread.trip, 3); assert.equal(st.json.unread.mentions, 1);
@@ -355,18 +355,18 @@ test('direct messages are private', async () => {
   const t = await newTrip();
   const a = await joined(t, 'editor', 'Amy'), b = await joined(t, 'viewer', 'Bo');
   const send = (tok, to, body) => api('POST', '/trips/' + t.id + '/messages', { token: tok, body: { thread: to, body } });
-  assert.equal((await send(t.token, a.id, 'Ryan to Amy')).status, 200);
+  assert.equal((await send(t.token, a.id, 'Maya to Amy')).status, 200);
   const early = await api('GET', '/trips/' + t.id + '/state', { token: a.token });
   assert.equal(early.json.unread.dm[t.me.id], 1); assert.equal(early.json.unread.trip, 0);
-  assert.equal((await send(a.token, t.me.id, 'Amy to Ryan')).status, 200);
+  assert.equal((await send(a.token, t.me.id, 'Amy to Maya')).status, 200);
   assert.equal((await send(t.token, t.me.id, 'to myself')).status, 400);
   assert.equal((await send(t.token, '00000000-0000-4000-8000-000000000000', 'nobody')).status, 404);
   const read = (tok, thread) => api('GET', '/trips/' + t.id + '/messages?thread=' + thread, { token: tok });
-  assert.deepEqual((await read(t.token, a.id)).json.messages.map((m) => m.body), ['Ryan to Amy', 'Amy to Ryan']);
-  assert.deepEqual((await read(a.token, t.me.id)).json.messages.map((m) => m.body), ['Ryan to Amy', 'Amy to Ryan']);
-  assert.deepEqual((await read(b.token, t.me.id)).json.messages, [], 'Bo sees nothing of Ryan and Amy');
+  assert.deepEqual((await read(t.token, a.id)).json.messages.map((m) => m.body), ['Maya to Amy', 'Amy to Maya']);
+  assert.deepEqual((await read(a.token, t.me.id)).json.messages.map((m) => m.body), ['Maya to Amy', 'Amy to Maya']);
+  assert.deepEqual((await read(b.token, t.me.id)).json.messages, [], 'Bo sees nothing of Maya and Amy');
   assert.deepEqual((await read(b.token, a.id)).json.messages, []);
-  assert.ok(!(await read(b.token, 'trip')).json.messages.some((m) => /Ryan to Amy/.test(m.body)), 'never in the group chat');
+  assert.ok(!(await read(b.token, 'trip')).json.messages.some((m) => /Maya to Amy/.test(m.body)), 'never in the group chat');
   const lastId = (await read(a.token, t.me.id)).json.messages.slice(-1)[0].id;
   await api('POST', '/trips/' + t.id + '/reads', { token: a.token, body: { thread: t.me.id, lastId } });
   assert.deepEqual((await api('GET', '/trips/' + t.id + '/state', { token: a.token })).json.unread.dm, {});

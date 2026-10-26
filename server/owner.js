@@ -9,6 +9,8 @@
  *   - Where: city and country only, looked up in the background from the address (ipwho.is, then ipapi.co).
  *     The address is never saved.
  *   - Visitors now: devices that asked the site for anything in the last 2 minutes, or have a page open with live updates.
+ *   - Bots, search engines, link previews (Messenger, WhatsApp, Slack…) and scripts are not counted.
+ *   - Recent visitors: the latest page opens (start page, a home, a trip), with city and country, kept 30 days.
  *   - Homes and trips: names, people, last active, how much they store. Read straight from the database.
  * Viewing: the owner can open any home read-only with a short-lived viewing link (2 hours, kept in memory).
  *   The visit is not saved as theirs, and every change is refused.
@@ -18,6 +20,9 @@ const crypto = require('crypto');
 const NOW_WINDOW = 2 * 60 * 1000;
 const VIEW_TTL = 2 * 60 * 60 * 1000;
 const sha = (s) => crypto.createHash('sha256').update(String(s)).digest('hex');
+// Robots that open pages: search engines, link-preview makers in chat apps, monitors and scripts.
+const BOT_RE = /bot\b|bot\/|crawl|spider|slurp|preview|facebookexternalhit|facebookcatalog|meta-external|whatsapp|telegram|discord|slack|skype|line\/|vkshare|embedly|quora link|pinterest|redditbot|applebot|bingpreview|google-?(inspectiontool|read-aloud|site-verification)|lighthouse|pagespeed|headless|phantom|puppeteer|playwright|selenium|curl|wget|python|go-http|java\/|okhttp|axios|node-fetch|undici|libwww|httpclient|postman|insomnia|uptime|pingdom|monitor|statuscake|render|ahrefs|semrush|mj12|dotbot|petalbot|bytespider|gptbot|claudebot|ccbot|amazonbot|yandex|baidu|duckduck|sogou|exabot|seznam|zgrab|masscan|nmap|scan/i;
+const isBot = (req) => { const ua = String(req.headers['user-agent'] || ''); return !ua || ua.length < 12 || BOT_RE.test(ua); };
 
 function createOwner({ db, live, ipOf, fail, triplySchema }) {
   const KEY = () => String(process.env.OWNER_KEY || '');
@@ -75,7 +80,7 @@ function createOwner({ db, live, ipOf, fail, triplySchema }) {
   /* ---------- counting ---------- */
   // Every request (except the owner's own) marks the device as active now.
   function touch(req) {
-    if (isOwnerRequest(req) || String(req.url).startsWith('/owner')) return;
+    if (isOwnerRequest(req) || String(req.url).startsWith('/owner') || isBot(req)) return;
     const device = deviceOf(req);
     seen.set(device, Date.now());
     // Live update connections count as "here now" while they stay open.
@@ -84,12 +89,23 @@ function createOwner({ db, live, ipOf, fail, triplySchema }) {
       req.on('close', () => { const n = (streams.get(device) || 1) - 1; if (n > 0) streams.set(device, n); else streams.delete(device); });
     }
   }
-  // A page was opened: one visit per device per day.
-  function countPage(req) {
-    if (req.method !== 'GET' || viewingToken(req)) return;
+  // A page was opened: one visit per device per day, plus a line in "Recent visitors"
+  // (the same device opening the same kind of page again within 10 minutes is not listed twice).
+  const logged = new Map(); // device|page -> time
+  function countPage(req, page) {
+    if (req.method !== 'GET' || viewingToken(req) || isBot(req)) return;
     const device = deviceOf(req);
     db.q('INSERT INTO visits (day, vid) VALUES (CURRENT_DATE, $1) ON CONFLICT DO NOTHING', [device]).catch(() => {});
-    locate(req, device, (loc) => db.q('UPDATE visits SET city=$2, country=$3, cc=$4 WHERE day=CURRENT_DATE AND vid=$1 AND country IS NULL', [device, ...loc]).catch(() => {}));
+    const k = device + '|' + page, now = Date.now();
+    const log = now - (logged.get(k) || 0) > 600000;
+    if (log) logged.set(k, now);
+    const logId = log ? db.q('INSERT INTO visit_log (vid, page) VALUES ($1, $2) RETURNING id', [device, page]).then((r) => r.rows[0].id, () => null) : Promise.resolve(null);
+    locate(req, device, (loc) => {
+      db.q('UPDATE visits SET city=$2, country=$3, cc=$4 WHERE day=CURRENT_DATE AND vid=$1 AND country IS NULL', [device, ...loc]).catch(() => {});
+      logId.then((id) => id && db.q('UPDATE visit_log SET city=$2, country=$3, cc=$4 WHERE id=$1', [id, ...loc]).catch(() => {}));
+    });
+    if (Math.random() < 0.01) db.q("DELETE FROM visit_log WHERE at < now() - interval '30 days'").catch(() => {});
+    if (logged.size > 5000) for (const [kk, t] of logged) if (now - t > 600000) logged.delete(kk);
   }
   // Someone used a home or a trip: remember when, and roughly where (once an hour per device).
   function noteUse(req, kind, ref) {
@@ -147,8 +163,10 @@ function createOwner({ db, live, ipOf, fail, triplySchema }) {
     const days = (await db.q(`SELECT to_char(d, 'YYYY-MM-DD') AS day, COALESCE(v.n, 0)::int AS n
         FROM generate_series(CURRENT_DATE - 13, CURRENT_DATE, interval '1 day') d
         LEFT JOIN (SELECT day, count(*) n FROM visits GROUP BY day) v ON v.day = d::date ORDER BY d`)).rows;
-    const countries = (await db.q(`SELECT country, cc, count(DISTINCT vid)::int AS n FROM visits
-        WHERE day > CURRENT_DATE - 30 AND country IS NOT NULL AND country <> '' GROUP BY country, cc ORDER BY n DESC LIMIT 8`)).rows;
+    const countries = (await db.q(`SELECT COALESCE(city, '') AS city, country, cc, count(DISTINCT vid)::int AS n FROM visits
+        WHERE day > CURRENT_DATE - 30 AND country IS NOT NULL AND country <> '' GROUP BY city, country, cc ORDER BY n DESC, country LIMIT 10`)).rows;
+    const recent = (await db.q(`SELECT extract(epoch FROM at) * 1000 AS at, page, city, country, cc, substr(vid, 1, 6) AS who
+        FROM visit_log ORDER BY at DESC LIMIT 20`)).rows.map((r) => Object.assign(r, { at: Number(r.at) }));
     const homes = (await db.q(`SELECT f.id, f.name, f.created_at,
         (SELECT count(*) FROM access a WHERE a.family_id = f.id)::int AS people,
         (SELECT max(last_seen) FROM access a WHERE a.family_id = f.id) AS last_seen,
@@ -188,7 +206,7 @@ function createOwner({ db, live, ipOf, fail, triplySchema }) {
         tiles.people += trips.reduce((n, t) => n + t.people, 0);
       } catch (e) { trips = null; } // Triply's tables are not there yet
     }
-    return { now: Date.now(), visitors_now: visitorsNow(), tiles, days, countries, homes, trips, ai_on: !!process.env.ANTHROPIC_API_KEY };
+    return { now: Date.now(), visitors_now: visitorsNow(), tiles, days, countries, recent, homes, trips, ai_on: !!process.env.ANTHROPIC_API_KEY };
   }
 
   function install(r, json, send) {

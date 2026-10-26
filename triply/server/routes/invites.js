@@ -45,7 +45,7 @@ function register(r, d) {
     ok(c.res);
   });
 
-  // Public: what is this invitation for? (so the page can say "Ryan invited you to Spain 2027")
+  // Public: what is this invitation for? (so the page can say "Maya invited you to Spain 2027")
   async function findInvite(code, forUpdateClient) {
     if (!CODE_OK.test(String(code || ''))) throw new ApiError(404, 'invite_invalid', 'This invitation link is not valid.');
     const run = forUpdateClient ? forUpdateClient.query.bind(forUpdateClient) : db.q;
