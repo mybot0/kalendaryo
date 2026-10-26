@@ -154,7 +154,7 @@
   async function refreshMe() {
     const r = await api('GET', '/api/me');
     KAL.me = r.me; KAL.family = r.family; KAL.ai = r.ai || { enabled: false, left: 0 };
-    KAL.recent.remember(KAL.token, r.family.name, r.me.name);
+    if (!r.me.viewing) KAL.recent.remember(KAL.token, r.family.name, r.me.name); // the owner viewing leaves no trace on this device's list
     KAL.emit('me', r.me);
     return r;
   }

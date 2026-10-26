@@ -27,4 +27,11 @@ function closeFamily(familyId) {
 // Keep connections open through proxies.
 setInterval(() => { for (const r of rooms.values()) for (const c of r) { try { c.res.write(': ping\n\n'); } catch (e) {} } }, 25000).unref();
 
-module.exports = { join, send, kick, closeFamily };
+// For the owner view: how many people have each home open right now (not counting the owner viewing).
+function online() {
+  const out = new Map();
+  for (const [familyId, r] of rooms) { let n = 0; for (const c of r) if (c.accessId !== 'owner-view') n++; if (n) out.set(familyId, n); }
+  return out;
+}
+
+module.exports = { join, send, kick, closeFamily, online };

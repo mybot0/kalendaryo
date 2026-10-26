@@ -10,6 +10,7 @@
  *   ANTHROPIC_MODEL     optional, default claude-haiku-5-5
  *   AI_DAILY_LIMIT      optional, AI requests per family per day (default 20)
  *   INVITE_DAYS         optional, days before an invite link expires (default 7)
+ *   OWNER_KEY           optional, turns on the owner view at /owner?key=<OWNER_KEY>
  */
 const fs = require('fs');
 const path = require('path');
@@ -58,10 +59,13 @@ const SECURITY = {
 async function auth(req) {
   const h = req.headers.authorization || '';
   const token = h.startsWith('Bearer ') ? h.slice(7) : (req.query.t || '');
+  const viewing = token && token.startsWith('ov') ? await owner.viewer(token, req) : null; // the site owner viewing, read-only
+  if (viewing) { req.me = viewing; return; }
   if (!token || token.length > 100) fail(401, 'no_access', 'This link is not valid.');
   const r = await db.q('SELECT a.id, a.family_id, a.name, a.role, a.last_seen, f.name AS family_name FROM access a JOIN families f ON f.id = a.family_id WHERE a.token_hash = $1', [hash(token)]);
   if (!r.rowCount) fail(401, 'no_access', 'This link is not valid anymore. Ask an owner of the family for a new invite.');
   req.me = r.rows[0];
+  owner.noteUse(req, 'home', req.me.family_id);
   if (!req.me.last_seen || Date.now() - new Date(req.me.last_seen).getTime() > 3600000) db.q('UPDATE access SET last_seen = now() WHERE id=$1', [req.me.id]).catch(() => {});
 }
 const need = (role) => async (req) => {
@@ -117,7 +121,7 @@ r.post('/api/join', json, async (req, res) => {
 
 /* ---------- everything below needs a personal link ---------- */
 r.get('/api/me', auth, async (req, res) => {
-  send(res, 200, { me: { id: req.me.id, name: req.me.name, role: req.me.role }, family: { id: req.me.family_id, name: req.me.family_name },
+  send(res, 200, { me: { id: req.me.id, name: req.me.name, role: req.me.role, viewing: !!req.me.viewing }, family: { id: req.me.family_id, name: req.me.family_name },
     ai: { enabled: ai.enabled(), left: await ai.left(req.me.family_id) } });
 });
 r.patch('/api/me', auth, json, async (req, res) => {
@@ -294,11 +298,21 @@ const triply = TRIPLY_ON ? require('../triply/server/handler').createTriply({
   maxBlobMb: Number(process.env.TRIPLY_MAX_FILE_MB) || 5
 }) : null;
 
+/* ---------- owner view (see server/owner.js) ---------- */
+const owner = require('./owner').createOwner({ db, live, ipOf, fail, triplySchema: triply ? (process.env.TRIPLY_SCHEMA || 'triply') : null });
+owner.install(r, json, send);
+const OWNER_PAGE = path.join(__dirname, '..', 'public', 'owner.html');
+r.get('/owner', async (req, res) => {
+  res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store', 'X-Robots-Tag': 'noindex' });
+  res.end(req.method === 'HEAD' ? undefined : fs.readFileSync(OWNER_PAGE));
+});
+
 /* ---------- pages ---------- */
 r.get('/healthz', async (req, res) => send(res, 200, { ok: true }));
 const INDEX = path.join(__dirname, '..', 'public', 'index.html');
 let indexHtml = null;
 const page = async (req, res) => {
+  owner.countPage(req);
   if (!indexHtml || process.env.NODE_ENV !== 'production') {
     indexHtml = fs.readFileSync(INDEX);
     // TOUCH POINT A (server, part 2): lets the start page show the home/trip choice. Nothing is added when Triply is off.
@@ -310,7 +324,12 @@ const page = async (req, res) => {
 r.get('/', page); r.get('/c/:token', page); r.get('/join/:code', page);
 
 const server = http.createServer(async (req, res) => {
-  if (triply && triply.owns(req.url)) return triply.handle(req, res); // TOUCH POINT A: the mount line
+  owner.touch(req);
+  if (triply && triply.owns(req.url)) { // TOUCH POINT A: the mount line
+    owner.noteTrip(req);
+    if (req.method === 'GET' && /^\/triply\/?(\?|$)/.test(req.url)) owner.countPage(req);
+    return triply.handle(req, res);
+  }
   for (const [k, v] of Object.entries(SECURITY)) res.setHeader(k, v);
   try {
     const found = await r.handle(req, res);

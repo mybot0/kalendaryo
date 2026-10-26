@@ -66,3 +66,7 @@ body.land-body {
 .land-pick .hint { margin: 0; }
 .land-pick .segmented { display: grid; grid-template-columns: 1fr 1fr; width: 100%; height: 48px; box-sizing: border-box; }
 @media (max-width: 559px) { .land-wide .land-steps { grid-template-columns: 1fr; } }
+
+/* Owner view: banner when the site owner opens someone's home (read-only). */
+.status-banner.owner-viewing { background: #26302B; color: #fff; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; font-weight: 700; }
+.owner-viewing .owner-back { margin-left: auto; background: #fff; color: #26302B; padding: 6px 14px; border-radius: 999px; text-decoration: none; }

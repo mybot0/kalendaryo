@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Kalendaryo · Owner view</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;600;700;800&family=Outfit:wght@600;700;800&display=swap">
+<style>
+:root { --bg:#F4F3EE; --ink:#26302B; --ink-2:#5C675F; --muted:#6E776F; --line:#ECEAE3; --primary:#3F7360; --primary-soft:#E4EFE9; --primary-ink:#2E5748; --trip:#B8583A; --trip-soft:#F8E7E0; --trip-ink:#8E3F27; --ok:#2E8A57; }
+* { box-sizing: border-box; }
+body { margin: 0; font: 16px/1.45 'Figtree', system-ui, sans-serif; color: var(--ink); background-color: var(--bg);
+  background-image: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%22680%22%20height%3D%22680%22%20viewBox%3D%220%200%20680%20680%22%3E%3Cg%20fill%3D%22none%22%20stroke%3D%22%233F7360%22%20stroke-opacity%3D%220.13%22%20stroke-width%3D%221.5%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cg%20transform%3D%22translate%2845%2016%29%20rotate%28-3%2024%2024%29%20scale%282.46%29%22%3E%3Cpath%20d%3D%22M5%2010l1-6%204%203h4l4-3%201%206v3a7%207%200%200%201-14%200z%22/%3E%3Ccircle%20cx%3D%229.5%22%20cy%3D%2212%22%20r%3D%22.6%22/%3E%3Ccircle%20cx%3D%2214.5%22%20cy%3D%2212%22%20r%3D%22.6%22/%3E%3Cpath%20d%3D%22M11%2015l1%201%201-1%22/%3E%3C/g%3E%3Cg%20transform%3D%22translate%28246%2020%29%20rotate%285%2024%2024%29%20scale%282.56%29%22%3E%3Ccircle%20cx%3D%2210%22%20cy%3D%2212%22%20r%3D%226%22/%3E%3Cpath%20d%3D%22M16%2012h6%22/%3E%3Cpath%20d%3D%22M8%2011c1-1%202-1%203%200%22/%3E%3C/g%3E%3Cg%20transform%3D%22translate%28426%2056%29%20rotate%2817%2024%2024%29%20scale%282.68%29%22%3E%3Cpath%20d%3D%22M6%2016V11a6%206%200%200%201%2012%200v5l2%202H4z%22/%3E%3Cpath%20d%3D%22M10%2020a2%202%200%200%200%204%200%22/%3E%3C/g%3E%3Cg%20transform%3D%22translate%28524%2079%29%20rotate%28-13%2024%2024%29%20scale%282.60%29%22%3E%3Cpath%20d%3D%22M4%2010h16l-2%209H6z%22/%3E%3Cpath%20d%3D%22M8%2010l3-6M16%2010l-3-6M9%2013v3M12%2013v3M15%2013v3%22/%3E%3C/g%3E%3Cg%20transform%3D%22translate%2819%20205%29%20rotate%28-11%2024%2024%29%20scale%282.97%29%22%3E%3Ccircle%20cx%3D%228%22%20cy%3D%2212%22%20r%3D%224%22/%3E%3Cpath%20d%3D%22M12%2012h9M18%2012v3M21%2012v2%22/%3E%3C/g%3E%3Cg%20transform%3D%22translate%28227%20231%29%20rotate%282%2024%2024%29%20scale%282.66%29%22%3E%3Cpath%20d%3D%22M12%2020s-7-4.5-7-10a4%204%200%200%201%207-2.5A4%204%200%200%201%2019%2010c0%205.5-7%2010-7%2010z%22/%3E%3C/g%3E%3Cg%20transform%3D%22translate%28355%20185%29%20rotate%286%2024%2024%29%20scale%282.54%29%22%3E%3Ccircle%20cx%3D%2212%22%20cy%3D%2215%22%20r%3D%223.5%22/%3E%3Ccircle%20cx%3D%227%22%20cy%3D%2210%22%20r%3D%221.6%22/%3E%3Ccircle%20cx%3D%2210.5%22%20cy%3D%226.5%22%20r%3D%221.6%22/%3E%3Ccircle%20cx%3D%2214.5%22%20cy%3D%226.5%22%20r%3D%221.6%22/%3E%3Ccircle%20cx%3D%2218%22%20cy%3D%2210%22%20r%3D%221.6%22/%3E%3C/g%3E%3Cg%20transform%3D%22translate%28554%20205%29%20rotate%28-2%2024%2024%29%20scale%282.81%29%22%3E%3Cpath%20d%3D%22M12%204l2.4%205%205.4.6-4%203.7%201.1%205.4L12%2016l-4.9%202.7%201.1-5.4-4-3.7%205.4-.6z%22/%3E%3C/g%3E%3Cg%20transform%3D%22translate%2834%20414%29%20rotate%28-9%2024%2024%29%20scale%282.89%29%22%3E%3Cpath%20d%3D%22M5%209h10v7a4%204%200%200%201-4%204H9a4%204%200%200%201-4-4z%22/%3E%3Cpath%20d%3D%22M15%2011h2a2%202%200%200%201%200%204h-2%22/%3E%3Cpath%20d%3D%22M8%203c0%201.5%201%201.5%201%203M12%203c0%201.5%201%201.5%201%203%22/%3E%3C/g%3E%3Cg%20transform%3D%22translate%28226%20392%29%20rotate%288%2024%2024%29%20scale%283.01%29%22%3E%3Cpath%20d%3D%22M4%2011l8-7%208%207v9H4z%22/%3E%3Cpath%20d%3D%22M10%2020v-5h4v5%22/%3E%3C/g%3E%3Cg%20transform%3D%22translate%28373%20428%29%20rotate%28-3%2024%2024%29%20scale%282.48%29%22%3E%3Cpath%20d%3D%22M8%204L4%207l2%203%202-1v11h8V9l2%201%202-3-4-3c-1%201.5-2.5%202-4%202S9%205.5%208%204z%22/%3E%3C/g%3E%3Cg%20transform%3D%22translate%28581%20362%29%20rotate%28-17%2024%2024%29%20scale%282.74%29%22%3E%3Cpath%20d%3D%22M5%206h14v13H5zM5%2010h14M9%204v4M15%204v4%22/%3E%3C/g%3E%3Cg%20transform%3D%22translate%2863%20581%29%20rotate%2814%2024%2024%29%20scale%282.80%29%22%3E%3Cpath%20d%3D%22M7%2014h10l-1.5%207h-7z%22/%3E%3Cpath%20d%3D%22M12%2014V9%22/%3E%3Cpath%20d%3D%22M12%209c-3%200-5-2-5-5%203%200%205%202%205%205zM12%2010c3%200%205-2%205-5-3%200-5%202-5%205z%22/%3E%3C/g%3E%3Cg%20transform%3D%22translate%28205%20576%29%20rotate%283%2024%2024%29%20scale%282.82%29%22%3E%3Ccircle%20cx%3D%2212%22%20cy%3D%2212%22%20r%3D%224%22/%3E%3Cpath%20d%3D%22M12%202v3M12%2019v3M2%2012h3M19%2012h3M4.9%204.9l2.1%202.1M17%2017l2.1%202.1M4.9%2019.1L7%2017M17%207l2.1-2.1%22/%3E%3C/g%3E%3Cg%20transform%3D%22translate%28386%20587%29%20rotate%28-1%2024%2024%29%20scale%283.06%29%22%3E%3Cpath%20d%3D%22M5%2010l1-6%204%203h4l4-3%201%206v3a7%207%200%200%201-14%200z%22/%3E%3Ccircle%20cx%3D%229.5%22%20cy%3D%2212%22%20r%3D%22.6%22/%3E%3Ccircle%20cx%3D%2214.5%22%20cy%3D%2212%22%20r%3D%22.6%22/%3E%3Cpath%20d%3D%22M11%2015l1%201%201-1%22/%3E%3C/g%3E%3Cg%20transform%3D%22translate%28573%20525%29%20rotate%285%2024%2024%29%20scale%282.89%29%22%3E%3Ccircle%20cx%3D%2210%22%20cy%3D%2212%22%20r%3D%226%22/%3E%3Cpath%20d%3D%22M16%2012h6%22/%3E%3Cpath%20d%3D%22M8%2011c1-1%202-1%203%200%22/%3E%3C/g%3E%3C/g%3E%3C/svg%3E"); background-size: 680px 680px; background-attachment: fixed; min-height: 100vh; }
+.wrap { max-width: 1180px; margin: 0 auto; padding: 24px 16px 48px; display: flex; flex-direction: column; gap: 16px; }
+.top { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.mark { width: 52px; height: 52px; border-radius: 15px; background: var(--primary); color: #fff; display: inline-flex; align-items: center; justify-content: center; flex: none; }
+.top h1 { margin: 0; font: 800 30px 'Outfit', sans-serif; color: var(--primary); }
+.badge { background: var(--ink); color: #fff; font-weight: 800; font-size: 12px; letter-spacing: .08em; padding: 6px 12px; border-radius: 999px; }
+.upd { margin-left: auto; color: var(--ink-2); font-size: 14px; }
+.card { background: #fff; border-radius: 20px; padding: 20px; box-shadow: 0 1px 2px rgba(38,48,43,.05), 0 4px 14px rgba(38,48,43,.05); min-width: 0; }
+.card h2 { margin: 0 0 12px; font: 700 20px 'Outfit', sans-serif; display: flex; align-items: center; gap: 10px; }
+.tiles { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 12px; }
+.tile .n { font: 800 32px 'Outfit', sans-serif; }
+.tile .l { font-weight: 700; } .tile .s { color: var(--muted); font-size: 13px; }
+.row2 { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; }
+.chart { display: flex; gap: 6px; align-items: flex-end; height: 160px; }
+.bar { flex: 1; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; gap: 4px; min-width: 0; }
+.bar i { display: block; width: 100%; background: var(--primary); opacity: .85; border-radius: 6px 6px 2px 2px; min-height: 2px; }
+.bar b { font-size: 11px; color: var(--ink-2); } .bar span { font-size: 11px; color: var(--muted); height: 14px; white-space: nowrap; }
+.where .r { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--line); }
+.note { color: var(--muted); font-size: 13px; margin: 10px 0 0; }
+.scroll { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 15px; }
+th { text-align: left; font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); padding: 8px 10px; border-bottom: 1px solid #E6E4DD; white-space: nowrap; }
+td { padding: 11px 10px; border-bottom: 1px solid #F0EEE8; white-space: nowrap; }
+.c { text-align: center; }
+.live { color: var(--ok); font-size: 12px; font-weight: 700; margin-left: 6px; }
+.pill { font-size: 12px; font-weight: 800; padding: 4px 10px; border-radius: 999px; background: var(--primary-soft); color: var(--primary-ink); }
+.pill.trip { background: var(--trip-soft); color: var(--trip-ink); }
+button, .btn { font: 700 14px 'Figtree', sans-serif; border: 0; cursor: pointer; border-radius: 999px; min-height: 36px; padding: 0 14px; display: inline-flex; align-items: center; gap: 6px; }
+.view { background: var(--primary-soft); color: var(--primary-ink); }
+.empty { color: var(--muted); padding: 8px 0; }
+.login { max-width: 420px; margin: 12vh auto 0; display: flex; flex-direction: column; gap: 12px; }
+.login input { height: 48px; border: 1px solid #DCDAD3; border-radius: 12px; padding: 0 14px; font: inherit; }
+.login .go { background: var(--primary); color: #fff; min-height: 48px; justify-content: center; font-size: 16px; }
+.err { color: #B4442F; font-weight: 700; margin: 0; }
+@media (max-width: 980px) { .tiles { grid-template-columns: repeat(3, minmax(0, 1fr)); } .row2 { grid-template-columns: 1fr; } }
+@media (max-width: 560px) { .tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); } .upd { margin-left: 0; width: 100%; } .tile .n { font-size: 28px; } }
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+<script>
+(function () {
+  const CAL = '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 6h14v13H5zM5 10h14M9 4v4M15 4v4"/></svg>';
+  const EYE = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>';
+  const app = document.getElementById('app');
+  const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const flag = (cc) => (cc && /^[A-Za-z]{2}$/.test(cc) ? String.fromCodePoint(...[...cc.toUpperCase()].map((c) => 0x1F1E6 + c.charCodeAt(0) - 65)) + ' ' : '');
+  const where = (x) => (x.city || x.country ? flag(x.cc) + esc([x.city, x.cc || x.country].filter(Boolean).join(', ')) : '<span style="color:var(--muted)">—</span>');
+  const mb = (b) => !Number(b) ? '0 MB' : (Number(b) / 1048576 < 0.1 && Number(b) > 0 ? '<0.1' : (Number(b) / 1048576).toFixed(Number(b) >= 10485760 ? 0 : 1)) + ' MB';
+  const day = (d) => new Date(d).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+  function ago(t) {
+    if (!t) return '<span style="color:var(--muted)">never</span>';
+    const s = Math.max(0, (Date.now() - t) / 1000);
+    if (s < 120) return 'just now';
+    if (s < 3600) return Math.round(s / 60) + ' min ago';
+    if (s < 86400) return Math.round(s / 3600) + ' h ago';
+    if (s < 172800) return 'yesterday';
+    return Math.round(s / 86400) + ' days ago';
+  }
+
+  // The key comes once in the address (?key=...), then lives only in this tab.
+  let key = '';
+  try { key = sessionStorage.getItem('kal.ownerKey') || ''; } catch (e) {}
+  const fromUrl = new URLSearchParams(location.search).get('key');
+  if (fromUrl) { key = fromUrl; try { sessionStorage.setItem('kal.ownerKey', key); } catch (e) {} }
+  if (location.search) history.replaceState(null, '', '/owner');
+
+  function login(msg) {
+    app.innerHTML = '<form class="card login" id="f"><div class="top"><span class="mark">' + CAL + '</span><h1>Kalendaryo</h1></div>' +
+      '<label for="k"><b>Owner key</b></label><input id="k" type="password" autocomplete="current-password" placeholder="Your OWNER_KEY">' +
+      (msg ? '<p class="err">' + esc(msg) + '</p>' : '') + '<button class="go" type="submit">Open owner view</button></form>';
+    document.getElementById('f').onsubmit = (e) => { e.preventDefault(); key = document.getElementById('k').value.trim(); try { sessionStorage.setItem('kal.ownerKey', key); } catch (x) {} load(); };
+  }
+
+  async function api(method, url, body) {
+    const r = await fetch(url, { method, cache: 'no-store', headers: Object.assign({ 'X-Owner-Key': key }, body ? { 'Content-Type': 'application/json' } : {}), body: body ? JSON.stringify(body) : undefined });
+    if (r.status === 404 && url.endsWith('/summary')) throw { wrongKey: true };
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error(j.message || 'Something went wrong.');
+    return j;
+  }
+
+  let timer = null, last = null;
+  async function load() {
+    clearTimeout(timer);
+    if (!key) return login();
+    try { last = await api('GET', '/api/owner/summary'); draw(last); }
+    catch (e) {
+      if (e && e.wrongKey) { try { sessionStorage.removeItem('kal.ownerKey'); } catch (x) {} key = ''; return login('That key is not right.'); }
+      if (!last) app.innerHTML = '<div class="card">Could not load. Trying again…</div>';
+    }
+    timer = setTimeout(load, 30000);
+  }
+
+  function draw(d) {
+    const t = d.tiles;
+    const tile = (n, l, s, color) => '<div class="card tile"><div class="n"' + (color ? ' style="color:' + color + '"' : '') + '>' + n + '</div><div class="l">' + l + '</div><div class="s">' + s + '</div></div>';
+    const mx = Math.max(1, ...d.days.map((x) => x.n));
+    const bars = d.days.map((x, i) => '<div class="bar" title="' + esc(day(x.day + 'T12:00:00')) + ': ' + x.n + '"><b>' + (x.n || '') + '</b><i style="height:' + Math.round((x.n / mx) * 100) + '%"></i><span>' +
+      (i === 0 || i === 6 || i === d.days.length - 1 ? esc(day(x.day + 'T12:00:00')) : '') + '</span></div>').join('');
+    const countries = d.countries.length ? d.countries.map((c) => '<div class="r"><span>' + flag(c.cc) + esc(c.country) + '</span><b>' + c.n + '</b></div>').join('')
+      : '<p class="empty">No places yet. They show up after the first visits.</p>';
+    const homes = d.homes.length ? '<div class="scroll"><table><tr><th>Home</th><th>Where</th><th class="c">People</th><th>Created</th><th>Last active</th><th class="c">Items</th><th class="c">Photos</th><th></th></tr>' +
+      d.homes.map((h) => '<tr><td><b>' + esc(h.name) + '</b>' + (h.online ? '<span class="live">● online</span>' : '') + '</td><td>' + where(h) + '</td><td class="c">' + h.people + '</td><td>' + day(h.created_at) +
+        '</td><td>' + ago(h.last_active) + '</td><td class="c">' + h.items + '</td><td class="c">' + mb(h.photo_bytes) + '</td><td><button class="view" data-id="' + esc(h.id) + '">' + EYE + 'View</button></td></tr>').join('') + '</table></div>'
+      : '<p class="empty">No homes yet.</p>';
+    const trips = d.trips == null ? '' : '<section class="card"><h2><span class="pill trip">TRIPS</span>' + d.trips.length + (d.trips.length === 1 ? ' trip' : ' trips') + '</h2>' +
+      (d.trips.length ? '<div class="scroll"><table><tr><th>Trip</th><th>Dates</th><th>Where</th><th class="c">People</th><th>Last active</th><th class="c">Plans</th><th class="c">Files</th></tr>' +
+        d.trips.map((x) => '<tr><td><b>' + esc(x.name) + '</b></td><td>' + day(x.start_date + 'T12:00:00') + (x.end_date && x.end_date !== x.start_date ? ' – ' + day(x.end_date + 'T12:00:00') : '') + '</td><td>' + where(x) +
+          '</td><td class="c">' + x.people + '</td><td>' + ago(x.last_active) + '</td><td class="c">' + x.plans + '</td><td class="c">' + mb(x.file_bytes) + '</td></tr>').join('') + '</table></div>'
+        : '<p class="empty">No trips yet.</p>') + '</section>';
+    app.innerHTML =
+      '<div class="top"><span class="mark">' + CAL + '</span><h1>Kalendaryo</h1><span class="badge">OWNER VIEW</span><span class="upd">Updated ' + new Date(d.now).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }) + ' · refreshes every 30 s</span></div>' +
+      '<div class="tiles">' + tile(d.visitors_now, 'Visitors now', 'active in the last 2 min', 'var(--ok)') + tile(t.today, 'Visitors today', t.week + ' this week') +
+        tile(t.homes, 'Homes', '+' + t.homes_week + ' this week') + (t.trips != null ? tile(t.trips, 'Trips', '+' + t.trips_week + ' this week') : '') +
+        tile(t.people, 'People', 'in homes' + (t.trips != null ? ' and trips' : '')) + tile(t.ai_today, 'AI uses today', d.ai_on ? 'across all homes' : 'AI is off') + '</div>' +
+      '<div class="row2"><section class="card"><h2>Visitors, last 14 days</h2><div class="chart">' + bars + '</div><p class="note">Counted once per device per day. Addresses are never saved.</p></section>' +
+        '<section class="card where"><h2>Where visitors are</h2>' + countries + '<p class="note">Last 30 days. City and country only.</p></section></div>' +
+      '<section class="card"><h2><span class="pill">HOMES</span>' + d.homes.length + (d.homes.length === 1 ? ' home' : ' homes') + '</h2>' + homes + '</section>' + trips +
+      '<p class="note">Database: ' + mb(t.db_bytes) + ' used. “View” opens that home read-only for 2 hours; your visit doesn’t count as theirs.</p>';
+    app.querySelectorAll('.view').forEach((b) => (b.onclick = async () => {
+      const w = window.open('about:blank', '_blank');
+      try { const r = await api('POST', '/api/owner/view', { familyId: b.dataset.id }); if (w) w.location = r.link; else location.href = r.link; }
+      catch (e) { if (w) w.close(); alert(e.message); }
+    }));
+  }
+
+  load();
+})();
+</script>
+</body>
+</html>

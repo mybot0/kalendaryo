@@ -58,6 +58,24 @@ CREATE TABLE IF NOT EXISTS blobs (
   created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 CREATE INDEX IF NOT EXISTS blobs_family ON blobs(family_id);
+-- owner view: one row per device per day (device = one-way hash, never the address), and where homes/trips are used
+CREATE TABLE IF NOT EXISTS visits (
+  day DATE NOT NULL,
+  vid TEXT NOT NULL,
+  city TEXT,
+  country TEXT,
+  cc TEXT,
+  PRIMARY KEY (day, vid)
+);
+CREATE TABLE IF NOT EXISTS places (
+  kind TEXT NOT NULL,
+  ref TEXT NOT NULL,
+  city TEXT,
+  country TEXT,
+  cc TEXT,
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  PRIMARY KEY (kind, ref)
+);
 `;
 
 async function migrate() { await pool.query(SCHEMA); }

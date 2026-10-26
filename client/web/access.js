@@ -46,7 +46,7 @@
           h('p', {}, 'Send this link to ' + (label.value.trim() || 'the person') + '. They will join as ' + roleLabel(role) + '.'),
           linkBox(url),
           h('div', { class: 'btn-row' }, ui.button('Copy link', { variant: 'primary', icon: 'copy', onClick: () => copy(url, 'Invite link') }), share),
-          h('p', { class: 'hint' }, 'It works one time and expires in ' + r.days + ' days. You can cancel it in the Family section.'));
+          h('p', { class: 'hint' }, 'It works one time and expires in ' + r.days + ' days. You can cancel it in the People section.'));
         make.remove();
         loadPeople();
       } catch (e) { ui.toast(e.userMessage); make.disabled = false; }
@@ -124,7 +124,14 @@
     const content = document.querySelector('.content');
     if (!content) return;
     if (!banner) { banner = h('div', { class: 'status-banner role-banner', role: 'status' }); content.prepend(banner); }
-    banner.textContent = viewer ? 'You can view this family. Ask an owner to make you an Editor to change things.' : '';
+    if (KAL.me && KAL.me.viewing) {
+      // The site owner looking at someone's home (owner view): read-only, not counted as their visit.
+      banner.className = 'status-banner role-banner owner-viewing';
+      banner.replaceChildren('👁 Viewing “' + ((KAL.family && KAL.family.name) || 'this home') + '” as the site owner · read-only · your visit doesn’t count as theirs',
+        h('a', { class: 'owner-back', href: '/owner' }, 'Back to owner view'));
+    } else {
+      banner.textContent = viewer ? 'You can view this family. Ask an owner to make you an Editor to change things.' : '';
+    }
     banner.hidden = !viewer;
   }
   function removedScreen(msg) {
@@ -140,7 +147,7 @@
     if (!fresh || !KAL.me) return;
     const s = ui.sheet({ title: 'Welcome, ' + KAL.me.name + '!', body: h('div', { class: 'event-form' },
       h('p', {}, 'This page is your own link to ' + KAL.family.name + '. Bookmark it or save it, so you can come back.'),
-      linkBox(myLink()), h('p', { class: 'hint' }, 'Do not share this link: anyone with it gets in as you. To add family, use Invite someone in the Family section.')),
+      linkBox(myLink()), h('p', { class: 'hint' }, 'Do not share this link: anyone with it gets in as you. To add people, use Invite someone in the People section.')),
       footer: [ui.button('Copy my link', { icon: 'copy', onClick: () => copy(myLink(), 'Your link') }), ui.button('Got it', { variant: 'primary', big: true, onClick: () => s.close() })] });
   }
 

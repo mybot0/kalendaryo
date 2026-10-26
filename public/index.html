@@ -722,6 +722,10 @@ body.land-body {
 .land-pick .segmented { display: grid; grid-template-columns: 1fr 1fr; width: 100%; height: 48px; box-sizing: border-box; }
 @media (max-width: 559px) { .land-wide .land-steps { grid-template-columns: 1fr; } }
 
+/* Owner view: banner when the site owner opens someone's home (read-only). */
+.status-banner.owner-viewing { background: #26302B; color: #fff; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; font-weight: 700; }
+.owner-viewing .owner-back { margin-left: auto; background: #fff; color: #26302B; padding: 6px 14px; border-radius: 999px; text-decoration: none; }
+
 </style>
 </head>
 <body>
@@ -883,7 +887,7 @@ body.land-body {
   async function refreshMe() {
     const r = await api('GET', '/api/me');
     KAL.me = r.me; KAL.family = r.family; KAL.ai = r.ai || { enabled: false, left: 0 };
-    KAL.recent.remember(KAL.token, r.family.name, r.me.name);
+    if (!r.me.viewing) KAL.recent.remember(KAL.token, r.family.name, r.me.name); // the owner viewing leaves no trace on this device's list
     KAL.emit('me', r.me);
     return r;
   }
@@ -3292,7 +3296,14 @@ body.land-body {
     const content = document.querySelector('.content');
     if (!content) return;
     if (!banner) { banner = h('div', { class: 'status-banner role-banner', role: 'status' }); content.prepend(banner); }
-    banner.textContent = viewer ? 'You can view this family. Ask an owner to make you an Editor to change things.' : '';
+    if (KAL.me && KAL.me.viewing) {
+      // The site owner looking at someone's home (owner view): read-only, not counted as their visit.
+      banner.className = 'status-banner role-banner owner-viewing';
+      banner.replaceChildren('👁 Viewing “' + ((KAL.family && KAL.family.name) || 'this home') + '” as the site owner · read-only · your visit doesn’t count as theirs',
+        h('a', { class: 'owner-back', href: '/owner' }, 'Back to owner view'));
+    } else {
+      banner.textContent = viewer ? 'You can view this family. Ask an owner to make you an Editor to change things.' : '';
+    }
     banner.hidden = !viewer;
   }
   function removedScreen(msg) {
