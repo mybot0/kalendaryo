@@ -4,7 +4,7 @@ services:
   - type: web
     name: kalendaryo
     runtime: node
-    plan: free
+    plan: 0.5c-512mb
     buildCommand: npm install
     startCommand: npm start
     healthCheckPath: /healthz
