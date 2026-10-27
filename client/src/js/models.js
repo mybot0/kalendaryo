@@ -103,6 +103,9 @@
     listitem(d) {
       const at = Number(d.at);
       const out = { listId: String(d.listId || ''), text: text(d.text, 100) || 'Item', done: !!d.done, at: Number.isFinite(at) ? at : Date.now() };
+      const group = text(d.group, 90), also = text(d.also, 60);
+      if (group) out.group = group; // the meal these groceries are for, like "Tue · Chicken adobo"
+      if (also) out.also = also;    // "also for Adobo" when two meals need the same thing
       if (d.demo) out.demo = true;
       return out;
     },
@@ -119,6 +122,7 @@
     meal(d) {
       const out = { date: isKey(d.date) ? d.date : PL.D.today(), slot: ['breakfast', 'lunch', 'dinner'].includes(d.slot) ? d.slot : 'dinner',
         title: text(d.title, 80) || 'Meal', recipeId: text(d.recipeId, 100) };
+      if (d.shopped) out.shopped = true; // its ingredients were sent to the groceries
       if (d.demo) out.demo = true;
       return out;
     },
@@ -126,6 +130,31 @@
     countdown(d) {
       const out = { title: text(d.title, 60) || 'Countdown', date: isKey(d.date) ? d.date : PL.D.today(), emoji: text(d.emoji, 8), yearly: !!d.yearly };
       if (d.demo) out.demo = true;
+      return out;
+    },
+
+    // A public holiday on the calendar. set = which holiday list it came from, like "CA-BC".
+    holiday(d) {
+      const out = { date: isKey(d.date) ? d.date : PL.D.today(), title: text(d.title, 80) || 'Holiday', set: text(d.set, 20) };
+      if (d.check) out.check = true; // dates guessed by AI: please check
+      return out;
+    },
+
+    // Notes page: a plain note, or a simple table (a mini spreadsheet).
+    note(d) {
+      const kind = d.kind === 'table' ? 'table' : 'note';
+      const at = Number(d.at);
+      const out = { kind, title: text(d.title, 80) || (kind === 'table' ? 'Table' : 'Note'), by: text(d.by, 40), at: Number.isFinite(at) ? at : Date.now() };
+      if (kind === 'note') out.text = String(d.text == null ? '' : d.text).slice(0, 20000);
+      else {
+        const types = ['text', 'number', 'check'];
+        out.cols = (Array.isArray(d.cols) ? d.cols : []).slice(0, 12).map((c) => ({ name: text(c && c.name, 40) || 'Column', type: types.includes(c && c.type) ? c.type : 'text' }));
+        if (!out.cols.length) out.cols = [{ name: 'Item', type: 'text' }];
+        out.rows = (Array.isArray(d.rows) ? d.rows : []).slice(0, 300).map((r) => out.cols.map((c, i) => {
+          const v = Array.isArray(r) ? r[i] : '';
+          return c.type === 'check' ? !!v : text(v, 200);
+        }));
+      }
       return out;
     },
 

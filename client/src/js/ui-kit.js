@@ -11,16 +11,20 @@
 
   /* ---------- toast (short message at the bottom) ---------- */
   let toastTimer = null;
-  function toast(message) {
+  // toast('Saved.')  or  toast('5 items added.', { action: 'Undo', onAction: fn })
+  function toast(message, opts) {
     let el = document.getElementById('pl-toast');
     if (!el) {
       el = h('div', { id: 'pl-toast', role: 'status', 'aria-live': 'polite', class: 'toast' });
       document.body.append(el);
     }
-    el.textContent = message;
+    const o = opts || {};
+    el.replaceChildren(h('span', {}, message));
+    el.classList.toggle('has-action', !!o.action);
+    if (o.action) el.append(h('button', { type: 'button', class: 'toast-act', onclick: () => { el.classList.remove('show'); o.onAction && o.onAction(); } }, o.action));
     el.classList.add('show');
     clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => el.classList.remove('show'), 4500);
+    toastTimer = setTimeout(() => el.classList.remove('show'), o.action ? 7000 : 4500);
   }
 
   /* ---------- avatar ---------- */

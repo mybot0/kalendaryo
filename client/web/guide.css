@@ -116,3 +116,6 @@ html.g-open .tour-switch { z-index: 125; } /* stays visible (and lit) during a t
 
 .g-box.g-sheet.g-sheet-top { top: 0 !important; bottom: auto; border-radius: 0 0 26px 26px; border-width: 0 0 3px; padding-top: max(16px, env(safe-area-inset-top)); }
 @media (max-width: 639px) { html.g-open .g-box.g-sheet.g-sheet-top { padding-top: 56px; } } /* room for the Guided tour switch above the sheet */
+/* keep page headers clear of the Guided tour switch */
+body:has(> .tour-switch) .main { padding-top: 62px; }
+@media (max-width: 639px) { body:has(> .tour-switch) .main { padding-top: 54px; } }

@@ -129,18 +129,32 @@
       box.replaceChildren(h('h2', {}, 'This invite cannot be used'), h('p', {}, peek.reason), h('a', { class: 'btn soft big', href: '/' }, 'Go to the start page'));
       return box;
     }
+    const m = peek.member;
     const name = h('input', { type: 'text', maxlength: '30', placeholder: 'Your name', autocomplete: 'given-name' });
     const err = errorBox();
     const btn = ui.button('Join ' + peek.familyName, { variant: 'primary', big: true, icon: 'users', type: 'submit', block: true });
     async function go(e) {
       e.preventDefault();
-      if (!name.value.trim()) { showErr(err, 'Please type your name.'); name.focus(); return; }
+      if (!m && !name.value.trim()) { showErr(err, 'Please type your name.'); name.focus(); return; }
       btn.disabled = true; showErr(err, '');
       try {
-        const r = await KAL.api('POST', '/api/join', { code: KAL.joinCode, name: name.value.trim() });
+        const r = await KAL.api('POST', '/api/join', { code: KAL.joinCode, name: m ? m.name : name.value.trim() });
         try { localStorage.setItem('kal.newlink', '1'); } catch (x) { /* fine */ }
         location.replace('/c/' + r.token);
       } catch (x) { showErr(err, x.userMessage); btn.disabled = false; }
+    }
+    if (m) {
+      // The invite was made for someone in the family: their name, color, icon and birthday are ready.
+      const bday = m.birthday ? new Date(m.birthday + 'T12:00').toLocaleDateString(undefined, { month: 'long', day: 'numeric' }) : '';
+      box.classList.add('join-hi');
+      box.replaceChildren(h('form', { class: 'stack join-form', onsubmit: go },
+        ui.avatar({ name: m.name, avatar: m.avatar, color: m.color || PL.config.neutralColor }, 88),
+        h('h2', {}, 'Hi ' + m.name + '!'),
+        h('p', {}, (peek.by ? peek.by + ' invited you to ' : 'You are invited to ') + peek.familyName + '. Your name' + (m.color ? ', color' : '') + (bday ? ' and birthday are' : ' is') + ' already set.'),
+        h('p', { class: 'join-meta' }, m.color ? h('span', { class: 'join-dot', style: 'background:' + m.color }) : null, m.color ? 'Your color' : null, bday ? ' · 🎂 ' + bday : null),
+        h('p', { class: 'sub' }, 'You will join as ' + ROLE_TEXT[peek.role] + '.'),
+        err, btn, h('p', { class: 'hint' }, 'Not ' + m.name + '? Ask ' + (peek.by || 'the person who sent it') + ' for a new link.')));
+      return box;
     }
     box.replaceChildren(h('form', { class: 'stack', onsubmit: go },
       h('h2', {}, 'You are invited to ' + peek.familyName), h('p', {}, 'You will join as ' + ROLE_TEXT[peek.role] + '.'),

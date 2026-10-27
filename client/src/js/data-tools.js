@@ -152,7 +152,9 @@
       listitems: PL.state.listitems,
       recipes: PL.state.recipes,
       meals: PL.state.meals,
-      countdowns: PL.state.countdowns
+      countdowns: PL.state.countdowns,
+      holidays: PL.state.holidays,
+      notes: PL.state.notes
     };
   }
   async function saveBackup() {
@@ -201,7 +203,7 @@
     for (const c of obj.completions || []) {
       if (safeId(c.id)) { if (!(await PL.store.setDoc('completions/' + c.id, PL.models.completion(c)))) return false; }
     }
-    for (const [col, kind] of [['routines', 'routine'], ['rlogs', 'rlog'], ['rewards', 'reward'], ['redemptions', 'redemption'], ['lists', 'list'], ['listitems', 'listitem'], ['recipes', 'recipe'], ['meals', 'meal'], ['countdowns', 'countdown']]) {
+    for (const [col, kind] of [['routines', 'routine'], ['rlogs', 'rlog'], ['rewards', 'reward'], ['redemptions', 'redemption'], ['lists', 'list'], ['listitems', 'listitem'], ['recipes', 'recipe'], ['meals', 'meal'], ['countdowns', 'countdown'], ['holidays', 'holiday'], ['notes', 'note']]) {
       for (const x of obj[col] || []) {
         const doc = PL.models[kind](x);
         if (safeId(x.id)) { if (!(await PL.store.setDoc(col + '/' + x.id, doc))) return false; }

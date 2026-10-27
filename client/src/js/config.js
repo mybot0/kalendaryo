@@ -8,7 +8,7 @@
 
   PL.config = {
     appName: 'Kalendaryo',
-    tagline: 'your family calendar',
+    tagline: 'your home calendar',
     version: '0.5 (round 3)',
 
     // Pastel palette offered when choosing a person's or an event's color.
@@ -55,7 +55,7 @@
 
     // Household-wide settings (shared by every device). Saved in the database.
     householdDefaults: {
-      householdName: 'Our family',
+      householdName: 'Our home',
       weekStart: 0,   // 0 = Sunday, 1 = Monday
       hour12: true,
       weatherPlace: null, // { name, lat, lon }
@@ -107,8 +107,9 @@
       { id: 'meals',    label: 'Meals',    icon: 'meal',     ready: true },
       { id: 'countdowns', label: 'Countdowns', icon: 'cake',  ready: true, hidden: true },
       { id: 'lists',    label: 'Lists',    icon: 'list',     ready: true },
+      { id: 'notes',    label: 'Notes',    icon: 'note',     ready: true },
       { id: 'photos',   label: 'Photos',   icon: 'image',    ready: true },
-      { id: 'family',   label: 'Family',   icon: 'users',    ready: true },
+      { id: 'family',   label: 'People',   icon: 'users',    ready: true },
       { id: 'settings', label: 'Settings', icon: 'settings', ready: true }
     ]
   };

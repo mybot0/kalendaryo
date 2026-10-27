@@ -147,6 +147,10 @@ input:focus, select:focus, textarea:focus { border-color: var(--primary); outlin
 
 .toast { position: fixed; left: 50%; bottom: calc(92px + env(safe-area-inset-bottom)); transform: translate(-50%, 20px); background: var(--ink); color: #fff; padding: 12px 20px; border-radius: 999px; opacity: 0; pointer-events: none; transition: opacity .2s, transform .2s; z-index: 95; max-width: calc(100vw - 32px); text-align: center; }
 .toast.show { opacity: 1; transform: translate(-50%, 0); }
+.toast.has-action { display: flex; align-items: center; gap: 14px; padding: 8px 8px 8px 20px; }
+.toast.has-action.show { pointer-events: auto; }
+html.has-sheet .toast { bottom: calc(110px + env(safe-area-inset-bottom)); }
+.toast-act { border: 0; border-radius: 999px; background: #FFD666; color: var(--ink); font: 700 .95rem var(--font); min-height: 38px; padding: 0 16px; cursor: pointer; }
 @media (min-width: 900px) { .toast { bottom: 28px; } }
 
 /* event card */
@@ -271,7 +275,8 @@ input:focus, select:focus, textarea:focus { border-color: var(--primary); outlin
 .mv-num { align-self: flex-start; border: 0; background: none; font-weight: 800; min-width: 32px; min-height: 32px; border-radius: 50%; }
 .mv-num:hover { background: rgba(0,0,0,.06); }
 .mv-items { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
-.mv-ev { border: 0; background: var(--c); border-radius: 6px; padding: 2px 6px; font-size: .75rem; font-weight: 600; text-align: left; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-height: 22px; }
+.mv-ev { border: 0; background: var(--c); border-radius: 6px; padding: 2px 6px; font-size: .75rem; font-weight: 600; text-align: left; overflow: hidden; min-height: 22px; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow-wrap: anywhere; flex: none; }
+.mv-time { font-weight: 800; margin-right: 4px; }
 .mv-more { border: 0; background: none; color: var(--ink-2); font-size: .72rem; font-weight: 700; text-align: left; padding: 0 4px; min-height: 22px; }
 @media (max-width: 640px) { .mv-grid { grid-template-rows: repeat(var(--rows), minmax(64px, 1fr)); } .mv-ev { font-size: 0; padding: 0; height: 8px; min-height: 8px; width: 8px; border-radius: 50%; display: inline-block; } .mv-items { flex-direction: row; flex-wrap: wrap; gap: 3px; padding: 0 3px; } .mv-more { font-size: .65rem; } .mv-num { min-width: 28px; min-height: 28px; font-size: .85rem; } }
 .week-view { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 8px; }
@@ -316,6 +321,33 @@ input:focus, select:focus, textarea:focus { border-color: var(--primary); outlin
   .ws-row:last-child { border-bottom: 0; }
 }
 
+
+/* holidays */
+.mv-ev.hol { color: #8E2A4E; }
+.hol-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; background: #FFF6FA; border: 2px solid #F7CFDD; border-radius: 16px; padding: 8px 8px 8px 14px; margin-bottom: 12px; font-weight: 700; color: #8E2A4E; }
+.hol-pill { background: #fff; border: 1px solid #F2C6D6; border-radius: 999px; padding: 4px 12px; font-size: .9rem; }
+.hol-bar .btn { margin-left: auto; min-height: 40px; }
+.hol { gap: 14px; }
+.hol-search { display: flex; gap: 10px; }
+.hol-search input { flex: 1; min-width: 0; min-height: 50px; font-size: 1.05rem; }
+.hol-chip { font-weight: 700; }
+.hol-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 6px; }
+.hol-head h3 { font: 800 1.1rem var(--font-head); }
+.hol-years { display: inline-flex; background: var(--surface-2); border-radius: 999px; padding: 4px; }
+.hol-year { border: 0; background: none; border-radius: 999px; min-height: 40px; padding: 0 16px; font-weight: 700; color: var(--ink-2); cursor: pointer; }
+.hol-year[aria-pressed=true] { background: #fff; color: var(--ink); box-shadow: 0 1px 3px rgba(0,0,0,.12); }
+.hol-list { display: flex; flex-direction: column; gap: 10px; }
+.hol-rows { display: flex; flex-direction: column; }
+.hol-date { width: 8.4em; flex: none; color: var(--ink-2); font-weight: 700; font-size: .92rem; }
+.hol-tag { font-size: .75rem; font-weight: 700; border-radius: 999px; padding: 2px 9px; background: var(--surface-2); color: var(--ink-2); white-space: nowrap; }
+.hol-src { font-size: .88rem; color: var(--primary); font-weight: 700; margin: 0; }
+.hol-src.ai { color: #8A5F00; }
+.hol-set { border-radius: 16px; background: var(--surface-2); padding: 12px 14px; display: flex; flex-direction: column; gap: 8px; }
+.hol-set-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.hol-count { font-weight: 700; color: var(--primary); background: #fff; border-radius: 999px; padding: 3px 10px; font-size: .85rem; white-space: nowrap; }
+.hol-set-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; }
+@media (max-width: 520px) { .hol-date { width: 6.6em; font-size: .85rem; } }
+@media (max-width: 640px) { .hol-bar { display: none; } }
 
 /* chores.css — the Chores screen and its Home widget. */
 .chores-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 16px; margin-bottom: 16px; }
@@ -389,6 +421,63 @@ input:focus, select:focus, textarea:focus { border-color: var(--primary); outlin
 .add-row input { flex: 1; min-width: 0; }
 .list-note { padding: 14px 8px; }
 
+/* grocery headings per meal */
+.li-group { display: flex; flex-direction: column; gap: 2px; }
+.li-group + .li-group { margin-top: 10px; }
+.li-group-head { display: flex; align-items: center; gap: 10px; font: 800 .98rem var(--font); color: #2E5748; padding: 8px 4px; }
+.li-group-head.other { color: var(--ink-2); }
+.li-pill { background: var(--primary-soft); border-radius: 999px; padding: 3px 10px; font-size: .8rem; }
+.li-group-head.other .li-pill { background: var(--surface-2); }
+.chore-title .li-also { margin-left: 8px; }
+
+/* Notes: notes and simple tables */
+.notes-cols { display: grid; grid-template-columns: 300px minmax(0, 1fr); gap: 16px; align-items: start; }
+.note-list { display: flex; flex-direction: column; gap: 8px; }
+.note-item { display: flex; align-items: center; gap: 12px; border: 0; background: var(--surface); border-radius: 16px; box-shadow: var(--shadow); padding: 12px 14px; text-align: left; cursor: pointer; min-height: 64px; }
+.note-item:hover { background: var(--surface-2); }
+.note-item.on { box-shadow: 0 0 0 3px var(--primary); }
+.note-kind { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; flex: none; background: #FFF3C4; color: #7A5A00; }
+.note-kind.table { background: var(--primary-soft); color: var(--primary); }
+.note-kind .ic { width: 22px; height: 22px; }
+.note-item-text { display: flex; flex-direction: column; min-width: 0; }
+.note-item-text strong { font: 700 1.05rem var(--font-head); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.note-editor { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.note-head { display: flex; align-items: center; gap: 10px; }
+.note-back { display: none; }
+.note-title { flex: 1; min-width: 0; font: 800 1.5rem var(--font-head); border: 0; border-bottom: 2px dashed transparent; border-radius: 0; background: none; padding: 4px 0; min-height: 0; }
+.note-title:hover, .note-title:focus { border-bottom-color: var(--line); box-shadow: none; }
+.note-status { color: var(--ink-3); font-size: .85rem; font-weight: 700; white-space: nowrap; }
+.note-text { width: 100%; min-height: 360px; font-size: 1.05rem; line-height: 1.6; resize: vertical; }
+.note-empty { min-height: 120px; display: grid; place-items: center; }
+.tbl-wrap { display: flex; flex-direction: column; gap: 12px; }
+.tbl-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.tbl { border-collapse: collapse; width: 100%; }
+.tbl th, .tbl td { border: 1px solid var(--line); padding: 0; text-align: left; }
+.tbl th { background: var(--surface-2); font-size: .88rem; color: var(--ink-2); }
+.tbl-col { border: 0; background: none; width: 100%; min-height: 42px; padding: 0 12px; font: 800 .88rem var(--font); color: var(--ink-2); text-align: inherit; cursor: pointer; }
+.tbl-col:hover { background: var(--primary-soft); color: var(--primary); }
+.tbl td input[type=text] { width: 100%; border: 0; border-radius: 0; background: none; min-height: 44px; padding: 0 12px; font-size: 1rem; }
+.tbl td input[type=text]:focus { background: #FFFBEA; box-shadow: inset 0 0 0 2px #FFD666; }
+.tbl .num, .tbl .num input[type=text], .tbl th.num .tbl-col { text-align: right; }
+.tbl-check { text-align: center !important; width: 90px; }
+.tbl-check input { width: 22px; height: 22px; accent-color: var(--primary); }
+.tbl-x { width: 44px; border: 0 !important; background: none !important; }
+.tbl-x .icon-btn { width: 36px; height: 36px; min-width: 36px; color: var(--ink-3); }
+.tbl tfoot td { background: var(--primary-soft); font-weight: 800; padding: 10px 12px; white-space: nowrap; }
+@media (max-width: 760px) {
+  .notes-cols { grid-template-columns: minmax(0, 1fr); }
+  .notes-page.open .note-list { display: none; }
+  .notes-page.open .note-back { display: inline-flex; }
+  .notes-page:not(.open) .note-empty { display: none; }
+  .note-head { flex-wrap: wrap; }
+  .note-title { flex-basis: 100%; order: 2; }
+  .notes-page .page-head { flex-wrap: wrap; gap: 10px; }
+  .notes-page .page-head .btn-row { width: 100%; }
+  .notes-page .page-head .btn-row .btn { flex: 1; }
+  .tbl td input[type=text] { padding: 0 8px; }
+  .tbl-check { width: 64px; }
+}
+
 /* meals.css — meal plan, recipes, countdowns. */
 .meal-opts { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 20px; margin-bottom: 14px; }
 .meal-week { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 12px; }
@@ -396,10 +485,9 @@ input:focus, select:focus, textarea:focus { border-color: var(--primary); outlin
 .meal-row { display: flex; align-items: center; gap: 10px; min-height: 56px; width: 100%; border: 0; background: var(--surface-2); border-radius: var(--radius-sm); padding: 6px 12px; text-align: left; }
 .meal-row:hover { background: var(--primary-soft); }
 .meal-slot { font-size: .72rem; font-weight: 800; text-transform: uppercase; letter-spacing: .05em; color: var(--ink-3); width: 5.4em; flex: none; }
-.meal-title { flex: 1; min-width: 0; font-weight: 700; overflow-wrap: anywhere; }
+.meal-title { flex: 1; min-width: 0; font-weight: 700; overflow-wrap: break-word; hyphens: auto; }
 .meal-title.empty { color: var(--ink-3); font-weight: 600; }
 .meal-row .ic { width: 20px; height: 20px; color: var(--ink-3); }
-.recipe-card { min-height: 140px; }
 .recipe-emoji { font-size: 2.2rem; line-height: 1; }
 .ing-list, .step-list { margin: 0; padding-left: 1.3em; display: flex; flex-direction: column; gap: 6px; }
 .step-list li { padding-left: 4px; }
@@ -446,8 +534,6 @@ input:focus, select:focus, textarea:focus { border-color: var(--primary); outlin
 .viewer-stage { flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 0 8px 16px; }
 .viewer-img { flex: 1; min-width: 0; max-height: 100%; object-fit: contain; border-radius: 12px; }
 @media (max-width: 640px) { .viewer-stage .icon-btn { position: absolute; bottom: 20px; z-index: 2; } .viewer-stage .icon-btn:first-child { left: 20px; } .viewer-stage .icon-btn:last-child { right: 20px; } .viewer-img { max-height: calc(100% - 70px); align-self: flex-start; } }
-.shop-box { display: flex; flex-direction: column; gap: 16px; max-width: 640px; }
-.shop-row { display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: end; }
 .ing-pick { display: flex; align-items: center; gap: 12px; min-height: 52px; padding: 6px 10px; border-radius: var(--radius-sm); background: var(--surface-2); }
 .ing-pick input[type=checkbox] { width: 24px; height: 24px; flex: none; }
 .ing-pick input[type=text] { flex: 1; min-width: 0; min-height: 40px; border: 0; background: transparent; padding: 4px 6px; font-weight: 600; }
@@ -653,6 +739,64 @@ input:focus, select:focus, textarea:focus { border-color: var(--primary); outlin
 @keyframes chip { 0%, 80% { opacity: 1; } 100% { opacity: 0; } }
 .arr-bar .btn:disabled { opacity: .45; }
 
+/* Meals: "What do you want to cook?" and grocery check list */
+.btn.gold { background: #FFD666; color: var(--ink); }
+.btn.gold:disabled { opacity: .65; }
+.find-box { background: linear-gradient(135deg, #FFF6D6, #FDEFE6); border: 2px solid #FFE3A0; border-radius: 24px; padding: 20px; display: flex; flex-direction: column; gap: 12px; margin-bottom: 18px; }
+.find-box h2 { display: flex; align-items: center; gap: 10px; font-size: 1.45rem; }
+.find-box h2 .ic { color: #B07A00; }
+.find-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.find-row > input { flex: 1 1 260px; min-width: 0; min-height: 54px; border: 2px solid #E8D9A8; border-radius: 16px; font-size: 1.1rem; padding: 0 16px; background: #fff; }
+.stepper { display: inline-flex; align-items: center; gap: 8px; min-height: 54px; padding: 0 6px 0 14px; border: 2px solid #E8D9A8; border-radius: 16px; background: #fff; font-weight: 700; }
+.stepper button { width: 40px; height: 40px; border: 0; border-radius: 12px; background: var(--surface-2); font: 800 1.3rem var(--font); color: var(--ink); cursor: pointer; }
+.stepper-num { min-width: 1.4em; text-align: center; font-size: 1.1rem; }
+.stepper span:last-child { padding-right: 8px; }
+.find-tip { color: #7A5A00; font-size: .92rem; margin: 0; }
+.cooking { display: flex; align-items: center; gap: 12px; color: #7A5A00; font-weight: 700; padding: 6px 0; }
+.cooking-pot { font-size: 1.9rem; display: inline-block; animation: cook-bob 1s ease-in-out infinite; }
+@keyframes cook-bob { 0%, 100% { transform: translateY(0) rotate(-6deg); } 50% { transform: translateY(-5px) rotate(6deg); } }
+.reduce-motion .cooking-pot { animation: none; }
+@media (prefers-reduced-motion: reduce) { .cooking-pot { animation: none; } }
+.found { display: flex; flex-direction: column; gap: 16px; margin-bottom: 18px; }
+.found-head { display: flex; gap: 14px; align-items: flex-start; }
+.found-emoji { font-size: 2.4rem; line-height: 1; padding-top: 6px; }
+.found-mid { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+.found-badge { align-self: flex-start; font-size: .74rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; padding: 4px 10px; border-radius: 999px; background: #FFF3C4; color: #7A5A00; }
+.found-title { font: 800 1.6rem var(--font-head); border: 0; border-bottom: 2px dashed transparent; border-radius: 0; padding: 2px 0; min-height: 0; background: none; width: 100%; }
+.found-title:hover, .found-title:focus { border-bottom-color: #E8D9A8; box-shadow: none; }
+.found-cols { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 18px; }
+.found-cols textarea { width: 100%; min-height: 260px; }
+.found-ings { display: flex; flex-direction: column; gap: 6px; margin-bottom: 10px; }
+.found-ings .icon-btn { width: 40px; height: 40px; min-width: 40px; }
+.found-foot { display: flex; flex-wrap: wrap; gap: 10px; justify-content: flex-end; border-top: 1px solid var(--line); padding-top: 14px; }
+@media (max-width: 640px) { .find-row .btn { flex: 1 1 auto; } .find-box h2 { font-size: 1.25rem; } }
+@media (max-width: 760px) { .found-cols { grid-template-columns: minmax(0, 1fr); } .found-cols textarea { min-height: 180px; } .found-foot .btn { flex: 1 1 auto; } }
+.recipes-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 4px 0 12px; }
+.recipe-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
+.recipe-card { background: var(--surface); border-radius: var(--radius); box-shadow: var(--shadow); padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+.recipe-open { border: 0; background: none; padding: 4px; display: flex; flex-direction: column; align-items: flex-start; gap: 4px; text-align: left; border-radius: 12px; cursor: pointer; }
+.recipe-open:hover { background: var(--surface-2); }
+.recipe-open strong { font: 700 1.1rem var(--font-head); overflow-wrap: anywhere; }
+.recipe-card > .btn { align-self: flex-start; }
+.fill-row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; margin-top: -4px; }
+.fill-row .hint { margin: 0; flex: 1 1 200px; }
+.meal-cart { display: inline-flex; color: var(--primary); }
+.meal-row .meal-cart .ic { color: var(--primary); width: 18px; height: 18px; }
+.slot-view { gap: 12px; }
+.slot-title { font-size: 1.6rem; }
+.slot-done { display: flex; align-items: center; gap: 8px; color: var(--primary); font-weight: 700; margin: 0; }
+.slot-done .ic { width: 20px; height: 20px; }
+.gc { display: flex; flex-direction: column; gap: 14px; }
+.gc-group { display: flex; flex-direction: column; }
+.gc-head { display: flex; align-items: center; gap: 10px; font: 800 1rem var(--font); padding: 10px 12px; border-radius: 14px; background: var(--primary-soft); color: #2E5748; margin-bottom: 4px; }
+.gc-row { display: flex; align-items: center; gap: 12px; min-height: 48px; padding: 4px 6px; border-bottom: 1px solid var(--line); cursor: pointer; }
+.gc-row input { width: 24px; height: 24px; flex: none; accent-color: var(--primary); }
+.gc-text { flex: 1; min-width: 0; font-size: 1.02rem; }
+.gc-row.off .gc-text { color: var(--ink-3); text-decoration: line-through; }
+.gc-also, .li-also { font-size: .75rem; font-weight: 700; color: #7A5A00; background: #FFF3C4; border-radius: 999px; padding: 2px 9px; white-space: nowrap; }
+.gc-total { margin-right: auto; }
+.gc-head .li-pill { background: #fff; }
+
 /* web.css — web version only: start page, join page, people with access. */
 .land { max-width: 640px; margin: 0 auto; padding: 40px 16px 60px; display: flex; flex-direction: column; gap: 18px; }
 .land-head { display: flex; flex-direction: column; gap: 10px; }
@@ -725,6 +869,31 @@ body.land-body {
 /* Owner view: banner when the site owner opens someone's home (read-only). */
 .status-banner.owner-viewing { background: #26302B; color: #fff; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; font-weight: 700; }
 .owner-viewing .owner-back { margin-left: auto; background: #fff; color: #26302B; padding: 6px 14px; border-radius: 999px; text-decoration: none; }
+
+/* "That's you", "Which one are you?", invite by name, join page (me.js, access.js, landing.js) */
+.ty-badge { align-self: flex-start; font-size: .74rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; padding: 4px 10px; border-radius: 999px; background: #FFF3C4; color: #7A5A00; }
+.ty-who { display: flex; align-items: center; gap: 14px; }
+.ty-who strong { font: 800 1.3rem var(--font-head); }
+.ty-who .sub { margin: 2px 0 0; }
+.ty-link { display: flex; flex-direction: column; gap: 8px; padding: 12px 14px; border-radius: 16px; background: var(--surface-2); }
+.ty-link .hint { margin: 0; }
+.ty-link .btn { align-self: flex-start; }
+.who-list { display: flex; flex-direction: column; gap: 6px; }
+.who-opt { display: flex; align-items: center; gap: 12px; min-height: 56px; padding: 8px 14px; border: 2px solid var(--line); border-radius: 16px; background: var(--surface); text-align: left; cursor: pointer; font-size: 1.02rem; }
+.who-opt:hover:not(:disabled) { background: var(--surface-2); }
+.who-opt.on { border-color: var(--primary); background: var(--primary-soft); }
+.who-opt:disabled { opacity: .5; cursor: default; }
+.who-state { margin-left: auto; font-size: .85rem; font-weight: 600; color: var(--ink-2); }
+.who-new { color: var(--primary); }
+.who-plus { width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; background: var(--primary-soft); font: 800 1.3rem var(--font); color: var(--primary); flex: none; }
+.access-row .avatar { flex: none; }
+.join-hi { text-align: center; }
+.join-form { align-items: center; }
+.join-form h2 { font-size: 2rem; }
+.join-form p { margin: 0; }
+.join-meta { display: flex; align-items: center; justify-content: center; gap: 8px; color: var(--ink-2); font-weight: 600; }
+.join-dot { width: 22px; height: 22px; border-radius: 50%; display: inline-block; }
+.join-form .btn.block { width: 100%; }
 
 /* ---------- guide.js: first-visit guide (web version only) ---------- */
 .g-layer { position: fixed; inset: 0; z-index: 120; font-family: var(--font); }
@@ -844,6 +1013,9 @@ html.g-open .tour-switch { z-index: 125; } /* stays visible (and lit) during a t
 
 .g-box.g-sheet.g-sheet-top { top: 0 !important; bottom: auto; border-radius: 0 0 26px 26px; border-width: 0 0 3px; padding-top: max(16px, env(safe-area-inset-top)); }
 @media (max-width: 639px) { html.g-open .g-box.g-sheet.g-sheet-top { padding-top: 56px; } } /* room for the Guided tour switch above the sheet */
+/* keep page headers clear of the Guided tour switch */
+body:has(> .tour-switch) .main { padding-top: 62px; }
+@media (max-width: 639px) { body:has(> .tour-switch) .main { padding-top: 54px; } }
 
 </style>
 </head>
@@ -1146,6 +1318,7 @@ html.g-open .tour-switch { z-index: 125; } /* stays visible (and lit) during a t
       { id: 'meals',    label: 'Meals',    icon: 'meal',     ready: true },
       { id: 'countdowns', label: 'Countdowns', icon: 'cake',  ready: true, hidden: true },
       { id: 'lists',    label: 'Lists',    icon: 'list',     ready: true },
+      { id: 'notes',    label: 'Notes',    icon: 'note',     ready: true },
       { id: 'photos',   label: 'Photos',   icon: 'image',    ready: true },
       { id: 'family',   label: 'People',   icon: 'users',    ready: true },
       { id: 'settings', label: 'Settings', icon: 'settings', ready: true }
@@ -1224,7 +1397,9 @@ html.g-open .tour-switch { z-index: 125; } /* stays visible (and lit) during a t
     sun: 'M12 16a4 4 0 100-8 4 4 0 000 8zM12 3v2M12 19v2M3 12h2M19 12h2M5.600 5.600L7 7M17 17l1.400 1.400M5.600 18.400L7 17M17 7l1.400-1.400',
     image: 'M4 5h16v14H4zM4 16l4.500-4.500 4 4 3-3L20 16M9 9.500h.01',
     wifioff: 'M4 4l16 16M5 10.500a11 11 0 015.500-2.800M9 14.500a6 6 0 013.500-1.200M12 18.500h.01',
-    sparkle: 'M12 4l1.800 4.700L18.500 10.500l-4.700 1.800L12 17l-1.800-4.700L5.500 10.500l4.700-1.800zM18.500 4v3M20 5.500h-3'
+    sparkle: 'M12 4l1.800 4.700L18.500 10.500l-4.700 1.800L12 17l-1.800-4.700L5.500 10.500l4.700-1.800zM18.500 4v3M20 5.500h-3',
+    search: 'M11 5a6 6 0 100 12 6 6 0 000-12zM20 20l-4.500-4.500',
+    table: 'M4 5h16v14H4zM4 10h16M4 15h16M10 5v14M15 5v14'
   };
   function icon(name, extraClass) {
     const NS = 'http://www.w3.org/2000/svg';
@@ -1268,6 +1443,13 @@ html.g-open .tour-switch { z-index: 125; } /* stays visible (and lit) during a t
     if (!t) return '';
     const [h, m] = t.split(':').map(Number);
     return new Date(2000, 0, 1, h, m).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit', hour12: hour12 !== false });
+  };
+  // Short time for small spaces: "5PM", "5:30PM" (or "17:00" on a 24-hour clock).
+  D.shortTime = (t, hour12) => {
+    if (!t) return '';
+    const [h, m] = t.split(':').map(Number);
+    if (hour12 === false) return pad(h) + ':' + pad(m);
+    return ((h % 12) || 12) + (m ? ':' + pad(m) : '') + (h < 12 ? 'AM' : 'PM');
   };
   D.fmt = (k, opts) => D.parse(k).toLocaleDateString(undefined, opts);
   D.weekdayShort = (i) => new Date(2023, 0, 1 + i).toLocaleDateString(undefined, { weekday: 'short' }); // 0 = Sunday
@@ -1399,6 +1581,9 @@ html.g-open .tour-switch { z-index: 125; } /* stays visible (and lit) during a t
     listitem(d) {
       const at = Number(d.at);
       const out = { listId: String(d.listId || ''), text: text(d.text, 100) || 'Item', done: !!d.done, at: Number.isFinite(at) ? at : Date.now() };
+      const group = text(d.group, 90), also = text(d.also, 60);
+      if (group) out.group = group; // the meal these groceries are for, like "Tue · Chicken adobo"
+      if (also) out.also = also;    // "also for Adobo" when two meals need the same thing
       if (d.demo) out.demo = true;
       return out;
     },
@@ -1415,6 +1600,7 @@ html.g-open .tour-switch { z-index: 125; } /* stays visible (and lit) during a t
     meal(d) {
       const out = { date: isKey(d.date) ? d.date : PL.D.today(), slot: ['breakfast', 'lunch', 'dinner'].includes(d.slot) ? d.slot : 'dinner',
         title: text(d.title, 80) || 'Meal', recipeId: text(d.recipeId, 100) };
+      if (d.shopped) out.shopped = true; // its ingredients were sent to the groceries
       if (d.demo) out.demo = true;
       return out;
     },
@@ -1422,6 +1608,31 @@ html.g-open .tour-switch { z-index: 125; } /* stays visible (and lit) during a t
     countdown(d) {
       const out = { title: text(d.title, 60) || 'Countdown', date: isKey(d.date) ? d.date : PL.D.today(), emoji: text(d.emoji, 8), yearly: !!d.yearly };
       if (d.demo) out.demo = true;
+      return out;
+    },
+
+    // A public holiday on the calendar. set = which holiday list it came from, like "CA-BC".
+    holiday(d) {
+      const out = { date: isKey(d.date) ? d.date : PL.D.today(), title: text(d.title, 80) || 'Holiday', set: text(d.set, 20) };
+      if (d.check) out.check = true; // dates guessed by AI: please check
+      return out;
+    },
+
+    // Notes page: a plain note, or a simple table (a mini spreadsheet).
+    note(d) {
+      const kind = d.kind === 'table' ? 'table' : 'note';
+      const at = Number(d.at);
+      const out = { kind, title: text(d.title, 80) || (kind === 'table' ? 'Table' : 'Note'), by: text(d.by, 40), at: Number.isFinite(at) ? at : Date.now() };
+      if (kind === 'note') out.text = String(d.text == null ? '' : d.text).slice(0, 20000);
+      else {
+        const types = ['text', 'number', 'check'];
+        out.cols = (Array.isArray(d.cols) ? d.cols : []).slice(0, 12).map((c) => ({ name: text(c && c.name, 40) || 'Column', type: types.includes(c && c.type) ? c.type : 'text' }));
+        if (!out.cols.length) out.cols = [{ name: 'Item', type: 'text' }];
+        out.rows = (Array.isArray(d.rows) ? d.rows : []).slice(0, 300).map((r) => out.cols.map((c, i) => {
+          const v = Array.isArray(r) ? r[i] : '';
+          return c.type === 'check' ? !!v : text(v, 200);
+        }));
+      }
       return out;
     },
 
@@ -1602,8 +1813,8 @@ html.g-open .tour-switch { z-index: 125; } /* stays visible (and lit) during a t
   const C = PL.config;
 
   // Extra collections that are loaded, cached and written the same way.
-  const COLLS = ['chores', 'completions', 'routines', 'rlogs', 'rewards', 'redemptions', 'lists', 'listitems', 'recipes', 'meals', 'countdowns', 'photos'];
-  const MODEL = { chores: 'chore', completions: 'completion', routines: 'routine', rlogs: 'rlog', rewards: 'reward', redemptions: 'redemption', lists: 'list', listitems: 'listitem', recipes: 'recipe', meals: 'meal', countdowns: 'countdown', photos: 'photo' };
+  const COLLS = ['chores', 'completions', 'routines', 'rlogs', 'rewards', 'redemptions', 'lists', 'listitems', 'recipes', 'meals', 'countdowns', 'photos', 'holidays', 'notes'];
+  const MODEL = { chores: 'chore', completions: 'completion', routines: 'routine', rlogs: 'rlog', rewards: 'reward', redemptions: 'redemption', lists: 'list', listitems: 'listitem', recipes: 'recipe', meals: 'meal', countdowns: 'countdown', photos: 'photo', holidays: 'holiday', notes: 'note' };
 
   const state = (PL.state = {
     ready: false,        // first render can happen
@@ -1615,7 +1826,7 @@ html.g-open .tour-switch { z-index: 125; } /* stays visible (and lit) during a t
     uid: null,
     members: [],
     events: [],
-    chores: [], completions: [], routines: [], rlogs: [], rewards: [], redemptions: [], lists: [], listitems: [], recipes: [], meals: [], countdowns: [], photos: [],
+    chores: [], completions: [], routines: [], rlogs: [], rewards: [], redemptions: [], lists: [], listitems: [], recipes: [], meals: [], countdowns: [], photos: [], holidays: [], notes: [],
     settings: Object.assign({}, C.householdDefaults),
     device: {}
   });
@@ -1795,6 +2006,7 @@ html.g-open .tour-switch { z-index: 125; } /* stays visible (and lit) during a t
  * Combines three sources into one list of "instances" (one entry per day an event happens):
  *   1. Events you created (including each date of a repeating event)
  *   2. Birthdays from family profiles (read-only, shown automatically)
+ *   2b. Public holidays the family added (holidays.js), pink
  *   3. (Round 3) Events from outside calendars — see services in later rounds
  *
  * An instance looks like:
@@ -1853,6 +2065,7 @@ html.g-open .tour-switch { z-index: 125; } /* stays visible (and lit) during a t
       PL.recur.occurrences(ev, from, to).forEach((date) => out.push(fromEvent(ev, date)));
     });
     birthdayInstances(from, to).forEach((i) => out.push(i));
+    if (PL.holidays) PL.holidays.instances(from, to).forEach((i) => out.push(i));
     return out.filter((i) => all || visible(i, hidden)).sort((a, b) => a.date.localeCompare(b.date) || byTime(a, b));
   }
 
@@ -2308,7 +2521,9 @@ html.g-open .tour-switch { z-index: 125; } /* stays visible (and lit) during a t
       listitems: PL.state.listitems,
       recipes: PL.state.recipes,
       meals: PL.state.meals,
-      countdowns: PL.state.countdowns
+      countdowns: PL.state.countdowns,
+      holidays: PL.state.holidays,
+      notes: PL.state.notes
     };
   }
   async function saveBackup() {
@@ -2357,7 +2572,7 @@ html.g-open .tour-switch { z-index: 125; } /* stays visible (and lit) during a t
     for (const c of obj.completions || []) {
       if (safeId(c.id)) { if (!(await PL.store.setDoc('completions/' + c.id, PL.models.completion(c)))) return false; }
     }
-    for (const [col, kind] of [['routines', 'routine'], ['rlogs', 'rlog'], ['rewards', 'reward'], ['redemptions', 'redemption'], ['lists', 'list'], ['listitems', 'listitem'], ['recipes', 'recipe'], ['meals', 'meal'], ['countdowns', 'countdown']]) {
+    for (const [col, kind] of [['routines', 'routine'], ['rlogs', 'rlog'], ['rewards', 'reward'], ['redemptions', 'redemption'], ['lists', 'list'], ['listitems', 'listitem'], ['recipes', 'recipe'], ['meals', 'meal'], ['countdowns', 'countdown'], ['holidays', 'holiday'], ['notes', 'note']]) {
       for (const x of obj[col] || []) {
         const doc = PL.models[kind](x);
         if (safeId(x.id)) { if (!(await PL.store.setDoc(col + '/' + x.id, doc))) return false; }
@@ -2503,16 +2718,20 @@ html.g-open .tour-switch { z-index: 125; } /* stays visible (and lit) during a t
 
   /* ---------- toast (short message at the bottom) ---------- */
   let toastTimer = null;
-  function toast(message) {
+  // toast('Saved.')  or  toast('5 items added.', { action: 'Undo', onAction: fn })
+  function toast(message, opts) {
     let el = document.getElementById('pl-toast');
     if (!el) {
       el = h('div', { id: 'pl-toast', role: 'status', 'aria-live': 'polite', class: 'toast' });
       document.body.append(el);
     }
-    el.textContent = message;
+    const o = opts || {};
+    el.replaceChildren(h('span', {}, message));
+    el.classList.toggle('has-action', !!o.action);
+    if (o.action) el.append(h('button', { type: 'button', class: 'toast-act', onclick: () => { el.classList.remove('show'); o.onAction && o.onAction(); } }, o.action));
     el.classList.add('show');
     clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => el.classList.remove('show'), 4500);
+    toastTimer = setTimeout(() => el.classList.remove('show'), o.action ? 7000 : 4500);
   }
 
   /* ---------- avatar ---------- */
@@ -2866,13 +3085,18 @@ html.g-open .tour-switch { z-index: 125; } /* stays visible (and lit) during a t
       ev && ev.repeat ? row('repeat', PL.recur.describe(ev)) : null,
       people.length
         ? row('users', h('div', { class: 'detail-people' }, people.map((p) => h('span', { class: 'person-chip' }, ui.avatar(p, 26), p.name))))
-        : (inst.kind === 'birthday' ? null : row('users', 'Whole family')),
+        : (inst.kind === 'birthday' || inst.kind === 'holiday' ? null : row('users', 'Whole family')),
       inst.location ? row('pin', inst.location) : null,
       inst.notes ? row('note', h('span', { class: 'pre' }, inst.notes)) : null,
       ev && ev.reminder != null ? row('bell', (PL.config.reminderOptions.find((r) => r.value === ev.reminder) || {}).label || '') : null,
-      inst.kind === 'birthday' ? row('cake', 'Birthday from the family profile') : null);
+      inst.kind === 'birthday' ? row('cake', 'Birthday from the family profile') : null,
+      inst.kind === 'holiday' ? row('calendar', [h('strong', {}, 'Public holiday'), inst.setName ? h('div', { class: 'sub' }, inst.setName) : null, inst.check ? h('div', { class: 'sub' }, '⚠ Looked up by AI. Please check the date.') : null]) : null);
 
     let s;
+    if (inst.kind === 'holiday') {
+      s = ui.sheet({ title: inst.title, body, footer: [ui.button('Your holidays', { icon: 'calendar', onClick: () => { s.close(); PL.holidays.openManage(); } }), ui.button('Close', { variant: 'primary', big: true, onClick: () => s.close() })] });
+      return;
+    }
     if (inst.virtual) {
       s = ui.sheet({ title: inst.title, body, footer: [ui.button('Open profile', { variant: 'primary', big: true, icon: 'users', onClick: () => { s.close(); PL.nav.go('family', { edit: inst.ownerId }); } })] });
       return;
@@ -3293,18 +3517,32 @@ html.g-open .tour-switch { z-index: 125; } /* stays visible (and lit) during a t
       box.replaceChildren(h('h2', {}, 'This invite cannot be used'), h('p', {}, peek.reason), h('a', { class: 'btn soft big', href: '/' }, 'Go to the start page'));
       return box;
     }
+    const m = peek.member;
     const name = h('input', { type: 'text', maxlength: '30', placeholder: 'Your name', autocomplete: 'given-name' });
     const err = errorBox();
     const btn = ui.button('Join ' + peek.familyName, { variant: 'primary', big: true, icon: 'users', type: 'submit', block: true });
     async function go(e) {
       e.preventDefault();
-      if (!name.value.trim()) { showErr(err, 'Please type your name.'); name.focus(); return; }
+      if (!m && !name.value.trim()) { showErr(err, 'Please type your name.'); name.focus(); return; }
       btn.disabled = true; showErr(err, '');
       try {
-        const r = await KAL.api('POST', '/api/join', { code: KAL.joinCode, name: name.value.trim() });
+        const r = await KAL.api('POST', '/api/join', { code: KAL.joinCode, name: m ? m.name : name.value.trim() });
         try { localStorage.setItem('kal.newlink', '1'); } catch (x) { /* fine */ }
         location.replace('/c/' + r.token);
       } catch (x) { showErr(err, x.userMessage); btn.disabled = false; }
+    }
+    if (m) {
+      // The invite was made for someone in the family: their name, color, icon and birthday are ready.
+      const bday = m.birthday ? new Date(m.birthday + 'T12:00').toLocaleDateString(undefined, { month: 'long', day: 'numeric' }) : '';
+      box.classList.add('join-hi');
+      box.replaceChildren(h('form', { class: 'stack join-form', onsubmit: go },
+        ui.avatar({ name: m.name, avatar: m.avatar, color: m.color || PL.config.neutralColor }, 88),
+        h('h2', {}, 'Hi ' + m.name + '!'),
+        h('p', {}, (peek.by ? peek.by + ' invited you to ' : 'You are invited to ') + peek.familyName + '. Your name' + (m.color ? ', color' : '') + (bday ? ' and birthday are' : ' is') + ' already set.'),
+        h('p', { class: 'join-meta' }, m.color ? h('span', { class: 'join-dot', style: 'background:' + m.color }) : null, m.color ? 'Your color' : null, bday ? ' · 🎂 ' + bday : null),
+        h('p', { class: 'sub' }, 'You will join as ' + ROLE_TEXT[peek.role] + '.'),
+        err, btn, h('p', { class: 'hint' }, 'Not ' + m.name + '? Ask ' + (peek.by || 'the person who sent it') + ' for a new link.')));
+      return box;
     }
     box.replaceChildren(h('form', { class: 'stack', onsubmit: go },
       h('h2', {}, 'You are invited to ' + peek.familyName), h('p', {}, 'You will join as ' + ROLE_TEXT[peek.role] + '.'),
@@ -3373,21 +3611,41 @@ html.g-open .tour-switch { z-index: 125; } /* stays visible (and lit) during a t
     paint();
   }
 
-  /* ---------- invite sheet ---------- */
+  /* ---------- invite sheet: pick who it is for from the family ---------- */
   function openInvite() {
     let role = 'editor';
-    const label = h('input', { type: 'text', maxlength: '40', placeholder: 'Optional. For example: Grandma', autocomplete: 'off' });
+    const linked = new Set((KAL.people || []).map((p) => p.member_id).filter(Boolean));
+    const pending = new Set(invites.map((i) => i.member_id).filter(Boolean));
+    const members = PL.state.members.filter((m) => !m.demo).slice().sort((a, b) => (linked.has(a.id) - linked.has(b.id)) || a.name.localeCompare(b.name));
+    const first = members.find((m) => !linked.has(m.id) && !pending.has(m.id)) || members.find((m) => !linked.has(m.id));
+    let who = first ? first.id : 'new';
+    const label = h('input', { type: 'text', maxlength: '30', placeholder: 'Their name, for example: Grandma', autocomplete: 'off' });
     const help = h('p', { class: 'hint' }, ROLE_HELP[role]);
     const seg = ui.segmented(ROLES, role, (v) => { role = v; help.textContent = ROLE_HELP[v]; }, 'Role');
-    const body = h('div', { class: 'event-form' }, ui.field('Who is it for?', label), ui.field('What can they do?', seg.el), help);
+    const pickBox = h('div', { class: 'who-list', role: 'radiogroup', 'aria-label': 'Who is this for?' });
+    const nameOf = () => (who === 'new' ? label.value.trim() : ((members.find((m) => m.id === who) || {}).name || ''));
+    function paint() {
+      pickBox.replaceChildren(...members.map((m) => {
+        const has = linked.has(m.id);
+        return h('button', { type: 'button', role: 'radio', class: 'who-opt' + (who === m.id ? ' on' : ''), 'aria-checked': who === m.id ? 'true' : 'false', disabled: has,
+          onclick: () => { who = m.id; paint(); } },
+          ui.avatar(m, 36), h('strong', {}, m.name), h('span', { class: 'who-state' }, has ? 'has access' : pending.has(m.id) ? 'invite sent' : 'not invited yet'));
+      }), h('button', { type: 'button', role: 'radio', class: 'who-opt who-new' + (who === 'new' ? ' on' : ''), 'aria-checked': who === 'new' ? 'true' : 'false',
+        onclick: () => { who = 'new'; paint(); setTimeout(() => label.focus(), 0); } }, h('span', { class: 'who-plus' }, '+'), h('strong', {}, 'Someone new')));
+      newField.hidden = who !== 'new';
+      sync();
+    }
+    const newField = h('div', {}, ui.field('Their name', label, 'They are added to the family when they join.'));
+    label.addEventListener('input', () => sync());
     const make = ui.button('Create invite link', { variant: 'primary', big: true, icon: 'plus', onClick: async () => {
       make.disabled = true;
       try {
-        const r = await KAL.api('POST', '/api/invites', { role, label: label.value.trim() });
+        const r = await KAL.api('POST', '/api/invites', who === 'new' ? { role, label: label.value.trim() } : { role, memberId: who });
         const url = location.origin + '/join/' + r.code;
+        const nm = nameOf();
         const share = navigator.share ? ui.button('Share', { icon: 'upload', onClick: () => navigator.share({ title: 'Join ' + KAL.family.name + ' on Kalendaryo', url }).catch(() => {}) }) : null;
         body.replaceChildren(
-          h('p', {}, 'Send this link to ' + (label.value.trim() || 'the person') + '. They will join as ' + roleLabel(role) + '.'),
+          h('p', {}, 'Send this link to ' + (nm || 'the person') + '. They will join as ' + roleLabel(role) + (who !== 'new' ? ', already linked to their name, color and birthday.' : '.')),
           linkBox(url),
           h('div', { class: 'btn-row' }, ui.button('Copy link', { variant: 'primary', icon: 'copy', onClick: () => copy(url, 'Invite link') }), share),
           h('p', { class: 'hint' }, 'It works one time and expires in ' + r.days + ' days. You can cancel it in the People section.'));
@@ -3395,7 +3653,17 @@ html.g-open .tour-switch { z-index: 125; } /* stays visible (and lit) during a t
         loadPeople();
       } catch (e) { ui.toast(e.userMessage); make.disabled = false; }
     } });
+    function sync() {
+      const nm = nameOf();
+      make.querySelector('span').textContent = nm ? 'Create ' + nm + '’s link' : 'Create invite link';
+      roleQ.textContent = nm ? 'What can ' + nm + ' do?' : 'What can they do?';
+    }
+    const roleQ = h('span', { class: 'field-label' }, 'What can they do?');
+    const body = h('div', { class: 'event-form' },
+      h('div', { class: 'field' }, h('span', { class: 'field-label' }, 'Who is this for?'), pickBox), newField,
+      h('div', { class: 'field' }, roleQ, seg.el), help);
     const s = ui.sheet({ title: 'Invite someone', body, footer: [ui.button('Close', { variant: 'ghost', big: true, onClick: () => s.close() }), make] });
+    paint();
   }
 
   function openRole(p) {
@@ -3447,12 +3715,16 @@ html.g-open .tour-switch { z-index: 125; } /* stays visible (and lit) during a t
       h('div', { class: 'page-head' }, h('h2', {}, 'People with access'), isOwner() ? ui.button('Invite someone', { variant: 'primary', icon: 'plus', onClick: openInvite }) : null),
       h('p', { class: 'sub' }, 'Each person has their own link. To add someone, send an invite. Do not share your own link.'),
       h('div', { class: 'stack' }, people.map((p) => h('div', { class: 'access-row' },
-        h('span', { class: 'access-name' }, h('strong', {}, p.name + (p.isMe ? ' (you)' : '')), h('span', { class: 'sub' }, roleLabel(p.role))),
+        ui.avatar(p.member_id && PL.store.member(p.member_id) || { name: p.name, color: PL.config.neutralColor }, 36),
+        h('span', { class: 'access-name' }, h('strong', {}, ((p.member_id && PL.store.member(p.member_id)) || p).name + (p.isMe ? ' (you)' : '')), h('span', { class: 'sub' }, roleLabel(p.role))),
         isOwner() ? ui.button('Change', { icon: 'edit', onClick: () => openRole(p) }) : (p.isMe ? ui.button('Leave', { variant: 'ghost', onClick: () => removePerson(p) }) : null)))),
       isOwner() && invites.length ? h('h3', { class: 'mini-h' }, 'Open invites') : null,
       isOwner() && invites.length ? h('div', { class: 'stack' }, invites.map((i) => h('div', { class: 'access-row' },
         h('span', { class: 'access-name' }, h('strong', {}, i.label || 'Invite'), h('span', { class: 'sub' }, roleLabel(i.role) + ' · expires ' + fmt(i.expires_at))),
         ui.button('Cancel', { variant: 'ghost', onClick: async () => { try { await KAL.api('DELETE', '/api/invites/' + i.id); loadPeople(); } catch (e) { ui.toast(e.userMessage); } } })))) : null,
+      PL.me && !KAL.me.viewing ? h('div', { class: 'btn-row' }, PL.me.member()
+        ? ui.button('My color, icon and birthday', { icon: 'edit', onClick: () => PL.me.openThatsYou(false) })
+        : ui.button('Link me to my name in the family', { icon: 'users', onClick: () => PL.me.openWhich() })) : null,
       h('h3', { class: 'mini-h' }, 'Your link'),
       h('p', { class: 'hint' }, 'Bookmark it, or save it somewhere safe. Anyone with this link gets in as you.'),
       h('div', { class: 'btn-row' }, ui.button('Copy my link', { icon: 'copy', onClick: () => copy(myLink(), 'Your link') })),
@@ -3485,16 +3757,6 @@ html.g-open .tour-switch { z-index: 125; } /* stays visible (and lit) during a t
     KAL.recent.forget(KAL.token);
     PL.landing.mount({ note: msg || 'This link does not work anymore. You may have been removed from the family, or the family was deleted. Ask an owner for a new invite.' });
   }
-  function firstVisitTip() {
-    let fresh = false;
-    try { fresh = localStorage.getItem('kal.newlink') === '1'; localStorage.removeItem('kal.newlink'); } catch (e) { /* fine */ }
-    if (!fresh || !KAL.me) return;
-    const s = ui.sheet({ title: 'Welcome, ' + KAL.me.name + '!', body: h('div', { class: 'event-form' },
-      h('p', {}, 'This page is your own link to ' + KAL.family.name + '. Bookmark it or save it, so you can come back.'),
-      linkBox(myLink()), h('p', { class: 'hint' }, 'Do not share this link: anyone with it gets in as you. To add people, use Invite someone in the People section.')),
-      footer: [ui.button('Copy my link', { icon: 'copy', onClick: () => copy(myLink(), 'Your link') }), ui.button('Got it', { variant: 'primary', big: true, onClick: () => s.close() })] });
-  }
-
   KAL.on('people', loadPeople);
   KAL.on('me', () => { showRole(); loadPeople(); });
   KAL.on('removed', () => removedScreen());
@@ -3503,11 +3765,123 @@ html.g-open .tour-switch { z-index: 125; } /* stays visible (and lit) during a t
     if (!KAL.token) return;
     KAL.ready.then(() => {
       if (KAL.invalid) { if (KAL.invalid.status === 401) removedScreen(); return; }
-      showRole(); loadPeople(); firstVisitTip();
+      showRole(); loadPeople();
       document.title = KAL.family.name + ' · ' + PL.config.appName;
     });
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => setTimeout(start, 0)); else setTimeout(start, 0);
+})();
+
+</script>
+<script>
+/*
+ * me.js — web version only. Each person's link is linked to their family profile (color, icon, birthday).
+ *   - "That's you!" right after creating a home or joining: pick color, icon and birthday (or skip).
+ *   - Older links with no profile: "Which one are you?" once on this device.
+ *   PL.me.member()  the family profile of the person using this page (or null)
+ */
+(function () {
+  const PL = (window.PL = window.PL || {});
+  const h = PL.h, ui = PL.ui;
+  const myLink = () => location.origin + '/c/' + KAL.token;
+  const store = (k, v) => { try { if (v === undefined) return localStorage.getItem(k); localStorage.setItem(k, v); } catch (e) { return null; } return null; };
+
+  const memberId = () => (KAL.me && KAL.me.memberId) || null;
+  const member = () => (memberId() ? PL.store.member(memberId()) : null);
+
+  async function copy(text) {
+    try { await navigator.clipboard.writeText(text); ui.toast('Your link copied.'); } catch (e) { ui.toast('Could not copy. Press and hold the link to copy it.'); }
+  }
+
+  /* ---------- "That's you!" ---------- */
+  function openThatsYou(fresh) {
+    const m = member();
+    if (!m) return;
+    let avatar = m.avatar || PL.config.avatars[Math.floor(Math.random() * 8)];
+    const color = ui.colorPicker(m.color, false);
+    const bday = h('input', { type: 'date', value: m.birthday || '', 'aria-label': 'Birthday' });
+    const preview = h('span', { class: 'ty-preview' });
+    const paintPreview = () => preview.replaceChildren(ui.avatar(Object.assign({}, m, { avatar, color: color.get() }), 64));
+    const grid = h('div', { class: 'avatar-grid', role: 'radiogroup', 'aria-label': 'Icon' });
+    const paint = () => grid.replaceChildren(...PL.config.avatars.map((a) => h('button', { type: 'button', role: 'radio', class: 'avatar-opt' + (a === avatar ? ' on' : ''), 'aria-checked': a === avatar ? 'true' : 'false', 'aria-label': a,
+      onclick: () => { avatar = a; paint(); paintPreview(); } }, a)));
+    paint(); paintPreview();
+    color.el.addEventListener('click', () => setTimeout(paintPreview, 0));
+    const done = ui.button('Done', { variant: 'primary', big: true, onClick: async () => {
+      done.disabled = true;
+      try { await KAL.api('PUT', '/api/me/profile', { avatar, color: color.get(), birthday: bday.value || '' }); s.close(); ui.toast('Saved. That’s you on the calendar!'); }
+      catch (e) { ui.toast(e.userMessage); done.disabled = false; }
+    } });
+    const s = ui.sheet({
+      title: fresh ? 'That’s you, ' + m.name + '!' : 'Your profile',
+      body: h('div', { class: 'event-form ty' },
+        fresh ? h('span', { class: 'ty-badge' }, KAL.me.role === 'owner' ? 'Your home is ready 🎉' : 'Welcome to ' + KAL.family.name + ' 🎉') : null,
+        h('div', { class: 'ty-who' }, preview, h('div', {}, h('strong', {}, m.name), h('p', { class: 'sub' }, fresh ? 'You are in the family already. Pick how you look on the calendar.' : 'How you look on the calendar.'))),
+        ui.field('Color', color.el),
+        h('div', { class: 'field' }, h('span', { class: 'field-label' }, 'Icon'), grid),
+        ui.field('Birthday (optional)', bday, 'It shows on the calendar every year.'),
+        fresh ? h('div', { class: 'ty-link' }, h('p', { class: 'hint' }, 'This page is your own private link. Bookmark it so you can come back. Do not share it: anyone with it gets in as you.'),
+          ui.button('Copy my link', { icon: 'copy', onClick: () => copy(myLink()) })) : null),
+      footer: [ui.button(fresh ? 'Skip for now' : 'Cancel', { variant: 'ghost', big: true, onClick: () => s.close() }), done]
+    });
+    s.panel.focus({ preventScroll: true });
+  }
+
+  /* ---------- "Which one are you?" ---------- */
+  function openWhich() {
+    const linked = new Set((KAL.people || []).filter((p) => p.member_id && p.id !== KAL.me.id).map((p) => p.member_id));
+    const free = PL.state.members.filter((m) => !linked.has(m.id) && !m.demo);
+    async function link(id) {
+      try {
+        await KAL.api('POST', '/api/me/member', id ? { memberId: id } : {});
+        await KAL.refreshMe();
+        s.close();
+        setTimeout(() => openThatsYou(false), 300);
+      } catch (e) { ui.toast(e.userMessage); }
+    }
+    const s = ui.sheet({
+      title: 'Which one are you, ' + KAL.me.name + '?',
+      body: h('div', { class: 'stack' },
+        h('p', { class: 'sub' }, 'Pick your name, so your color, icon and birthday are yours. You only do this once.'),
+        h('div', { class: 'who-list' },
+          free.map((m) => h('button', { type: 'button', class: 'who-opt', onclick: () => link(m.id) }, ui.avatar(m, 40), h('strong', {}, m.name))),
+          h('button', { type: 'button', class: 'who-opt who-new', onclick: () => link(null) }, h('span', { class: 'who-plus' }, '+'), h('strong', {}, 'I’m not on the list')))),
+      footer: [ui.button('Later', { variant: 'ghost', big: true, onClick: () => s.close() })]
+    });
+  }
+
+  function check() {
+    if (!KAL.me || KAL.me.viewing || !PL.state.live) return false;
+    const key = 'kal.who.' + (window.PL_STORAGE_PREFIX || KAL.token.slice(0, 8));
+    let fresh = false;
+    try { fresh = localStorage.getItem('kal.newlink') === '1'; localStorage.removeItem('kal.newlink'); } catch (e) { /* fine */ }
+    if (member()) { if (fresh) openThatsYou(true); return true; }
+    if (memberId() && !member() && !fresh) return true; // profile was removed; leave it
+    if (fresh) { // joined before profiles were linked, or something went wrong: just show the link tip
+      const s = ui.sheet({ title: 'Welcome, ' + KAL.me.name + '!', body: h('div', { class: 'event-form' }, h('p', {}, 'This page is your own link to ' + KAL.family.name + '. Bookmark it or save it, so you can come back.')),
+        footer: [ui.button('Copy my link', { icon: 'copy', onClick: () => copy(myLink()) }), ui.button('Got it', { variant: 'primary', big: true, onClick: () => s.close() })] });
+      return true;
+    }
+    if (store(key) || !PL.state.members.filter((m) => !m.demo).length) return true;
+    store(key, '1');
+    openWhich();
+    return true;
+  }
+
+  let waiting = false;
+  function start() {
+    if (!KAL.token) return;
+    KAL.ready.then(() => {
+      if (KAL.invalid || !KAL.me) return;
+      if (check()) return;
+      if (waiting) return;
+      waiting = true;
+      const off = PL.store.subscribe(() => { if (PL.state.live) { off(); setTimeout(check, 400); } });
+    });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => setTimeout(start, 0)); else setTimeout(start, 0);
+
+  PL.me = { memberId, member, openThatsYou, openWhich };
 })();
 
 </script>
@@ -3791,6 +4165,274 @@ html.g-open .tour-switch { z-index: 125; } /* stays visible (and lit) during a t
     start() { run(startSteps(!!window.KAL_TRIPLY), { page: 'start', onDone: glowStart }); },
     reset(page) { try { localStorage.removeItem(SEEN(page || 'start')); } catch (e) { /* fine */ } }
   };
+})();
+
+</script>
+<script>
+/*
+ * holidays.js — public holidays on the calendar.
+ *   holidays/{set~date~n}   { date, title, set, check? }       one per holiday
+ *   settings.holidaySets    [{ key, name, flag, years[], auto, ai? }]
+ * Web version: dates come from the official public holiday list (the server asks date.nager.at),
+ * by country or by province/state. If a place is not on that list, Claude finds them and they are marked "please check".
+ * Inside Claude (no server), Claude finds them.
+ */
+(function () {
+  const PL = (window.PL = window.PL || {});
+  const h = PL.h, icon = PL.icon, D = PL.D, ui = PL.ui;
+  const COLOR = '#F6C1D3';
+
+  const flagOf = (cc) => (/^[A-Z]{2}$/.test(cc) ? String.fromCodePoint(...[...cc].map((c) => 0x1f1e6 + c.charCodeAt(0) - 65)) : '🎉');
+  const SUBS = {
+    CA: { AB: 'Alberta', BC: 'British Columbia', MB: 'Manitoba', NB: 'New Brunswick', NL: 'Newfoundland and Labrador', NS: 'Nova Scotia', NT: 'Northwest Territories', NU: 'Nunavut', ON: 'Ontario', PE: 'Prince Edward Island', QC: 'Quebec', SK: 'Saskatchewan', YT: 'Yukon' },
+    US: { AL: 'Alabama', AK: 'Alaska', AZ: 'Arizona', AR: 'Arkansas', CA: 'California', CO: 'Colorado', CT: 'Connecticut', DE: 'Delaware', DC: 'Washington, D.C.', FL: 'Florida', GA: 'Georgia', HI: 'Hawaii', ID: 'Idaho', IL: 'Illinois', IN: 'Indiana', IA: 'Iowa', KS: 'Kansas', KY: 'Kentucky', LA: 'Louisiana', ME: 'Maine', MD: 'Maryland', MA: 'Massachusetts', MI: 'Michigan', MN: 'Minnesota', MS: 'Mississippi', MO: 'Missouri', MT: 'Montana', NE: 'Nebraska', NV: 'Nevada', NH: 'New Hampshire', NJ: 'New Jersey', NM: 'New Mexico', NY: 'New York', NC: 'North Carolina', ND: 'North Dakota', OH: 'Ohio', OK: 'Oklahoma', OR: 'Oregon', PA: 'Pennsylvania', RI: 'Rhode Island', SC: 'South Carolina', SD: 'South Dakota', TN: 'Tennessee', TX: 'Texas', UT: 'Utah', VT: 'Vermont', VA: 'Virginia', WA: 'Washington', WV: 'West Virginia', WI: 'Wisconsin', WY: 'Wyoming' }
+  };
+  let COUNTRIES = { CA: 'Canada', US: 'United States', PH: 'Philippines', GB: 'United Kingdom', AU: 'Australia', NZ: 'New Zealand', IE: 'Ireland', MX: 'Mexico', DE: 'Germany', FR: 'France', ES: 'Spain', IT: 'Italy', JP: 'Japan', KR: 'South Korea', SG: 'Singapore', NL: 'Netherlands', BR: 'Brazil', ZA: 'South Africa' };
+  const ALIAS = { usa: 'US', america: 'US', 'united states of america': 'US', states: 'US', uk: 'GB', england: 'GB', britain: 'GB', 'great britain': 'GB', pinas: 'PH', pilipinas: 'PH', philippine: 'PH', filipino: 'PH', canadian: 'CA', american: 'US', bc: 'CA-BC', 'b.c.': 'CA-BC', pei: 'CA-PE', nyc: 'US-NY', korea: 'KR' };
+
+  const country = (cc) => ({ key: cc, cc, sub: '', name: COUNTRIES[cc] || cc, full: COUNTRIES[cc] || cc, flag: flagOf(cc) });
+  const subdivision = (cc, s) => ({ key: cc + '-' + s, cc, sub: cc + '-' + s, name: SUBS[cc][s], full: (COUNTRIES[cc] || cc) + ' · ' + SUBS[cc][s], flag: flagOf(cc) });
+  function placeOf(key) {
+    const [cc, s] = String(key).split('-');
+    if (s && SUBS[cc] && SUBS[cc][s]) return subdivision(cc, s);
+    return COUNTRIES[cc] ? country(cc) : null;
+  }
+  const QUICK = ['CA', 'CA-BC', 'US', 'PH'];
+
+  const isWeb = () => !!(window.KAL && window.KAL.api);
+  let countriesLoaded = false;
+  async function loadCountries() {
+    if (countriesLoaded || !isWeb()) return;
+    countriesLoaded = true;
+    try { const r = await KAL.api('GET', '/api/holidays/countries'); (r.countries || []).forEach((c) => { if (/^[A-Z]{2}$/.test(c.code)) COUNTRIES[c.code] = COUNTRIES[c.code] || c.name; }); }
+    catch (e) { countriesLoaded = false; }
+  }
+
+  // "BC holidays" -> British Columbia. Returns the best places first.
+  function search(text) {
+    const q = String(text || '').toLowerCase().replace(/\b(public|stat|statutory|national|bank|holidays?|days?|the|in|of|for|my)\b/g, ' ').replace(/[^a-z.\s'-]/g, ' ').replace(/\s+/g, ' ').trim();
+    if (!q) return [];
+    const out = new Map();
+    const add = (p, score) => { if (p && (!out.has(p.key) || out.get(p.key).score < score)) out.set(p.key, { p, score }); };
+    if (ALIAS[q]) add(placeOf(ALIAS[q]), 100);
+    Object.keys(COUNTRIES).forEach((cc) => {
+      const n = COUNTRIES[cc].toLowerCase();
+      if (n === q) add(country(cc), 98);
+      else if (q === cc.toLowerCase()) add(country(cc), 90);
+      else if (n.startsWith(q)) add(country(cc), 70);
+      else if (q.length > 3 && (n.includes(q) || q.includes(n))) add(country(cc), 55);
+    });
+    Object.keys(SUBS).forEach((cc) => Object.keys(SUBS[cc]).forEach((s) => {
+      const n = SUBS[cc][s].toLowerCase();
+      if (n === q) add(subdivision(cc, s), 97);
+      else if (q === s.toLowerCase()) add(subdivision(cc, s), cc === 'CA' ? 85 : 80);
+      else if (n.startsWith(q)) add(subdivision(cc, s), 68);
+      else if (q.length > 3 && (n.includes(q) || q.includes(n))) add(subdivision(cc, s), 52);
+    }));
+    return [...out.values()].sort((a, b) => b.score - a.score).slice(0, 6).map((x) => x.p);
+  }
+
+  /* ---------- getting the holidays ---------- */
+  async function fromList(place, year) {
+    const r = await KAL.api('GET', '/api/holidays/' + year + '/' + place.cc);
+    const seen = new Set();
+    return (r.holidays || []).filter((x) => x.global || (place.sub && (x.counties || []).includes(place.sub)))
+      .map((x) => ({ date: x.date, title: x.name || x.localName, only: !x.global && place.sub ? place.sub.split('-')[1] : '' }))
+      .filter((x) => { const k = x.date + x.title; if (seen.has(k) || !/^\d{4}-\d{2}-\d{2}$/.test(x.date)) return false; seen.add(k); return true; })
+      .sort((a, b) => a.date.localeCompare(b.date));
+  }
+  async function fromAi(place, year) {
+    const sample = window.claude && (await window.claude.use('sample'));
+    if (!sample) throw { code: 'unavailable', userMessage: 'Holidays for this place are not available here.' };
+    const res = await sample.json('List the official public holidays (days off) for ' + place.full + ' in ' + year + '. Use the real date for ' + year + ' for holidays that move each year. ' +
+      'Reply with ONLY a JSON array like [{"date":"' + year + '-01-01","title":"New Year\'s Day"}].', { modelTier: 'quick', cache: false });
+    const seen = new Set();
+    return (Array.isArray(res) ? res : []).filter((x) => x && /^\d{4}-\d{2}-\d{2}$/.test(x.date) && x.date.startsWith(String(year)) && x.title)
+      .map((x) => ({ date: x.date, title: String(x.title).trim().slice(0, 80), check: true }))
+      .filter((x) => { const k = x.date + x.title; if (seen.has(k)) return false; seen.add(k); return true; })
+      .sort((a, b) => a.date.localeCompare(b.date));
+  }
+  // Returns { list, ai } — ai is true when Claude found them (please check).
+  async function fetchYear(place, year) {
+    if (isWeb() && !place.ai) {
+      try { const list = await fromList(place, year); if (list.length) return { list, ai: false }; }
+      catch (e) { if (e && e.code !== 'not_found' && e.code !== 'holidays_down') throw e; }
+    }
+    return { list: await fromAi(place, year), ai: true };
+  }
+
+  /* ---------- saving ---------- */
+  const sets = () => (Array.isArray(PL.state.settings.holidaySets) ? PL.state.settings.holidaySets : []);
+  const ofSet = (key, year) => PL.state.holidays.filter((x) => x.set === key && (!year || x.date.startsWith(String(year))));
+  async function saveYear(place, year, list, ai, auto) {
+    for (const x of ofSet(place.key, year)) await PL.store.del('holidays', x.id);
+    const n = {};
+    for (const x of list) {
+      n[x.date] = (n[x.date] || 0) + 1;
+      if (!(await PL.store.set('holidays', place.key + '~' + x.date + '~' + n[x.date], { date: x.date, title: x.title, set: place.key, check: x.check }))) return false;
+    }
+    const all = sets().filter((s) => s.key !== place.key);
+    const old = sets().find((s) => s.key === place.key);
+    const years = [...new Set([...(old ? old.years : []), year])].sort();
+    all.push({ key: place.key, name: place.name, full: place.full, flag: place.flag, years, auto: auto == null ? (old ? old.auto : true) : !!auto, ai: !!ai || undefined });
+    return PL.store.saveSettings({ holidaySets: all });
+  }
+  async function removeSet(key) {
+    for (const x of ofSet(key)) await PL.store.del('holidays', x.id);
+    return PL.store.saveSettings({ holidaySets: sets().filter((s) => s.key !== key) });
+  }
+
+  // Next year's holidays add themselves in December (and this year's, if they were missed).
+  let autoDone = false;
+  async function ensureAuto() {
+    if (autoDone || !PL.state.live || !sets().some((s) => s.auto)) return;
+    autoDone = true;
+    try { const u = window.claude && (await window.claude.use('user')); if (u && u.canEdit && !u.canEdit()) return; } catch (e) { return; }
+    const now = new Date(), y = now.getFullYear();
+    const want = now.getMonth() === 11 ? [y, y + 1] : [y];
+    for (const s of sets().filter((x) => x.auto)) {
+      const place = placeOf(s.key) || { key: s.key, cc: s.key.split('-')[0], sub: '', name: s.name, full: s.full || s.name, flag: s.flag, ai: true };
+      for (const year of want) {
+        if (s.years.includes(year) || Math.max(...s.years) > year) continue;
+        try { const r = await fetchYear(place, year); if (r.list.length) await saveYear(place, year, r.list, r.ai, true); } catch (e) { /* try again next time */ }
+      }
+    }
+  }
+  PL.store && PL.store.subscribe && PL.store.subscribe(() => { if (PL.state.live && !autoDone) setTimeout(ensureAuto, 3000); });
+
+  /* ---------- calendar ---------- */
+  function instances(from, to) {
+    const names = {};
+    sets().forEach((s) => { names[s.key] = s; });
+    return PL.state.holidays.filter((x) => x.date >= from && x.date <= to).map((x) => ({
+      key: 'hol:' + x.id + '@' + x.date, id: 'hol:' + x.id, date: x.date, ev: null, virtual: true, kind: 'holiday',
+      title: '🎉 ' + x.title, allDay: true, start: '', end: '', location: '', notes: '', color: COLOR, memberIds: [], reminder: null,
+      set: x.set, setName: names[x.set] ? names[x.set].flag + ' ' + (names[x.set].full || names[x.set].name) : '', check: !!x.check
+    }));
+  }
+
+  /* ---------- the "Add holidays" sheet ---------- */
+  function openAdd(onDone) {
+    loadCountries();
+    const thisYear = new Date().getFullYear();
+    let place = null, year = new Date().getMonth() >= 9 ? thisYear + 1 : thisYear, auto = true, rows = [], ai = false, busy = false, err = '';
+    const input = h('input', { type: 'search', maxlength: '60', placeholder: 'For example: BC holidays', autocomplete: 'off', 'aria-label': 'Which holidays?', autofocus: true });
+    const matches = h('div', { class: 'chip-row hol-chips' });
+    const listBox = h('div', { class: 'hol-list' });
+    const addBtn = ui.button('Add', { variant: 'primary', big: true, onClick: add });
+    const total = h('span', { class: 'sub gc-total' });
+
+    function chip(p, on) {
+      return h('button', { type: 'button', class: 'person-pick hol-chip', 'aria-pressed': on ? 'true' : 'false', onclick: () => pick(p) }, p.flag + ' ' + p.name);
+    }
+    function paintChips(found) {
+      const shown = found && found.length ? found : QUICK.map(placeOf);
+      const typed = input.value.trim();
+      const extra = typed && found && !found.length ? [h('button', { type: 'button', class: 'person-pick hol-chip', onclick: () => pick({ key: 'X-' + typed.toLowerCase().replace(/[^a-z0-9]+/g, '').slice(0, 14), cc: 'X', sub: '', name: typed, full: typed, flag: '🎉', ai: true }) }, '✨ Look up “' + typed + '”')] : [];
+      matches.replaceChildren(...shown.map((p) => chip(p, place && place.key === p.key)), ...extra);
+    }
+    function doSearch(e) {
+      e && e.preventDefault();
+      const found = search(input.value);
+      paintChips(found);
+      if (found.length) pick(found[0]);
+      else if (input.value.trim()) { place = null; rows = []; paint(); }
+    }
+    input.addEventListener('input', () => { const f = search(input.value); paintChips(input.value.trim() ? f : null); });
+    async function pick(p) {
+      place = p; paintChips(search(input.value).length ? search(input.value) : null);
+      await load();
+    }
+    async function load() {
+      if (!place) return;
+      busy = true; err = ''; rows = []; paint();
+      try {
+        const r = await fetchYear(place, year);
+        ai = r.ai;
+        rows = r.list.map((x) => Object.assign({ on: true }, x));
+        if (!rows.length) err = 'No holidays came back for ' + place.full + ' in ' + year + '.';
+      } catch (e) { err = (e && e.userMessage) || 'Could not get the holidays right now. Please try again.'; }
+      busy = false; paint();
+    }
+    function paint() {
+      const n = rows.filter((r) => r.on).length;
+      addBtn.querySelector('span').textContent = n ? 'Add ' + n + (n === 1 ? ' holiday' : ' holidays') : 'Add';
+      addBtn.disabled = !n || busy;
+      total.textContent = n ? n + (n === 1 ? ' holiday' : ' holidays') : '';
+      if (!place) { listBox.replaceChildren(h('p', { class: 'hint' }, input.value.trim() ? 'Nothing matched. Try a country or province name, like “Canada” or “Ontario”.' : 'Pick a place above, or type a country, province or state.')); return; }
+      const years = h('div', { class: 'hol-years', role: 'group', 'aria-label': 'Year' }, [thisYear, thisYear + 1].map((y) =>
+        h('button', { type: 'button', class: 'hol-year', 'aria-pressed': y === year ? 'true' : 'false', onclick: () => { if (year !== y) { year = y; load(); } } }, String(y))));
+      const had = ofSet(place.key, year).length;
+      listBox.replaceChildren(...[
+        h('div', { class: 'hol-head' }, h('h3', {}, place.flag + ' ' + place.full), years),
+        busy ? h('div', { class: 'cooking', role: 'status' }, h('span', { class: 'cooking-pot', 'aria-hidden': 'true' }, '🎉'), 'Getting the holidays…') : null,
+        err ? h('p', { class: 'form-error', role: 'alert' }, err) : null,
+        rows.length ? h('div', { class: 'hol-rows' }, rows.map((r) => {
+          const cb = h('input', { type: 'checkbox', 'aria-label': r.title });
+          cb.checked = r.on;
+          cb.addEventListener('change', () => { r.on = cb.checked; row.classList.toggle('off', !r.on); paint(); });
+          const row = h('label', { class: 'gc-row' + (r.on ? '' : ' off') }, cb, h('span', { class: 'hol-date' }, D.fmt(r.date, { weekday: 'short', month: 'short', day: 'numeric' })),
+            h('span', { class: 'gc-text' }, '🎉 ' + r.title), r.only ? h('span', { class: 'hol-tag' }, r.only + ' only') : null);
+          return row;
+        })) : null,
+        rows.length ? ui.toggle('Add next year’s holidays by itself', auto, (v) => { auto = v; }).el : null,
+        rows.length ? h('p', { class: 'hol-src' + (ai ? ' ai' : '') }, ai ? '⚠ These dates were looked up by AI. Please check them.' : '✓ Dates from the official public holiday list') : null,
+        had && rows.length ? h('p', { class: 'hint' }, 'You already have these. Adding again replaces them.') : null].filter(Boolean));
+    }
+    async function add() {
+      const chosen = rows.filter((r) => r.on);
+      if (!place || !chosen.length) return;
+      addBtn.disabled = true;
+      const ok = await saveYear(place, year, chosen, ai, auto);
+      addBtn.disabled = false;
+      if (ok) { s.close(); ui.toast(chosen.length + (chosen.length === 1 ? ' holiday' : ' holidays') + ' added to the calendar.'); onDone && onDone(); }
+    }
+    const s = ui.sheet({
+      title: '🎉 Add holidays', wide: true,
+      body: h('div', { class: 'event-form hol' },
+        h('form', { class: 'hol-search', onsubmit: doSearch }, input, ui.button('Search', { variant: 'primary', type: 'submit', icon: 'search' })),
+        matches, listBox),
+      footer: [total, ui.button('Cancel', { variant: 'ghost', big: true, onClick: () => s.close() }), addBtn]
+    });
+    paintChips(null); paint();
+  }
+
+  /* ---------- "Your holidays" ---------- */
+  function openManage() {
+    const body = h('div', { class: 'stack' });
+    function paint() {
+      const list = sets();
+      if (!list.length) { body.replaceChildren(h('p', { class: 'sub' }, 'No holidays on the calendar yet.')); return; }
+      body.replaceChildren(h('p', { class: 'sub' }, 'Holidays are pink, so they stand out from family events.'), ...list.map((x) => {
+        const n = ofSet(x.key).length;
+        const yrs = x.years.length > 1 ? x.years[0] + '–' + x.years[x.years.length - 1] : String(x.years[0] || '');
+        return h('section', { class: 'hol-set' },
+          h('div', { class: 'hol-set-head' }, h('strong', {}, x.flag + ' ' + (x.full || x.name) + ' · ' + yrs), h('span', { class: 'hol-count' }, n + (n === 1 ? ' day' : ' days'))),
+          x.ai ? h('p', { class: 'hint' }, '⚠ Looked up by AI. Please check the dates.') : null,
+          h('div', { class: 'hol-set-row' },
+            ui.toggle('Add next year by itself (in December)', !!x.auto, async (v) => { await PL.store.saveSettings({ holidaySets: sets().map((y) => (y.key === x.key ? Object.assign({}, y, { auto: v }) : y)) }); }).el,
+            ui.button('Remove all', { variant: 'danger', icon: 'trash', onClick: async () => {
+              if (!(await ui.confirm({ title: 'Remove these holidays?', message: (x.full || x.name) + ': ' + n + (n === 1 ? ' day is' : ' days are') + ' taken off the calendar for everyone.', confirmLabel: 'Remove', danger: true }))) return;
+              if (await removeSet(x.key)) { ui.toast('Holidays removed.'); setTimeout(paint, 50); }
+            } })));
+      }));
+    }
+    paint();
+    const s = ui.sheet({ title: '🎉 Your holidays', wide: true, body,
+      footer: [ui.button('Add more', { icon: 'plus', onClick: () => { s.close(); openAdd(); } }), ui.button('Done', { variant: 'primary', big: true, onClick: () => s.close() })] });
+  }
+
+  // The small pink bar above the calendar (only when holidays are on).
+  function bar() {
+    const list = sets();
+    if (!list.length) return null;
+    return h('div', { class: 'hol-bar' }, h('span', { class: 'hol-bar-label' }, '🎉 Holidays:'),
+      list.map((x) => h('span', { class: 'hol-pill' }, x.flag + ' ' + x.name)),
+      ui.button('Manage', { onClick: openManage }));
+  }
+  const open = () => (sets().length ? openManage() : openAdd());
+
+  PL.holidays = { instances, openAdd, openManage, open, bar, search, color: COLOR, ensureAuto };
 })();
 
 </script>
@@ -5647,8 +6289,23 @@ html.g-open .tour-switch { z-index: 125; } /* stays visible (and lit) during a t
             check.setAttribute('aria-pressed', next ? 'true' : 'false'); rowEl.classList.toggle('done', next);
             if (!(await setDone(item, next))) { check.setAttribute('aria-pressed', item.done ? 'true' : 'false'); rowEl.classList.toggle('done', item.done); }
           } }, icon('check'));
-        rowEl.append(check, h('button', { type: 'button', class: 'chore-title', onclick: () => openItem(item), 'aria-label': 'Edit ' + item.text }, h('span', {}, item.text)));
+        rowEl.append(check, h('button', { type: 'button', class: 'chore-title', onclick: () => openItem(item), 'aria-label': 'Edit ' + item.text }, h('span', {}, item.text), item.also ? h('span', { class: 'li-also' }, item.also) : null));
         return rowEl;
+      }
+
+      // Groceries from meals sit under a heading per meal ("Tue · Chicken adobo"); typed items go under "Other".
+      function grouped(todo) {
+        if (!todo.some((i) => i.group)) return todo.map(itemRow);
+        const groups = new Map();
+        todo.forEach((i) => { const k = i.group || ''; if (!groups.has(k)) groups.set(k, []); groups.get(k).push(i); });
+        const keys = [...groups.keys()].filter(Boolean);
+        if (groups.has('')) keys.push('');
+        return keys.map((k) => {
+          const parts = k.split(' · ');
+          const pill = k ? (parts.length > 1 ? parts[0] : '🍽️') : 'Other';
+          const name = k ? (parts.length > 1 ? parts.slice(1).join(' · ') : k) : 'Things you added';
+          return h('div', { class: 'li-group' }, h('h3', { class: 'li-group-head' + (k ? '' : ' other') }, h('span', { class: 'li-pill' }, pill), h('span', {}, name)), groups.get(k).map(itemRow));
+        });
       }
 
       function index() {
@@ -5688,7 +6345,7 @@ html.g-open .tour-switch { z-index: 125; } /* stays visible (and lit) during a t
           h('div', { class: 'chores-list' },
             h('form', { class: 'add-row', onsubmit: add }, input, ui.button('Add', { variant: 'primary', big: true, type: 'submit', icon: 'plus' })),
             h('section', { class: 'chore-group' },
-              todo.length ? todo.map(itemRow) : h('p', { class: 'sub list-note' }, items.length ? 'Everything is done.' : 'Nothing here yet. Type above to add the first item.')),
+              todo.length ? grouped(todo) : h('p', { class: 'sub list-note' }, items.length ? 'Everything is done.' : 'Nothing here yet. Type above to add the first item.')),
             done.length ? h('section', { class: 'chore-group' },
               h('div', { class: 'cg-head' }, h('h2', { class: 'cg-name' }, 'Done'), h('span', { class: 'cg-count' }, done.length),
                 h('button', { type: 'button', class: 'link-btn', onclick: async () => {
@@ -5711,6 +6368,217 @@ html.g-open .tour-switch { z-index: 125; } /* stays visible (and lit) during a t
 
       render();
       return { update: render, destroy() {} };
+    }
+  };
+})();
+
+</script>
+<script>
+/*
+ * screens/notes.js — shared notes and simple tables (a mini spreadsheet).
+ *   notes/{id}  { kind: 'note', title, text, by, at }
+ *               { kind: 'table', title, cols: [{ name, type: 'text'|'number'|'check' }], rows: [[...]], by, at }
+ * Changes save by themselves a moment after typing stops.
+ */
+(function () {
+  const PL = (window.PL = window.PL || {});
+  PL.screens = PL.screens || {};
+  const h = PL.h, icon = PL.icon, D = PL.D, ui = PL.ui;
+  const TYPES = [{ value: 'text', label: 'Text' }, { value: 'number', label: 'Number' }, { value: 'check', label: 'Check box' }];
+
+  const myName = () => (PL.me && PL.me.member() ? PL.me.member().name : (window.KAL && KAL.me ? KAL.me.name : ''));
+  const readOnly = () => !!(window.KAL && KAL.me && KAL.me.role === 'viewer');
+  const copy = (o) => JSON.parse(JSON.stringify(o));
+  function when(at) {
+    const d = new Date(at), k = D.key(d), t = D.today();
+    if (k === t) return 'today';
+    if (k === D.addDays(t, -1)) return 'yesterday';
+    return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+  }
+  // "$1,234.50" -> 1234.5
+  const num = (v) => { const n = parseFloat(String(v || '').replace(/[^0-9.\-]/g, '')); return Number.isFinite(n) ? n : null; };
+  function total(rows, i) {
+    let sum = 0, any = false, money = false, dec = 0;
+    rows.forEach((r) => {
+      const v = num(r[i]);
+      if (v === null) return;
+      any = true; sum += v;
+      if (/\$/.test(r[i])) money = true;
+      const m = String(r[i]).match(/\.(\d+)/); if (m) dec = Math.max(dec, Math.min(2, m[1].length));
+    });
+    if (!any) return '';
+    return (money ? '$' : '') + sum.toLocaleString(undefined, { minimumFractionDigits: money ? 2 : dec, maximumFractionDigits: money ? 2 : dec });
+  }
+
+  PL.screens.notes = {
+    mount(root, params) {
+      let openId = (params && params.id) || null;
+      let work = null, workId = null, timer = null, saving = false, madeAt = 0;
+      const el = h('div', { class: 'screen-page notes-page' });
+      root.append(el);
+      const status = h('span', { class: 'note-status', 'aria-live': 'polite' });
+
+      const sorted = () => PL.state.notes.slice().sort((a, b) => (b.at || 0) - (a.at || 0));
+      async function make(kind) {
+        const data = kind === 'table'
+          ? { kind, title: 'New table', cols: [{ name: 'Item', type: 'text' }, { name: 'Amount', type: 'number' }, { name: 'Done', type: 'check' }], rows: [['', '', false], ['', '', false], ['', '', false]], by: myName(), at: Date.now() }
+          : { kind, title: 'New note', text: '', by: myName(), at: Date.now() };
+        const id = await PL.store.add('notes', data);
+        if (id) { openId = id; work = null; madeAt = Date.now(); render(); setTimeout(() => { const t = el.querySelector('.note-title'); if (t) { t.focus(); t.select(); } }, 60); }
+      }
+      function changed() {
+        status.textContent = 'Saving…';
+        clearTimeout(timer);
+        timer = setTimeout(saveNow, 700);
+      }
+      async function saveNow() {
+        clearTimeout(timer); timer = null;
+        if (!work || !workId) return;
+        saving = true;
+        const ok = await PL.store.set('notes', workId, Object.assign(copy(work), { at: Date.now(), by: myName() || work.by }));
+        saving = false;
+        status.textContent = ok ? 'Saved' : 'Not saved';
+      }
+
+      /* ---------- the list ---------- */
+      function listPane(n) {
+        const notes = sorted();
+        return h('div', { class: 'note-list' + (openId ? ' has-open' : '') },
+          notes.length ? notes.map((x) => h('button', { type: 'button', class: 'note-item' + (x.id === openId ? ' on' : ''), onclick: async () => { if (timer) await saveNow(); openId = x.id; work = null; render(); } },
+            h('span', { class: 'note-kind ' + x.kind }, icon(x.kind === 'table' ? 'table' : 'note')),
+            h('span', { class: 'note-item-text' }, h('strong', {}, x.title), h('span', { class: 'sub' }, (x.kind === 'table' ? 'Table' : 'Note') + (x.by ? ' · ' + x.by : '') + ', ' + when(x.at)))))
+            : ui.emptyState({ icon: 'note', title: 'No notes yet', text: 'Keep Wi-Fi codes, gift ideas and plans here, or make a table for a budget. Everyone in the home can see and change them.' }));
+      }
+
+      /* ---------- a note ---------- */
+      function noteEditor(x) {
+        const ro = readOnly();
+        const title = h('input', { type: 'text', class: 'note-title', maxlength: '80', 'aria-label': 'Title', readonly: ro });
+        title.value = work.title;
+        title.addEventListener('input', () => { work.title = title.value; changed(); });
+        const head = h('div', { class: 'note-head' },
+          h('button', { type: 'button', class: 'link-btn note-back', onclick: async () => { if (timer) await saveNow(); openId = null; work = null; render(); } }, icon('left'), 'All notes'),
+          title, status,
+          ro ? null : ui.iconButton('trash', 'Delete', async () => {
+            if (!(await ui.confirm({ title: 'Delete “' + work.title + '”?', message: 'It is removed for everyone.', confirmLabel: 'Delete', danger: true }))) return;
+            clearTimeout(timer); timer = null;
+            if (await PL.store.del('notes', x.id)) { openId = null; work = null; render(); ui.toast('Deleted.'); }
+          }));
+        if (work.kind === 'note') {
+          const text = h('textarea', { class: 'note-text', 'aria-label': 'Note', placeholder: 'Write anything…', readonly: ro });
+          text.value = work.text || '';
+          text.addEventListener('input', () => { work.text = text.value; changed(); });
+          return h('section', { class: 'card note-editor' }, head, text);
+        }
+        return h('section', { class: 'card note-editor' }, head, tableEditor(ro));
+      }
+
+      /* ---------- a table ---------- */
+      function tableEditor(ro) {
+        const wrap = h('div', { class: 'tbl-wrap' });
+        function cell(r, i) {
+          const c = work.cols[i];
+          if (c.type === 'check') {
+            const cb = h('input', { type: 'checkbox', 'aria-label': c.name + ', row ' + (r + 1), disabled: ro });
+            cb.checked = !!work.rows[r][i];
+            cb.addEventListener('change', () => { work.rows[r][i] = cb.checked; changed(); paintFoot(); });
+            return h('td', { class: 'tbl-check' }, cb);
+          }
+          const inp = h('input', { type: 'text', inputmode: c.type === 'number' ? 'decimal' : 'text', maxlength: '200', 'aria-label': c.name + ', row ' + (r + 1), readonly: ro, dataset: { r: String(r), c: String(i) } });
+          inp.value = work.rows[r][i] || '';
+          inp.addEventListener('input', () => { work.rows[r][i] = inp.value; changed(); paintFoot(); });
+          inp.addEventListener('keydown', (e) => {
+            if (e.key !== 'Enter') return;
+            e.preventDefault();
+            if (r === work.rows.length - 1 && !ro) { addRow(); }
+            const next = wrap.querySelector('input[data-r="' + (r + 1) + '"][data-c="' + i + '"]');
+            if (next) next.focus();
+          });
+          return h('td', { class: c.type === 'number' ? 'num' : '' }, inp);
+        }
+        let foot;
+        function paintFoot() {
+          if (!foot) return;
+          const any = work.cols.some((c) => c.type !== 'text');
+          foot.hidden = !any;
+          foot.replaceChildren(h('tr', {}, work.cols.map((c, i) => h('td', { class: c.type === 'number' ? 'num' : '' },
+            i === 0 && c.type === 'text' ? 'Total' : c.type === 'number' ? total(work.rows, i) : c.type === 'check' ? work.rows.filter((r) => r[i]).length + ' of ' + work.rows.length : '')),
+            ro ? null : h('td', {})));
+        }
+        function addRow() { work.rows.push(work.cols.map((c) => (c.type === 'check' ? false : ''))); changed(); paint(); }
+        function paint() {
+          foot = h('tfoot', {});
+          const table = h('table', { class: 'tbl', style: 'min-width:' + Math.max(280, work.cols.length * 100 + (ro ? 0 : 44)) + 'px' },
+            h('thead', {}, h('tr', {}, work.cols.map((c, i) => h('th', { class: c.type === 'number' ? 'num' : c.type === 'check' ? 'tbl-check' : '' },
+              ro ? c.name : h('button', { type: 'button', class: 'tbl-col', onclick: () => openColumn(i), 'aria-label': 'Change column ' + c.name }, c.name))), ro ? null : h('th', { class: 'tbl-x' }))),
+            h('tbody', {}, work.rows.map((row, r) => h('tr', {}, work.cols.map((c, i) => cell(r, i)),
+              ro ? null : h('td', { class: 'tbl-x' }, ui.iconButton('x', 'Delete row ' + (r + 1), () => { work.rows.splice(r, 1); changed(); paint(); }))))),
+            foot);
+          paintFoot();
+          wrap.replaceChildren(...[h('div', { class: 'tbl-scroll' }, table),
+            ro ? null : h('div', { class: 'btn-row' },
+              ui.button('Add row', { icon: 'plus', onClick: () => { addRow(); const ins = wrap.querySelectorAll('tbody tr:last-child input[type=text]'); if (ins[0]) ins[0].focus(); } }),
+              work.cols.length < 12 ? ui.button('Add column', { icon: 'plus', onClick: () => openColumn(-1) }) : null),
+            ro ? null : h('p', { class: 'hint' }, 'Tap a column name to rename it or make it a number or check box column. Number columns add up at the bottom.')].filter(Boolean));
+        }
+        function openColumn(i) {
+          const isNew = i < 0;
+          const c = isNew ? { name: '', type: 'text' } : work.cols[i];
+          const name = h('input', { type: 'text', maxlength: '40', autocomplete: 'off', autofocus: true, placeholder: 'For example: Cost' });
+          name.value = c.name;
+          let type = c.type;
+          const seg = ui.segmented(TYPES, type, (v) => { type = v; }, 'Kind of column');
+          const save = () => {
+            const n = name.value.trim() || 'Column';
+            if (isNew) { work.cols.push({ name: n, type }); work.rows.forEach((r) => r.push(type === 'check' ? false : '')); }
+            else {
+              if (type !== c.type) work.rows.forEach((r) => { r[i] = type === 'check' ? !!(r[i] && r[i] !== 'false') : (r[i] === true ? 'Yes' : r[i] === false ? '' : r[i]); });
+              work.cols[i] = { name: n, type };
+            }
+            changed(); s.close(); paint();
+          };
+          const footer = [ui.button('Cancel', { variant: 'ghost', big: true, onClick: () => s.close() }), ui.button(isNew ? 'Add column' : 'Save', { variant: 'primary', big: true, onClick: save })];
+          if (!isNew) {
+            const move = (d) => { const j = i + d; if (j < 0 || j >= work.cols.length) return; [work.cols[i], work.cols[j]] = [work.cols[j], work.cols[i]]; work.rows.forEach((r) => { [r[i], r[j]] = [r[j], r[i]]; }); changed(); s.close(); paint(); };
+            footer.unshift(ui.button('Delete', { variant: 'danger', icon: 'trash', onClick: async () => {
+              if (work.cols.length === 1) { ui.toast('A table needs at least one column.'); return; }
+              if (!(await ui.confirm({ title: 'Delete the “' + c.name + '” column?', message: 'Everything in this column is removed.', confirmLabel: 'Delete', danger: true }))) return;
+              work.cols.splice(i, 1); work.rows.forEach((r) => r.splice(i, 1)); changed(); s.close(); paint();
+            } }));
+            if (i > 0) footer.unshift(ui.iconButton('left', 'Move left', () => move(-1)));
+            if (i < work.cols.length - 1) footer.unshift(ui.iconButton('right', 'Move right', () => move(1)));
+          }
+          const s = ui.sheet({ title: isNew ? 'New column' : 'Column', footer,
+            body: h('form', { class: 'event-form', onsubmit: (e) => { e.preventDefault(); save(); } }, ui.field('Name', name), ui.field('Kind', seg.el)) });
+        }
+        paint();
+        return wrap;
+      }
+
+      function render() {
+        const x = openId && PL.state.notes.find((n) => n.id === openId);
+        if (openId && !x && PL.state.live && Date.now() - madeAt > 4000) openId = null;
+        if (x && (!work || workId !== x.id)) { work = copy(x); workId = x.id; status.textContent = ''; }
+        el.classList.toggle('open', !!x);
+        el.replaceChildren(
+          h('header', { class: 'page-head' }, h('h1', {}, 'Notes'),
+            readOnly() ? null : h('div', { class: 'btn-row' },
+              ui.button('New note', { icon: 'note', onClick: () => make('note') }),
+              ui.button('New table', { variant: 'primary', icon: 'table', onClick: () => make('table') }))),
+          h('div', { class: 'notes-cols' }, listPane(), x ? noteEditor(x) : (openId ? h('p', { class: 'sub' }, 'Opening…') : h('div', { class: 'note-empty' }, PL.state.notes.length ? h('p', { class: 'sub' }, 'Pick a note to open it.') : null))));
+      }
+
+      render();
+      return {
+        update: () => {
+          const a = document.activeElement;
+          if (timer || saving || (a && el.contains(a) && /^(INPUT|TEXTAREA)$/.test(a.tagName))) return; // do not disturb typing
+          const x = openId && PL.state.notes.find((n) => n.id === openId);
+          if (x && work && JSON.stringify(Object.assign({}, x, { id: undefined, at: 0, by: '' })) !== JSON.stringify(Object.assign({}, work, { id: undefined, at: 0, by: '' }))) work = null; // someone else changed it
+          render();
+        },
+        destroy() { if (timer) saveNow(); }
+      };
     }
   };
 })();
@@ -5771,9 +6639,10 @@ html.g-open .tour-switch { z-index: 125; } /* stays visible (and lit) during a t
 <script>
 /*
  * screens/meals.js — the Meals screen: a week plan and a recipe box.
- *   meals/{date~slot}  { date, slot, title, recipeId }     one meal per slot per day
+ *   meals/{date~slot}  { date, slot, title, recipeId, shopped? }   one meal per slot per day
  *   recipes/{id}       { title, emoji, servings, ingredients[], steps }
- * Ingredients can be sent to any shared list, one tap.
+ * "Add to groceries" puts a meal's ingredients on the grocery list, under a heading for that meal
+ * (listitems get group: "Tue · Chicken adobo"). Dishes found with ✨ are saved as recipes, so next time is instant.
  */
 (function () {
   const PL = (window.PL = window.PL || {});
@@ -5781,11 +6650,15 @@ html.g-open .tour-switch { z-index: 125; } /* stays visible (and lit) during a t
   const h = PL.h, icon = PL.icon, D = PL.D, ui = PL.ui;
   const SLOTS = [{ id: 'breakfast', label: 'Breakfast' }, { id: 'lunch', label: 'Lunch' }, { id: 'dinner', label: 'Dinner' }];
   const SLOT_LABEL = { breakfast: 'Breakfast', lunch: 'Lunch', dinner: 'Dinner' };
-  const EMOJI = ['🍝', '🍚', '🥞', '🍕', '🌮', '🍲', '🥗', '🍗', '🐟', '🥪', '🍜', '🍔', '🥘', '🧁', '🍳', '🥦'];
+  const EMOJI = ['🍝', '🍚', '🥞', '🍕', '🌮', '🍲', '🥗', '🍗', '🐟', '🥪', '🍜', '🍔', '🥘', '🧁', '🍳', '🥦', '🍛', '🍽️'];
 
   const mealId = (date, slot) => date + '~' + slot;
   const mealAt = (date, slot) => PL.state.meals.find((m) => m.id === mealId(date, slot)) || null;
   const recipeOf = (id) => (id ? PL.state.recipes.find((r) => r.id === id) || null : null);
+  const recipeNamed = (name) => PL.state.recipes.find((r) => r.title.trim().toLowerCase() === String(name || '').trim().toLowerCase() && r.ingredients.length) || null;
+  const people = () => Math.max(2, Math.min(12, PL.state.members.length || 4));
+  const norm = (s) => String(s || '').trim().toLowerCase().replace(/\s+/g, ' ');
+  const groupLabel = (date, title) => (date ? D.fmt(date, { weekday: 'short' }) + ' · ' : '') + title;
 
   // Rows for the Home widget: every planned meal on these dates.
   function dayRows(dates) {
@@ -5797,33 +6670,197 @@ html.g-open .tour-switch { z-index: 125; } /* stays visible (and lit) during a t
     return out;
   }
 
-  /* ---------- sending ingredients to a shared list ---------- */
-  async function sendToList(ingredients, what) {
-    const wanted = [];
-    const seen = new Set();
-    ingredients.forEach((i) => { const k = i.trim().toLowerCase(); if (k && !seen.has(k)) { seen.add(k); wanted.push(i.trim()); } });
-    if (!wanted.length) { ui.toast('There is nothing to add.'); return false; }
-    const lists = PL.state.lists.slice().sort((a, b) => a.title.localeCompare(b.title));
-    let listId;
-    if (!lists.length) listId = await PL.store.add('lists', { title: 'Groceries' });
-    else {
-      const grocery = lists.find((l) => /grocer|shopping/i.test(l.title));
-      const options = lists.map((l) => ({ value: l.id, label: l.title, description: grocery && grocery.id === l.id ? 'Suggested' : '' }));
-      options.push({ value: '__new', label: 'A new list called Groceries' });
-      const pick = await ui.choose({ title: 'Add to which list?', message: what + ': ' + wanted.length + (wanted.length === 1 ? ' item' : ' items') + '.', options });
-      if (!pick) return false;
-      listId = pick === '__new' ? await PL.store.add('lists', { title: 'Groceries' }) : pick;
+  /* ---------- "Finding your recipe…" ---------- */
+  function cooking(text) {
+    return h('div', { class: 'cooking', role: 'status' }, h('span', { class: 'cooking-pot', 'aria-hidden': 'true' }, '🍲'), h('span', {}, text || 'Finding your recipe… this takes about 10 seconds.'));
+  }
+  function aiError(e) {
+    const c = e && e.code;
+    if (e && e.userMessage) return e.userMessage;
+    if (c === 'not_granted') return 'Claude was not allowed to help. You can try again and allow it.';
+    if (c === 'rate_limited') return 'Too many tries. Please wait a moment.';
+    if (c === 'unavailable') return 'Finding recipes is not available here. You can still write the recipe yourself.';
+    return 'Could not find that right now. Please try again.';
+  }
+  async function sampler() {
+    const s = window.claude && (await window.claude.use('sample'));
+    if (!s) throw { code: 'unavailable' };
+    return s;
+  }
+  const cleanIng = (v) => (Array.isArray(v) ? v : []).map((x) => String(x).trim().slice(0, 100)).filter(Boolean).slice(0, 40);
+  const cleanSteps = (v) => (Array.isArray(v) ? v : String(v || '').split('\n')).map((x) => String(x).trim().replace(/^\d+[.)]\s*/, '')).filter(Boolean).join('\n').slice(0, 3000);
+  const cleanEmoji = (v) => { const e = String(v || '').trim().slice(0, 8); return e && !/[A-Za-z0-9]/.test(e) ? e : '🍽️'; };
+
+  /* ---------- asking Claude for recipes ---------- */
+  // One dish. Uses a saved recipe with the same name first (no waiting).
+  async function askIngredients(name, servings, opts) {
+    const found = !(opts && opts.fresh) && recipeNamed(name);
+    if (found) return { title: found.title, emoji: found.emoji, ingredients: found.ingredients.slice(), steps: found.steps, fromRecipe: found };
+    const sample = await sampler();
+    const res = await sample.json('A family wants to cook "' + String(name).trim().slice(0, 80) + '" for ' + servings + ' people. List what to buy to make it. ' +
+      'Give each ingredient with a simple amount, like "500 g ground beef" or "2 onions". Leave out water. Include the usual staples (oil, salt, spices) only if they matter to the dish. ' +
+      'Also give 4 to 8 short cooking steps, and one food emoji for the dish. Reply with ONLY JSON like {"title":"Nice name of the dish","emoji":"🍛","ingredients":["..."],"steps":["..."]}.', { modelTier: 'quick', cache: false });
+    const ing = cleanIng(res && res.ingredients);
+    if (!ing.length) throw { code: 'empty' };
+    return { title: String(res.title || name).trim().slice(0, 80) || name, emoji: cleanEmoji(res.emoji), ingredients: ing, steps: cleanSteps(res.steps), fromRecipe: null };
+  }
+
+  // Many dishes in ONE request. Returns an array in the same order (null where nothing came back).
+  async function askMany(names, servings) {
+    const sample = await sampler();
+    const res = await sample.json('A family wants to cook these dishes, each for ' + servings + ' people:\n' + names.map((n, i) => (i + 1) + '. ' + String(n).slice(0, 80)).join('\n') + '\n' +
+      'For each dish, list what to buy, each with a simple amount like "500 g ground beef" or "2 onions". Leave out water. Include staples (oil, salt, spices) only if they matter. ' +
+      'Also give 4 to 6 short cooking steps and one food emoji. Reply with ONLY a JSON array in the same order, like [{"title":"Dish","emoji":"🍛","ingredients":["..."],"steps":["..."]}].', { modelTier: 'quick', cache: false });
+    const arr = Array.isArray(res) ? res : (res && Array.isArray(res.dishes) ? res.dishes : []);
+    return names.map((n, i) => {
+      const x = arr[i];
+      const ing = cleanIng(x && x.ingredients);
+      return ing.length ? { title: n, emoji: cleanEmoji(x.emoji), ingredients: ing, steps: cleanSteps(x.steps) } : null;
+    });
+  }
+
+  // Ingredients for planned meals. Saved recipes are used as they are; the rest are found in one request,
+  // saved to Recipes, and linked to the meal. Returns [{ label, items, meal }].
+  async function ingredientsFor(meals) {
+    const groups = meals.map((m) => {
+      const r = recipeOf(m.recipeId) || recipeNamed(m.title);
+      return { meal: m, label: groupLabel(m.date, m.title), recipe: r, items: r ? r.ingredients.slice() : null };
+    });
+    for (const g of groups) { // a saved recipe with the same name: link it to the meal
+      if (g.recipe && g.meal.date && g.meal.recipeId !== g.recipe.id) await PL.store.set('meals', g.meal.id || mealId(g.meal.date, g.meal.slot), Object.assign({}, g.meal, { recipeId: g.recipe.id }));
     }
-    if (!listId) return false;
-    const have = new Set(PL.state.listitems.filter((i) => i.listId === listId && !i.done).map((i) => i.text.trim().toLowerCase()));
-    let n = 0, skipped = 0, at = Date.now();
-    for (const text of wanted) {
-      if (have.has(text.toLowerCase())) { skipped++; continue; }
-      if (!(await PL.store.add('listitems', { listId, text, done: false, at: at++ }))) return false;
-      n++;
+    const missing = groups.filter((g) => !g.items);
+    if (missing.length) {
+      const found = await askMany(missing.map((g) => g.meal.title), people());
+      for (let i = 0; i < missing.length; i++) {
+        const g = missing[i], f = found[i];
+        if (!f) continue;
+        g.items = f.ingredients;
+        const id = await PL.store.add('recipes', { title: g.meal.title, emoji: f.emoji, servings: people(), ingredients: f.ingredients, steps: f.steps });
+        if (id && g.meal.date) await PL.store.set('meals', g.meal.id || mealId(g.meal.date, g.meal.slot), Object.assign({}, g.meal, { recipeId: id }));
+      }
+    }
+    const out = groups.filter((g) => g.items && g.items.length);
+    out.notFound = groups.filter((g) => !g.items || !g.items.length).map((g) => g.meal.title);
+    return out;
+  }
+
+  /* ---------- the grocery list ---------- */
+  async function groceryListId() {
+    const lists = PL.state.lists.slice().sort((a, b) => a.title.localeCompare(b.title));
+    const g = lists.find((l) => /grocer/i.test(l.title)) || lists.find((l) => /shopping/i.test(l.title));
+    return g ? g.id : PL.store.add('lists', { title: 'Groceries' });
+  }
+
+  // groups: [{ label, items: [text] }]. Same thing in two meals = one line, "also for …".
+  function mergeGroups(groups) {
+    const firstOf = new Map();
+    return groups.map((g) => {
+      const rows = [];
+      g.items.forEach((text) => {
+        const k = norm(text);
+        if (!k) return;
+        const first = firstOf.get(k);
+        if (first) { if (first.group !== g) first.also.push(g.label.split(' · ').pop()); return; }
+        const row = { text: text.trim(), on: true, also: [], group: g };
+        firstOf.set(k, row);
+        rows.push(row);
+      });
+      return Object.assign({}, g, { rows });
+    }).filter((g) => g.rows.length);
+  }
+
+  // "Tue · Chicken adobo" -> a small pill ("Tue") and the name, like on the grocery list.
+  function headParts(label) {
+    const i = label.indexOf(' · ');
+    return i > 0 ? [h('span', { class: 'li-pill' }, label.slice(0, i)), h('span', {}, label.slice(i + 3))] : [h('span', {}, label)];
+  }
+
+  async function addGroceries(merged) {
+    const listId = await groceryListId();
+    if (!listId) return null;
+    const open = new Set(PL.state.listitems.filter((i) => i.listId === listId && !i.done).map((i) => norm(i.text)));
+    const ids = [];
+    let at = Date.now(), skipped = 0;
+    for (const g of merged) {
+      for (const r of g.rows) {
+        if (!r.on || !r.text.trim()) continue;
+        if (open.has(norm(r.text))) { skipped++; continue; }
+        const also = r.also.length ? 'also for ' + r.also.slice(0, 2).join(', ') : '';
+        const id = await PL.store.add('listitems', { listId, text: r.text.trim(), done: false, at: at++, group: g.label, also });
+        if (!id) return null;
+        ids.push(id);
+      }
     }
     const list = PL.state.lists.find((l) => l.id === listId);
-    ui.toast(n + (n === 1 ? ' item' : ' items') + ' added' + (list ? ' to ' + list.title : '') + (skipped ? '. ' + skipped + ' already there.' : '.'));
+    const name = list ? list.title : 'Groceries';
+    const n = ids.length;
+    ui.toast(!n && skipped ? 'Everything is already on ' + name + '.' : n + (n === 1 ? ' item' : ' items') + ' added to ' + name + (skipped ? ' (' + skipped + ' already there)' : '') + '.', n ? {
+      action: 'Undo', onAction: async () => { for (const id of ids) await PL.store.del('listitems', id); ui.toast('Taken off ' + name + '.'); }
+    } : null);
+    return { listId, ids };
+  }
+
+  // The check list: grouped by meal, untick what you have, then add. onAdded runs after a good add.
+  function openGroceryCheck(groups, onAdded, note) {
+    const merged = mergeGroups(groups);
+    if (!merged.length) { ui.toast('There is nothing to add.'); return; }
+    const count = () => merged.reduce((n, g) => n + g.rows.filter((r) => r.on).length, 0);
+    const addBtn = ui.button('Add', { variant: 'primary', big: true, icon: 'cart', onClick: async () => {
+      if (!count()) { ui.toast('Tick at least one item.'); return; }
+      addBtn.disabled = true;
+      const done = await addGroceries(merged);
+      addBtn.disabled = false;
+      if (done) { s.close(); onAdded && onAdded(done); }
+    } });
+    const total = h('span', { class: 'sub gc-total' });
+    const sync = () => { const n = count(); addBtn.querySelector('span').textContent = 'Add ' + n + (n === 1 ? ' item' : ' items'); addBtn.disabled = !n; total.textContent = n + (n === 1 ? ' item' : ' items'); };
+    const body = h('div', { class: 'gc' },
+      h('p', { class: 'sub' }, 'Untick what you already have at home.'),
+      note ? h('p', { class: 'form-error' }, note) : null,
+      merged.map((g) => h('section', { class: 'gc-group' },
+        g.label ? h('h3', { class: 'gc-head' }, ...headParts(g.label)) : null,
+        g.rows.map((r) => {
+          const cb = h('input', { type: 'checkbox', 'aria-label': r.text });
+          cb.checked = r.on;
+          cb.addEventListener('change', () => { r.on = cb.checked; row.classList.toggle('off', !r.on); sync(); });
+          const row = h('label', { class: 'gc-row' }, cb, h('span', { class: 'gc-text' }, r.text), r.also.length ? h('span', { class: 'gc-also' }, 'also for ' + r.also.slice(0, 2).join(', ')) : null);
+          return row;
+        }))));
+    const s = ui.sheet({ title: 'Add to groceries', wide: true, body, footer: [total, ui.button('Cancel', { variant: 'ghost', big: true, onClick: () => s.close() }), addBtn] });
+    sync();
+  }
+
+  // Planned meals → check list → groceries; marks the meals with 🛒 afterwards.
+  async function shopMeals(meals, statusEl) {
+    let groups;
+    const needAi = meals.some((m) => !(recipeOf(m.recipeId) || recipeNamed(m.title)));
+    if (needAi && statusEl) statusEl.replaceChildren(cooking(meals.length > 1 ? 'Finding the ingredients for ' + meals.length + ' meals… this takes about 20 seconds.' : null));
+    try { groups = await ingredientsFor(meals); }
+    catch (e) { if (statusEl) statusEl.replaceChildren(h('p', { class: 'form-error', role: 'alert' }, aiError(e))); else ui.toast(aiError(e)); return false; }
+    if (statusEl) statusEl.replaceChildren();
+    if (!groups.length) { ui.toast('No ingredients came back. Please try again.'); return false; }
+    const missed = groups.notFound || [];
+    openGroceryCheck(groups, async () => {
+      for (const g of groups) {
+        const m = g.meal;
+        if (!m.date) continue;
+        const now = mealAt(m.date, m.slot);
+        if (now && !now.shopped) await PL.store.set('meals', now.id, Object.assign({}, now, { shopped: true }));
+      }
+      if (missed.length) setTimeout(() => ui.toast('Could not find the ingredients for ' + missed.join(', ') + '. Tap that day to try again.'), 4600);
+    }, missed.length ? 'Could not find the ingredients for ' + missed.join(', ') + '. You can try that day again later.' : '');
+    return true;
+  }
+
+  function shopRecipe(r) {
+    if (!r.ingredients.length) { ui.toast('This recipe has no ingredients yet. Tap Edit to add them.'); return; }
+    openGroceryCheck([{ label: (r.emoji || '🍽️') + ' · ' + r.title, items: r.ingredients }]);
+  }
+
+  // Kept for older code: send a plain list of ingredients.
+  async function sendToList(ingredients, what) {
+    openGroceryCheck([{ label: what || '', items: ingredients }]);
     return true;
   }
 
@@ -5837,24 +6874,39 @@ html.g-open .tour-switch { z-index: 125; } /* stays visible (and lit) during a t
         r.steps ? [h('h3', { class: 'mini-h' }, 'Steps'), h('ol', { class: 'step-list' }, r.steps.split('\n').filter((x) => x.trim()).map((x) => h('li', {}, x.trim())))] : null),
       footer: [
         ui.button('Edit', { icon: 'edit', onClick: () => { s.close(); openRecipeForm(r); } }),
-        r.ingredients.length ? ui.button('Add to a list', { variant: 'primary', big: true, icon: 'cart', onClick: async () => { if (await sendToList(r.ingredients, r.title)) s.close(); } }) : null,
-        ui.button('Close', { variant: 'ghost', big: true, onClick: () => s.close() })]
+        ui.button('Close', { variant: 'ghost', big: true, onClick: () => s.close() }),
+        r.ingredients.length ? ui.button('Add to groceries', { variant: 'primary', big: true, icon: 'cart', onClick: () => { s.close(); shopRecipe(r); } }) : null]
     });
   }
 
-  function openRecipeForm(r, onSaved) {
-    let emoji = r ? r.emoji : EMOJI[0];
+  function openRecipeForm(r, onSaved, prefill) {
+    const p = prefill || r || null;
+    let emoji = p && p.emoji ? p.emoji : EMOJI[0];
     const title = h('input', { type: 'text', maxlength: '80', placeholder: 'For example: Chicken adobo', autocomplete: 'off', autofocus: true });
-    title.value = r ? r.title : '';
+    title.value = p ? p.title : '';
     const servings = h('input', { type: 'number', min: '1', max: '99', class: 'num', 'aria-label': 'Servings' });
-    servings.value = r ? r.servings : 4;
-    const ing = h('textarea', { rows: '6', placeholder: 'One ingredient on each line' });
-    ing.value = r ? r.ingredients.join('\n') : '';
+    servings.value = p && p.servings ? p.servings : people();
+    const ing = h('textarea', { rows: '7', placeholder: 'One ingredient on each line' });
+    ing.value = p ? (p.ingredients || []).join('\n') : '';
     const steps = h('textarea', { rows: '6', placeholder: 'One step on each line' });
-    steps.value = r ? r.steps : '';
+    steps.value = p ? p.steps || '' : '';
     const grid = h('div', { class: 'avatar-grid', role: 'radiogroup', 'aria-label': 'Picture' });
     const paint = () => grid.replaceChildren(...EMOJI.map((e) => h('button', { type: 'button', role: 'radio', class: 'avatar-opt' + (e === emoji ? ' on' : ''), 'aria-checked': e === emoji ? 'true' : 'false', 'aria-label': e, onclick: () => { emoji = e; paint(); } }, e)));
     paint();
+    const fillMsg = h('div');
+    const fill = ui.button('Fill in for me', { icon: 'sparkle', variant: 'gold', onClick: async () => {
+      const t = title.value.trim();
+      if (!t) { ui.toast('Type the name of the dish first.'); title.focus(); return; }
+      if ((ing.value.trim() || steps.value.trim()) && !(await ui.confirm({ title: 'Replace what you wrote?', message: 'The ingredients and steps will be filled in for you.', confirmLabel: 'Fill in' }))) return;
+      fill.disabled = true; fillMsg.replaceChildren(cooking());
+      try {
+        const res = await askIngredients(t, parseInt(servings.value, 10) || people(), { fresh: true });
+        ing.value = res.ingredients.join('\n'); steps.value = res.steps;
+        if (res.emoji && EMOJI.includes(res.emoji)) { emoji = res.emoji; paint(); }
+        fillMsg.replaceChildren(h('p', { class: 'hint' }, 'Filled in. Change anything you like, then save.'));
+      } catch (e) { fillMsg.replaceChildren(h('p', { class: 'form-error', role: 'alert' }, aiError(e))); }
+      fill.disabled = false;
+    } });
     async function save() {
       const t = title.value.trim();
       if (!t) { ui.toast('Please type a name first.'); title.focus(); return; }
@@ -5869,19 +6921,46 @@ html.g-open .tour-switch { z-index: 125; } /* stays visible (and lit) during a t
       if (!(await ui.confirm({ title: 'Delete this recipe?', message: '“' + r.title + '” will be removed for everyone. Meals in the plan keep their names.', confirmLabel: 'Delete', danger: true }))) return;
       if (await PL.store.del('recipes', r.id)) { s.close(); ui.toast('Recipe deleted.'); }
     }
-    const saveBtn = ui.button(r ? 'Save changes' : 'Add recipe', { variant: 'primary', big: true, onClick: save });
+    const saveBtn = ui.button(r ? 'Save changes' : 'Save recipe', { variant: 'primary', big: true, onClick: save });
     const footer = [ui.button('Cancel', { variant: 'ghost', big: true, onClick: () => s.close() }), saveBtn];
     if (r) footer.unshift(ui.button('Delete', { variant: 'danger', icon: 'trash', onClick: del }));
     const s = ui.sheet({
       title: r ? 'Edit recipe' : 'New recipe', wide: true, footer,
       body: h('form', { class: 'event-form', onsubmit: (e) => { e.preventDefault(); save(); } },
-        ui.field('Name', title), h('div', { class: 'field' }, h('span', { class: 'field-label' }, 'Picture'), grid),
+        ui.field('Name', title), h('div', { class: 'fill-row' }, fill, h('span', { class: 'hint' }, 'Type the name, then tap this to get the ingredients and steps.')), fillMsg,
+        h('div', { class: 'field' }, h('span', { class: 'field-label' }, 'Picture'), grid),
         ui.field('Servings', servings), ui.field('Ingredients', ing), ui.field('Steps', steps))
     });
   }
 
   /* ---------- one meal slot ---------- */
   function openSlot(date, slot) {
+    const m = mealAt(date, slot);
+    if (!m) { editSlot(date, slot); return; }
+    const r = recipeOf(m.recipeId) || recipeNamed(m.title);
+    const status = h('div');
+    const shopBtn = ui.button(m.shopped ? 'Add ingredients again' : 'Add ingredients to groceries', { variant: 'primary', big: true, block: true, icon: 'cart', onClick: async () => {
+      shopBtn.disabled = true;
+      const ok = await shopMeals([Object.assign({ id: m.id }, m)], status);
+      shopBtn.disabled = false;
+      if (ok) s.close();
+    } });
+    const s = ui.sheet({
+      title: SLOT_LABEL[slot] + ' · ' + D.fmt(date, { weekday: 'long', month: 'short', day: 'numeric' }),
+      body: h('div', { class: 'stack slot-view' },
+        h('h2', { class: 'slot-title' }, (r && r.emoji ? r.emoji + ' ' : '') + m.title),
+        m.shopped ? h('p', { class: 'slot-done' }, icon('check'), 'The ingredients are on your grocery list.') : null,
+        shopBtn,
+        r ? ui.button('View recipe', { big: true, block: true, icon: 'book', onClick: () => { s.close(); openRecipe(r); } }) : null,
+        status,
+        h('p', { class: 'hint' }, r ? r.ingredients.length + ' ingredients from your saved recipe. No waiting.' : 'We find the ingredients for you and save the recipe, so next time is instant.')),
+      footer: [
+        ui.button('Change ' + SLOT_LABEL[slot].toLowerCase(), { icon: 'edit', onClick: () => { s.close(); editSlot(date, slot); } }),
+        ui.button('Close', { variant: 'ghost', big: true, onClick: () => s.close() })]
+    });
+  }
+
+  function editSlot(date, slot) {
     const m = mealAt(date, slot);
     let recipeId = m ? m.recipeId : '';
     const title = h('input', { type: 'text', maxlength: '80', placeholder: 'For example: Tacos', autocomplete: 'off', autofocus: true });
@@ -5897,12 +6976,11 @@ html.g-open .tour-switch { z-index: 125; } /* stays visible (and lit) during a t
     async function save() {
       const t = title.value.trim();
       if (!t) { ui.toast('Please type what is for ' + SLOT_LABEL[slot].toLowerCase() + '.'); title.focus(); return; }
-      if (await PL.store.set('meals', mealId(date, slot), { date, slot, title: t, recipeId })) { s.close(); ui.toast('Saved.'); }
+      const same = m && m.title === t && m.recipeId === recipeId;
+      if (await PL.store.set('meals', mealId(date, slot), { date, slot, title: t, recipeId, shopped: same && m.shopped })) { s.close(); ui.toast('Saved.'); }
     }
     const footer = [ui.button('Cancel', { variant: 'ghost', big: true, onClick: () => s.close() }), ui.button('Save', { variant: 'primary', big: true, onClick: save })];
     if (m) footer.unshift(ui.button('Clear', { variant: 'danger', icon: 'trash', onClick: async () => { if (await PL.store.del('meals', m.id)) { s.close(); ui.toast('Cleared.'); } } }));
-    const rec = recipeOf(m && m.recipeId);
-    if (rec) footer.splice(footer.length - 1, 0, ui.button('View recipe', { icon: 'book', onClick: () => { s.close(); openRecipe(rec); } }));
     const s = ui.sheet({
       title: SLOT_LABEL[slot] + ' · ' + D.fmt(date, { weekday: 'long', month: 'short', day: 'numeric' }), footer,
       body: h('form', { class: 'event-form', onsubmit: (e) => { e.preventDefault(); save(); } },
@@ -5911,7 +6989,7 @@ html.g-open .tour-switch { z-index: 125; } /* stays visible (and lit) during a t
     });
   }
 
-  /* ---------- AI dinner ideas (asks Claude through the page's "sample" ability) ---------- */
+  /* ---------- dinner ideas ---------- */
   async function openSuggest(weekStart) {
     const dates = Array.from({ length: 7 }, (_, i) => D.addDays(weekStart, i)).filter((d) => d >= D.today() && !mealAt(d, 'dinner'));
     if (!dates.length) { ui.toast('Every dinner from today on is already planned this week.'); return; }
@@ -5919,10 +6997,11 @@ html.g-open .tour-switch { z-index: 125; } /* stays visible (and lit) during a t
     if (!sample) { ui.toast('Dinner ideas are not available on this page.'); return; }
     const notes = h('textarea', { rows: '3', placeholder: 'Optional. For example: no pork, quick meals on school nights, one vegetarian night.' });
     const out = h('div', { class: 'stack' });
+    const status = h('div');
     let picks = [];
     async function ask() {
       go.disabled = true;
-      out.replaceChildren(h('p', { class: 'sub', role: 'status' }, 'Thinking of dinners… this can take a little while.'));
+      out.replaceChildren(cooking('Thinking of dinners… this takes about 10 seconds.'));
       const rs = PL.state.recipes;
       const prompt = 'You plan simple, affordable family dinners. Suggest one dinner for each of these dates: ' + dates.join(', ') + '.\n' +
         (rs.length ? 'The family already has these recipes (prefer them, and use their exact id): ' + JSON.stringify(rs.map((r) => ({ id: r.id, title: r.title }))) + '.\n' : '') +
@@ -5935,49 +7014,48 @@ html.g-open .tour-switch { z-index: 125; } /* stays visible (and lit) during a t
           .map((x) => ({ date: x.date, title: x.title.trim().slice(0, 80), recipeId: ids.has(x.recipeId) ? x.recipeId : '', on: true }))
           .filter((x, i, a) => a.findIndex((y) => y.date === x.date) === i);
         if (!picks.length) { out.replaceChildren(h('p', { class: 'form-error' }, 'No ideas came back. Please try again.')); go.disabled = false; return; }
-        out.replaceChildren(h('p', { class: 'ai-note' }, 'Untick any you do not want. Nothing is saved until you press Add to plan.'),
+        out.replaceChildren(h('p', { class: 'ai-note' }, 'Untick any you do not want. Nothing is saved until you press Add.'),
           ...picks.map((p) => { const cb = h('input', { type: 'checkbox', checked: true, 'aria-label': p.title }); cb.addEventListener('change', () => { p.on = cb.checked; });
             return h('label', { class: 'ai-pick' }, cb, h('span', { class: 'meal-slot' }, D.fmt(p.date, { weekday: 'short' })), h('span', { class: 'meal-title' }, p.title)); }));
-        addBtn.hidden = false;
-      } catch (e) {
-        const code = e && e.code;
-        out.replaceChildren(h('p', { class: 'form-error' }, (e && e.userMessage) || (code === 'not_granted' ? 'Claude was not allowed to help. You can try again and allow it.' : code === 'rate_limited' ? 'Too many tries. Please wait a moment.' : 'Could not get ideas right now. Please try again.')));
-      }
+        addBtn.hidden = false; bothBtn.hidden = false;
+      } catch (e) { out.replaceChildren(h('p', { class: 'form-error' }, aiError(e))); }
       go.disabled = false;
     }
     async function addAll() {
-      let n = 0;
-      for (const p of picks.filter((x) => x.on)) { if (mealAt(p.date, 'dinner')) continue; if (await PL.store.set('meals', mealId(p.date, 'dinner'), { date: p.date, slot: 'dinner', title: p.title, recipeId: p.recipeId })) n++; }
-      s.close(); ui.toast(n + (n === 1 ? ' dinner added.' : ' dinners added.'));
+      const added = [];
+      for (const p of picks.filter((x) => x.on)) {
+        if (mealAt(p.date, 'dinner')) continue;
+        const data = { date: p.date, slot: 'dinner', title: p.title, recipeId: p.recipeId };
+        if (await PL.store.set('meals', mealId(p.date, 'dinner'), data)) added.push(Object.assign({ id: mealId(p.date, 'dinner') }, data));
+      }
+      return added;
     }
     const go = ui.button('Suggest dinners', { icon: 'sparkle', onClick: ask });
-    const addBtn = ui.button('Add to plan', { variant: 'primary', big: true, onClick: addAll });
-    addBtn.hidden = true;
-    const s = ui.sheet({ title: 'Dinner ideas', wide: true, footer: [ui.button('Close', { variant: 'ghost', big: true, onClick: () => s.close() }), addBtn],
-      body: h('div', { class: 'event-form' }, h('p', { class: 'sub' }, 'Claude suggests dinners for the days that are still empty. It uses your own Claude account and sees only your recipe names and the notes you type.'), ui.field('Anything to keep in mind?', notes), go, out) });
+    const addBtn = ui.button('Add to plan', { big: true, onClick: async () => {
+      const added = await addAll();
+      s.close(); ui.toast(added.length + (added.length === 1 ? ' dinner added.' : ' dinners added.'));
+    } });
+    const bothBtn = ui.button('Add to plan + groceries', { variant: 'primary', big: true, icon: 'cart', onClick: async () => {
+      if (!picks.some((x) => x.on)) { ui.toast('Tick at least one dinner.'); return; }
+      addBtn.disabled = bothBtn.disabled = true;
+      const added = await addAll();
+      if (!added.length) { s.close(); return; }
+      const ok = await shopMeals(added, status);
+      addBtn.disabled = bothBtn.disabled = false;
+      if (ok) s.close(); else { addBtn.hidden = true; bothBtn.querySelector('span').textContent = 'Try groceries again'; bothBtn.onclick = async () => { bothBtn.disabled = true; if (await shopMeals(added, status)) s.close(); bothBtn.disabled = false; }; }
+    } });
+    addBtn.hidden = true; bothBtn.hidden = true;
+    const s = ui.sheet({ title: 'Dinner ideas', wide: true, footer: [ui.button('Close', { variant: 'ghost', big: true, onClick: () => s.close() }), addBtn, bothBtn],
+      body: h('div', { class: 'event-form' }, h('p', { class: 'sub' }, 'Get dinner ideas for the days that are still empty. Only your recipe names and the notes you type are sent.'), ui.field('Anything to keep in mind?', notes), go, out, status) });
   }
+
+  PL.mealsUi = { askIngredients, dayRows, openRecipe, openRecipeForm, sendToList, openGroceryCheck, shopRecipe };
 
   /* ---------- screen ---------- */
-  /* ---------- Shop: type a meal, get the ingredients, send them to a list ---------- */
-  async function askIngredients(name, servings) {
-    const found = PL.state.recipes.find((r) => r.title.trim().toLowerCase() === name.trim().toLowerCase());
-    if (found && found.ingredients.length) return { title: found.title, ingredients: found.ingredients.slice(), steps: found.steps, fromRecipe: found };
-    const sample = window.claude && (await window.claude.use('sample'));
-    if (!sample) throw { code: 'unavailable' };
-    const res = await sample.json('A family wants to cook "' + name.trim().slice(0, 80) + '" for ' + servings + ' people. List what to buy to make it. ' +
-      'Give each ingredient with a simple amount, like "500 g ground beef" or "2 onions". Leave out water. Include the usual staples (oil, salt, spices) only if they matter to the dish. ' +
-      'Also give 4 to 8 short cooking steps. Reply with ONLY JSON like {"title":"Nice name of the dish","ingredients":["..."],"steps":["..."]}.', { modelTier: 'quick', cache: false });
-    const ing = (res && Array.isArray(res.ingredients) ? res.ingredients : []).map((x) => String(x).trim().slice(0, 100)).filter(Boolean).slice(0, 40);
-    if (!ing.length) throw { code: 'empty' };
-    const steps = (Array.isArray(res.steps) ? res.steps : []).map((x) => String(x).trim()).filter(Boolean).join('\n').slice(0, 3000);
-    return { title: String(res.title || name).trim().slice(0, 80) || name, ingredients: ing, steps, fromRecipe: null };
-  }
-
-  PL.mealsUi = { askIngredients, dayRows, openRecipe, openRecipeForm, sendToList };
-
   PL.screens.meals = {
     mount(root, params) {
       let tab = (params && params.tab) || PL.storage.get('mealTab', 'plan');
+      if (tab !== 'plan' && tab !== 'recipes') tab = 'recipes'; // the old Shop tab lives in Recipes now
       let cursor = D.startOfWeek((params && params.date) || D.today(), PL.state.settings.weekStart);
       let showAll = PL.storage.get('mealAll', false);
       const el = h('div', { class: 'screen-page meals' });
@@ -5993,16 +7071,19 @@ html.g-open .tour-switch { z-index: 125; } /* stays visible (and lit) during a t
           ui.button('This week', { onClick: () => { cursor = D.startOfWeek(today, PL.state.settings.weekStart); render(); } }),
           ui.iconButton('right', 'Next week', () => { cursor = D.addDays(cursor, 7); render(); }),
           h('h2', { class: 'chores-day' }, label));
+        const weekStatus = h('div');
+        const weekBtn = ui.button('Add week to groceries', { icon: 'cart', onClick: async () => {
+          const meals = [];
+          for (let i = 0; i < 7; i++) SLOTS.forEach((s) => { const m = mealAt(D.addDays(cursor, i), s.id); if (m) meals.push(m); });
+          if (!meals.length) { ui.toast('Nothing is planned this week yet.'); return; }
+          weekBtn.disabled = true;
+          await shopMeals(meals, weekStatus);
+          weekBtn.disabled = false;
+        } });
         const opts = h('div', { class: 'meal-opts' },
           ui.toggle('Show breakfast and lunch', showAll, (v) => { showAll = v; PL.storage.set('mealAll', v); render(); }).el,
           ui.button('Suggest dinners', { icon: 'sparkle', onClick: () => openSuggest(cursor) }),
-          ui.button('Add week to a list', { icon: 'cart', onClick: async () => {
-            const ids = new Set();
-            for (let i = 0; i < 7; i++) SLOTS.forEach((s) => { const m = mealAt(D.addDays(cursor, i), s.id); if (m && m.recipeId) ids.add(m.recipeId); });
-            const ings = [...ids].map(recipeOf).filter(Boolean).flatMap((r) => r.ingredients);
-            if (!ings.length) { ui.toast('No recipes are planned this week. Pick a recipe for a meal first.'); return; }
-            await sendToList(ings, 'Ingredients for the week');
-          } }));
+          weekBtn);
         const days = Array.from({ length: 7 }, (_, i) => {
           const date = D.addDays(cursor, i);
           return h('section', { class: 'chore-group meal-day' + (date === today ? ' today' : ''), 'aria-label': D.fmt(date, { weekday: 'long', month: 'long', day: 'numeric' }) },
@@ -6010,91 +7091,119 @@ html.g-open .tour-switch { z-index: 125; } /* stays visible (and lit) during a t
             slots.map((s) => {
               const m = mealAt(date, s.id);
               const r = m && recipeOf(m.recipeId);
-              return h('button', { type: 'button', class: 'meal-row', onclick: () => openSlot(date, s.id), 'aria-label': SLOT_LABEL[s.id] + ', ' + (m ? m.title : 'nothing planned. Tap to add') },
+              return h('button', { type: 'button', class: 'meal-row', onclick: () => openSlot(date, s.id), 'aria-label': SLOT_LABEL[s.id] + ', ' + (m ? m.title + (m.shopped ? ', on the grocery list' : '') : 'nothing planned. Tap to add') },
                 h('span', { class: 'meal-slot' }, SLOT_LABEL[s.id]),
                 h('span', { class: 'meal-title' + (m ? '' : ' empty') }, m ? m.title : 'Add'),
+                m && m.shopped ? h('span', { class: 'meal-cart', title: 'On the grocery list' }, icon('cart')) : null,
                 r ? icon('book') : (m ? null : icon('plus')));
             }));
         });
-        return [bar, opts, h('div', { class: 'meal-week' }, days)];
+        return [bar, opts, weekStatus, h('div', { class: 'meal-week' }, days)];
+      }
+
+      /* Recipes: "What do you want to cook?" on top, the recipe box below. */
+      let find = { name: '', servings: people(), busy: false, err: '', result: null };
+      function findBox() {
+        const name = h('input', { type: 'text', maxlength: '80', placeholder: 'For example: Thai green chicken curry', autocomplete: 'off', 'aria-label': 'Dish name', id: 'find-dish' });
+        name.value = find.name;
+        name.addEventListener('input', () => { find.name = name.value; });
+        const num = h('b', { class: 'stepper-num', 'aria-live': 'polite' }, String(find.servings));
+        const stepper = h('div', { class: 'stepper', role: 'group', 'aria-label': 'How many people' },
+          h('span', {}, 'For'),
+          h('button', { type: 'button', 'aria-label': 'Fewer people', onclick: () => { find.servings = Math.max(1, find.servings - 1); num.textContent = find.servings; } }, '−'),
+          num,
+          h('button', { type: 'button', 'aria-label': 'More people', onclick: () => { find.servings = Math.min(30, find.servings + 1); num.textContent = find.servings; } }, '+'),
+          h('span', {}, 'people'));
+        async function go(e) {
+          e && e.preventDefault();
+          const n = name.value.trim();
+          if (!n) { ui.toast('Type a dish first.'); name.focus(); return; }
+          const have = recipeNamed(n);
+          if (have) { find.name = ''; render(); openRecipe(have); ui.toast('You already have this recipe.'); return; }
+          find.name = n; find.busy = true; find.err = ''; find.result = null; render();
+          try {
+            const r = await askIngredients(n, find.servings, { fresh: true });
+            find.result = { title: r.title, emoji: r.emoji, servings: find.servings, steps: r.steps, items: r.ingredients.map((t) => ({ text: t, on: true })) };
+          } catch (err) { find.err = aiError(err); }
+          find.busy = false; render();
+        }
+        return h('form', { class: 'find-box', onsubmit: go },
+          h('h2', {}, icon('sparkle'), 'What do you want to cook?'),
+          h('div', { class: 'find-row' }, name, stepper,
+            ui.button(find.busy ? 'Finding…' : 'Find recipe', { variant: 'gold', big: true, icon: 'sparkle', type: 'submit', disabled: find.busy })),
+          find.busy ? cooking() : h('p', { class: 'find-tip' }, 'Type any dish. You get the ingredients and the steps, and you can change anything before saving.'),
+          find.err ? h('p', { class: 'form-error', role: 'alert' }, find.err) : null);
+      }
+
+      function foundCard() {
+        const r = find.result;
+        const title = h('input', { type: 'text', maxlength: '80', class: 'found-title', 'aria-label': 'Recipe name' });
+        title.value = r.title;
+        title.addEventListener('input', () => { r.title = title.value; });
+        const rows = h('div', { class: 'found-ings' });
+        function paintRows() {
+          rows.replaceChildren(...r.items.map((it, i) => {
+            const cb = h('input', { type: 'checkbox', 'aria-label': 'Add ' + it.text + ' to groceries' }); cb.checked = it.on;
+            cb.addEventListener('change', () => { it.on = cb.checked; sync(); });
+            const t = h('input', { type: 'text', maxlength: '100', 'aria-label': 'Ingredient' }); t.value = it.text;
+            t.addEventListener('input', () => { it.text = t.value; });
+            return h('div', { class: 'ing-pick' }, cb, t, ui.iconButton('x', 'Remove ' + it.text, () => { r.items.splice(i, 1); paintRows(); sync(); }));
+          }));
+        }
+        paintRows();
+        const steps = h('textarea', { rows: '8', 'aria-label': 'Steps' });
+        steps.value = r.steps;
+        steps.addEventListener('input', () => { r.steps = steps.value; });
+        const recipeData = () => ({ title: r.title.trim() || find.name, emoji: r.emoji, servings: r.servings, ingredients: r.items.map((x) => x.text.trim()).filter(Boolean), steps: r.steps });
+        async function saveIt() {
+          const id = await PL.store.add('recipes', recipeData());
+          if (id) { find = { name: '', servings: find.servings, busy: false, err: '', result: null }; render(); }
+          return id;
+        }
+        const both = ui.button('Save and add to groceries', { variant: 'primary', big: true, icon: 'cart', onClick: async () => {
+          const data = recipeData();
+          const chosen = r.items.filter((x) => x.on && x.text.trim()).map((x) => x.text.trim());
+          if (!(await saveIt())) return;
+          ui.toast('Recipe saved.');
+          if (chosen.length) openGroceryCheck([{ label: (data.emoji || '🍽️') + ' · ' + data.title, items: chosen }]);
+        } });
+        const sync = () => { both.disabled = !r.items.some((x) => x.on && x.text.trim()); };
+        sync();
+        return h('section', { class: 'card found' },
+          h('div', { class: 'found-head' }, h('span', { class: 'found-emoji' }, r.emoji || '🍽️'),
+            h('div', { class: 'found-mid' }, h('span', { class: 'found-badge' }, 'Found for you ✨'), title, h('span', { class: 'sub' }, 'For ' + r.servings + ' people · tap anything to change it'))),
+          h('div', { class: 'found-cols' },
+            h('div', {}, h('h3', { class: 'mini-h' }, 'Ingredients'), rows,
+              ui.button('Add an ingredient', { icon: 'plus', onClick: () => { r.items.push({ text: '', on: true }); paintRows(); sync(); const ins = rows.querySelectorAll('input[type=text]'); ins[ins.length - 1].focus(); } })),
+            h('div', {}, h('h3', { class: 'mini-h' }, 'Steps'), steps)),
+          h('div', { class: 'found-foot' },
+            ui.button('Try again', { variant: 'ghost', onClick: () => { find.result = null; render(); const i = el.querySelector('#find-dish'); i && i.focus(); } }),
+            ui.button('Save recipe', { icon: 'book', onClick: async () => { if (await saveIt()) ui.toast('Recipe saved.'); } }),
+            both));
       }
 
       function recipesPanel() {
         const rs = PL.state.recipes.slice().sort((a, b) => a.title.localeCompare(b.title));
         return [
-          h('div', { class: 'chores-bar' }, ui.button('New recipe', { variant: 'primary', big: true, icon: 'plus', onClick: () => openRecipeForm(null) })),
+          findBox(),
+          find.result ? foundCard() : null,
+          h('div', { class: 'recipes-head' }, h('h2', {}, 'Your recipes'), ui.button('Write my own', { icon: 'plus', onClick: () => openRecipeForm(null) })),
           rs.length
-            ? h('div', { class: 'family-grid' }, rs.map((r) => h('button', { type: 'button', class: 'list-card recipe-card', onclick: () => openRecipe(r) },
-                h('span', { class: 'recipe-emoji' }, r.emoji || '🍽️'), h('strong', {}, r.title), h('span', { class: 'sub' }, r.ingredients.length + (r.ingredients.length === 1 ? ' ingredient' : ' ingredients')))))
-            : ui.emptyState({ icon: 'book', title: 'No recipes yet', text: 'Keep the family favorites here. You can send a recipe’s ingredients to a shopping list.', action: ui.button('Add the first recipe', { icon: 'plus', onClick: () => openRecipeForm(null) }) })
-        ];
-      }
-
-      let shop = { name: '', servings: 4, result: null, busy: false, err: '', saveRecipe: true, planDate: '' };
-      function shopPanel() {
-        const name = h('input', { type: 'text', maxlength: '80', placeholder: 'For example: Chicken adobo', autocomplete: 'off', 'aria-label': 'Meal name' });
-        name.value = shop.name;
-        name.addEventListener('input', () => { shop.name = name.value; });
-        const sv = h('input', { type: 'number', min: '1', max: '30', class: 'num', 'aria-label': 'How many people' });
-        sv.value = shop.servings;
-        sv.addEventListener('input', () => { shop.servings = Math.min(30, Math.max(1, parseInt(sv.value, 10) || 4)); });
-        async function find(e) {
-          e && e.preventDefault();
-          const n = name.value.trim();
-          if (!n) { ui.toast('Please type a meal first.'); name.focus(); return; }
-          shop.name = n; shop.busy = true; shop.err = ''; shop.result = null; render();
-          try {
-            const r = await askIngredients(n, shop.servings);
-            shop.result = { title: r.title, steps: r.steps, fromRecipe: r.fromRecipe, items: r.ingredients.map((t) => ({ text: t, on: true })) };
-          } catch (err) {
-            const c = err && err.code;
-            shop.err = (err && err.userMessage) || (c === 'not_granted' ? 'Claude was not allowed to help. You can try again and allow it.' : c === 'rate_limited' ? 'Too many tries. Please wait a moment.' : c === 'unavailable' ? 'Ingredient ideas are not available on this page. You can still add the meal as a recipe.' : 'Could not get the ingredients. Please try again, or write the recipe yourself.');
-          }
-          shop.busy = false; render();
-        }
-        const parts = [h('form', { class: 'shop-box', onsubmit: find },
-          h('p', { class: 'sub' }, 'Type something you feel like eating. You get the shopping list for it, ready to add to your groceries.'),
-          h('div', { class: 'shop-row' }, ui.field('What do you want to eat?', name), ui.field('People', sv)),
-          ui.button(shop.busy ? 'Looking…' : 'Find ingredients', { variant: 'primary', big: true, icon: 'sparkle', type: 'submit', disabled: shop.busy }))];
-        if (shop.busy) parts.push(h('p', { class: 'sub', role: 'status' }, 'Thinking of what you need… this can take a little while.'));
-        if (shop.err) parts.push(h('p', { class: 'form-error', role: 'alert' }, shop.err));
-        const r = shop.result;
-        if (r) {
-          const rows = r.items.map((it) => {
-            const cb = h('input', { type: 'checkbox', 'aria-label': 'Buy ' + it.text }); cb.checked = it.on; cb.addEventListener('change', () => { it.on = cb.checked; sync(); });
-            const t = h('input', { type: 'text', maxlength: '100', 'aria-label': 'Ingredient' }); t.value = it.text; t.addEventListener('input', () => { it.text = t.value; });
-            return h('div', { class: 'ing-pick' }, cb, t);
-          });
-          const days = Array.from({ length: 7 }, (_, i) => D.addDays(D.today(), i));
-          const planSel = ui.select([{ value: '', label: 'Not on the plan' }].concat(days.map((d) => ({ value: d, label: 'Dinner on ' + D.fmt(d, { weekday: 'long', month: 'short', day: 'numeric' }) }))), shop.planDate, (v) => { shop.planDate = v; });
-          const saveTog = r.fromRecipe ? null : ui.toggle('Also save it as a recipe', shop.saveRecipe, (v) => { shop.saveRecipe = v; });
-          const addBtn = ui.button('Add', { variant: 'primary', big: true, icon: 'cart', onClick: async () => {
-            const chosen = r.items.filter((x) => x.on && x.text.trim()).map((x) => x.text.trim());
-            if (!chosen.length) { ui.toast('Tick at least one ingredient.'); return; }
-            const ok = await sendToList(chosen, r.title);
-            if (!ok) return;
-            let recipeId = r.fromRecipe ? r.fromRecipe.id : '';
-            if (!r.fromRecipe && shop.saveRecipe) recipeId = (await PL.store.add('recipes', { title: r.title, emoji: '🍽️', servings: shop.servings, ingredients: r.items.filter((x) => x.text.trim()).map((x) => x.text.trim()), steps: r.steps })) || '';
-            if (shop.planDate) await PL.store.set('meals', mealId(shop.planDate, 'dinner'), { date: shop.planDate, slot: 'dinner', title: r.title, recipeId });
-            shop = { name: '', servings: shop.servings, result: null, busy: false, err: '', saveRecipe: true, planDate: '' };
-            render();
-          } });
-          const sync = () => { const n = r.items.filter((x) => x.on).length; addBtn.querySelector('span').textContent = 'Add ' + n + (n === 1 ? ' item' : ' items') + ' to a list'; addBtn.disabled = !n; };
-          sync();
-          parts.push(h('section', { class: 'card shop-box' },
-            h('h2', {}, r.title), h('p', { class: 'sub' }, (r.fromRecipe ? 'From your recipe box. ' : 'Amounts are a guess. ') + 'Untick what you already have, or fix a line.'),
-            h('div', { class: 'stack' }, rows), saveTog ? saveTog.el : null, ui.field('Put it on the plan?', planSel), addBtn));
-        }
-        return parts;
+            ? h('div', { class: 'recipe-grid' }, rs.map((r) => h('div', { class: 'recipe-card' },
+                h('button', { type: 'button', class: 'recipe-open', onclick: () => openRecipe(r) },
+                  h('span', { class: 'recipe-emoji' }, r.emoji || '🍽️'), h('strong', {}, r.title), h('span', { class: 'sub' }, r.ingredients.length + (r.ingredients.length === 1 ? ' ingredient' : ' ingredients'))),
+                r.ingredients.length ? ui.button('Add to groceries', { icon: 'cart', onClick: () => shopRecipe(r) }) : null)))
+            : ui.emptyState({ icon: 'book', title: 'No recipes yet', text: 'Find a dish above, or write your own. Every recipe can go to the grocery list in one tap.' })
+        ].filter(Boolean);
       }
 
       function render() {
-        const tabs = ui.segmented([{ value: 'plan', label: 'Plan' }, { value: 'recipes', label: 'Recipes' }, { value: 'shop', label: 'Shop' }], tab, (v) => { tab = v; PL.storage.set('mealTab', v); render(); }, 'Meals');
+        const tabs = ui.segmented([{ value: 'plan', label: 'Plan' }, { value: 'recipes', label: 'Recipes' }], tab, (v) => { tab = v; PL.storage.set('mealTab', v); render(); }, 'Meals');
         tabs.el.classList.add('task-tabs');
-        el.replaceChildren(h('header', { class: 'page-head' }, h('h1', {}, 'Meals')), tabs.el, ...(tab === 'recipes' ? recipesPanel() : tab === 'shop' ? shopPanel() : planPanel()));
+        el.replaceChildren(h('header', { class: 'page-head' }, h('h1', {}, 'Meals')), tabs.el, ...(tab === 'recipes' ? recipesPanel() : planPanel()));
       }
       render();
-      return { update: () => { const a = document.activeElement; if (tab === 'shop' && a && el.contains(a) && /^(INPUT|TEXTAREA)$/.test(a.tagName)) return; render(); }, destroy() {} };
+      return { update: () => { const a = document.activeElement; if (tab === 'recipes' && (find.busy || find.result || (a && el.contains(a) && /^(INPUT|TEXTAREA)$/.test(a.tagName)))) return; render(); }, destroy() {} };
     }
   };
 })();
@@ -6436,7 +7545,8 @@ html.g-open .tour-switch { z-index: 125; } /* stays visible (and lit) during a t
             'aria-label': D.fmt(key, { weekday: 'long', month: 'long', day: 'numeric' }) + ', ' + items.length + (items.length === 1 ? ' event' : ' events') },
             h('button', { type: 'button', class: 'mv-num', onclick: () => { view = 'day'; cursor = key; render(); } }, D.parse(key).getDate()),
             h('div', { class: 'mv-items' },
-              items.slice(0, 3).map((i) => h('button', { type: 'button', class: 'mv-ev', style: '--c:' + PL.cal.color(i), onclick: () => PL.eventUi.openDetail(i), title: i.title }, i.title)),
+              items.slice(0, 3).map((i) => h('button', { type: 'button', class: 'mv-ev' + (i.kind === 'holiday' ? ' hol' : ''), style: '--c:' + PL.cal.color(i), onclick: () => PL.eventUi.openDetail(i), title: (i.allDay ? '' : D.shortTime(i.start, PL.state.settings.hour12) + ' ') + i.title },
+                !i.allDay && i.start ? h('b', { class: 'mv-time' }, D.shortTime(i.start, PL.state.settings.hour12)) : null, i.title)),
               items.length > 3 ? h('button', { type: 'button', class: 'mv-more', onclick: () => { view = 'day'; cursor = key; render(); } }, '+' + (items.length - 3) + ' more') : null));
           ui.onHold(cell, () => addOn(key));
           cells.push(cell);
@@ -6461,7 +7571,7 @@ html.g-open .tour-switch { z-index: 125; } /* stays visible (and lit) during a t
         const seg = ui.segmented(PL.config.calendarViews, view, (v) => { view = v; render(); }, 'Calendar view');
         const body = h('div', { class: 'cal-body' }, views[view]());
         ui.onSwipe(body, () => step(1), () => step(-1));
-        el.replaceChildren(
+        el.replaceChildren(...[
           h('header', { class: 'cal-bar' },
             h('div', { class: 'cal-nav' },
               ui.iconButton('left', 'Previous', () => step(-1)),
@@ -6469,8 +7579,10 @@ html.g-open .tour-switch { z-index: 125; } /* stays visible (and lit) during a t
               ui.iconButton('right', 'Next', () => step(1))),
             h('h1', { class: 'cal-title', 'aria-live': 'polite' }, title()),
             seg.el,
+            ui.button('🎉 Holidays', { variant: 'gold', aria: 'Holidays', onClick: () => PL.holidays.open() }),
             ui.button('Add', { variant: 'primary', icon: 'plus', onClick: () => addOn(view === 'day' ? cursor : D.today()) })),
-          body);
+          PL.holidays.bar(),
+          body].filter(Boolean));
       }
 
       render();

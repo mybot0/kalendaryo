@@ -81,7 +81,8 @@
             'aria-label': D.fmt(key, { weekday: 'long', month: 'long', day: 'numeric' }) + ', ' + items.length + (items.length === 1 ? ' event' : ' events') },
             h('button', { type: 'button', class: 'mv-num', onclick: () => { view = 'day'; cursor = key; render(); } }, D.parse(key).getDate()),
             h('div', { class: 'mv-items' },
-              items.slice(0, 3).map((i) => h('button', { type: 'button', class: 'mv-ev', style: '--c:' + PL.cal.color(i), onclick: () => PL.eventUi.openDetail(i), title: i.title }, i.title)),
+              items.slice(0, 3).map((i) => h('button', { type: 'button', class: 'mv-ev' + (i.kind === 'holiday' ? ' hol' : ''), style: '--c:' + PL.cal.color(i), onclick: () => PL.eventUi.openDetail(i), title: (i.allDay ? '' : D.shortTime(i.start, PL.state.settings.hour12) + ' ') + i.title },
+                !i.allDay && i.start ? h('b', { class: 'mv-time' }, D.shortTime(i.start, PL.state.settings.hour12)) : null, i.title)),
               items.length > 3 ? h('button', { type: 'button', class: 'mv-more', onclick: () => { view = 'day'; cursor = key; render(); } }, '+' + (items.length - 3) + ' more') : null));
           ui.onHold(cell, () => addOn(key));
           cells.push(cell);
@@ -106,7 +107,7 @@
         const seg = ui.segmented(PL.config.calendarViews, view, (v) => { view = v; render(); }, 'Calendar view');
         const body = h('div', { class: 'cal-body' }, views[view]());
         ui.onSwipe(body, () => step(1), () => step(-1));
-        el.replaceChildren(
+        el.replaceChildren(...[
           h('header', { class: 'cal-bar' },
             h('div', { class: 'cal-nav' },
               ui.iconButton('left', 'Previous', () => step(-1)),
@@ -114,8 +115,10 @@
               ui.iconButton('right', 'Next', () => step(1))),
             h('h1', { class: 'cal-title', 'aria-live': 'polite' }, title()),
             seg.el,
+            ui.button('🎉 Holidays', { variant: 'gold', aria: 'Holidays', onClick: () => PL.holidays.open() }),
             ui.button('Add', { variant: 'primary', icon: 'plus', onClick: () => addOn(view === 'day' ? cursor : D.today()) })),
-          body);
+          PL.holidays.bar(),
+          body].filter(Boolean));
       }
 
       render();

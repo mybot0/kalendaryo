@@ -15,8 +15,8 @@
   const C = PL.config;
 
   // Extra collections that are loaded, cached and written the same way.
-  const COLLS = ['chores', 'completions', 'routines', 'rlogs', 'rewards', 'redemptions', 'lists', 'listitems', 'recipes', 'meals', 'countdowns', 'photos'];
-  const MODEL = { chores: 'chore', completions: 'completion', routines: 'routine', rlogs: 'rlog', rewards: 'reward', redemptions: 'redemption', lists: 'list', listitems: 'listitem', recipes: 'recipe', meals: 'meal', countdowns: 'countdown', photos: 'photo' };
+  const COLLS = ['chores', 'completions', 'routines', 'rlogs', 'rewards', 'redemptions', 'lists', 'listitems', 'recipes', 'meals', 'countdowns', 'photos', 'holidays', 'notes'];
+  const MODEL = { chores: 'chore', completions: 'completion', routines: 'routine', rlogs: 'rlog', rewards: 'reward', redemptions: 'redemption', lists: 'list', listitems: 'listitem', recipes: 'recipe', meals: 'meal', countdowns: 'countdown', photos: 'photo', holidays: 'holiday', notes: 'note' };
 
   const state = (PL.state = {
     ready: false,        // first render can happen
@@ -28,7 +28,7 @@
     uid: null,
     members: [],
     events: [],
-    chores: [], completions: [], routines: [], rlogs: [], rewards: [], redemptions: [], lists: [], listitems: [], recipes: [], meals: [], countdowns: [], photos: [],
+    chores: [], completions: [], routines: [], rlogs: [], rewards: [], redemptions: [], lists: [], listitems: [], recipes: [], meals: [], countdowns: [], photos: [], holidays: [], notes: [],
     settings: Object.assign({}, C.householdDefaults),
     device: {}
   });

@@ -4,6 +4,7 @@
  * Combines three sources into one list of "instances" (one entry per day an event happens):
  *   1. Events you created (including each date of a repeating event)
  *   2. Birthdays from family profiles (read-only, shown automatically)
+ *   2b. Public holidays the family added (holidays.js), pink
  *   3. (Round 3) Events from outside calendars — see services in later rounds
  *
  * An instance looks like:
@@ -62,6 +63,7 @@
       PL.recur.occurrences(ev, from, to).forEach((date) => out.push(fromEvent(ev, date)));
     });
     birthdayInstances(from, to).forEach((i) => out.push(i));
+    if (PL.holidays) PL.holidays.instances(from, to).forEach((i) => out.push(i));
     return out.filter((i) => all || visible(i, hidden)).sort((a, b) => a.date.localeCompare(b.date) || byTime(a, b));
   }
 

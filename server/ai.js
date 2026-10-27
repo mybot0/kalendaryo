@@ -1,4 +1,4 @@
-// ai.js — asks Claude for the Shop ingredients and dinner ideas.
+// ai.js — asks Claude for recipes, ingredients, dinner ideas, and holidays the public list does not have.
 // Uses ANTHROPIC_API_KEY from the server's settings. The key never goes to the browser.
 // Each family gets AI_DAILY_LIMIT requests a day (default 20).
 const { q } = require('./db');
@@ -32,6 +32,7 @@ async function giveBack(familyId) {
 
 async function ask(prompt) {
   if (process.env.AI_FAKE) return process.env.AI_FAKE; // tests only
+  if (process.env.AI_FAKE_JS) return require(process.env.AI_FAKE_JS)(prompt); // tests only: a file that answers like Claude
   const ctl = new AbortController();
   const t = setTimeout(() => ctl.abort(), 60000);
   try {
@@ -39,8 +40,8 @@ async function ask(prompt) {
       method: 'POST', signal: ctl.signal,
       headers: { 'content-type': 'application/json', 'x-api-key': KEY(), 'anthropic-version': '2023-06-01' },
       body: JSON.stringify({
-        model: MODEL(), max_tokens: 1200,
-        system: 'You help a family plan meals and groceries in a family calendar app. Answer only about food, meals, recipes and groceries. When asked for JSON, reply with JSON only.',
+        model: MODEL(), max_tokens: 4000,
+        system: 'You help a family plan meals and groceries in a family calendar app. Answer only about food, meals, recipes, groceries and public holidays. When asked for JSON, reply with JSON only.',
         messages: [{ role: 'user', content: prompt }]
       })
     });

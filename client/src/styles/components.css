@@ -69,6 +69,10 @@ input:focus, select:focus, textarea:focus { border-color: var(--primary); outlin
 
 .toast { position: fixed; left: 50%; bottom: calc(92px + env(safe-area-inset-bottom)); transform: translate(-50%, 20px); background: var(--ink); color: #fff; padding: 12px 20px; border-radius: 999px; opacity: 0; pointer-events: none; transition: opacity .2s, transform .2s; z-index: 95; max-width: calc(100vw - 32px); text-align: center; }
 .toast.show { opacity: 1; transform: translate(-50%, 0); }
+.toast.has-action { display: flex; align-items: center; gap: 14px; padding: 8px 8px 8px 20px; }
+.toast.has-action.show { pointer-events: auto; }
+html.has-sheet .toast { bottom: calc(110px + env(safe-area-inset-bottom)); }
+.toast-act { border: 0; border-radius: 999px; background: #FFD666; color: var(--ink); font: 700 .95rem var(--font); min-height: 38px; padding: 0 16px; cursor: pointer; }
 @media (min-width: 900px) { .toast { bottom: 28px; } }
 
 /* event card */

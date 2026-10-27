@@ -83,8 +83,23 @@
             check.setAttribute('aria-pressed', next ? 'true' : 'false'); rowEl.classList.toggle('done', next);
             if (!(await setDone(item, next))) { check.setAttribute('aria-pressed', item.done ? 'true' : 'false'); rowEl.classList.toggle('done', item.done); }
           } }, icon('check'));
-        rowEl.append(check, h('button', { type: 'button', class: 'chore-title', onclick: () => openItem(item), 'aria-label': 'Edit ' + item.text }, h('span', {}, item.text)));
+        rowEl.append(check, h('button', { type: 'button', class: 'chore-title', onclick: () => openItem(item), 'aria-label': 'Edit ' + item.text }, h('span', {}, item.text), item.also ? h('span', { class: 'li-also' }, item.also) : null));
         return rowEl;
+      }
+
+      // Groceries from meals sit under a heading per meal ("Tue · Chicken adobo"); typed items go under "Other".
+      function grouped(todo) {
+        if (!todo.some((i) => i.group)) return todo.map(itemRow);
+        const groups = new Map();
+        todo.forEach((i) => { const k = i.group || ''; if (!groups.has(k)) groups.set(k, []); groups.get(k).push(i); });
+        const keys = [...groups.keys()].filter(Boolean);
+        if (groups.has('')) keys.push('');
+        return keys.map((k) => {
+          const parts = k.split(' · ');
+          const pill = k ? (parts.length > 1 ? parts[0] : '🍽️') : 'Other';
+          const name = k ? (parts.length > 1 ? parts.slice(1).join(' · ') : k) : 'Things you added';
+          return h('div', { class: 'li-group' }, h('h3', { class: 'li-group-head' + (k ? '' : ' other') }, h('span', { class: 'li-pill' }, pill), h('span', {}, name)), groups.get(k).map(itemRow));
+        });
       }
 
       function index() {
@@ -124,7 +139,7 @@
           h('div', { class: 'chores-list' },
             h('form', { class: 'add-row', onsubmit: add }, input, ui.button('Add', { variant: 'primary', big: true, type: 'submit', icon: 'plus' })),
             h('section', { class: 'chore-group' },
-              todo.length ? todo.map(itemRow) : h('p', { class: 'sub list-note' }, items.length ? 'Everything is done.' : 'Nothing here yet. Type above to add the first item.')),
+              todo.length ? grouped(todo) : h('p', { class: 'sub list-note' }, items.length ? 'Everything is done.' : 'Nothing here yet. Type above to add the first item.')),
             done.length ? h('section', { class: 'chore-group' },
               h('div', { class: 'cg-head' }, h('h2', { class: 'cg-name' }, 'Done'), h('span', { class: 'cg-count' }, done.length),
                 h('button', { type: 'button', class: 'link-btn', onclick: async () => {

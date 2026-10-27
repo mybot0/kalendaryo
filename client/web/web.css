@@ -70,3 +70,28 @@ body.land-body {
 /* Owner view: banner when the site owner opens someone's home (read-only). */
 .status-banner.owner-viewing { background: #26302B; color: #fff; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; font-weight: 700; }
 .owner-viewing .owner-back { margin-left: auto; background: #fff; color: #26302B; padding: 6px 14px; border-radius: 999px; text-decoration: none; }
+
+/* "That's you", "Which one are you?", invite by name, join page (me.js, access.js, landing.js) */
+.ty-badge { align-self: flex-start; font-size: .74rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; padding: 4px 10px; border-radius: 999px; background: #FFF3C4; color: #7A5A00; }
+.ty-who { display: flex; align-items: center; gap: 14px; }
+.ty-who strong { font: 800 1.3rem var(--font-head); }
+.ty-who .sub { margin: 2px 0 0; }
+.ty-link { display: flex; flex-direction: column; gap: 8px; padding: 12px 14px; border-radius: 16px; background: var(--surface-2); }
+.ty-link .hint { margin: 0; }
+.ty-link .btn { align-self: flex-start; }
+.who-list { display: flex; flex-direction: column; gap: 6px; }
+.who-opt { display: flex; align-items: center; gap: 12px; min-height: 56px; padding: 8px 14px; border: 2px solid var(--line); border-radius: 16px; background: var(--surface); text-align: left; cursor: pointer; font-size: 1.02rem; }
+.who-opt:hover:not(:disabled) { background: var(--surface-2); }
+.who-opt.on { border-color: var(--primary); background: var(--primary-soft); }
+.who-opt:disabled { opacity: .5; cursor: default; }
+.who-state { margin-left: auto; font-size: .85rem; font-weight: 600; color: var(--ink-2); }
+.who-new { color: var(--primary); }
+.who-plus { width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; background: var(--primary-soft); font: 800 1.3rem var(--font); color: var(--primary); flex: none; }
+.access-row .avatar { flex: none; }
+.join-hi { text-align: center; }
+.join-form { align-items: center; }
+.join-form h2 { font-size: 2rem; }
+.join-form p { margin: 0; }
+.join-meta { display: flex; align-items: center; justify-content: center; gap: 8px; color: var(--ink-2); font-weight: 600; }
+.join-dot { width: 22px; height: 22px; border-radius: 50%; display: inline-block; }
+.join-form .btn.block { width: 100%; }

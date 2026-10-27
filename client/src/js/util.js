@@ -64,7 +64,9 @@
     sun: 'M12 16a4 4 0 100-8 4 4 0 000 8zM12 3v2M12 19v2M3 12h2M19 12h2M5.600 5.600L7 7M17 17l1.400 1.400M5.600 18.400L7 17M17 7l1.400-1.400',
     image: 'M4 5h16v14H4zM4 16l4.500-4.500 4 4 3-3L20 16M9 9.500h.01',
     wifioff: 'M4 4l16 16M5 10.500a11 11 0 015.500-2.800M9 14.500a6 6 0 013.500-1.200M12 18.500h.01',
-    sparkle: 'M12 4l1.800 4.700L18.500 10.500l-4.700 1.800L12 17l-1.800-4.700L5.500 10.500l4.700-1.800zM18.500 4v3M20 5.500h-3'
+    sparkle: 'M12 4l1.800 4.700L18.500 10.500l-4.700 1.800L12 17l-1.800-4.700L5.500 10.500l4.700-1.800zM18.500 4v3M20 5.500h-3',
+    search: 'M11 5a6 6 0 100 12 6 6 0 000-12zM20 20l-4.500-4.500',
+    table: 'M4 5h16v14H4zM4 10h16M4 15h16M10 5v14M15 5v14'
   };
   function icon(name, extraClass) {
     const NS = 'http://www.w3.org/2000/svg';
@@ -108,6 +110,13 @@
     if (!t) return '';
     const [h, m] = t.split(':').map(Number);
     return new Date(2000, 0, 1, h, m).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit', hour12: hour12 !== false });
+  };
+  // Short time for small spaces: "5PM", "5:30PM" (or "17:00" on a 24-hour clock).
+  D.shortTime = (t, hour12) => {
+    if (!t) return '';
+    const [h, m] = t.split(':').map(Number);
+    if (hour12 === false) return pad(h) + ':' + pad(m);
+    return ((h % 12) || 12) + (m ? ':' + pad(m) : '') + (h < 12 ? 'AM' : 'PM');
   };
   D.fmt = (k, opts) => D.parse(k).toLocaleDateString(undefined, opts);
   D.weekdayShort = (i) => new Date(2023, 0, 1 + i).toLocaleDateString(undefined, { weekday: 'short' }); // 0 = Sunday
