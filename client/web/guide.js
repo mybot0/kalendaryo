@@ -5,8 +5,10 @@
  * The page goes dark except the highlighted part, which glows; a bubble with an arrow points at it.
  * After the guide, the "Your name" boxes glow softly until the person starts typing.
  *
- * Each page has its own guide. It shows on every visit until the person clicks Skip or finishes it ("Got it");
- * that choice is saved in this browser for that page only (kal.guide.<page>).
+ * Each page has its own guide. It shows every time the page opens, until the person clicks Skip (or presses Esc);
+ * that is saved in this browser for that page only (kal.guide.<page>). Finishing with "Got it" does not save.
+ * Inside a home, a "Guided tour" On/Off switch sits at the top right of every page (kal.tour = 'off' turns all tours off;
+ * turning it back On clears every page's Skip).
  * Keyboard: Enter or → next, ← back, Esc skip. Respects "reduce motion".
  */
 (function () {
@@ -78,7 +80,12 @@
       Object.assign(spot.style, { left: r.left - pad + 'px', top: r.top - pad + 'px', width: r.width + pad * 2 + 'px', height: r.height + pad * 2 + 'px' });
       const W = innerWidth, H = innerHeight, bw = box.offsetWidth, bh = box.offsetHeight, gap = 26;
       box.classList.remove('g-arrow-l', 'g-arrow-r', 'g-arrow-t', 'g-arrow-b', 'g-sheet');
-      if (W < 640) { box.classList.add('g-sheet'); box.style.left = box.style.top = ''; return; } // phones: bottom sheet
+      box.classList.remove('g-sheet-top');
+      if (W < 640) { // phones: a sheet at the bottom, or at the top when the lit part is low on the screen (like the bottom menu)
+        box.classList.add('g-sheet'); box.style.left = box.style.top = '';
+        if (r.top + r.height / 2 > H / 2) box.classList.add('g-sheet-top');
+        return;
+      }
       let side = s.side;
       if (side === 'right' && r.right + pad + gap + bw > W - 12) side = r.left - pad - gap - bw > 12 ? 'left' : 'below';
       if (side === 'left' && r.left - pad - gap - bw < 12) side = r.right + pad + gap + bw < W - 12 ? 'right' : 'below';
@@ -102,11 +109,11 @@
       const dots = h('div', { class: 'g-dots', 'aria-hidden': 'true' }, steps.map((_, k) => h('i', { class: k === i ? 'on' : k < i ? 'done' : '' })));
       const last = i === steps.length - 1;
       const nextBtn = h('button', { type: 'button', class: 'g-next' + (s.trip ? ' trip' : '') }, s.next || (last ? 'Got it' : 'Next'), last ? null : icon('right'));
-      nextBtn.addEventListener('click', () => (last ? finish() : show(i + 1)));
+      nextBtn.addEventListener('click', () => (last ? finish(false) : show(i + 1)));
       const backBtn = i > 0 ? h('button', { type: 'button', class: 'g-back', 'aria-label': 'Back' }, icon('left')) : null;
       if (backBtn) backBtn.addEventListener('click', () => show(i - 1));
       const skipBtn = last ? null : h('button', { type: 'button', class: 'g-skip' }, 'Skip');
-      if (skipBtn) skipBtn.addEventListener('click', finish);
+      if (skipBtn) skipBtn.addEventListener('click', () => finish(true));
       box.className = 'g-box' + (s.trip ? ' trip' : '');
       box.replaceChildren(...[
         h('div', { class: 'g-top' }, h('span', { class: 'g-badge' + (s.trip ? ' trip' : '') }, 'Step ' + (i + 1) + ' of ' + steps.length)),
@@ -123,9 +130,9 @@
     }
 
     function key(e) {
-      if (e.key === 'Escape') { e.preventDefault(); finish(); }
+      if (e.key === 'Escape') { e.preventDefault(); finish(true); }
       else if (e.key === 'Enter' && document.activeElement === box) { e.preventDefault(); const b = box.querySelector('.g-next'); if (b) b.click(); }
-      else if (e.key === 'ArrowRight') { e.preventDefault(); i < steps.length - 1 ? show(i + 1) : finish(); }
+      else if (e.key === 'ArrowRight') { e.preventDefault(); i < steps.length - 1 ? show(i + 1) : finish(false); }
       else if (e.key === 'ArrowLeft') { e.preventDefault(); show(i - 1); }
       else if (e.key === 'Tab') { // keep focus inside the guide
         const f = [...box.querySelectorAll('button')]; if (!f.length) return;
@@ -151,21 +158,24 @@
       readTimers.push(setTimeout(() => nextBtn.classList.add('g-ready'), t));
     }
 
-    function finish() {
+    function finish(skipped) {
       readTimers.forEach(clearTimeout);
+      running = null;
       document.removeEventListener('keydown', key, true);
       removeEventListener('scroll', follow, true); removeEventListener('resize', follow);
       layer.classList.add('g-leave');
       setTimeout(() => { layer.remove(); document.documentElement.classList.remove('g-open'); }, reduce ? 0 : 220);
-      set(SEEN(opts.page), '1');
+      if (skipped) set(SEEN(opts.page), '1'); // only Skip (or Esc) is remembered
       if (opts && opts.onDone) opts.onDone();
       else if (lastFocus && lastFocus.focus) lastFocus.focus({ preventScroll: true });
     }
     document.addEventListener('keydown', key, true);
     addEventListener('scroll', follow, true); addEventListener('resize', follow);
     shade.addEventListener('click', () => box.classList.remove('g-pop') || (void box.offsetWidth, box.classList.add('g-pop'))); // a click outside nudges the bubble
+    running = { close: () => finish(false) };
     show(0);
   }
+  let running = null; // the guide on screen now, if any
 
   /* ---------- after the guide: the "Your name" boxes glow until used ---------- */
   function glowStart() {
@@ -187,9 +197,83 @@
     document.addEventListener('focusin', onFocus, true); document.addEventListener('pointerdown', onFocus, true);
   }
 
+  /* ---------- page tours inside a home ---------- */
+  const COMPASS = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M15.5 8.5l-2 5-5 2 2-5z"/></svg>';
+  const tourOn = () => get('kal.tour') !== 'off';
+  const PAGE_TOURS = {
+    home: () => [
+      { id: 'h-welcome', center: true, icon: icon('home'), tone: 'sun', title: 'This is your Home page', sub: 'Everything for today, in one place.',
+        body: [h('p', {}, 'Each box shows one part of your home. Tap ', h('b', {}, 'Open'), ' on any box to see more.')] },
+      { id: 'h-today', target: '.widget[aria-label="Today"]', side: 'right', icon: icon('calendar'), title: 'Today',
+        body: [h('p', {}, 'What is happening ', h('b', {}, 'today'), ', for everyone you live with.'), h('p', {}, 'Tap an event to see it or change it.')] },
+      { id: 'h-add', target: '.quick .btn.primary', side: 'below', pad: 8, icon: icon('plus'), title: 'Add an event',
+        body: [h('p', {}, 'Tap ', h('b', {}, 'Add event'), ' for a party, a doctor visit, school pickup… anything with a date.')] },
+      { id: 'h-week', target: '.widget[aria-label="This week"]', side: 'above', icon: icon('calendar'), title: 'This week',
+        body: [h('p', {}, 'The next 7 days at a glance. ', h('b', {}, 'Tap a day'), ' to see everything on it.')] },
+      { id: 'h-wall', target: '.quick .btn:not(.primary)', side: 'below', pad: 8, icon: icon('expand'), title: 'Wall mode',
+        body: [h('p', {}, 'Turn a tablet or old screen into a ', h('b', {}, 'family board'), ' with a big clock, today and chores.')] },
+      { id: 'h-nav', target: '.nav', side: 'right', icon: icon('list'), title: 'Your pages',
+        body: [h('p', {}, 'Go to ', h('b', {}, 'Calendar, Chores, Meals, Lists, Photos and People'), ' here. Each page has its own short tour.')] },
+      { id: 'h-switch', target: '.tour-switch', side: 'below', pad: 6, icon: svg(COMPASS), title: 'Turn tours on or off',
+        body: [h('p', {}, 'Tap ', h('b', {}, 'Guided tour'), ' to stop these tours. Turn it back on any time to see them again.')], next: 'Got it' }
+    ]
+  };
+  function pageTour(id) {
+    if (!tourOn() || !PAGE_TOURS[id] || get(SEEN('page.' + id)) || running) return;
+    if (window.KAL && KAL.me && KAL.me.viewing) return; // the site owner viewing a home: no tours
+    // Wait until any pop-up (like "Welcome, here is your link") is closed, then start.
+    let tries = 0;
+    const tryStart = () => {
+      if (running || !PL.nav || PL.nav.current() !== id || !tourOn()) return;
+      if (document.querySelector('.sheet') && tries++ < 600) return setTimeout(tryStart, 500);
+      run(PAGE_TOURS[id](), { page: 'page.' + id });
+    };
+    setTimeout(tryStart, 700);
+  }
+  // The switch at the top right of every page inside a home.
+  function installSwitch() {
+    if (document.querySelector('.tour-switch')) return;
+    const label = h('span', { class: 'tour-label' }, 'Guided tour');
+    const state = h('span', { class: 'tour-state' });
+    const btn = h('button', { type: 'button', class: 'tour-switch', role: 'switch' }, svg(COMPASS), label, state);
+    const paint = () => { const on = tourOn(); btn.setAttribute('aria-checked', String(on)); btn.classList.toggle('off', !on); state.textContent = on ? 'On' : 'Off';
+      btn.title = on ? 'Guided tour is on. Tap to turn it off.' : 'Guided tour is off. Tap to turn it on.'; };
+    btn.addEventListener('click', () => {
+      if (tourOn()) { set('kal.tour', 'off'); if (running) running.close(); }
+      else {
+        try { localStorage.removeItem('kal.tour'); Object.keys(localStorage).filter((k) => k.startsWith('kal.guide.page.')).forEach((k) => localStorage.removeItem(k)); } catch (e) { /* fine */ }
+        pageTour(PL.nav.current());
+      }
+      paint();
+    });
+    paint();
+    document.body.append(btn);
+  }
+  // Inside a home: follow page changes (PL.nav.go) and show each page's tour.
+  function watchPages() {
+    if (!window.KAL || !KAL.token || !PL.nav || PL.nav.__toured) return false;
+    // The page area is redrawn when someone opens another page: notice that and show that page's tour.
+    let last = PL.nav.current();
+    new MutationObserver(() => {
+      const now = PL.nav.current();
+      if (now === last) return;
+      last = now;
+      if (running) running.close();
+      pageTour(now);
+    }).observe(document.getElementById('main'), { childList: true });
+    PL.nav.__toured = true;
+    installSwitch();
+    pageTour(PL.nav.current());
+    return true;
+  }
+  if (window.KAL && KAL.token) {
+    const wait = setInterval(() => { if (document.querySelector('.app .nav') && (KAL.me || KAL.invalid)) { clearInterval(wait); if (!KAL.invalid && !(KAL.me && KAL.me.viewing)) watchPages(); } }, 200);
+    setTimeout(() => clearInterval(wait), 30000);
+  }
+
   PL.guide = {
-    // Called by the start page after it draws. Shows the guide on a first visit only.
-    maybeStart() { if (!get(SEEN('start')) && !document.querySelector('.g-layer')) setTimeout(() => { if (!document.querySelector('.g-layer')) this.start(); }, 450); },
+    // Called by the start page after it draws. Shows until the person clicks Skip.
+    maybeStart() { if (!get(SEEN('start')) && !running) setTimeout(() => { if (!running) this.start(); }, 450); },
     start() { run(startSteps(!!window.KAL_TRIPLY), { page: 'start', onDone: glowStart }); },
     reset(page) { try { localStorage.removeItem(SEEN(page || 'start')); } catch (e) { /* fine */ } }
   };

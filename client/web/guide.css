@@ -101,3 +101,18 @@
 }
 @media (prefers-reduced-motion: reduce) { .g-next.g-ready { animation: none; box-shadow: 0 0 0 4px rgba(255, 200, 60, .9); } }
 .g-here.trip { background: #8E3F27; }
+
+/* "Guided tour" On/Off switch: top right of every page inside a home */
+.tour-switch { position: absolute; top: 12px; right: 16px; z-index: 70; display: inline-flex; align-items: center; gap: 8px;
+  min-height: 40px; padding: 0 6px 0 12px; border-radius: 999px; border: 1px solid #E6E4DD; background: rgba(255, 255, 255, .94);
+  box-shadow: 0 2px 10px rgba(38, 48, 43, .1); font: 700 .9rem var(--font); color: var(--ink); cursor: pointer; backdrop-filter: blur(6px); }
+.tour-switch .g-svg svg { width: 18px; height: 18px; color: var(--primary); }
+.tour-state { min-width: 44px; text-align: center; padding: 5px 10px; border-radius: 999px; background: var(--primary); color: #fff; font-size: .82rem; }
+.tour-switch.off .tour-state { background: #E6E4DD; color: var(--ink-2); }
+.tour-switch.off .g-svg svg { color: var(--ink-2); }
+.tour-switch:focus-visible { outline: 3px solid #FFD666; outline-offset: 2px; }
+html.g-open .tour-switch { z-index: 125; } /* stays visible (and lit) during a tour */
+@media (max-width: 639px) { .tour-switch { top: 8px; right: 8px; padding: 0 4px 0 8px; } .tour-switch .tour-label { display: none; } }
+
+.g-box.g-sheet.g-sheet-top { top: 0 !important; bottom: auto; border-radius: 0 0 26px 26px; border-width: 0 0 3px; padding-top: max(16px, env(safe-area-inset-top)); }
+@media (max-width: 639px) { html.g-open .g-box.g-sheet.g-sheet-top { padding-top: 56px; } } /* room for the Guided tour switch above the sheet */

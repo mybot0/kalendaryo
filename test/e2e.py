@@ -31,7 +31,7 @@ try:
         def mk(vp, guide=False):
             ctx = b.new_context(viewport=vp)
             if not guide:  # the first-visit guide is checked once below; other browsers skip it
-                ctx.add_init_script("try { localStorage.setItem('kal.guide.start', '1') } catch (e) {}")
+                ctx.add_init_script("try { localStorage.setItem('kal.guide.start', '1'); localStorage.setItem('kal.tour', 'off') } catch (e) {}")
             pg = ctx.new_page()
             pg.on('pageerror', lambda e: logs.append(str(e)))
             pg.on('console', lambda m: logs.append(m.text) if m.type == 'error' and 'fonts.g' not in m.text and 'ERR_' not in m.text and 'status of 40' not in m.text and 'status of 429' not in m.text else None)
@@ -50,6 +50,7 @@ try:
         check(owner.locator('.g-glow').count() >= 1, 'after the guide, Start here glows')
         owner.reload(); owner.wait_for_timeout(1200)
         check(owner.locator('.g-layer').count() == 0, 'guide does not come back')
+        owner.evaluate("localStorage.setItem('kal.tour', 'off')")  # page tours are checked separately
         check(owner.locator('text=Where home gets organized').count() == 1, 'start page shows')
         owner.screenshot(path='/home/claude/kal/dist/web-landing.png', full_page=True)
         owner.get_by_role('button', name='Create your home').click(); owner.wait_for_timeout(200)
