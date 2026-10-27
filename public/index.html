@@ -485,7 +485,9 @@ html.has-sheet .toast { bottom: calc(110px + env(safe-area-inset-bottom)); }
 .meal-row { display: flex; align-items: center; gap: 10px; min-height: 56px; width: 100%; border: 0; background: var(--surface-2); border-radius: var(--radius-sm); padding: 6px 12px; text-align: left; }
 .meal-row:hover { background: var(--primary-soft); }
 .meal-slot { font-size: .72rem; font-weight: 800; text-transform: uppercase; letter-spacing: .05em; color: var(--ink-3); width: 5.4em; flex: none; }
-.meal-title { flex: 1; min-width: 0; font-weight: 700; overflow-wrap: break-word; hyphens: auto; }
+.meal-title { flex: 1; min-width: 0; font-weight: 700; overflow-wrap: break-word; }
+.meal-icons { display: flex; flex-direction: column; align-items: center; gap: 4px; flex: none; }
+.meal-icons:empty { display: none; }
 .meal-title.empty { color: var(--ink-3); font-weight: 600; }
 .meal-row .ic { width: 20px; height: 20px; color: var(--ink-3); }
 .recipe-emoji { font-size: 2.2rem; line-height: 1; }
@@ -796,6 +798,7 @@ html.has-sheet .toast { bottom: calc(110px + env(safe-area-inset-bottom)); }
 .gc-also, .li-also { font-size: .75rem; font-weight: 700; color: #7A5A00; background: #FFF3C4; border-radius: 999px; padding: 2px 9px; white-space: nowrap; }
 .gc-total { margin-right: auto; }
 .gc-head .li-pill { background: #fff; }
+.wall-bg[data-credit]:not([data-credit=""])::after, .wall-photo-img[data-credit]:not([data-credit=""])::after { content: attr(data-credit); position: absolute; right: 12px; bottom: 8px; font-size: .72rem; font-weight: 600; color: rgba(255,255,255,.85); text-shadow: 0 1px 3px rgba(0,0,0,.6); }
 
 /* web.css — web version only: start page, join page, people with access. */
 .land { max-width: 640px; margin: 0 auto; padding: 40px 16px 60px; display: flex; flex-direction: column; gap: 18px; }
@@ -894,6 +897,25 @@ body.land-body {
 .join-meta { display: flex; align-items: center; justify-content: center; gap: 8px; color: var(--ink-2); font-weight: 600; }
 .join-dot { width: 22px; height: 22px; border-radius: 50%; display: inline-block; }
 .join-form .btn.block { width: 100%; }
+
+/* demo home (demo.js) and the start page card */
+.demo-banner { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 16px; margin: 12px max(16px, env(safe-area-inset-left)) 0; padding: 10px 10px 10px 16px;
+  border-radius: 16px; background: #FFF6D6; border: 2px solid #FFE3A0; color: #5C4300; font-weight: 600; }
+.demo-banner .btn { min-height: 40px; }
+@media (min-width: 900px) { .demo-banner { margin: 16px auto 0; width: calc(100% - 32px); max-width: 1248px; } }
+.land-demo { display: flex; flex-wrap: wrap; align-items: center; gap: 14px 18px; padding: 18px 20px; border: 2px dashed #FFD666; background: #FFFBEA; }
+.land-demo-ic { font-size: 2.2rem; line-height: 1; }
+.land-demo-text { flex: 1 1 260px; display: flex; flex-direction: column; gap: 2px; }
+.land-demo-text strong { font: 800 1.2rem var(--font-head); }
+.brand-link { cursor: pointer; border-radius: 14px; }
+.brand-link:hover { background: var(--surface-2); }
+.brand-link:focus-visible { outline: 3px solid #FFD666; outline-offset: 2px; }
+a.btn { text-decoration: none; }
+/* the demo banner leaves room for the Guided tour switch */
+body:has(> .tour-switch) .content:has(> .demo-banner) .main { padding-top: 24px; }
+@media (min-width: 640px) { body:has(> .tour-switch) .demo-banner { margin-right: 190px; } }
+@media (min-width: 900px) { body:has(> .tour-switch) .demo-banner { width: auto; margin-left: 16px; } }
+@media (max-width: 639px) { body:has(> .tour-switch) .demo-banner { margin-top: 56px; } }
 
 /* ---------- guide.js: first-visit guide (web version only) ---------- */
 .g-layer { position: fixed; inset: 0; z-index: 120; font-family: var(--font); }
@@ -1035,9 +1057,10 @@ body:has(> .tour-switch) .main { padding-top: 62px; }
   const path = location.pathname;
   const mc = path.match(/^\/c\/([A-Za-z0-9_-]{10,100})\/?$/);
   const mj = path.match(/^\/join\/([A-Za-z0-9_-]{10,100})\/?$/);
+  const demo = /^\/demo\/?$/.test(path); // the demo home: made-up data, kept only in this tab (demo.js)
   const listeners = {};
   const KAL = (window.KAL = {
-    token: mc ? mc[1] : null, joinCode: mj ? mj[1] : null, me: null, family: null, ai: { enabled: false, left: 0 }, people: [], invalid: null,
+    token: mc ? mc[1] : null, joinCode: mj ? mj[1] : null, demo, me: null, family: null, ai: { enabled: false, left: 0 }, people: [], invalid: null,
     on(ev, fn) { (listeners[ev] = listeners[ev] || []).push(fn); },
     emit(ev, x) { (listeners[ev] || []).forEach((fn) => { try { fn(x); } catch (e) { console.error(e); } }); }
   });
@@ -1045,6 +1068,10 @@ body:has(> .tour-switch) .main { padding-top: 62px; }
   // Each family keeps its own saved copy on this device.
   const short = (s) => { let h = 5381; for (let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) >>> 0; return h.toString(36); };
   if (KAL.token) window.PL_STORAGE_PREFIX = 'pl.' + short(KAL.token) + '.';
+  if (demo) {
+    window.PL_STORAGE_PREFIX = 'pl.demo.';
+    try { Object.keys(localStorage).filter((k) => k.startsWith('pl.demo.cache')).forEach((k) => localStorage.removeItem(k)); } catch (e) { /* fine */ } // always start fresh
+  }
 
   /* families opened on this device, for the start page */
   KAL.recent = {
@@ -1105,9 +1132,11 @@ body:has(> .tour-switch) .main { padding-top: 62px; }
   }
   let loaded = null;
   function load() {
-    if (!loaded) loaded = api('GET', '/api/state').then((r) => { replaceAll(r.docs || {}); connect(); });
+    if (!loaded) loaded = demo ? Promise.resolve().then(() => replaceAll(PL.demo.docs())) : api('GET', '/api/state').then((r) => { replaceAll(r.docs || {}); connect(); });
     return loaded;
   }
+  let demoN = 0;
+  const demoId = () => 'local' + Date.now().toString(36) + (++demoN);
   let es = null, opened = false;
   function connect() {
     if (es || !window.EventSource) return;
@@ -1123,14 +1152,14 @@ body:has(> .tour-switch) .main { padding-top: 62px; }
   }
   const db = {
     collection: (c) => ({
-      add: async (o) => { const r = await api('POST', '/api/docs/' + c, { data: o }); apply(c, r.id, clone(o)); return { id: r.id }; },
+      add: async (o) => { const r = demo ? { id: demoId() } : await api('POST', '/api/docs/' + c, { data: o }); apply(c, r.id, clone(o)); return { id: r.id }; },
       onSnapshot: (cb, err) => { (colSubs[c] = colSubs[c] || []).push(cb); load().then(() => cb(snapCol(c)), (e) => err && err(e)); return () => { colSubs[c] = colSubs[c].filter((x) => x !== cb); }; }
     }),
     doc: (p) => {
       const i = p.indexOf('/'); const c = p.slice(0, i), id = p.slice(i + 1);
       return {
-        set: async (o) => { await api('PUT', '/api/docs/' + c + '/' + encodeURIComponent(id), { data: o }); apply(c, id, clone(o)); },
-        delete: async () => { await api('DELETE', '/api/docs/' + c + '/' + encodeURIComponent(id)); apply(c, id, null); },
+        set: async (o) => { if (!demo) await api('PUT', '/api/docs/' + c + '/' + encodeURIComponent(id), { data: o }); apply(c, id, clone(o)); },
+        delete: async () => { if (!demo) await api('DELETE', '/api/docs/' + c + '/' + encodeURIComponent(id)); apply(c, id, null); },
         onSnapshot: (cb, err) => { (docSubs[p] = docSubs[p] || []).push(cb); load().then(() => cb(snapDoc(c, id)), (e) => err && err(e)); return () => { docSubs[p] = docSubs[p].filter((x) => x !== cb); }; }
       };
     }
@@ -1164,6 +1193,12 @@ body:has(> .tour-switch) .main { padding-top: 62px; }
     delete: async (id) => api('DELETE', '/api/blobs/' + encodeURIComponent(id)),
     list: async () => ({ assets: [], usage: {} })
   };
+  const localBlobs = new Map(); // demo: photos people add stay in this tab
+  const demoAssets = {
+    upload: async (blob) => { const id = demoId(); localBlobs.set(id, URL.createObjectURL(blob)); return { id, url: localBlobs.get(id) }; },
+    delete: async (id) => { localBlobs.delete(id); },
+    list: async () => ({ assets: [], usage: {} })
+  };
   const downloads = {
     save: async ({ filename, data }) => {
       const blob = data instanceof Blob ? data : new Blob([typeof data === 'string' ? data : JSON.stringify(data)], { type: 'application/json' });
@@ -1183,6 +1218,10 @@ body:has(> .tour-switch) .main { padding-top: 62px; }
     return r;
   }
   KAL.refreshMe = refreshMe;
+  if (demo) {
+    KAL.me = { id: 'demo-me', name: 'Maya', role: 'owner', viewing: false, memberId: 'dm-maya', demo: true };
+    KAL.family = { id: 'demo', name: 'The Santos family' };
+  }
   KAL.ready = KAL.token ? refreshMe().catch((e) => { KAL.invalid = e; if (e.status === 401) KAL.recent.forget(KAL.token); }) : Promise.resolve();
 
   window.claude = {
@@ -1192,16 +1231,16 @@ body:has(> .tour-switch) .main { padding-top: 62px; }
       const canEdit = KAL.me.role !== 'viewer';
       if (name === 'db') return db;
       if (name === 'user') return { id: async () => KAL.me.id, isOwner: () => KAL.me.role === 'owner', canEdit: () => canEdit };
-      if (name === 'sample') return KAL.ai.enabled && canEdit ? sample : null;
-      if (name === 'assets') return canEdit ? assets : null;
+      if (name === 'sample') return KAL.ai.enabled && canEdit && !demo ? sample : null; // no AI in the demo
+      if (name === 'assets') return demo ? demoAssets : canEdit ? assets : null;
       if (name === 'downloads') return downloads;
       return null;
     }
   };
 
-  PL.blobUrl = (id) => '/api/blobs/' + encodeURIComponent(id) + '?t=' + encodeURIComponent(KAL.token || '');
+  PL.blobUrl = (id) => localBlobs.get(id) || '/api/blobs/' + encodeURIComponent(id) + '?t=' + encodeURIComponent(KAL.token || '');
   PL.beforeBoot = () => {
-    if (KAL.token) return true;
+    if (KAL.token || demo) return true;
     PL.landing.mount();
     return false;
   };
@@ -1638,7 +1677,10 @@ body:has(> .tour-switch) .main { padding-top: 62px; }
 
     photo(d) {
       const at = Number(d.at);
-      return { assetId: String(d.assetId || '').replace(/[^0-9a-f]/gi, '').slice(0, 64), at: Number.isFinite(at) ? at : Date.now() };
+      const out = { assetId: String(d.assetId || '').replace(/[^0-9a-z]/gi, '').slice(0, 64), at: Number.isFinite(at) ? at : Date.now() };
+      // Free stock photos (demo home): a picture from Unsplash, with the photographer's name.
+      if (/^https:\/\/images\.unsplash\.com\/photo-[\w-]+(\?[\w=&%.-]*)?$/.test(d.src || '')) { out.src = d.src; out.credit = text(d.credit, 60); }
+      return out;
     },
 
     member(d) {
@@ -3501,6 +3543,14 @@ body:has(> .tour-switch) .main { padding-top: 62px; }
         ui.iconButton('x', 'Forget ' + f.name + ' on this device', () => { KAL.recent.forget(f.t); render(); })))));
   }
 
+  // "Just looking?" — the demo home (demo.js)
+  function demoCard() {
+    return h('section', { class: 'card land-demo' },
+      h('span', { class: 'land-demo-ic', 'aria-hidden': 'true' }, '👀'),
+      h('div', { class: 'land-demo-text' }, h('strong', {}, 'Just looking?'), h('span', { class: 'sub' }, 'Try a demo home: a made-up family with 3 months of plans, meals, chores and photos.')),
+      h('a', { class: 'btn primary big', href: '/demo' }, 'Try a demo home'));
+  }
+
   function steps() {
     const s = window.KAL_TRIPLY
       ? [['plus', 'Create', 'Start a home or a trip in one step. No account or password.'], ['users', 'Invite', 'Send invite links. Pick who can look, who can edit, and who is an owner.'], ['calendar', 'Share the day', 'Calendars, chores, meals, itineraries and group chat, live for everyone.']]
@@ -3563,8 +3613,8 @@ body:has(> .tour-switch) .main { padding-top: 62px; }
       note ? h('p', { class: 'land-note', role: 'alert' }, note) : null);
     root.replaceChildren(main);
     if (KAL.joinCode) main.append(await joinCard());
-    else if (window.KAL_TRIPLY) main.append(...[...choice(), await lists(), steps()].filter(Boolean));
-    else main.append(...[createCard(), recentCard(), steps()].filter(Boolean));
+    else if (window.KAL_TRIPLY) main.append(...[...choice(), demoCard(), await lists(), steps()].filter(Boolean));
+    else main.append(...[createCard(), demoCard(), recentCard(), steps()].filter(Boolean));
     if (!KAL.joinCode && PL.guide) PL.guide.maybeStart(); // first visit: the friendly guide (guide.js)
   }
 
@@ -3731,7 +3781,14 @@ body:has(> .tour-switch) .main { padding-top: 62px; }
       isOwner() ? h('div', { class: 'btn-row access-danger' }, ui.button('Delete this family', { variant: 'danger', icon: 'trash', onClick: deleteFamily })) : null
     ].filter(Boolean));
   }
-  PL.familyExtras = () => { paint(); return card; };
+  PL.familyExtras = () => {
+    if (KAL.demo) { // the demo home has no links or invites
+      return h('section', { class: 'card access-card' }, h('h2', {}, 'People with access'),
+        h('p', {}, 'In your own home, each person gets their own private link, and owners invite people as Viewer, Editor or Owner.'),
+        h('div', { class: 'btn-row' }, h('a', { class: 'btn primary big', href: '/' }, 'Create your own home')));
+    }
+    paint(); return card;
+  };
 
   /* ---------- notices ---------- */
   let banner = null;
@@ -3882,6 +3939,258 @@ body:has(> .tour-switch) .main { padding-top: 62px; }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => setTimeout(start, 0)); else setTimeout(start, 0);
 
   PL.me = { memberId, member, openThatsYou, openWhich };
+})();
+
+</script>
+<script>
+/*
+ * demo.js — web version only. The demo home at /demo: a made-up family (the Santos family) with about
+ * 3 months of plans. Anyone can try it. Nothing is sent to the server: changes stay in this browser tab
+ * and are gone when the page is closed or reloaded (shim.js keeps the demo data in memory).
+ * Photos are free stock photos from Unsplash (Unsplash License), loaded from Unsplash.
+ * Also here: the Kalendaryo logo (top left) goes back to the start page.
+ */
+(function () {
+  const PL = (window.PL = window.PL || {});
+  const D = PL.D;
+
+  /* ---------- 20 free photos from Unsplash (Unsplash License), in the style of a home display ---------- */
+  const U = (id) => 'https://images.unsplash.com/photo-' + id + '?auto=format&fit=crop&q=75';
+  const PHOTOS = [
+    ['1464852045489-bccb7d17fe39', 'fynn'],                 // snowy mountain and lake
+    ['1558373355-fd545fa670f2', 'Nicola Dreyer'],           // dog on the sofa
+    ['1584358838337-8f86d1b3922e', 'Simon Marsault'],       // waves at sunset
+    ['1543168691-518c24c546ea', 'Maddi Bazzocco'],          // pancakes
+    ['1762780187965-c414bde372a5', 'Andrey Tikhonovskiy'],  // autumn forest path
+    ['1559074070-e6a37115631e', 'Alex MacFaul'],            // cat in the sun
+    ['1689788647851-3203de944519', 'Isakov Eldiiar'],       // lake at sunset
+    ['1652169892293-ba174ef19931', 'Svitlana'],             // picnic in the garden
+    ['1764253681216-f8881c959a28', 'Christopher Politano'], // snowy cabin
+    ['1660621776119-498c0884e334', 'Katherine St-Pierre'],  // campfire
+    ['1687710071600-2c338cea1592', 'snap shoot'],           // tulip field
+    ['1574372623190-ee1fa4423f7f', 'Alisa Anton'],          // hot chocolate
+    ['1768279941928-d98d50cb132a', 'Gennady Zakharin'],     // city lights on the water
+    ['1585815301724-5457735c7a74', 'Daniele Salutari'],     // golden retriever
+    ['1760891140887-7f8966fae6e7', 'Clark Wilson'],         // autumn trees
+    ['1553135422-400ee5852b27', 'Isabella Fischer'],        // birthday cupcake
+    ['1682613375621-c10d167c852e', 'Jake Nackos'],          // mountains at sunset
+    ['1621460248083-6271cc4437a8', 'Jonathan Kemper'],      // planting the garden
+    ['1735896951413-cb764374f75a', 'Joshua Earle'],         // road trip
+    ['1657444984080-5c08464bde8c', 'Bro Takes Photos']      // running on the beach
+  ];
+
+  /* ---------- BC holidays, worked out for any year ---------- */
+  function easter(y) { // Gregorian Easter Sunday
+    const a = y % 19, b = Math.floor(y / 100), c = y % 100, d = Math.floor(b / 4), e = b % 4, f = Math.floor((b + 8) / 25), g = Math.floor((b - f + 1) / 3);
+    const h = (19 * a + b - d - g + 15) % 30, i = Math.floor(c / 4), k = c % 4, l = (32 + 2 * e + 2 * i - h - k) % 7, m = Math.floor((a + 11 * h + 22 * l) / 451);
+    const month = Math.floor((h + l - 7 * m + 114) / 31), day = ((h + l - 7 * m + 114) % 31) + 1;
+    return new Date(y, month - 1, day);
+  }
+  const nthMonday = (y, mo, n) => { const d = new Date(y, mo, 1); const first = 1 + ((8 - d.getDay()) % 7); return new Date(y, mo, first + 7 * (n - 1)); };
+  function bcHolidays(y) {
+    const k = (d) => D.key(d);
+    const gf = easter(y); gf.setDate(gf.getDate() - 2);
+    const v = new Date(y, 4, 24); while (v.getDay() !== 1) v.setDate(v.getDate() - 1); // the Monday before May 25
+    return [[y + '-01-01', 'New Year’s Day'], [k(nthMonday(y, 1, 3)), 'Family Day'], [k(gf), 'Good Friday'], [k(v), 'Victoria Day'], [y + '-07-01', 'Canada Day'],
+      [k(nthMonday(y, 7, 1)), 'B.C. Day'], [k(nthMonday(y, 8, 1)), 'Labour Day'], [y + '-09-30', 'National Day for Truth and Reconciliation'],
+      [k(nthMonday(y, 9, 2)), 'Thanksgiving'], [y + '-11-11', 'Remembrance Day'], [y + '-12-25', 'Christmas Day']];
+  }
+
+  /* ---------- the made-up family, about 3 months of it (around today) ---------- */
+  function docs() {
+    const today = D.today();
+    const t = (n) => D.addDays(today, n);
+    const P = {}; PL.config.palette.forEach((p) => { P[p.id] = p.hex; });
+    const y = +today.slice(0, 4);
+    const bday = (n, year) => year + t(n).slice(4); // a birthday n days from today, in that year
+    const out = {};
+    const put = (col, kind, id, data) => { (out[col] = out[col] || []).push({ id, data: kind ? PL.models[kind](data) : data }); };
+
+    // People (and the dog)
+    [['dm-maya', 'Maya', 'parent', '🌸', P.rose, bday(-70, 1988)], ['dm-leo', 'Leo', 'parent', '🦁', P.sky, bday(52, 1986)],
+     ['dm-leah', 'Leah', 'child', '🦊', P.apricot, bday(18, 2016)], ['dm-theo', 'Theo', 'child', '🚀', P.sage, bday(-20, 2019)],
+     ['dm-nana', 'Nana Rosa', 'other', '🌻', P.butter, bday(80, 1954)], ['dm-biscuit', 'Biscuit', 'other', '🐶', P.lavender, bday(-35, 2021)]]
+      .forEach(([id, name, role, avatar, color, birthday]) => put('members', 'member', id, { name, role, avatar, color, birthday }));
+
+    // Calendar: weekly life, plus things that happen once
+    const weekly = (...wd) => ({ freq: 'weekly', interval: 1, weekdays: wd, end: { type: 'never' } });
+    const monthly = { freq: 'monthly', interval: 1, end: { type: 'never' } };
+    const days = (n) => ({ freq: 'daily', interval: 1, end: { type: 'after', count: n } });
+    const ev = (o) => Object.assign({ allDay: false, start: '', end: '', memberIds: [], repeat: null, reminder: null, location: '', notes: '' }, o);
+    const start = t(-70);
+    [
+      { title: 'School run', date: start, start: '08:15', end: '08:45', memberIds: ['dm-leah', 'dm-theo'], repeat: weekly(1, 2, 3, 4, 5), location: 'Maple Grove Elementary', reminder: 15 },
+      { title: 'Soccer practice', date: start, start: '17:00', end: '18:00', memberIds: ['dm-leah'], repeat: weekly(2, 4), location: 'Riverside Field', reminder: 30 },
+      { title: 'Piano lesson', date: start, start: '16:00', end: '16:45', memberIds: ['dm-theo'], repeat: weekly(3), location: 'Ms. Alder’s studio' },
+      { title: 'Swim lessons', date: start, start: '10:00', end: '10:45', memberIds: ['dm-theo'], repeat: weekly(6), location: 'Community pool' },
+      { title: 'Yoga', date: start, start: '18:30', end: '19:30', memberIds: ['dm-maya'], repeat: weekly(1) },
+      { title: 'Trash and recycling', date: start, allDay: true, repeat: weekly(3), reminder: 1440 },
+      { title: 'Sunday dinner at Nana’s', date: start, start: '17:30', end: '20:00', memberIds: ['dm-nana'], repeat: weekly(0), location: 'Nana’s house' },
+      { title: 'Walk Biscuit', date: start, start: '07:00', end: '07:30', memberIds: ['dm-leo', 'dm-biscuit'], repeat: weekly(0, 6) },
+      { title: 'Date night', date: t(-26), start: '19:30', end: '22:00', memberIds: ['dm-maya', 'dm-leo'], repeat: monthly },
+      { title: 'Book club', date: t(-38), start: '19:00', end: '21:00', memberIds: ['dm-maya'], repeat: monthly, location: 'The Corner Café' },
+      { title: 'Back-to-school night', date: t(-41), start: '18:00', end: '19:30', memberIds: ['dm-maya', 'dm-leo'], location: 'School gym' },
+      { title: 'Vet check-up', date: t(-33), start: '09:30', end: '10:15', memberIds: ['dm-biscuit', 'dm-leo'], location: 'Happy Paws Clinic' },
+      { title: 'Dentist (Leah)', date: t(-18), start: '15:00', end: '15:45', memberIds: ['dm-leah'], location: 'Bright Smiles Dental' },
+      { title: 'Costco run', date: t(-12), start: '10:00', end: '11:30', memberIds: ['dm-leo'] },
+      { title: 'Field trip: science centre', date: t(-5), allDay: true, memberIds: ['dm-theo'], notes: 'Pack a lunch and a water bottle.' },
+      { title: 'Haircut', date: t(-2), start: '11:00', end: '11:45', memberIds: ['dm-maya'] },
+      { title: 'Parent-teacher meeting', date: t(1), start: '18:00', end: '18:30', memberIds: ['dm-maya', 'dm-leo'], location: 'Room 12', reminder: 60 },
+      { title: 'Science fair', date: t(3), start: '10:00', end: '12:00', memberIds: ['dm-leah'], location: 'School gym' },
+      { title: 'Plumber visit', date: t(6), start: '09:00', end: '10:00', memberIds: ['dm-leo'], notes: 'Kitchen sink.' },
+      { title: 'Playdate with Sam', date: t(9), start: '14:00', end: '16:00', memberIds: ['dm-theo'] },
+      { title: 'Work trip (Leo)', date: t(13), allDay: true, memberIds: ['dm-leo'], repeat: days(3), location: 'Calgary' },
+      { title: 'Leah’s birthday party', date: t(18), start: '14:00', end: '17:00', memberIds: ['dm-leah'], location: 'Home', reminder: 1440 },
+      { title: 'Flu shots', date: t(24), start: '16:00', end: '16:30', memberIds: ['dm-leah', 'dm-theo'], location: 'Family clinic' },
+      { title: 'Weekend in Tofino', date: t(30), allDay: true, repeat: days(3), location: 'Tofino, BC' },
+      { title: 'School concert', date: t(37), start: '18:30', end: '20:00', memberIds: ['dm-leah', 'dm-theo'], location: 'School gym' },
+      { title: 'Nana’s doctor visit', date: t(44), start: '10:00', end: '11:00', memberIds: ['dm-nana', 'dm-maya'] },
+      { title: 'Coach U8 soccer', date: start, start: '09:00', end: '10:30', memberIds: ['dm-leo'], repeat: weekly(6), location: 'Riverside Field', notes: 'Bring the cones and the ball bag.' },
+      { title: 'Team meeting', date: start, start: '10:00', end: '10:45', memberIds: ['dm-maya'], repeat: weekly(1, 3) },
+      { title: 'Choir practice', date: start, start: '19:00', end: '20:30', memberIds: ['dm-nana'], repeat: weekly(4), location: 'St. Mary’s hall' },
+      { title: 'Church', date: start, start: '10:00', end: '11:15', memberIds: ['dm-nana'], repeat: weekly(0) },
+      { title: 'Family movie night', date: start, start: '19:00', end: '21:00', repeat: weekly(5), notes: 'Whoever picked last week skips this week.' },
+      { title: 'Family hike: Lighthouse Park', date: t(-21), start: '09:00', end: '13:00', memberIds: ['dm-maya', 'dm-leo', 'dm-leah', 'dm-theo', 'dm-biscuit'] },
+      { title: 'Family hike: Lynn Canyon', date: t(11), start: '09:00', end: '13:00', memberIds: ['dm-maya', 'dm-leo', 'dm-leah', 'dm-theo', 'dm-biscuit'], notes: 'Pack lunch, water and Biscuit’s leash.' },
+      { title: 'Swim test (level 3)', date: t(15), start: '10:00', end: '10:45', memberIds: ['dm-theo'], location: 'Community pool' },
+      { title: 'Grandparents’ day at school', date: t(20), start: '13:00', end: '14:30', memberIds: ['dm-nana', 'dm-leah', 'dm-theo'], location: 'School gym' }
+    ].forEach((e, i) => put('events', 'event', 'dme' + String(i + 1).padStart(2, '0'), ev(e)));
+
+    // Public holidays (BC), this year and next
+    const settings = { householdName: 'The Santos family', weekStart: 0, hour12: true, tempUnit: 'c', starsOn: true,
+      weatherPlace: { name: 'Vancouver', lat: 49.28, lon: -123.12 },
+      holidaySets: [{ key: 'CA-BC', name: 'British Columbia', full: 'Canada · British Columbia', flag: '🇨🇦', years: [y, y + 1], auto: true }] };
+    [y, y + 1].forEach((yy) => bcHolidays(yy).forEach(([date, title]) => put('holidays', 'holiday', 'CA-BC~' + date + '~1', { date, title, set: 'CA-BC' })));
+    out.settings = [{ id: 'main', data: settings }];
+
+    // Chores, with ticks over the last two weeks
+    const daily = { freq: 'daily', interval: 1, end: { type: 'never' } };
+    const chores = [['dmc1', 'Make your bed', ['dm-leah', 'dm-theo'], daily, 1], ['dmc2', 'Unload the dishwasher', ['dm-leah'], weekly(1, 2, 3, 4, 5), 2],
+      ['dmc3', 'Set the table', ['dm-theo'], weekly(0, 1, 2, 3, 4, 5, 6), 1], ['dmc4', 'Feed Biscuit', ['dm-leah', 'dm-theo'], daily, 1],
+      ['dmc5', 'Tidy the playroom', ['dm-theo', 'dm-leah'], weekly(6), 3], ['dmc6', 'Brush Biscuit', ['dm-leah'], weekly(6), 2],
+      ['dmc7', 'Take out the trash', ['dm-leo'], weekly(3), 1], ['dmc8', 'Laundry', ['dm-maya'], weekly(0, 3), 1],
+      ['dmc9', 'Mow the lawn', ['dm-leo'], weekly(6), 2], ['dmc10', 'Meal prep for the week', ['dm-maya'], weekly(0), 2],
+      ['dmc11', 'Water the garden', ['dm-nana'], weekly(0, 3), 1], ['dmc12', 'Clean the bathroom', ['dm-maya', 'dm-leo'], weekly(5), 2]];
+    chores.forEach(([id, title, memberIds, repeat, stars]) => put('chores', 'chore', id, { title, memberIds, repeat, stars, date: t(-70) }));
+    for (let n = 0; n <= 21; n++) { // ticks for the last 3 weeks; a few missed, like real life
+      const dt = t(-n), dow = D.dow(dt);
+      chores.forEach(([id, , memberIds, repeat], ci) => memberIds.forEach((m, mi) => {
+        if (repeat.weekdays && !repeat.weekdays.includes(dow)) return;
+        if ((n * 7 + ci * 3 + mi) % 6 === 4) return;
+        if (n === 0 && (ci + mi) % 2) return; // today: some done, some still to do
+        put('completions', 'completion', id + '~' + dt + '~' + m, { choreId: id, date: dt, memberId: m });
+      }));
+    }
+    const steps = (...x) => x.map((text, i) => ({ id: 's' + (i + 1), text }));
+    put('routines', 'routine', 'dmr1', { title: 'Morning routine', when: 'morning', memberIds: ['dm-leah', 'dm-theo'], weekdays: [1, 2, 3, 4, 5], stars: 2, steps: steps('Get dressed', 'Eat breakfast', 'Brush teeth', 'Pack school bag') });
+    put('routines', 'routine', 'dmr2', { title: 'Bedtime routine', when: 'bedtime', memberIds: ['dm-leah', 'dm-theo'], weekdays: [0, 1, 2, 3, 4, 5, 6], stars: 2, steps: steps('Bath', 'Pyjamas', 'Brush teeth', 'Story time') });
+    put('routines', 'routine', 'dmr3', { title: 'Sunday reset', when: 'afternoon', memberIds: ['dm-maya', 'dm-leo'], weekdays: [0], stars: 1, steps: steps('Look at next week’s calendar', 'Plan the dinners', 'Check the grocery list', 'Tidy the kitchen') });
+    for (let n = 1; n <= 14; n++) {
+      const dt = t(-n), dow = D.dow(dt);
+      ['dm-leah', 'dm-theo'].forEach((m, mi) => {
+        put('rlogs', 'rlog', 'dmr2~' + dt + '~' + m, { routineId: 'dmr2', date: dt, memberId: m, done: (n + mi) % 4 === 2 ? ['s1', 's2', 's3'] : ['s1', 's2', 's3', 's4'] });
+        if (dow >= 1 && dow <= 5) put('rlogs', 'rlog', 'dmr1~' + dt + '~' + m, { routineId: 'dmr1', date: dt, memberId: m, done: (n + mi) % 5 === 1 ? ['s1', 's2'] : ['s1', 's2', 's3', 's4'] });
+      });
+      if (dow === 0) ['dm-maya', 'dm-leo'].forEach((m) => put('rlogs', 'rlog', 'dmr3~' + dt + '~' + m, { routineId: 'dmr3', date: dt, memberId: m, done: ['s1', 's2', 's3', 's4'] }));
+    }
+    [['dmw1', 'Pick the movie', '🎬', 5], ['dmw2', 'Ice cream outing', '🍦', 8], ['dmw3', 'Extra story at bedtime', '📚', 3], ['dmw4', 'Park trip with a friend', '🛝', 15]]
+      .forEach(([id, title, emoji, cost]) => put('rewards', 'reward', id, { title, emoji, cost }));
+    put('redemptions', 'redemption', 'dmx1', { rewardId: 'dmw3', title: 'Extra story at bedtime', cost: 3, memberId: 'dm-theo', date: t(-3) });
+    put('redemptions', 'redemption', 'dmx2', { rewardId: 'dmw1', title: 'Pick the movie', cost: 5, memberId: 'dm-leah', date: t(-8) });
+    put('redemptions', 'redemption', 'dmx3', { rewardId: 'dmw2', title: 'Ice cream outing', cost: 8, memberId: 'dm-leah', date: t(-13) });
+    put('redemptions', 'redemption', 'dmx4', { rewardId: 'dmw1', title: 'Pick the movie', cost: 5, memberId: 'dm-theo', date: t(-15) });
+    put('redemptions', 'redemption', 'dmx5', { rewardId: 'dmw4', title: 'Park trip with a friend', cost: 15, memberId: 'dm-theo', date: t(-6) });
+    put('redemptions', 'redemption', 'dmx6', { rewardId: 'dmw3', title: 'Extra story at bedtime', cost: 3, memberId: 'dm-leah', date: t(-1) });
+
+    // Recipes and two weeks of dinners (plus next week)
+    const R = {
+      adobo: ['Chicken adobo', '🍗', ['1 kg chicken thighs', '½ cup soy sauce', '⅓ cup vinegar', '1 head garlic', '3 bay leaves', '1 tsp peppercorns', '2 cups rice'], 'Mix soy sauce, vinegar, garlic, bay leaves and pepper.\nAdd the chicken and marinate 30 minutes.\nSimmer covered for 30 minutes.\nUncover and cook until the sauce thickens.\nServe with rice.'],
+      curry: ['Thai green chicken curry', '🍛', ['500 g chicken thighs', '1 can coconut milk', '3 tbsp green curry paste', '1 red bell pepper', '1 cup green beans', '1 tbsp fish sauce', 'Thai basil', '2 cups jasmine rice'], 'Fry the curry paste for 1 minute.\nAdd the chicken and cook until white.\nPour in the coconut milk and simmer 10 minutes.\nAdd the vegetables for 5 more minutes.\nSeason with fish sauce and top with basil.'],
+      spag: ['Spaghetti bolognese', '🍝', ['400 g spaghetti', '500 g ground beef', '1 onion', '2 garlic cloves', '1 can crushed tomatoes', 'Parmesan'], 'Cook the onion and garlic.\nBrown the beef.\nAdd the tomatoes and simmer 20 minutes.\nBoil the spaghetti and mix.'],
+      sinigang: ['Sinigang na baboy', '🍲', ['800 g pork ribs', '1 packet tamarind soup mix', '2 tomatoes', '1 onion', '1 radish', '1 bunch kangkong', '6 green beans', 'Fish sauce'], 'Boil the pork with onion and tomatoes until tender.\nAdd the tamarind mix.\nAdd radish and beans for 5 minutes.\nAdd the greens and season with fish sauce.'],
+      tacos: ['Fish tacos', '🌮', ['500 g white fish', '8 small tortillas', '½ red cabbage', '2 limes', '1 avocado', 'Sour cream', 'Taco spice'], 'Season and cook the fish.\nSlice the cabbage and avocado.\nWarm the tortillas.\nBuild the tacos and squeeze lime on top.'],
+      rice: ['Veggie fried rice', '🍚', ['3 cups cooked rice', '2 eggs', '1 cup frozen peas and carrots', '3 green onions', '2 tbsp soy sauce'], 'Scramble the eggs and set aside.\nFry the vegetables.\nAdd rice and soy sauce.\nMix in the eggs and green onions.'],
+      pancakes: ['Weekend pancakes', '🥞', ['2 cups flour', '2 tbsp sugar', '2 tsp baking powder', '2 eggs', '1.5 cups milk', 'Butter', 'Maple syrup'], 'Mix the dry ingredients.\nWhisk in eggs and milk.\nCook spoonfuls in a buttered pan until golden.'],
+      pizza: ['Homemade pizza', '🍕', ['2 pizza doughs', '1 cup tomato sauce', '2 cups mozzarella', 'Pepperoni', '1 bell pepper', 'Mushrooms'], 'Heat the oven to 250°C.\nSpread the sauce on the dough.\nAdd cheese and toppings.\nBake 10 to 12 minutes.']
+    };
+    Object.entries(R).forEach(([k, [title, emoji, ingredients, stepsText]]) => put('recipes', 'recipe', 'dmrc-' + k, { title, emoji, servings: 4, ingredients, steps: stepsText }));
+    const rota = ['adobo', 'spag', 'curry', 'tacos', 'sinigang', 'pizza', 'rice'];
+    for (let n = -14; n <= 6; n++) {
+      const date = t(n), k = rota[((n % 7) + 7) % 7];
+      put('meals', 'meal', date + '~dinner', { date, slot: 'dinner', title: R[k][0], recipeId: 'dmrc-' + k, shopped: n >= -1 && n <= 2 });
+      if (D.dow(date) === 6) put('meals', 'meal', date + '~breakfast', { date, slot: 'breakfast', title: 'Weekend pancakes', recipeId: 'dmrc-pancakes' });
+    }
+
+    // Lists: groceries grouped by meal, packing, to-do
+    put('lists', 'list', 'dml1', { title: 'Groceries' }); put('lists', 'list', 'dml2', { title: 'Tofino packing' }); put('lists', 'list', 'dml3', { title: 'Family to-do' });
+    put('lists', 'list', 'dml4', { title: 'Leah’s birthday wish list' }); put('lists', 'list', 'dml5', { title: 'Theo’s Lego list' });
+    const now = Date.now();
+    let i = 0;
+    const item = (listId, text, o) => put('listitems', 'listitem', 'dmi' + String(++i).padStart(3, '0'), Object.assign({ listId, text, done: false, at: now - (500 - i) * 1000 }, o || {}));
+    const g = (n, k) => D.fmt(t(n), { weekday: 'short' }) + ' · ' + R[k][0];
+    [0, 1, 2].forEach((n) => { const k = rota[((n % 7) + 7) % 7]; R[k][2].slice(0, 5).forEach((x, j) => item('dml1', x, { group: g(n, k), done: j === 4 })); });
+    ['Milk', 'Eggs', 'Bananas', 'Dog food', 'Coffee'].forEach((x, j) => item('dml1', x, { done: j === 3 }));
+    ['Rain jackets', 'Swimsuits', 'Sunscreen', 'Phone chargers', 'Snacks for the drive', 'Biscuit’s leash and bowl'].forEach((x, j) => item('dml2', x, { done: j === 3 }));
+    ['Book flu shots', 'Return library books', 'Fix bike tire', 'Order Leah’s birthday cake', 'Renew car insurance', 'Call the roofer (Leo)', 'Sign Theo’s field trip form'].forEach((x, j) => item('dml3', x, { done: j === 0 || j === 6 }));
+    ['Art kit with markers', 'Roller skates (size 3)', 'Friendship bracelet kit', 'A new book series', 'Sleepover with Mia'].forEach((x, j) => item('dml4', x, { done: j === 0 }));
+    ['Lego fire station', 'Lego dinosaur set', 'Minifigure pack', 'Storage box for Lego'].forEach((x, j) => item('dml5', x, { done: j === 3 }));
+
+    // Countdowns
+    const xmas = (today > y + '-12-25' ? y + 1 : y) + '-12-25';
+    put('countdowns', 'countdown', 'dmk1', { title: 'Leah’s birthday', emoji: '🎂', date: t(18) });
+    put('countdowns', 'countdown', 'dmk2', { title: 'Weekend in Tofino', emoji: '🏕️', date: t(30) });
+    put('countdowns', 'countdown', 'dmk3', { title: 'Christmas', emoji: '🎄', date: xmas, yearly: true });
+    put('countdowns', 'countdown', 'dmk4', { title: 'Nana Rosa’s birthday', emoji: '🌻', date: t(80), yearly: true });
+    put('countdowns', 'countdown', 'dmk5', { title: 'Theo’s swim test', emoji: '🏊', date: t(15) });
+    put('countdowns', 'countdown', 'dmk6', { title: 'Family hike', emoji: '🥾', date: t(11) });
+
+    // Notes: plain notes and tables
+    put('notes', 'note', 'dmn1', { kind: 'note', title: 'Wi-Fi and door codes', by: 'Leo', at: now - 9 * 864e5, text: 'Wi-Fi: SantosHome\nPassword: sunshine-42\n\nGarage code: 4815\nShed lock: 2023' });
+    put('notes', 'note', 'dmn2', { kind: 'note', title: 'Babysitter info', by: 'Maya', at: now - 4 * 864e5, text: 'Bedtime: Theo 7:30, Leah 8:30.\nNo screens after 7.\nBiscuit gets one scoop of food at 6.\nEmergency: call Maya or Leo first, then Nana Rosa.' });
+    put('notes', 'note', 'dmn3', { kind: 'table', title: 'Christmas budget', by: 'Maya', at: now - 2 * 864e5,
+      cols: [{ name: 'Gift', type: 'text' }, { name: 'For', type: 'text' }, { name: 'Cost', type: 'number' }, { name: 'Bought?', type: 'check' }],
+      rows: [['Lego set', 'Theo', '$79.99', true], ['Art kit', 'Leah', '$45.00', false], ['Scarf', 'Nana Rosa', '$32.50', true], ['Board game', 'Everyone', '$54.00', false], ['New bed', 'Biscuit', '$65.00', false]] });
+    put('notes', 'note', 'dmn4', { kind: 'table', title: 'Tofino trip costs', by: 'Leo', at: now - 864e5,
+      cols: [{ name: 'What', type: 'text' }, { name: 'Cost', type: 'number' }, { name: 'Paid', type: 'check' }],
+      rows: [['Cabin (2 nights)', '$420.00', true], ['Ferry', '$185.00', false], ['Gas', '$90.00', false], ['Food', '$150.00', false]] });
+
+    put('notes', 'note', 'dmn5', { kind: 'note', title: 'Nana’s adobo tips', by: 'Nana Rosa', at: now - 6 * 864e5, text: 'Use chicken thighs, not breast. They stay soft.\nDo not stir after you add the vinegar until it boils, or it tastes sour.\nA spoon of brown sugar at the end makes the kids happy.\nIt is even better the next day!' });
+    put('notes', 'note', 'dmn6', { kind: 'table', title: 'Movie night picks', by: 'Leah', at: now - 3 * 864e5,
+      cols: [{ name: 'Movie', type: 'text' }, { name: 'Picked by', type: 'text' }, { name: 'Stars (1-5)', type: 'number' }, { name: 'Watched', type: 'check' }],
+      rows: [['A space adventure', 'Theo', '4', true], ['The baking contest one', 'Leah', '5', true], ['A dog movie', 'Maya', '3', true], ['A funny animated film', 'Leo', '', false]] });
+
+    // Photos (newest last)
+    PHOTOS.forEach(([id, credit], n) => put('photos', 'photo', 'dmp' + String(n + 1).padStart(2, '0'), { assetId: 'unsplash', src: U(id), credit, at: now - (PHOTOS.length - n) * 3600e3 }));
+    return out;
+  }
+
+  PL.demo = { docs, PHOTOS };
+
+  /* ---------- inside the demo: a banner; everywhere in a home: the logo goes to the start page ---------- */
+  function start() {
+    const brand = document.querySelector('.brand');
+    if (brand && !brand.dataset.home) {
+      brand.dataset.home = '1';
+      brand.removeAttribute('aria-hidden');
+      brand.setAttribute('role', 'link'); brand.setAttribute('tabindex', '0'); brand.setAttribute('aria-label', 'Kalendaryo start page');
+      brand.classList.add('brand-link');
+      const go = () => { location.href = '/'; };
+      brand.addEventListener('click', go);
+      brand.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go(); } });
+    }
+    if (window.KAL && KAL.demo) {
+      const content = document.querySelector('.content');
+      if (content && !content.querySelector('.demo-banner')) {
+        content.prepend(PL.h('div', { class: 'demo-banner', role: 'note' },
+          PL.h('span', {}, '👀 ', PL.h('strong', {}, 'This is a demo home.'), ' Try anything. Changes are not saved.'),
+          PL.h('a', { class: 'btn primary', href: '/' }, 'Create your own home')));
+      }
+      document.title = 'Demo home · ' + PL.config.appName;
+    }
+  }
+  // The app frame is drawn after start-up; wait for it.
+  const wait = setInterval(() => { if (document.querySelector('.app .brand')) { clearInterval(wait); start(); } }, 150);
+  setTimeout(() => clearInterval(wait), 30000);
 })();
 
 </script>
@@ -4139,7 +4448,7 @@ body:has(> .tour-switch) .main { padding-top: 62px; }
   }
   // Inside a home: follow page changes (PL.nav.go) and show each page's tour.
   function watchPages() {
-    if (!window.KAL || !KAL.token || !PL.nav || PL.nav.__toured) return false;
+    if (!window.KAL || !(KAL.token || KAL.demo) || !PL.nav || PL.nav.__toured) return false;
     // The page area is redrawn when someone opens another page: notice that and show that page's tour.
     let last = PL.nav.current();
     new MutationObserver(() => {
@@ -4154,7 +4463,7 @@ body:has(> .tour-switch) .main { padding-top: 62px; }
     pageTour(PL.nav.current());
     return true;
   }
-  if (window.KAL && KAL.token) {
+  if (window.KAL && (KAL.token || KAL.demo)) {
     const wait = setInterval(() => { if (document.querySelector('.app .nav') && (KAL.me || KAL.invalid)) { clearInterval(wait); if (!KAL.invalid && !(KAL.me && KAL.me.viewing)) watchPages(); } }, 200);
     setTimeout(() => clearInterval(wait), 30000);
   }
@@ -4535,7 +4844,8 @@ body:has(> .tour-switch) .main { padding-top: 62px; }
 (function () {
   const PL = (window.PL = window.PL || {});
   const h = PL.h, icon = PL.icon, D = PL.D, ui = PL.ui;
-  const urlOf = (p) => (PL.blobUrl ? PL.blobUrl(p.assetId) : '/_blob/' + p.assetId);
+  // A stock photo (src) is asked for at the size needed: small for thumbnails, big for the wall.
+  const urlOf = (p, w) => (p.src ? p.src + (p.src.includes('?') ? '&' : '?') + 'w=' + (w || 1920) : PL.blobUrl ? PL.blobUrl(p.assetId) : '/_blob/' + p.assetId);
   const sortedPhotos = () => PL.state.photos.slice().sort((a, b) => a.at - b.at);
 
   // Shrink a picture before saving, so the page stays quick and storage lasts.
@@ -4594,7 +4904,7 @@ body:has(> .tour-switch) .main { padding-top: 62px; }
       const ps = sortedPhotos();
       if (!ps.length) { close(); return; }
       i = Math.min(i, ps.length - 1);
-      img.src = urlOf(ps[i]); count.textContent = (i + 1) + ' of ' + ps.length;
+      img.src = urlOf(ps[i]); count.textContent = (i + 1) + ' of ' + ps.length + (ps[i].credit ? ' · Photo: ' + ps[i].credit + ' / Unsplash' : '');
       prev.hidden = next.hidden = ps.length < 2;
     }
     function onKey(e) { if (e.key === 'Escape') close(); else if (e.key === 'ArrowLeft') go(-1); else if (e.key === 'ArrowRight') go(1); }
@@ -4941,6 +5251,7 @@ body:has(> .tour-switch) .main { padding-top: 62px; }
       const p = ps[idx % ps.length]; idx++;
       layer = 1 - layer;
       el[layer].style.backgroundImage = 'url("' + PL.photos.url(p) + '")';
+      el[layer].dataset.credit = p.credit ? 'Photo: ' + p.credit + ' / Unsplash' : '';
       el[layer].classList.add('on'); el[1 - layer].classList.remove('on');
       return true;
     }
@@ -6598,7 +6909,7 @@ body:has(> .tour-switch) .main { padding-top: 62px; }
     const ps = PL.photos.list().slice(-4).reverse();
     if (!ps.length) return ui.emptyState({ icon: 'image', title: 'No photos yet', text: 'Add family photos to see them here and on the wall screen.', action: ui.button('Open Photos', { icon: 'image', onClick: () => PL.nav.go('photos') }) });
     return h('div', { class: 'photo-grid wide' }, ps.map((p, i) => h('button', { type: 'button', class: 'photo-thumb', 'aria-label': 'Open photo', onclick: () => PL.photos.openViewer(PL.photos.list().length - 1 - i) },
-      h('img', { src: PL.photos.url(p), alt: 'Family photo', loading: 'lazy' }))));
+      h('img', { src: PL.photos.url(p, 600), alt: 'Family photo', loading: 'lazy' }))));
   }
   PL.photosUi = { widget };
 
@@ -6625,7 +6936,7 @@ body:has(> .tour-switch) .main { padding-top: 62px; }
             ui.button('Wall mode', { icon: 'expand', onClick: () => PL.photos.openWall('wall') })),
           shown.length
             ? h('div', { class: 'photo-grid big' }, shown.map((p, i) => h('button', { type: 'button', class: 'photo-thumb', 'aria-label': 'Open photo ' + (i + 1), onclick: () => PL.photos.openViewer(ps.length - 1 - i) },
-                h('img', { src: PL.photos.url(p), alt: 'Family photo', loading: 'lazy' }))))
+                h('img', { src: PL.photos.url(p, 600), alt: 'Family photo', loading: 'lazy' }))))
             : ui.emptyState({ icon: 'image', title: 'No photos yet', text: 'Add the pictures your family loves. They play on the slideshow and on the wall screen. Pictures are shrunk before they are saved.', action: ui.button('Add the first photos', { icon: 'plus', onClick: () => fileIn.click() }) }),
           fileIn);
       }
@@ -7094,8 +7405,8 @@ body:has(> .tour-switch) .main { padding-top: 62px; }
               return h('button', { type: 'button', class: 'meal-row', onclick: () => openSlot(date, s.id), 'aria-label': SLOT_LABEL[s.id] + ', ' + (m ? m.title + (m.shopped ? ', on the grocery list' : '') : 'nothing planned. Tap to add') },
                 h('span', { class: 'meal-slot' }, SLOT_LABEL[s.id]),
                 h('span', { class: 'meal-title' + (m ? '' : ' empty') }, m ? m.title : 'Add'),
-                m && m.shopped ? h('span', { class: 'meal-cart', title: 'On the grocery list' }, icon('cart')) : null,
-                r ? icon('book') : (m ? null : icon('plus')));
+                h('span', { class: 'meal-icons' }, m && m.shopped ? h('span', { class: 'meal-cart', title: 'On the grocery list' }, icon('cart')) : null,
+                  r ? icon('book') : (m ? null : icon('plus'))));
             }));
         });
         return [bar, opts, weekStatus, h('div', { class: 'meal-week' }, days)];

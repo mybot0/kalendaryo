@@ -149,7 +149,14 @@
       isOwner() ? h('div', { class: 'btn-row access-danger' }, ui.button('Delete this family', { variant: 'danger', icon: 'trash', onClick: deleteFamily })) : null
     ].filter(Boolean));
   }
-  PL.familyExtras = () => { paint(); return card; };
+  PL.familyExtras = () => {
+    if (KAL.demo) { // the demo home has no links or invites
+      return h('section', { class: 'card access-card' }, h('h2', {}, 'People with access'),
+        h('p', {}, 'In your own home, each person gets their own private link, and owners invite people as Viewer, Editor or Owner.'),
+        h('div', { class: 'btn-row' }, h('a', { class: 'btn primary big', href: '/' }, 'Create your own home')));
+    }
+    paint(); return card;
+  };
 
   /* ---------- notices ---------- */
   let banner = null;

@@ -52,7 +52,7 @@ const SECURITY = {
   'X-Content-Type-Options': 'nosniff',
   'X-Frame-Options': 'DENY',
   'Content-Security-Policy': ["default-src 'self'", "script-src 'self' 'unsafe-inline'", "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-    "font-src https://fonts.gstatic.com", "img-src 'self' blob: data:", "connect-src 'self' https://api.open-meteo.com https://geocoding-api.open-meteo.com",
+    "font-src https://fonts.gstatic.com", "img-src 'self' blob: data: https://images.unsplash.com", "connect-src 'self' https://api.open-meteo.com https://geocoding-api.open-meteo.com",
     "frame-ancestors 'none'", "base-uri 'none'", "form-action 'self'"].join('; ')
 };
 
@@ -384,14 +384,14 @@ async function holidayList(p) {
   holidayCache.set(p, { at: Date.now(), data });
   return data;
 }
-r.get('/api/holidays/countries', auth, async (req, res) => {
+r.get('/api/holidays/countries', async (req, res) => {
   const list = await holidayList('/AvailableCountries');
   send(res, 200, { countries: (Array.isArray(list) ? list : []).map((c) => ({ code: clean(c.countryCode, 2), name: clean(c.name, 60) })) });
 });
-r.get('/api/holidays/:year/:cc', auth, async (req, res) => {
+r.get('/api/holidays/:year/:cc', async (req, res) => { // no link needed: public dates only (the demo home uses it too)
   const year = parseInt(req.params.year, 10);
   if (!(year >= 2000 && year <= 2100) || !/^[A-Z]{2}$/.test(req.params.cc)) fail(400, 'bad_request', 'Pick a country and a year.');
-  if (!limit('hol:' + req.me.family_id, 120, 3600000)) fail(429, 'rate_limited', 'Too many tries. Please wait a little.');
+  if (!limit('hol:' + ipOf(req), 120, 3600000)) fail(429, 'rate_limited', 'Too many tries. Please wait a little.');
   const list = await holidayList('/PublicHolidays/' + year + '/' + req.params.cc);
   if (!Array.isArray(list) || !list.length) fail(404, 'not_found', 'This place is not on the public holiday list.');
   send(res, 200, { holidays: list.map((x) => ({ date: clean(x.date, 10), name: clean(x.name, 80), localName: clean(x.localName, 80), global: x.global !== false,
@@ -424,7 +424,7 @@ const INDEX = path.join(__dirname, '..', 'public', 'index.html');
 let indexHtml = null;
 const page = async (req, res) => {
   owner.cookie(req, res);
-  owner.countPage(req, req.path.startsWith('/c/') ? 'home' : req.path.startsWith('/join/') ? 'invite' : 'start');
+  owner.countPage(req, req.path.startsWith('/c/') ? 'home' : req.path.startsWith('/join/') ? 'invite' : req.path.startsWith('/demo') ? 'demo' : 'start');
   if (!indexHtml || process.env.NODE_ENV !== 'production') {
     indexHtml = fs.readFileSync(INDEX);
     // TOUCH POINT A (server, part 2): lets the start page show the home/trip choice. Nothing is added when Triply is off.
@@ -433,7 +433,7 @@ const page = async (req, res) => {
   res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-cache' });
   res.end(req.method === 'HEAD' ? undefined : indexHtml);
 };
-r.get('/', page); r.get('/c/:token', page); r.get('/join/:code', page);
+r.get('/', page); r.get('/c/:token', page); r.get('/join/:code', page); r.get('/demo', page);
 
 const server = http.createServer(async (req, res) => {
   owner.touch(req);

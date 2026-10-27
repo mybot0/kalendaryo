@@ -251,7 +251,7 @@
   }
   // Inside a home: follow page changes (PL.nav.go) and show each page's tour.
   function watchPages() {
-    if (!window.KAL || !KAL.token || !PL.nav || PL.nav.__toured) return false;
+    if (!window.KAL || !(KAL.token || KAL.demo) || !PL.nav || PL.nav.__toured) return false;
     // The page area is redrawn when someone opens another page: notice that and show that page's tour.
     let last = PL.nav.current();
     new MutationObserver(() => {
@@ -266,7 +266,7 @@
     pageTour(PL.nav.current());
     return true;
   }
-  if (window.KAL && KAL.token) {
+  if (window.KAL && (KAL.token || KAL.demo)) {
     const wait = setInterval(() => { if (document.querySelector('.app .nav') && (KAL.me || KAL.invalid)) { clearInterval(wait); if (!KAL.invalid && !(KAL.me && KAL.me.viewing)) watchPages(); } }, 200);
     setTimeout(() => clearInterval(wait), 30000);
   }

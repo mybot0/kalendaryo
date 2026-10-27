@@ -95,3 +95,22 @@ body.land-body {
 .join-meta { display: flex; align-items: center; justify-content: center; gap: 8px; color: var(--ink-2); font-weight: 600; }
 .join-dot { width: 22px; height: 22px; border-radius: 50%; display: inline-block; }
 .join-form .btn.block { width: 100%; }
+
+/* demo home (demo.js) and the start page card */
+.demo-banner { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 16px; margin: 12px max(16px, env(safe-area-inset-left)) 0; padding: 10px 10px 10px 16px;
+  border-radius: 16px; background: #FFF6D6; border: 2px solid #FFE3A0; color: #5C4300; font-weight: 600; }
+.demo-banner .btn { min-height: 40px; }
+@media (min-width: 900px) { .demo-banner { margin: 16px auto 0; width: calc(100% - 32px); max-width: 1248px; } }
+.land-demo { display: flex; flex-wrap: wrap; align-items: center; gap: 14px 18px; padding: 18px 20px; border: 2px dashed #FFD666; background: #FFFBEA; }
+.land-demo-ic { font-size: 2.2rem; line-height: 1; }
+.land-demo-text { flex: 1 1 260px; display: flex; flex-direction: column; gap: 2px; }
+.land-demo-text strong { font: 800 1.2rem var(--font-head); }
+.brand-link { cursor: pointer; border-radius: 14px; }
+.brand-link:hover { background: var(--surface-2); }
+.brand-link:focus-visible { outline: 3px solid #FFD666; outline-offset: 2px; }
+a.btn { text-decoration: none; }
+/* the demo banner leaves room for the Guided tour switch */
+body:has(> .tour-switch) .content:has(> .demo-banner) .main { padding-top: 24px; }
+@media (min-width: 640px) { body:has(> .tour-switch) .demo-banner { margin-right: 190px; } }
+@media (min-width: 900px) { body:has(> .tour-switch) .demo-banner { width: auto; margin-left: 16px; } }
+@media (max-width: 639px) { body:has(> .tour-switch) .demo-banner { margin-top: 56px; } }

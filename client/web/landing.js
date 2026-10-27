@@ -113,6 +113,14 @@
         ui.iconButton('x', 'Forget ' + f.name + ' on this device', () => { KAL.recent.forget(f.t); render(); })))));
   }
 
+  // "Just looking?" — the demo home (demo.js)
+  function demoCard() {
+    return h('section', { class: 'card land-demo' },
+      h('span', { class: 'land-demo-ic', 'aria-hidden': 'true' }, '👀'),
+      h('div', { class: 'land-demo-text' }, h('strong', {}, 'Just looking?'), h('span', { class: 'sub' }, 'Try a demo home: a made-up family with 3 months of plans, meals, chores and photos.')),
+      h('a', { class: 'btn primary big', href: '/demo' }, 'Try a demo home'));
+  }
+
   function steps() {
     const s = window.KAL_TRIPLY
       ? [['plus', 'Create', 'Start a home or a trip in one step. No account or password.'], ['users', 'Invite', 'Send invite links. Pick who can look, who can edit, and who is an owner.'], ['calendar', 'Share the day', 'Calendars, chores, meals, itineraries and group chat, live for everyone.']]
@@ -175,8 +183,8 @@
       note ? h('p', { class: 'land-note', role: 'alert' }, note) : null);
     root.replaceChildren(main);
     if (KAL.joinCode) main.append(await joinCard());
-    else if (window.KAL_TRIPLY) main.append(...[...choice(), await lists(), steps()].filter(Boolean));
-    else main.append(...[createCard(), recentCard(), steps()].filter(Boolean));
+    else if (window.KAL_TRIPLY) main.append(...[...choice(), demoCard(), await lists(), steps()].filter(Boolean));
+    else main.append(...[createCard(), demoCard(), recentCard(), steps()].filter(Boolean));
     if (!KAL.joinCode && PL.guide) PL.guide.maybeStart(); // first visit: the friendly guide (guide.js)
   }
 

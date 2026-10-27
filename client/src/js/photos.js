@@ -8,7 +8,8 @@
 (function () {
   const PL = (window.PL = window.PL || {});
   const h = PL.h, icon = PL.icon, D = PL.D, ui = PL.ui;
-  const urlOf = (p) => (PL.blobUrl ? PL.blobUrl(p.assetId) : '/_blob/' + p.assetId);
+  // A stock photo (src) is asked for at the size needed: small for thumbnails, big for the wall.
+  const urlOf = (p, w) => (p.src ? p.src + (p.src.includes('?') ? '&' : '?') + 'w=' + (w || 1920) : PL.blobUrl ? PL.blobUrl(p.assetId) : '/_blob/' + p.assetId);
   const sortedPhotos = () => PL.state.photos.slice().sort((a, b) => a.at - b.at);
 
   // Shrink a picture before saving, so the page stays quick and storage lasts.
@@ -67,7 +68,7 @@
       const ps = sortedPhotos();
       if (!ps.length) { close(); return; }
       i = Math.min(i, ps.length - 1);
-      img.src = urlOf(ps[i]); count.textContent = (i + 1) + ' of ' + ps.length;
+      img.src = urlOf(ps[i]); count.textContent = (i + 1) + ' of ' + ps.length + (ps[i].credit ? ' · Photo: ' + ps[i].credit + ' / Unsplash' : '');
       prev.hidden = next.hidden = ps.length < 2;
     }
     function onKey(e) { if (e.key === 'Escape') close(); else if (e.key === 'ArrowLeft') go(-1); else if (e.key === 'ArrowRight') go(1); }

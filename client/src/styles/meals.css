@@ -5,7 +5,9 @@
 .meal-row { display: flex; align-items: center; gap: 10px; min-height: 56px; width: 100%; border: 0; background: var(--surface-2); border-radius: var(--radius-sm); padding: 6px 12px; text-align: left; }
 .meal-row:hover { background: var(--primary-soft); }
 .meal-slot { font-size: .72rem; font-weight: 800; text-transform: uppercase; letter-spacing: .05em; color: var(--ink-3); width: 5.4em; flex: none; }
-.meal-title { flex: 1; min-width: 0; font-weight: 700; overflow-wrap: break-word; hyphens: auto; }
+.meal-title { flex: 1; min-width: 0; font-weight: 700; overflow-wrap: break-word; }
+.meal-icons { display: flex; flex-direction: column; align-items: center; gap: 4px; flex: none; }
+.meal-icons:empty { display: none; }
 .meal-title.empty { color: var(--ink-3); font-weight: 600; }
 .meal-row .ic { width: 20px; height: 20px; color: var(--ink-3); }
 .recipe-emoji { font-size: 2.2rem; line-height: 1; }
@@ -316,3 +318,4 @@
 .gc-also, .li-also { font-size: .75rem; font-weight: 700; color: #7A5A00; background: #FFF3C4; border-radius: 999px; padding: 2px 9px; white-space: nowrap; }
 .gc-total { margin-right: auto; }
 .gc-head .li-pill { background: #fff; }
+.wall-bg[data-credit]:not([data-credit=""])::after, .wall-photo-img[data-credit]:not([data-credit=""])::after { content: attr(data-credit); position: absolute; right: 12px; bottom: 8px; font-size: .72rem; font-weight: 600; color: rgba(255,255,255,.85); text-shadow: 0 1px 3px rgba(0,0,0,.6); }

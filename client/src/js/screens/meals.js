@@ -455,8 +455,8 @@
               return h('button', { type: 'button', class: 'meal-row', onclick: () => openSlot(date, s.id), 'aria-label': SLOT_LABEL[s.id] + ', ' + (m ? m.title + (m.shopped ? ', on the grocery list' : '') : 'nothing planned. Tap to add') },
                 h('span', { class: 'meal-slot' }, SLOT_LABEL[s.id]),
                 h('span', { class: 'meal-title' + (m ? '' : ' empty') }, m ? m.title : 'Add'),
-                m && m.shopped ? h('span', { class: 'meal-cart', title: 'On the grocery list' }, icon('cart')) : null,
-                r ? icon('book') : (m ? null : icon('plus')));
+                h('span', { class: 'meal-icons' }, m && m.shopped ? h('span', { class: 'meal-cart', title: 'On the grocery list' }, icon('cart')) : null,
+                  r ? icon('book') : (m ? null : icon('plus'))));
             }));
         });
         return [bar, opts, weekStatus, h('div', { class: 'meal-week' }, days)];

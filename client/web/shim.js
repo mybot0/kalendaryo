@@ -11,9 +11,10 @@
   const path = location.pathname;
   const mc = path.match(/^\/c\/([A-Za-z0-9_-]{10,100})\/?$/);
   const mj = path.match(/^\/join\/([A-Za-z0-9_-]{10,100})\/?$/);
+  const demo = /^\/demo\/?$/.test(path); // the demo home: made-up data, kept only in this tab (demo.js)
   const listeners = {};
   const KAL = (window.KAL = {
-    token: mc ? mc[1] : null, joinCode: mj ? mj[1] : null, me: null, family: null, ai: { enabled: false, left: 0 }, people: [], invalid: null,
+    token: mc ? mc[1] : null, joinCode: mj ? mj[1] : null, demo, me: null, family: null, ai: { enabled: false, left: 0 }, people: [], invalid: null,
     on(ev, fn) { (listeners[ev] = listeners[ev] || []).push(fn); },
     emit(ev, x) { (listeners[ev] || []).forEach((fn) => { try { fn(x); } catch (e) { console.error(e); } }); }
   });
@@ -21,6 +22,10 @@
   // Each family keeps its own saved copy on this device.
   const short = (s) => { let h = 5381; for (let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) >>> 0; return h.toString(36); };
   if (KAL.token) window.PL_STORAGE_PREFIX = 'pl.' + short(KAL.token) + '.';
+  if (demo) {
+    window.PL_STORAGE_PREFIX = 'pl.demo.';
+    try { Object.keys(localStorage).filter((k) => k.startsWith('pl.demo.cache')).forEach((k) => localStorage.removeItem(k)); } catch (e) { /* fine */ } // always start fresh
+  }
 
   /* families opened on this device, for the start page */
   KAL.recent = {
@@ -81,9 +86,11 @@
   }
   let loaded = null;
   function load() {
-    if (!loaded) loaded = api('GET', '/api/state').then((r) => { replaceAll(r.docs || {}); connect(); });
+    if (!loaded) loaded = demo ? Promise.resolve().then(() => replaceAll(PL.demo.docs())) : api('GET', '/api/state').then((r) => { replaceAll(r.docs || {}); connect(); });
     return loaded;
   }
+  let demoN = 0;
+  const demoId = () => 'local' + Date.now().toString(36) + (++demoN);
   let es = null, opened = false;
   function connect() {
     if (es || !window.EventSource) return;
@@ -99,14 +106,14 @@
   }
   const db = {
     collection: (c) => ({
-      add: async (o) => { const r = await api('POST', '/api/docs/' + c, { data: o }); apply(c, r.id, clone(o)); return { id: r.id }; },
+      add: async (o) => { const r = demo ? { id: demoId() } : await api('POST', '/api/docs/' + c, { data: o }); apply(c, r.id, clone(o)); return { id: r.id }; },
       onSnapshot: (cb, err) => { (colSubs[c] = colSubs[c] || []).push(cb); load().then(() => cb(snapCol(c)), (e) => err && err(e)); return () => { colSubs[c] = colSubs[c].filter((x) => x !== cb); }; }
     }),
     doc: (p) => {
       const i = p.indexOf('/'); const c = p.slice(0, i), id = p.slice(i + 1);
       return {
-        set: async (o) => { await api('PUT', '/api/docs/' + c + '/' + encodeURIComponent(id), { data: o }); apply(c, id, clone(o)); },
-        delete: async () => { await api('DELETE', '/api/docs/' + c + '/' + encodeURIComponent(id)); apply(c, id, null); },
+        set: async (o) => { if (!demo) await api('PUT', '/api/docs/' + c + '/' + encodeURIComponent(id), { data: o }); apply(c, id, clone(o)); },
+        delete: async () => { if (!demo) await api('DELETE', '/api/docs/' + c + '/' + encodeURIComponent(id)); apply(c, id, null); },
         onSnapshot: (cb, err) => { (docSubs[p] = docSubs[p] || []).push(cb); load().then(() => cb(snapDoc(c, id)), (e) => err && err(e)); return () => { docSubs[p] = docSubs[p].filter((x) => x !== cb); }; }
       };
     }
@@ -140,6 +147,12 @@
     delete: async (id) => api('DELETE', '/api/blobs/' + encodeURIComponent(id)),
     list: async () => ({ assets: [], usage: {} })
   };
+  const localBlobs = new Map(); // demo: photos people add stay in this tab
+  const demoAssets = {
+    upload: async (blob) => { const id = demoId(); localBlobs.set(id, URL.createObjectURL(blob)); return { id, url: localBlobs.get(id) }; },
+    delete: async (id) => { localBlobs.delete(id); },
+    list: async () => ({ assets: [], usage: {} })
+  };
   const downloads = {
     save: async ({ filename, data }) => {
       const blob = data instanceof Blob ? data : new Blob([typeof data === 'string' ? data : JSON.stringify(data)], { type: 'application/json' });
@@ -159,6 +172,10 @@
     return r;
   }
   KAL.refreshMe = refreshMe;
+  if (demo) {
+    KAL.me = { id: 'demo-me', name: 'Maya', role: 'owner', viewing: false, memberId: 'dm-maya', demo: true };
+    KAL.family = { id: 'demo', name: 'The Santos family' };
+  }
   KAL.ready = KAL.token ? refreshMe().catch((e) => { KAL.invalid = e; if (e.status === 401) KAL.recent.forget(KAL.token); }) : Promise.resolve();
 
   window.claude = {
@@ -168,16 +185,16 @@
       const canEdit = KAL.me.role !== 'viewer';
       if (name === 'db') return db;
       if (name === 'user') return { id: async () => KAL.me.id, isOwner: () => KAL.me.role === 'owner', canEdit: () => canEdit };
-      if (name === 'sample') return KAL.ai.enabled && canEdit ? sample : null;
-      if (name === 'assets') return canEdit ? assets : null;
+      if (name === 'sample') return KAL.ai.enabled && canEdit && !demo ? sample : null; // no AI in the demo
+      if (name === 'assets') return demo ? demoAssets : canEdit ? assets : null;
       if (name === 'downloads') return downloads;
       return null;
     }
   };
 
-  PL.blobUrl = (id) => '/api/blobs/' + encodeURIComponent(id) + '?t=' + encodeURIComponent(KAL.token || '');
+  PL.blobUrl = (id) => localBlobs.get(id) || '/api/blobs/' + encodeURIComponent(id) + '?t=' + encodeURIComponent(KAL.token || '');
   PL.beforeBoot = () => {
-    if (KAL.token) return true;
+    if (KAL.token || demo) return true;
     PL.landing.mount();
     return false;
   };

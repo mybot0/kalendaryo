@@ -11,7 +11,7 @@
     const ps = PL.photos.list().slice(-4).reverse();
     if (!ps.length) return ui.emptyState({ icon: 'image', title: 'No photos yet', text: 'Add family photos to see them here and on the wall screen.', action: ui.button('Open Photos', { icon: 'image', onClick: () => PL.nav.go('photos') }) });
     return h('div', { class: 'photo-grid wide' }, ps.map((p, i) => h('button', { type: 'button', class: 'photo-thumb', 'aria-label': 'Open photo', onclick: () => PL.photos.openViewer(PL.photos.list().length - 1 - i) },
-      h('img', { src: PL.photos.url(p), alt: 'Family photo', loading: 'lazy' }))));
+      h('img', { src: PL.photos.url(p, 600), alt: 'Family photo', loading: 'lazy' }))));
   }
   PL.photosUi = { widget };
 
@@ -38,7 +38,7 @@
             ui.button('Wall mode', { icon: 'expand', onClick: () => PL.photos.openWall('wall') })),
           shown.length
             ? h('div', { class: 'photo-grid big' }, shown.map((p, i) => h('button', { type: 'button', class: 'photo-thumb', 'aria-label': 'Open photo ' + (i + 1), onclick: () => PL.photos.openViewer(ps.length - 1 - i) },
-                h('img', { src: PL.photos.url(p), alt: 'Family photo', loading: 'lazy' }))))
+                h('img', { src: PL.photos.url(p, 600), alt: 'Family photo', loading: 'lazy' }))))
             : ui.emptyState({ icon: 'image', title: 'No photos yet', text: 'Add the pictures your family loves. They play on the slideshow and on the wall screen. Pictures are shrunk before they are saved.', action: ui.button('Add the first photos', { icon: 'plus', onClick: () => fileIn.click() }) }),
           fileIn);
       }

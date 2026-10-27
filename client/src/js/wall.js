@@ -31,7 +31,7 @@
     { id: 'photos', label: 'Photos', on: true, tall: true },
     { id: 'week', label: 'This week', on: false, wide: true },
     { id: 'shopping', label: 'Shopping list', on: false },
-    { id: 'family', label: 'Family', on: false }
+    { id: 'family', label: 'People', on: false }
   ];
   const PHOTO_MODES = [{ value: 'tile', label: 'In a panel' }, { value: 'background', label: 'Background' }, { value: 'off', label: 'Off' }];
   const KID_IDLE_MS = 20000, CHEER_MS = 6000;
@@ -323,6 +323,7 @@
       const p = ps[idx % ps.length]; idx++;
       layer = 1 - layer;
       el[layer].style.backgroundImage = 'url("' + PL.photos.url(p) + '")';
+      el[layer].dataset.credit = p.credit ? 'Photo: ' + p.credit + ' / Unsplash' : '';
       el[layer].classList.add('on'); el[1 - layer].classList.remove('on');
       return true;
     }

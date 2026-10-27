@@ -160,7 +160,10 @@
 
     photo(d) {
       const at = Number(d.at);
-      return { assetId: String(d.assetId || '').replace(/[^0-9a-f]/gi, '').slice(0, 64), at: Number.isFinite(at) ? at : Date.now() };
+      const out = { assetId: String(d.assetId || '').replace(/[^0-9a-z]/gi, '').slice(0, 64), at: Number.isFinite(at) ? at : Date.now() };
+      // Free stock photos (demo home): a picture from Unsplash, with the photographer's name.
+      if (/^https:\/\/images\.unsplash\.com\/photo-[\w-]+(\?[\w=&%.-]*)?$/.test(d.src || '')) { out.src = d.src; out.credit = text(d.credit, 60); }
+      return out;
     },
 
     member(d) {

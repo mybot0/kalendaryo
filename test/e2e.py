@@ -256,6 +256,22 @@ try:
         owner.fill('input[placeholder=DELETE]', 'DELETE'); owner.get_by_role('button', name='Delete forever').click(); owner.wait_for_url(BASE + '/'); owner.wait_for_timeout(400)
         st, _ = req('GET', '/api/me', otoken)
         check(st == 401, 'deleted family links stop working')
+        # ---- demo home: made-up family, nothing saved to the server; the logo goes to the start page
+        dctx, demo = mk({'width': 1280, 'height': 900})
+        demo.goto(BASE); demo.wait_for_timeout(500)
+        demo.get_by_role('link', name='Try a demo home').click(); demo.wait_for_url('**/demo'); demo.wait_for_timeout(1500)
+        check(demo.locator('.demo-banner', has_text='This is a demo home').count() == 1, 'demo home opens with its banner')
+        check(demo.evaluate("PL.state.members.length") == 6 and demo.evaluate("PL.state.photos.length") == 20, 'demo family and 20 photos')
+        check(demo.evaluate("PL.state.events.length") >= 20 and demo.evaluate("PL.state.holidays.length") >= 20 and demo.evaluate("PL.state.notes.length") == 6, 'about 3 months of plans, holidays and notes')
+        check(demo.evaluate("PL.photos.url(PL.state.photos[0], 600)").startswith('https://images.unsplash.com/photo-'), 'demo photos come from Unsplash')
+        demo.evaluate("PL.store.addEvent({title: 'Demo only', date: PL.D.today(), allDay: true, memberIds: []})"); demo.wait_for_timeout(500)
+        check(demo.evaluate("PL.state.events.some(e => e.title === 'Demo only')"), 'changes work in the demo')
+        demo.reload(); demo.wait_for_timeout(1500)
+        check(not demo.evaluate("PL.state.events.some(e => e.title === 'Demo only')"), 'demo resets after reload (nothing saved)')
+        demo.locator('.brand').click(); demo.wait_for_url(BASE + '/'); demo.wait_for_timeout(300)
+        check(demo.url == BASE + '/', 'the logo goes back to the start page')
+        dctx.close()
+
         check(not logs, 'no page errors ' + str(logs[:5]))
         b.close()
 finally:
