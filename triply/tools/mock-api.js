@@ -33,7 +33,7 @@
   const LABEL = { flight: 'flight', hotel: 'hotel', car: 'car rental', cruise: 'cruise', activity: 'activity', restaurant: 'restaurant', place: 'place', note: 'note' };
 
   let db, seq;
-  function save() { store.set(JSON.stringify(db)); }
+  function save() { if (window.TRIPLY_DEMO && window.TRIPLY_DEMO.seed) return; store.set(JSON.stringify(db)); } // a seeded demo lives in memory only
 
   /* ---------- seed: a trip that is already planned ---------- */
   function seed() {
@@ -75,9 +75,19 @@
     try { localStorage.setItem('tr.trips', JSON.stringify([{ tripId: t.id, token: maya.token, added: Date.now() }])); localStorage.setItem('tr.profile', JSON.stringify({ name: 'Maya', avatar: '🦊' })); } catch (e) { /* ignore */ }
     save();
   }
-  try { const raw = store.get(); db = raw ? JSON.parse(raw) : null; } catch (e) { db = null; }
-  if (db && (!db.expenses || !db.packing)) db = null; // an older demo copy: start over so the new sections have sample data
-  if (!db) seed();
+  // A page can bring its own story: window.TRIPLY_DEMO = { seed(helpers) -> { db, token, tripId }, bot, banner }.
+  // (The live site's /triply/demo uses tools/demo-europe.js. It keeps everything in memory, so it resets on reload.)
+  const DEMO = window.TRIPLY_DEMO || null;
+  if (DEMO && DEMO.seed) {
+    const r = DEMO.seed({ uid, tok, key, addDays, now, PALETTE });
+    db = r.db; if (!db.seq) db.seq = 0;
+    try { localStorage.setItem('tr.trips', JSON.stringify([{ tripId: r.tripId, token: r.token, added: Date.now() }])); } catch (e) { /* ignore */ }
+    if (!location.hash || location.hash === '#/' || location.hash === '#') location.hash = '#/trip/' + r.tripId + '/overview';
+  } else {
+    try { const raw = store.get(); db = raw ? JSON.parse(raw) : null; } catch (e) { db = null; }
+    if (db && (!db.expenses || !db.packing)) db = null; // an older demo copy: start over so the new sections have sample data
+    if (!db) seed();
+  }
   seq = () => ++db.seq;
 
   /* ---------- shapes ---------- */
@@ -141,7 +151,9 @@
     if (sd && !isDate(sd)) throw bad('That start date does not look right.');
     if (ed && !isDate(ed)) throw bad('That end date does not look right.');
     if (sd && ed && ed < sd) throw bad('The trip cannot end before it starts.');
-    return { name, destination: txt(g('destination', ''), 120), route, start_date: sd, end_date: ed, description: txt(g('description', ''), 600), cover_emoji: txt(g('cover_emoji', '✈️'), 8) || '✈️', cover_color: g('cover_color', '#F6C28E'), viewers_chat: g('viewers_chat', true) !== false };
+    const bud = g('budget', null), budget = bud === null || bud === '' || !(Number(bud) > 0) ? null : Math.min(1e9, Math.round(Number(bud) * 100) / 100);
+    return { name, destination: txt(g('destination', ''), 120), route, start_date: sd, end_date: ed, description: txt(g('description', ''), 600), cover_emoji: txt(g('cover_emoji', '✈️'), 8) || '✈️', cover_color: g('cover_color', '#F6C28E'), viewers_chat: g('viewers_chat', true) !== false,
+      budget, budget_currency: budget ? (txt(g('budget_currency', 'CAD'), 3).toUpperCase().replace(/[^A-Z]/g, '') || 'CAD') : '' };
   }
   function cleanItem(b, base) {
     const type = base ? base.type : b.type;
@@ -166,7 +178,7 @@
   /* ---------- the bot: makes the demo chat feel alive ---------- */
   const REPLIES = ['Sounds good to me!', 'Ooh nice, adding that to my list too.', 'Can we do that after the museum?', 'Love it 😍', 'I will check the opening hours and report back.', 'Perfect, thank you!'];
   function botReply(tid, thread, meId) {
-    const bern = members(tid).find((m) => m.name === 'Leah'); if (!bern || bern.id === meId) return;
+    const bern = members(tid).find((m) => m.name === ((window.TRIPLY_DEMO && window.TRIPLY_DEMO.bot) || 'Leah')); if (!bern || bern.id === meId) return;
     setTimeout(() => {
       const m = { id: String(seq()), trip_id: tid, sender_id: bern.id, to_member: thread === 'trip' ? null : meId, kind: 'text', body: REPLIES[Math.floor(Math.random() * REPLIES.length)], mentions: [], blob: null, item_id: null, meta: {}, created_at: now() };
       db.messages.push(m); save();
@@ -300,7 +312,7 @@
     const out = Object.assign({}, msg, { trip_id: undefined });
     emit(m.trip_id, { kind: 'chat', thread: th === 'trip' ? 'trip' : 'dm', message: out }, th === 'trip' ? null : [m.id, th]);
     (db.reads[m.id] = db.reads[m.id] || {})[th] = msg.id;
-    if (th === 'trip' || (db.members[th] && db.members[th].name === 'Leah')) botReply(m.trip_id, th === 'trip' ? 'trip' : 'dm', m.id);
+    if (th === 'trip' || (db.members[th] && db.members[th].name === ((window.TRIPLY_DEMO && window.TRIPLY_DEMO.bot) || 'Leah'))) botReply(m.trip_id, th === 'trip' ? 'trip' : 'dm', m.id);
     return { message: out };
   });
   R('POST', '/trips/:id/reads', (c) => { const m = auth(c.token, c.p.id); const r = (db.reads[m.id] = db.reads[m.id] || {}); const k = c.body.thread; r[k] = String(Math.max(Number(r[k] || 0), Number(c.body.lastId) || 0)); return {}; });
@@ -421,9 +433,10 @@
     window.TR.blobUrl = (id) => (db.blobs[id] && db.blobs[id].url) || '';
     const bar = document.createElement('div');
     bar.style.cssText = 'height:28px;background:#26302B;color:#fff;font:600 .78rem Figtree,system-ui,sans-serif;display:flex;gap:10px;align-items:center;justify-content:center';
-    const t = document.createElement('span'); t.textContent = 'Demo with sample data, saved only in this browser';
-    const b = document.createElement('button'); b.textContent = 'Reset'; b.style.cssText = 'border:0;border-radius:999px;background:#F8E7E0;color:#B8583A;font:700 .72rem Figtree,system-ui,sans-serif;padding:1px 10px;cursor:pointer';
-    b.onclick = () => { try { localStorage.clear(); } catch (e) { /* ignore */ } memory[KEY] = null; location.hash = '#/'; location.reload(); };
+    const B = (window.TRIPLY_DEMO && window.TRIPLY_DEMO.banner) || null;
+    const t = document.createElement('span'); t.textContent = B ? B.text : 'Demo with sample data, saved only in this browser';
+    const b = document.createElement(B ? 'a' : 'button'); b.textContent = B ? B.link : 'Reset'; if (B) { b.href = B.href; b.style.textDecoration = 'none'; } b.style.cssText = 'border:0;border-radius:999px;background:#F8E7E0;color:#B8583A;font:700 .72rem Figtree,system-ui,sans-serif;padding:1px 10px;cursor:pointer';
+    if (!B) b.onclick = () => { try { localStorage.clear(); } catch (e) { /* ignore */ } memory[KEY] = null; location.hash = '#/'; location.reload(); };
     const st = document.createElement('style'); st.textContent = '.chat-wrap{height:calc(100dvh - 12px - 62px - 28px - env(safe-area-inset-bottom)) !important}@media (min-width:900px){.chat-wrap{height:calc(100vh - 36px - 28px) !important}}'; document.head.append(st);
     bar.append(t, b); document.body.prepend(bar);
   });

@@ -242,3 +242,19 @@ mark { background: rgba(184,88,58,.2); color: inherit; border-radius: 4px; paddi
   body { background: #fff; } .main { padding: 0; max-width: none; } .card, .ev-card, .full-row { box-shadow: none; }
   .day-block { break-inside: avoid; }
 }
+
+/* Costs: the trip budget */
+.budget-card { display: flex; flex-direction: column; gap: 10px; }
+.budget-card.empty { flex-direction: row; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.budget-card.empty p { margin: 2px 0 0; }
+.budget-top { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; }
+.budget-num { display: block; font: 800 1.5rem var(--font-head); color: var(--ink); }
+.budget-num .sub { font: 600 1rem var(--font); }
+.budget-pct { font: 800 1.3rem var(--font-head); color: var(--primary); }
+.budget-bar { height: 14px; border-radius: 999px; background: var(--surface-2); overflow: hidden; }
+.budget-bar > i { display: block; height: 100%; border-radius: 999px; background: var(--primary); transition: width .4s; }
+.budget-card.near .budget-bar > i, .budget-card.near .budget-pct { background-color: #D9A21B; color: #8A5F00; }
+.budget-card.near .budget-pct { background: none; }
+.budget-card.over .budget-bar > i { background: #C0452B; }
+.budget-card.over .budget-pct { color: #C0452B; }
+.budget-foot { display: flex; align-items: center; justify-content: space-between; gap: 10px; }

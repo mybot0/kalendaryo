@@ -150,5 +150,12 @@ module.exports = [
       );
       create index packing_trip on packing_items(trip_id, created_at);
     `
+  },
+  {
+    id: '004_budget',
+    sql: `
+      alter table trips add column budget numeric(12,2);
+      alter table trips add column budget_currency text not null default '';
+    `
   }
 ];

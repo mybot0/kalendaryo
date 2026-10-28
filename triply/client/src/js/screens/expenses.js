@@ -88,6 +88,36 @@
     }
   }
 
+  // The trip budget: one amount in one currency. Owners set it; everyone sees how much is spent.
+  function budgetSheet(session) {
+    const trip = session.state.trip;
+    const amount = TR.forms.input('number', trip.budget || '', { inputmode: 'decimal', step: '1', min: '0', placeholder: 'For example: 20000', autofocus: true });
+    const cur = TR.forms.input('text', trip.budget_currency || (session.expenses()[0] ? session.expenses()[0].currency : 'CAD'), { maxlength: 3, autocapitalize: 'characters' });
+    const err = h('p', { class: 'form-error', role: 'alert' });
+    async function save(budget) {
+      err.textContent = '';
+      try { await session.req('PATCH', '', { budget, budget_currency: cur.value }); await session.refresh(); s.close(); ui.toast(budget ? 'Budget saved.' : 'Budget removed.'); }
+      catch (e) { err.textContent = e.message; }
+    }
+    const s = ui.sheet({ title: trip.budget ? 'Change the budget' : 'Set a budget',
+      body: h('form', { class: 'event-form', novalidate: true, onsubmit: (e) => { e.preventDefault(); save(amount.value || null); } },
+        h('p', { class: 'sub' }, 'How much the whole trip should cost. Costs in this currency count toward it.'),
+        h('div', { class: 'row2' }, ui.field('Budget', amount), ui.field('Currency', cur)), err),
+      footer: [trip.budget ? ui.button('Remove', { variant: 'danger', icon: 'trash', onClick: () => save(null) }) : null, h('span', { class: 'spacer' }),
+        ui.button('Cancel', { variant: 'ghost', big: true, onClick: () => s.close() }), ui.button('Save', { variant: 'primary', big: true, onClick: () => save(amount.value || null) })] });
+  }
+  function budgetCard(session, by) {
+    const trip = session.state.trip, owner = session.can('trip.edit');
+    if (!trip.budget) return owner ? h('section', { class: 'card budget-card empty' }, h('div', {}, h('b', {}, 'No budget yet'), h('p', { class: 'sub' }, 'Set one to see how much of it is spent.')), ui.button('Set a budget', { icon: 'plus', onClick: () => budgetSheet(session) })) : null;
+    const cur = trip.budget_currency, spent = by[cur] ? by[cur].total : 0, total = Math.round(trip.budget * 100);
+    const pct = total ? Math.round((spent / total) * 100) : 0, left = total - spent;
+    return h('section', { class: 'card budget-card' + (pct > 100 ? ' over' : pct >= 85 ? ' near' : '') },
+      h('div', { class: 'budget-top' }, h('div', {}, h('span', { class: 'mini-h' }, 'Budget'), h('b', { class: 'budget-num' }, money(spent, cur), h('span', { class: 'sub' }, ' of ' + money(total, cur)))),
+        h('span', { class: 'budget-pct' }, pct + '%')),
+      h('div', { class: 'budget-bar', role: 'progressbar', 'aria-valuemin': '0', 'aria-valuemax': '100', 'aria-valuenow': String(Math.min(100, pct)), 'aria-label': 'Budget used' }, h('i', { style: 'width:' + Math.min(100, pct) + '%' })),
+      h('div', { class: 'budget-foot' }, h('span', { class: 'sub' }, left >= 0 ? money(left, cur) + ' left' : money(-left, cur) + ' over budget'), owner ? ui.button('Change', { variant: 'ghost', onClick: () => budgetSheet(session) }) : null));
+  }
+
   function mount(root, ctx) {
     const session = ctx.session;
     const name = (id) => { if (id === '_gone' || !id) return 'Former traveler'; const m = session.member(id); return m ? (m.you ? 'You' : m.name) : 'Former traveler'; };
@@ -126,7 +156,7 @@
       const head = h('div', { class: 'page-head' }, h('h1', {}, 'Costs'), canWrite() ? ui.button('Add cost', { icon: 'plus', variant: 'primary', onClick: () => expenseSheet(session, null) }) : null);
       if (!list.length) return root.replaceChildren(head, h('div', { class: 'card' }, ui.emptyState({ icon: 'ticket', title: 'No costs yet', text: 'Add what you pay for on the trip. Triply keeps track of who owes whom, so nobody needs a spreadsheet.', action: canWrite() ? ui.button('Add the first cost', { icon: 'plus', variant: 'primary', onClick: () => expenseSheet(session, null) }) : null })));
       root.replaceChildren(head, h('div', { class: 'people-grid' },
-        h('div', { class: 'stack' }, ...[].concat(summary(by) || [])),
+        h('div', { class: 'stack' }, ...[budgetCard(session, by)].concat(summary(by) || []).filter(Boolean)),
         h('section', { class: 'stack' }, h('h2', {}, 'All costs'), h('div', { class: 'card-list' }, list.map(row)))));
     }
     render();

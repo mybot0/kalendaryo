@@ -59,8 +59,17 @@ function trip(d, base) {
     description: d.description !== undefined ? text(d.description, 2000) : b.description || '',
     cover_emoji: d.cover_emoji !== undefined ? emoji(d.cover_emoji, '✈️') : b.cover_emoji || '✈️',
     cover_color: d.cover_color !== undefined ? (isColor(d.cover_color) ? d.cover_color : PALETTE[0]) : b.cover_color || PALETTE[0],
-    viewers_chat: d.viewers_chat !== undefined ? !!d.viewers_chat : b.viewers_chat !== false
+    viewers_chat: d.viewers_chat !== undefined ? !!d.viewers_chat : b.viewers_chat !== false,
+    ...budgetOf(d, b)
   };
+}
+// Optional trip budget: an amount above zero and a 3-letter currency, or no budget.
+function budgetOf(d, b) {
+  const raw = d.budget !== undefined ? d.budget : b.budget;
+  const n = Number(raw);
+  if (raw === null || raw === undefined || raw === '' || !Number.isFinite(n) || n <= 0) return { budget: null, budget_currency: '' };
+  const cur = text(d.budget_currency !== undefined ? d.budget_currency : b.budget_currency, 3).toUpperCase().replace(/[^A-Z]/g, '');
+  return { budget: Math.min(1e9, Math.round(n * 100) / 100), budget_currency: cur.length === 3 ? cur : 'CAD' };
 }
 
 /* ---------- itinerary items ---------- */

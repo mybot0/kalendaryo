@@ -57,6 +57,21 @@ function createTriply(options) {
     }
     return htmlCache;
   }
+  // The demo trip (/demo): the real page, plus an in-browser stand-in server with a made-up family trip.
+  // Nothing reaches the database; everything stays in the tab and resets on reload. See tools/demo-europe.js.
+  let demoCache = null;
+  function demoPage() {
+    if (!demoCache) {
+      const file = cfg.htmlPath || path.join(__dirname, '..', 'public', 'index.html');
+      const raw = fs.readFileSync(file, 'utf8');
+      const rd = (f) => fs.readFileSync(path.join(__dirname, '..', 'tools', f), 'utf8').replace(/<\/script/gi, '<\\/script');
+      const memoryStorage = "(function(){var m={};var s={getItem:function(k){return Object.prototype.hasOwnProperty.call(m,k)?m[k]:null},setItem:function(k,v){m[k]=String(v)},removeItem:function(k){delete m[k]},clear:function(){m={}},key:function(i){return Object.keys(m)[i]||null},get length(){return Object.keys(m).length}};try{Object.defineProperty(window,'localStorage',{value:s,configurable:true})}catch(e){}})();";
+      const boot = '<script>window.TRIPLY=' + JSON.stringify({ base: cfg.basePath, publicUrl: cfg.publicUrl || '', demo: true }).replace(/</g, '\\u003c') + ';' + memoryStorage + '</script>\n' +
+        '<script>\n' + rd('demo-europe.js') + '\n</script>\n<script>\n' + rd('mock-api.js') + '\n</script>';
+      demoCache = raw.replace('<!--TRIPLY_CONFIG-->', () => boot).replace(/<title>[^<]*<\/title>/, '<title>Demo trip · Triply</title>');
+    }
+    return demoCache;
+  }
   const CSP = [
     "default-src 'self'",
     "script-src 'self' 'unsafe-inline'",
@@ -103,6 +118,9 @@ function createTriply(options) {
       if (req.method !== 'GET' && req.method !== 'HEAD') throw new ApiError(405, 'method_not_allowed', 'That does not exist.');
       if (p === '/favicon.svg' || p === '/favicon.ico') return send(res, 200, FAVICON, { 'Content-Type': 'image/svg+xml', 'Cache-Control': 'public, max-age=86400' });
       if (p === '/healthz') { await db.q('select 1'); return send(res, 200, { ok: true }); }
+      if (p === '/demo' || p === '/demo/') {
+        return send(res, 200, demoPage(), { 'Content-Type': 'text/html; charset=utf-8', 'Content-Security-Policy': CSP.replace("img-src 'self' data: blob:", "img-src 'self' data: blob: https://images.unsplash.com").replace("object-src 'none'", "object-src blob:"), 'Referrer-Policy': 'no-referrer', 'Cache-Control': 'no-cache', 'X-Robots-Tag': 'noindex' });
+      }
       if (p === '/' || p === '/index.html') {
         return send(res, 200, page(), { 'Content-Type': 'text/html; charset=utf-8', 'Content-Security-Policy': CSP, 'Referrer-Policy': 'no-referrer', 'Cache-Control': 'no-cache' });
       }

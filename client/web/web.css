@@ -114,3 +114,4 @@ body:has(> .tour-switch) .content:has(> .demo-banner) .main { padding-top: 24px;
 @media (min-width: 640px) { body:has(> .tour-switch) .demo-banner { margin-right: 190px; } }
 @media (min-width: 900px) { body:has(> .tour-switch) .demo-banner { width: auto; margin-left: 16px; } }
 @media (max-width: 639px) { body:has(> .tour-switch) .demo-banner { margin-top: 56px; } }
+.land-demo-trip { background: #B8583A; color: #fff; }

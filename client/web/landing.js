@@ -117,8 +117,11 @@
   function demoCard() {
     return h('section', { class: 'card land-demo' },
       h('span', { class: 'land-demo-ic', 'aria-hidden': 'true' }, '👀'),
-      h('div', { class: 'land-demo-text' }, h('strong', {}, 'Just looking?'), h('span', { class: 'sub' }, 'Try a demo home: a made-up family with 3 months of plans, meals, chores and photos.')),
-      h('a', { class: 'btn primary big', href: '/demo' }, 'Try a demo home'));
+      h('div', { class: 'land-demo-text' }, h('strong', {}, 'Just looking?'), h('span', { class: 'sub' }, window.KAL_TRIPLY
+        ? 'Try a demo: a made-up family home with 3 months of plans, or a 14-day family trip to France and Italy.'
+        : 'Try a demo home: a made-up family with 3 months of plans, meals, chores and photos.')),
+      h('div', { class: 'btn-row' }, h('a', { class: 'btn primary big', href: '/demo' }, 'Try a demo home'),
+        window.KAL_TRIPLY ? h('a', { class: 'btn big land-demo-trip', href: TRIPLY_BASE + '/demo' }, 'Try a demo trip') : null));
   }
 
   function steps() {

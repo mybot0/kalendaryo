@@ -107,9 +107,9 @@ function register(r, d) {
     }
     const { rows } = await db.q(
       `update trips set name=$2, destination=$3, route=$4, start_date=$5, end_date=$6, description=$7,
-              cover_emoji=$8, cover_color=$9, cover_blob=$10, viewers_chat=$11, updated_at=now()
+              cover_emoji=$8, cover_color=$9, cover_blob=$10, viewers_chat=$11, budget=$12, budget_currency=$13, updated_at=now()
         where id=$1 returning *`,
-      [trip.id, t.name, t.destination, t.route, t.start_date, t.end_date, t.description, t.cover_emoji, t.cover_color, cover, t.viewers_chat]
+      [trip.id, t.name, t.destination, t.route, t.start_date, t.end_date, t.description, t.cover_emoji, t.cover_color, cover, t.viewers_chat, t.budget, t.budget_currency]
     );
     if (trip.cover_blob && trip.cover_blob !== cover) await db.q('delete from blobs where id = $1 and trip_id = $2', [trip.cover_blob, trip.id]);
     hub.publish(trip.id, 'trip', { by: member.id });
