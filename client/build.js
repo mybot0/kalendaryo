@@ -11,9 +11,9 @@ const root = __dirname;
 const target = process.argv[2] || 'artifact';
 const rd = (p) => fs.readFileSync(path.join(root, p), 'utf8');
 
-const css = ['theme', 'base', 'components', 'shell', 'screens', 'chores', 'lists', 'meals'];
+const css = ['theme', 'base', 'components', 'shell', 'screens', 'chores', 'lists', 'meals', 'cozy'];
 const js = ['config', 'util', 'models', 'recurrence', 'store', 'calendar-data', 'chores-data', 'routines-data', 'rewards-data', 'event-actions', 'data-tools', 'ics',
-  'ui-kit', 'pin', 'event-ui', 'holidays', 'weather', 'photos', 'wall', 'notify', 'screens/family', 'screens/routines', 'screens/rewards', 'screens/tasks', 'screens/lists', 'screens/notes', 'screens/photos', 'screens/meals', 'screens/countdowns', 'screens/dashboard', 'screens/calendar', 'screens/settings',
+  'ui-kit', 'look', 'pin', 'event-ui', 'holidays', 'weather', 'photos', 'wall', 'notify', 'screens/family', 'screens/routines', 'screens/rewards', 'screens/tasks', 'screens/lists', 'screens/notes', 'screens/photos', 'screens/meals', 'screens/countdowns', 'screens/dashboard', 'screens/calendar', 'screens/settings',
   'shell', 'main'];
 
 const web = target === 'web';

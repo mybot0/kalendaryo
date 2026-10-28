@@ -94,9 +94,17 @@
     return el;
   }
 
+  // A drawing from the Cozy look (look.js) when there is one, otherwise the plain icon.
+  function emptyArt(name) {
+    const svg = name && TR.look ? TR.look.art(name) : '';
+    if (!svg) return null;
+    const d = h('div', { class: 'empty-art' });
+    d.innerHTML = svg; // our own drawings only
+    return d;
+  }
   function emptyState(o) {
     return h('div', { class: 'empty-state' },
-      o.icon ? h('div', { class: 'empty-icon' }, icon(o.icon)) : null,
+      emptyArt(o.art || o.icon) || (o.icon ? h('div', { class: 'empty-icon' }, icon(o.icon)) : null),
       h('h3', {}, o.title),
       o.text ? h('p', {}, o.text) : null,
       o.action ? o.action : null);

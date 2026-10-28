@@ -154,7 +154,7 @@
       const list = session.expenses();
       const by = TR.money.compute(list, session.state.members);
       const head = h('div', { class: 'page-head' }, h('h1', {}, 'Costs'), canWrite() ? ui.button('Add cost', { icon: 'plus', variant: 'primary', onClick: () => expenseSheet(session, null) }) : null);
-      if (!list.length) return root.replaceChildren(head, h('div', { class: 'card' }, ui.emptyState({ icon: 'ticket', title: 'No costs yet', text: 'Add what you pay for on the trip. Triply keeps track of who owes whom, so nobody needs a spreadsheet.', action: canWrite() ? ui.button('Add the first cost', { icon: 'plus', variant: 'primary', onClick: () => expenseSheet(session, null) }) : null })));
+      if (!list.length) return root.replaceChildren(head, h('div', { class: 'card' }, ui.emptyState({ icon: 'ticket', art: 'receipt', title: 'No costs yet', text: 'Add what you pay for on the trip. Triply keeps track of who owes whom, so nobody needs a spreadsheet.', action: canWrite() ? ui.button('Add the first cost', { icon: 'plus', variant: 'primary', onClick: () => expenseSheet(session, null) }) : null })));
       root.replaceChildren(head, h('div', { class: 'people-grid' },
         h('div', { class: 'stack' }, ...[budgetCard(session, by)].concat(summary(by) || []).filter(Boolean)),
         h('section', { class: 'stack' }, h('h2', {}, 'All costs'), h('div', { class: 'card-list' }, list.map(row)))));

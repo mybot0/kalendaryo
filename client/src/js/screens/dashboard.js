@@ -61,7 +61,7 @@
   function familyWidget() {
     const members = PL.state.members;
     if (!members.length) {
-      return ui.emptyState({ icon: 'users', title: 'No one here yet', text: 'Add your family to color-code the calendar.', action: ui.button('Add family', { icon: 'plus', onClick: open('family', { add: true }) }) });
+      return ui.emptyState({ icon: 'users', title: 'No one here yet', text: 'Add the people you live with to color-code the calendar.', action: ui.button('Add people', { icon: 'plus', onClick: open('family', { add: true }) }) });
     }
     const today = D.today();
     const all = PL.cal.instances(today, today, { all: true });
@@ -87,7 +87,7 @@
   PL.widgetRegistry = {
     today:    { title: 'Today',      screen: 'calendar', params: () => ({ view: 'day', date: D.today() }), render: todayWidget },
     chores:   { title: 'Chores',     screen: 'tasks',    render: () => PL.choresUi.widget() },
-    family:   { title: 'Family',     screen: 'family',   render: familyWidget },
+    family:   { title: 'People',     screen: 'family',   render: familyWidget },
     week:     { title: 'This week',  screen: 'calendar', params: () => ({ view: 'week', date: D.today() }), render: weekWidget },
     meals:    { title: 'Meals',      screen: 'meals',    render: mealsWidget },
     photos:   { title: 'Photos',     screen: 'photos',   render: () => PL.photosUi.widget() },
@@ -140,14 +140,14 @@
         const fresh = !state.members.length && !state.events.length;
         const welcome = fresh && state.ready ? h('section', { class: 'welcome card' },
           h('h2', {}, 'Welcome to ' + PL.config.appName),
-          h('p', {}, 'Start by adding your family. Everyone gets a color, so you can see at a glance who needs to be where.'),
+          h('p', {}, 'Start by adding the people you live with. Everyone gets a color, so you can see at a glance who needs to be where.'),
           h('div', { class: 'btn-row' },
-            ui.button('Add my family', { variant: 'primary', big: true, icon: 'users', onClick: open('family', { add: true }) }),
+            ui.button('Add people', { variant: 'primary', big: true, icon: 'users', onClick: open('family', { add: true }) }),
             ui.button('Try a sample family', { big: true, icon: 'sparkle', onClick: async () => { if (await PL.data.loadSample()) ui.toast('Sample family added. You can remove it in Settings.'); } }))) : null;
 
         const grid = h('div', { class: 'widget-grid' }, state.device.widgets.filter((w) => w.visible && PL.widgetRegistry[w.id]).map((w) => {
           const def = PL.widgetRegistry[w.id];
-          return h('section', { class: 'widget size-' + w.size, 'aria-label': def.title },
+          return h('section', { class: 'widget size-' + w.size, 'data-w': w.id, 'aria-label': def.title },
             h('div', { class: 'widget-head' }, h('h2', {}, def.title),
               def.screen ? h('button', { type: 'button', class: 'link-btn', onclick: open(def.screen, def.params ? def.params() : undefined) }, 'Open', icon('right')) : null),
             def.render());

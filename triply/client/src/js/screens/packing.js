@@ -19,6 +19,21 @@
       footer: [ui.button('Delete', { variant: 'danger', icon: 'trash', onClick: async () => { try { await session.req('DELETE', '/packing/' + x.id); await session.refresh(); s.close(); } catch (e) { ui.toast(e.message); } } }), h('span', { class: 'spacer' }), ui.button('Cancel', { variant: 'ghost', big: true, onClick: () => s.close() }), save] });
   }
 
+  // Starter lists for an empty packing list: one tap adds a sensible set of things.
+  const STARTERS = [
+    { label: '🛂 Documents', items: [['Passports', 'Documents'], ['Travel insurance', 'Documents'], ['Booking confirmations', 'Documents'], ["Driver's licence", 'Documents'], ['Credit and debit cards', 'Documents'], ['Some cash', 'Documents']] },
+    { label: '🏖️ Beach', items: [['Swimsuits', 'Clothes'], ['Sun hats', 'Clothes'], ['Flip-flops', 'Clothes'], ['Sunscreen', 'Toiletries'], ['After-sun lotion', 'Toiletries'], ['Sunglasses', 'Other'], ['Beach towels', 'Other']] },
+    { label: '⛷️ Ski', items: [['Ski jackets', 'Clothes'], ['Snow pants', 'Clothes'], ['Thermal layers', 'Clothes'], ['Gloves', 'Clothes'], ['Toques', 'Clothes'], ['Goggles', 'Other'], ['Lip balm', 'Toiletries']] },
+    { label: '🧸 With kids', items: [['Snacks for the trip', 'Other'], ['Tablet and headphones', 'Tech'], ['Wipes', 'Toiletries'], ["Kids' medicine", 'Health'], ['Favourite toy', 'Other'], ['Spare clothes', 'Clothes'], ['Chargers', 'Tech']] }
+  ];
+  async function addStarter(session, s, btn) {
+    btn.disabled = true;
+    let n = 0;
+    try { for (const [title, category] of s.items) { await session.req('POST', '/packing', { title, category }); n++; } } catch (e) { ui.toast(e.message); }
+    await session.refresh();
+    if (n) ui.toast('Added ' + n + ' things. Change or remove anything.');
+  }
+
   function mount(root, ctx) {
     const session = ctx.session;
     let filter = 'all', newCat = '', newWho = '';
@@ -57,7 +72,8 @@
         all.length ? h('div', { class: 'pack-bar', role: 'progressbar', 'aria-valuemin': 0, 'aria-valuemax': all.length, 'aria-valuenow': done }, h('span', { style: 'width:' + Math.round((done / all.length) * 100) + '%' })) : null,
         canEdit() ? h('div', { class: 'card stack pack-add' }, h('div', { class: 'copy-box' }, input, ui.button('Add', { icon: 'plus', variant: 'primary', onClick: add })), h('div', { class: 'row2' }, catSel, whoSel)) : null,
         all.length ? h('div', { class: 'it-bar', style: 'margin-top:14px' }, seg.el) : null,
-        !all.length ? h('div', { class: 'card' }, ui.emptyState({ icon: 'bag', title: 'Nothing on the list yet', text: canEdit() ? 'Add passports, chargers, sunscreen. Everyone sees the list and can tick things off.' : 'The list appears here once an editor adds things.' })) : null,
+        !all.length ? h('div', { class: 'card' }, ui.emptyState({ icon: 'bag', title: 'Nothing on the list yet', text: canEdit() ? 'Add passports, chargers, sunscreen, or start with a ready-made list. Everyone sees the list and can tick things off.' : 'The list appears here once an editor adds things.',
+          action: canEdit() ? h('div', { class: 'btn-row', style: 'justify-content:center' }, STARTERS.map((s) => { const b = ui.button(s.label, { onClick: () => addStarter(session, s, b) }); return b; })) : null })) : null,
         list.length ? cats.filter((c) => list.some((x) => (x.category || '') === c)).map((c) => h('section', { class: 'book-group', style: 'margin-top:14px' }, h('h2', { style: 'margin-bottom:8px' }, c || 'Other things'), h('div', { class: 'card pack-card' }, list.filter((x) => (x.category || '') === c).map(row)))) : (all.length ? h('p', { class: 'sub', style: 'margin-top:14px' }, filter === 'mine' ? 'Nothing is assigned to you.' : 'Everything is packed. 🎉') : null)].flat().filter(Boolean));
     }
     render();

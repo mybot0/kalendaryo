@@ -111,6 +111,7 @@
         if (!mounted) {
           mounted = true;
           main.replaceChildren();
+          main.dataset.screen = r.screen; // lets cozy.css color each section
           current = TR.screens[r.screen].mount(main, { session, route: r });
           document.title = session.trip().name + ' · ' + TR.config.appName;
           main.focus({ preventScroll: true });
@@ -127,6 +128,7 @@
     const mode = r.name === 'trips' || r.name === 'device' ? 'home' : 'none';
     setRail(mode, r);
     document.title = (r.name === 'device' ? 'Settings · ' : '') + TR.config.appName;
+    main.dataset.screen = r.name;
     current = TR.screens[r.name === 'trips' ? 'trips' : r.name].mount(main, r);
     main.focus({ preventScroll: true });
   }

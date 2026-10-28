@@ -1,0 +1,41 @@
+/*
+ * cozy.css — the "Cozy look". Decoration only: section colors, colored top edges,
+ * a very light fade on empty boxes, and the size of the empty-state drawings (look.js).
+ * To turn it off, remove 'cozy' from the style list in build.js. To redesign, edit this file.
+ * A seasonal pack can later override just the --edge colors below.
+ */
+
+/* Section colors. One place to change them. */
+.widget[data-w="today"]      { --edge: #E9806E; }
+.widget[data-w="chores"]     { --edge: #F2C14E; }
+.widget[data-w="family"]     { --edge: #F4A7BB; }
+.widget[data-w="week"]       { --edge: #7FB8E8; }
+.widget[data-w="upcoming"]   { --edge: #9EC9E8; }
+.widget[data-w="meals"]      { --edge: #8CC5A8; }
+.widget[data-w="countdowns"] { --edge: #C7B7EA; }
+.widget[data-w="photos"]     { --edge: #F6C28E; }
+.widget[data-w="weather"]    { --edge: #9FD0F0; }
+.main[data-screen="calendar"]   { --edge: #7FB8E8; }
+.main[data-screen="tasks"]      { --edge: #F2C14E; }
+.main[data-screen="meals"]      { --edge: #8CC5A8; }
+.main[data-screen="lists"]      { --edge: #7FC8B8; }
+.main[data-screen="notes"]      { --edge: #7FC8B8; }
+.main[data-screen="photos"]     { --edge: #F6C28E; }
+.main[data-screen="family"]     { --edge: #F4A7BB; }
+.main[data-screen="countdowns"] { --edge: #C7B7EA; }
+.main[data-screen="home"] .welcome { --edge: #3E7A5E; }
+
+/* Solid boxes with a thin colored strip on top (drawn inside, so nothing moves). */
+.widget, .main .card { background: var(--surface); }
+.widget[data-w], .main[data-screen] .card { box-shadow: inset 0 5px 0 var(--edge, transparent), var(--shadow); }
+.main[data-screen="settings"] .card, .sheet .card { box-shadow: var(--shadow); }
+
+/* Empty boxes: a very light fade at the bottom. Full boxes stay plain white. */
+.widget:has(.empty-state), .main .card:has(> .empty-state) {
+  background: linear-gradient(180deg, var(--surface) 62%, color-mix(in srgb, var(--edge, #E3ECE4) 9%, var(--surface)) 100%);
+}
+
+/* Empty-state drawings */
+.empty-art { width: 210px; max-width: 70%; margin: 0 auto 2px; line-height: 0; }
+.empty-art svg { width: 100%; height: auto; display: block; }
+.widget .empty-art { width: 150px; }

@@ -46,7 +46,12 @@
         inTrip && todayRows.length ? h('div', { class: 'card-list' }, todayRows.map((r) => plan.card(session, r.item, { role: r.role })))
           : next ? [h('div', { class: 'sub' }, plan.when(next, true)), plan.card(session, next, { role: 'start' })]
           : ui.emptyState({ icon: 'calendar', title: items.length ? 'Nothing coming up' : 'No plans yet', text: items.length ? 'All the plans on this trip are in the past.' : 'Add a flight, a hotel or a restaurant to get started.',
-              action: session.can('items.write') ? ui.button('Add a plan', { icon: 'plus', variant: 'primary', onClick: () => TR.forms.typePicker(session) }) : null }),
+              // A brand-new trip gets the three ways to start; later it is just "Add a plan".
+              action: !session.can('items.write') ? null : items.length ? ui.button('Add a plan', { icon: 'plus', variant: 'primary', onClick: () => TR.forms.typePicker(session) })
+                : h('div', { class: 'btn-row', style: 'justify-content:center' },
+                  ui.button('Upload bookings', { icon: 'sparkle', variant: 'gold', onClick: () => TR.ai.bookings(session) }),
+                  ui.button('Build a trip for me', { icon: 'sparkle', onClick: () => TR.ai.plan(session) }),
+                  ui.button('Add by hand', { icon: 'plus', variant: 'primary', onClick: () => TR.forms.typePicker(session) })) }),
         inTrip && todayRows.length && next && !todayRows.some((r) => r.item.id === next.id) ? [h('span', { class: 'next-label' }, 'After that'), plan.card(session, next, { role: 'start' })] : null);
 
       const comingUp = upcoming.length ? h('section', { class: 'card stack' }, h('h2', {}, 'Coming up'),
