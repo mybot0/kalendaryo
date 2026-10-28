@@ -66,9 +66,9 @@
       trip ? null : h('div', { class: 'sect' }, h('h4', {}, 'About you'), ui.field('Your name', ownName), h('div', { class: 'field' }, h('span', { class: 'field-label' }, 'Your picture'), ownAv.el)),
       err, h('button', { type: 'submit', hidden: true }));
 
-    const saveBtn = ui.button(trip ? 'Save' : 'Create trip', { variant: 'primary', big: true, onClick: () => save() });
+    const saveBtn = ui.button(trip ? 'Save' : o.thenPlan ? 'Next' : 'Create trip', { variant: 'primary', big: true, onClick: () => save() });
     const sheet = ui.sheet({
-      title: trip ? 'Trip details' : 'New trip', body,
+      title: trip ? 'Trip details' : o.thenPlan ? '✨ Build a trip for me' : 'New trip', body,
       footer: [
         trip && session.can('trip.delete') ? ui.button('Delete trip', { variant: 'danger', icon: 'trash', onClick: () => removeTrip() }) : null,
         h('span', { class: 'spacer' }),
@@ -86,6 +86,7 @@
       err.textContent = '';
       if (!name.value.trim()) { err.textContent = 'Please give the trip a name.'; name.focus(); return; }
       if (!trip && !ownName.value.trim()) { err.textContent = 'Please add your name.'; ownName.focus(); return; }
+      if (o.thenPlan && (!start.value || !end.value)) { err.textContent = 'Please pick the dates so we can plan each day.'; (start.value ? end : start).focus(); return; }
       const payload = { name: name.value, destination: dest.value, route: route.value, start_date: start.value || null, end_date: end.value || null, cover_emoji: emoji.get(), cover_color: color.get() };
       saveBtn.disabled = true;
       try {
@@ -103,6 +104,7 @@
           TR.profile.set({ name: ownName.value, avatar: ownAv.get() });
           if (newPhoto) { try { const b = await TR.api.upload(r.trip.id, r.token, newPhoto); await TR.api.call('PATCH', '/trips/' + r.trip.id, { token: r.token, body: { cover_blob: b.id } }); } catch (e) { /* the cover can be added later */ } }
           sheet.close();
+          if (o.thenPlan) { TR.planNext = r.trip.id; TR.go('/trip/' + r.trip.id + '/itinerary'); return; }
           TR.go('/trip/' + r.trip.id + '/overview');
           linkSheet(r.token, 'Your trip is ready');
         }

@@ -1,5 +1,5 @@
 /*
- * ai.js — "✨ Add bookings for me" and "✨ Plan my trip with AI".
+ * ai.js — "✨ Add bookings for me" and "✨ Build a trip for me".
  *   TR.ai.bookings(session)   upload / paste / flight number -> preview -> add the ones you tick
  *   TR.ai.plan(session)       describe the trip -> draft plan + rough cost -> add what you tick
  * The server does the AI work (server/ai.js) and only suggests; plans are added with the normal routes.
@@ -166,7 +166,7 @@
       footer: [ui.button('Type it in myself', { variant: 'ghost', onClick: () => { s.close(); TR.forms.typePicker(session); } }), h('span', { class: 'spacer' }), ui.button('Cancel', { variant: 'ghost', big: true, onClick: () => s.close() }), addBtn] });
   }
 
-  /* ---------- ✨ Plan my trip with AI ---------- */
+  /* ---------- ✨ Build a trip for me ---------- */
   function plan(session) {
     const trip = session.trip();
     const route = (trip.route || []).slice();
@@ -263,14 +263,14 @@
         await session.refresh(); s.close(); ui.toast(n + ' plans added to your trip. 🎉');
       } catch (e) { ui.toast(e.message); addBtn.disabled = false; }
     }
-    const s = ui.sheet({ title: '✨ Plan my trip with AI', wide: true, body: h('div', { class: 'stack' }, form, leftNote, out),
+    const s = ui.sheet({ title: '✨ Build a trip for me', wide: true, body: h('div', { class: 'stack' }, form, leftNote, out),
       footer: [again, h('span', { class: 'spacer' }), ui.button('Close', { variant: 'ghost', big: true, onClick: () => s.close() }), go, addBtn] });
   }
 
   // The two buttons, for page headers. Hidden for viewers.
   function buttons(session) {
     if (!session.can('items.write')) return [];
-    return [ui.button('Add bookings', { icon: 'sparkle', variant: 'gold', onClick: () => bookings(session) }), ui.button('Plan with AI', { icon: 'sparkle', onClick: () => plan(session) })];
+    return [ui.button('Add bookings', { icon: 'sparkle', variant: 'gold', onClick: () => bookings(session) }), ui.button('Build a trip for me', { icon: 'sparkle', onClick: () => plan(session) })];
   }
 
   TR.ai = { bookings, plan, buttons };

@@ -39,6 +39,24 @@
 .tc-meta { color: var(--ink-2); font-size: .88rem; display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: center; }
 .tc-meta .ic { width: 15px; height: 15px; vertical-align: -2px; }
 .tc-when { color: var(--primary); font-weight: 700; font-size: .85rem; }
+/* My Trips: the "+ New trip" map tile and the "✨ Build a trip for me" tile, same size as a trip card. */
+.new-tile, .ai-tile { position: relative; overflow: hidden; border: 0; border-radius: var(--radius); box-shadow: var(--shadow); min-height: 250px; padding: 20px; text-align: left; display: flex; flex-direction: column; font: inherit; cursor: pointer; }
+.new-tile:hover, .ai-tile:hover { transform: translateY(-1px); filter: brightness(1.02); }
+.tile-art { position: absolute; inset: 0; width: 100%; height: 100%; }
+.new-tile { background: #F6F0E4; color: var(--ink); justify-content: center; }
+.nt-text, .nt-btn, .ai-kicker, .ai-title, .ai-sub, .ai-foot { position: relative; }
+.nt-text { display: flex; flex-direction: column; gap: 2px; margin-top: 18px; }
+.nt-text b { font-family: var(--font-head); font-size: 1.6rem; line-height: 1.15; }
+.nt-text span { color: var(--ink-2); font-size: .95rem; }
+.nt-btn { margin-top: auto; align-self: flex-start; display: inline-flex; align-items: center; gap: 6px; background: var(--primary); color: #fff; font-weight: 700; border-radius: 999px; padding: 10px 20px; }
+.nt-btn svg { width: 18px; height: 18px; }
+.ai-tile { background: #26323D; color: #fff; }
+.ai-kicker { font-weight: 700; font-size: .9rem; }
+.ai-title { font-family: var(--font-head); font-weight: 800; font-size: 1.65rem; line-height: 1.18; margin-top: 6px; }
+.ai-sub { color: #F4EEE6; font-size: .95rem; margin-top: 8px; line-height: 1.4; }
+.ai-foot { margin-top: auto; padding-top: 16px; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.ai-go { background: #FFD666; color: #26302B; font-weight: 800; border-radius: 999px; padding: 10px 22px; }
+.ai-free { font-weight: 700; font-size: .85rem; }
 .add-card { border: 2px dashed var(--line); background: none; border-radius: var(--radius); min-height: 150px; display: grid; place-items: center; color: var(--ink-2); font-weight: 700; gap: 6px; }
 .add-card:hover { border-color: var(--primary); color: var(--primary); background: var(--primary-soft); }
 .add-card span { display: flex; flex-direction: column; align-items: center; gap: 6px; }

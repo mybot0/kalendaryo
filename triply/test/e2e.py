@@ -43,7 +43,7 @@ with sync_playwright() as p:
     A.goto(BASE + '/')
     expect(A.get_by_role('heading', name='My Trips')).to_be_visible()
     shot(A, '01-empty')
-    A.get_by_role('button', name='Plan a trip').click()
+    A.get_by_role('button', name=re.compile('New trip')).click()
     A.get_by_label('Trip name').fill('Spain & Mediterranean Cruise')
     A.get_by_label('Destination').fill('Spain')
     A.get_by_label('Route').fill('Vancouver → Madrid → Barcelona')

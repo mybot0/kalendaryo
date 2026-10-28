@@ -259,6 +259,24 @@ input:focus, select:focus, textarea:focus { border-color: var(--primary); outlin
 .tc-meta { color: var(--ink-2); font-size: .88rem; display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: center; }
 .tc-meta .ic { width: 15px; height: 15px; vertical-align: -2px; }
 .tc-when { color: var(--primary); font-weight: 700; font-size: .85rem; }
+/* My Trips: the "+ New trip" map tile and the "✨ Build a trip for me" tile, same size as a trip card. */
+.new-tile, .ai-tile { position: relative; overflow: hidden; border: 0; border-radius: var(--radius); box-shadow: var(--shadow); min-height: 250px; padding: 20px; text-align: left; display: flex; flex-direction: column; font: inherit; cursor: pointer; }
+.new-tile:hover, .ai-tile:hover { transform: translateY(-1px); filter: brightness(1.02); }
+.tile-art { position: absolute; inset: 0; width: 100%; height: 100%; }
+.new-tile { background: #F6F0E4; color: var(--ink); justify-content: center; }
+.nt-text, .nt-btn, .ai-kicker, .ai-title, .ai-sub, .ai-foot { position: relative; }
+.nt-text { display: flex; flex-direction: column; gap: 2px; margin-top: 18px; }
+.nt-text b { font-family: var(--font-head); font-size: 1.6rem; line-height: 1.15; }
+.nt-text span { color: var(--ink-2); font-size: .95rem; }
+.nt-btn { margin-top: auto; align-self: flex-start; display: inline-flex; align-items: center; gap: 6px; background: var(--primary); color: #fff; font-weight: 700; border-radius: 999px; padding: 10px 20px; }
+.nt-btn svg { width: 18px; height: 18px; }
+.ai-tile { background: #26323D; color: #fff; }
+.ai-kicker { font-weight: 700; font-size: .9rem; }
+.ai-title { font-family: var(--font-head); font-weight: 800; font-size: 1.65rem; line-height: 1.18; margin-top: 6px; }
+.ai-sub { color: #F4EEE6; font-size: .95rem; margin-top: 8px; line-height: 1.4; }
+.ai-foot { margin-top: auto; padding-top: 16px; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.ai-go { background: #FFD666; color: #26302B; font-weight: 800; border-radius: 999px; padding: 10px 22px; }
+.ai-free { font-weight: 700; font-size: .85rem; }
 .add-card { border: 2px dashed var(--line); background: none; border-radius: var(--radius); min-height: 150px; display: grid; place-items: center; color: var(--ink-2); font-weight: 700; gap: 6px; }
 .add-card:hover { border-color: var(--primary); color: var(--primary); background: var(--primary-soft); }
 .add-card span { display: flex; flex-direction: column; align-items: center; gap: 6px; }
@@ -1403,9 +1421,9 @@ mark { background: rgba(184,88,58,.2); color: inherit; border-radius: 4px; paddi
       trip ? null : h('div', { class: 'sect' }, h('h4', {}, 'About you'), ui.field('Your name', ownName), h('div', { class: 'field' }, h('span', { class: 'field-label' }, 'Your picture'), ownAv.el)),
       err, h('button', { type: 'submit', hidden: true }));
 
-    const saveBtn = ui.button(trip ? 'Save' : 'Create trip', { variant: 'primary', big: true, onClick: () => save() });
+    const saveBtn = ui.button(trip ? 'Save' : o.thenPlan ? 'Next' : 'Create trip', { variant: 'primary', big: true, onClick: () => save() });
     const sheet = ui.sheet({
-      title: trip ? 'Trip details' : 'New trip', body,
+      title: trip ? 'Trip details' : o.thenPlan ? '✨ Build a trip for me' : 'New trip', body,
       footer: [
         trip && session.can('trip.delete') ? ui.button('Delete trip', { variant: 'danger', icon: 'trash', onClick: () => removeTrip() }) : null,
         h('span', { class: 'spacer' }),
@@ -1423,6 +1441,7 @@ mark { background: rgba(184,88,58,.2); color: inherit; border-radius: 4px; paddi
       err.textContent = '';
       if (!name.value.trim()) { err.textContent = 'Please give the trip a name.'; name.focus(); return; }
       if (!trip && !ownName.value.trim()) { err.textContent = 'Please add your name.'; ownName.focus(); return; }
+      if (o.thenPlan && (!start.value || !end.value)) { err.textContent = 'Please pick the dates so we can plan each day.'; (start.value ? end : start).focus(); return; }
       const payload = { name: name.value, destination: dest.value, route: route.value, start_date: start.value || null, end_date: end.value || null, cover_emoji: emoji.get(), cover_color: color.get() };
       saveBtn.disabled = true;
       try {
@@ -1440,6 +1459,7 @@ mark { background: rgba(184,88,58,.2); color: inherit; border-radius: 4px; paddi
           TR.profile.set({ name: ownName.value, avatar: ownAv.get() });
           if (newPhoto) { try { const b = await TR.api.upload(r.trip.id, r.token, newPhoto); await TR.api.call('PATCH', '/trips/' + r.trip.id, { token: r.token, body: { cover_blob: b.id } }); } catch (e) { /* the cover can be added later */ } }
           sheet.close();
+          if (o.thenPlan) { TR.planNext = r.trip.id; TR.go('/trip/' + r.trip.id + '/itinerary'); return; }
           TR.go('/trip/' + r.trip.id + '/overview');
           linkSheet(r.token, 'Your trip is ready');
         }
@@ -1644,7 +1664,7 @@ mark { background: rgba(184,88,58,.2); color: inherit; border-radius: 4px; paddi
     function render() {
       const today = D.today();
       const head = h('div', { class: 'page-head' }, h('h1', {}, 'My Trips'),
-        h('div', { class: 'btn-row' }, ui.button('Open a link', { icon: 'link', onClick: openLink }), ui.button('New trip', { icon: 'plus', variant: 'primary', onClick: () => TR.forms.tripSheet() })));
+        h('div', { class: 'btn-row' }, ui.button('Open a link', { icon: 'link', onClick: openLink })));
       if (trips === null) return root.replaceChildren(head, h('p', { class: 'loading' }, 'Loading your trips…'));
 
       const groups = {
@@ -1660,17 +1680,43 @@ mark { background: rgba(184,88,58,.2); color: inherit; border-radius: 4px; paddi
 
       if (!trips.length) {
         return root.replaceChildren(...[head, error ? h('p', { class: 'warn-box' }, error) : null,
-          h('div', { class: 'card' }, ui.emptyState({ icon: 'bag', title: 'No trips on this device yet', text: 'Plan a new trip, or open the link someone sent you to join theirs.',
-            action: h('div', { class: 'btn-row' }, ui.button('Plan a trip', { icon: 'plus', variant: 'primary', big: true, onClick: () => TR.forms.tripSheet() }), ui.button('Open a link', { icon: 'link', big: true, onClick: openLink })) }))].filter(Boolean));
+          h('div', { class: 'trip-grid' }, newTile(), aiTile())].filter(Boolean));
       }
       const labels = { current: 'Current', upcoming: 'Upcoming', past: 'Past', shared: 'Shared with me' };
       const seg = ui.segmented(['current', 'upcoming', 'past', 'shared'].map((k) => ({ value: k, label: labels[k] + (groups[k].length ? ' · ' + groups[k].length : '') })), tab, (v) => { tab = v; render(); }, 'Show');
       const list = groups[tab];
       root.replaceChildren(...[head, error ? h('p', { class: 'warn-box', style: 'margin-bottom:12px' }, error) : null,
         h('div', { class: 'it-bar' }, seg.el),
-        list.length ? h('div', { class: 'trip-grid' }, list.map((t) => card(t, today)),
-          tab === 'upcoming' ? h('button', { type: 'button', class: 'add-card', onclick: () => TR.forms.tripSheet() }, h('span', {}, icon('plus'), 'New trip')) : null)
-          : h('div', { class: 'card' }, ui.emptyState({ icon: 'bag', title: 'Nothing here', text: tab === 'shared' ? 'Trips other people invite you to show up here.' : 'No ' + labels[tab].toLowerCase() + ' trips.' }))].filter(Boolean));
+        tab === 'current' || tab === 'upcoming'
+          ? h('div', { class: 'trip-grid' }, list.slice(0, 1).map((t) => card(t, today)), newTile(), aiTile(), list.slice(1).map((t) => card(t, today)))
+          : list.length ? h('div', { class: 'trip-grid' }, list.map((t) => card(t, today)))
+            : h('div', { class: 'card' }, ui.emptyState({ icon: 'bag', title: 'Nothing here', text: tab === 'shared' ? 'Trips other people invite you to show up here.' : 'No ' + labels[tab].toLowerCase() + ' trips.' }))].filter(Boolean));
+    }
+
+    // "+ New trip": a little map with a dotted path to a pin.
+    function newTile() {
+      return h('button', { type: 'button', class: 'new-tile', onclick: () => TR.forms.tripSheet() },
+        svg('<path d="M-10 60 Q80 40 120 90 T260 70 T340 110" stroke="#E4D6BE" stroke-width="18" fill="none"/><path d="M-10 200 Q90 170 160 210 T340 190" stroke="#D5E6DA" stroke-width="30" fill="none"/>' +
+          '<path d="M40 222 C90 132 150 212 200 132 S260 82 270 72" stroke="#A65E41" stroke-width="3" stroke-dasharray="2 9" stroke-linecap="round" fill="none"/>' +
+          '<circle cx="40" cy="222" r="7" fill="#fff" stroke="#A65E41" stroke-width="3"/><path d="M270 76 C256 60 256 42 270 38 C284 42 284 60 270 76Z" fill="#A65E41"/><circle cx="270" cy="54" r="6" fill="#fff"/>'),
+        h('span', { class: 'nt-text' }, h('b', {}, 'Where to next?'), h('span', {}, 'Start a trip and invite your people.')),
+        h('span', { class: 'nt-btn' }, icon('plus'), 'New trip'));
+    }
+    // "✨ Build a trip for me": the AI planner. It makes the trip first, then opens the planner inside it.
+    function aiTile() {
+      return h('button', { type: 'button', class: 'ai-tile', onclick: () => TR.forms.tripSheet({ thenPlan: true }) },
+        svg('<defs><linearGradient id="aiSky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#22374A"/><stop offset=".55" stop-color="#C98A5E"/><stop offset="1" stop-color="#F0C48A"/></linearGradient></defs>' +
+          '<rect width="320" height="280" fill="url(#aiSky)"/><circle cx="255" cy="185" r="20" fill="#FFE2A8" opacity=".9"/>' +
+          '<path d="M0 225 L60 180 L110 210 L170 165 L230 205 L280 185 L320 200 V280 H0Z" fill="#3B4A5A" opacity=".9"/><path d="M0 250 L80 225 L150 245 L230 228 L320 245 V280 H0Z" fill="#26323D"/>'),
+        h('span', { class: 'ai-kicker' }, '✨ Build a trip for me'),
+        h('span', { class: 'ai-title' }, 'Turn your idea', h('br'), 'into a trip'),
+        h('span', { class: 'ai-sub' }, 'Tell us where, when and who.', h('br'), 'We’ll plan the rest.'),
+        h('span', { class: 'ai-foot' }, h('span', { class: 'ai-go' }, '✨ Start'), h('span', { class: 'ai-free' }, '🎟️ 2 free plans')));
+    }
+    function svg(inner) {
+      const el = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      el.setAttribute('viewBox', '0 0 320 280'); el.setAttribute('preserveAspectRatio', 'xMidYMid slice'); el.setAttribute('aria-hidden', 'true'); el.setAttribute('class', 'tile-art');
+      el.innerHTML = inner; return el;
     }
 
     function openLink() {
@@ -1995,6 +2041,8 @@ mark { background: rgba(184,88,58,.2); color: inherit; border-radius: 4px; paddi
 
   function mount(root, ctx) {
     const session = ctx.session;
+    // Coming from "✨ Build a trip for me" on My Trips: the trip was just made, so open the planner.
+    if (TR.planNext && TR.planNext === session.trip().id) { TR.planNext = null; setTimeout(() => TR.ai.plan(session), 0); }
     let view = TR.storage.get('itView', 'timeline');
     if (!VIEWS.some((v) => v.value === view)) view = 'timeline';
     let day = null, weekStart = null;
@@ -2105,7 +2153,7 @@ mark { background: rgba(184,88,58,.2); color: inherit; border-radius: 4px; paddi
     }
     function empty() {
       return ui.emptyState({ icon: 'calendar', title: 'Nothing planned yet', text: canAdd() ? 'Upload your flight and hotel bookings, let AI plan the whole trip, or add things yourself. Everyone on the trip sees them right away.' : 'Plans appear here when an editor adds them.',
-        action: canAdd() ? h('div', { class: 'btn-row', style: 'justify-content:center' }, ui.button('Upload bookings', { icon: 'sparkle', variant: 'gold', onClick: () => TR.ai.bookings(session) }), ui.button('Plan my trip with AI', { icon: 'sparkle', onClick: () => TR.ai.plan(session) }), addBtn('', 'Add by hand')) : null });
+        action: canAdd() ? h('div', { class: 'btn-row', style: 'justify-content:center' }, ui.button('Upload bookings', { icon: 'sparkle', variant: 'gold', onClick: () => TR.ai.bookings(session) }), ui.button('Build a trip for me', { icon: 'sparkle', onClick: () => TR.ai.plan(session) }), addBtn('', 'Add by hand')) : null });
     }
 
     function render() {
@@ -2952,7 +3000,7 @@ mark { background: rgba(184,88,58,.2); color: inherit; border-radius: 4px; paddi
 </script>
 <script>
 /*
- * ai.js — "✨ Add bookings for me" and "✨ Plan my trip with AI".
+ * ai.js — "✨ Add bookings for me" and "✨ Build a trip for me".
  *   TR.ai.bookings(session)   upload / paste / flight number -> preview -> add the ones you tick
  *   TR.ai.plan(session)       describe the trip -> draft plan + rough cost -> add what you tick
  * The server does the AI work (server/ai.js) and only suggests; plans are added with the normal routes.
@@ -3119,7 +3167,7 @@ mark { background: rgba(184,88,58,.2); color: inherit; border-radius: 4px; paddi
       footer: [ui.button('Type it in myself', { variant: 'ghost', onClick: () => { s.close(); TR.forms.typePicker(session); } }), h('span', { class: 'spacer' }), ui.button('Cancel', { variant: 'ghost', big: true, onClick: () => s.close() }), addBtn] });
   }
 
-  /* ---------- ✨ Plan my trip with AI ---------- */
+  /* ---------- ✨ Build a trip for me ---------- */
   function plan(session) {
     const trip = session.trip();
     const route = (trip.route || []).slice();
@@ -3216,14 +3264,14 @@ mark { background: rgba(184,88,58,.2); color: inherit; border-radius: 4px; paddi
         await session.refresh(); s.close(); ui.toast(n + ' plans added to your trip. 🎉');
       } catch (e) { ui.toast(e.message); addBtn.disabled = false; }
     }
-    const s = ui.sheet({ title: '✨ Plan my trip with AI', wide: true, body: h('div', { class: 'stack' }, form, leftNote, out),
+    const s = ui.sheet({ title: '✨ Build a trip for me', wide: true, body: h('div', { class: 'stack' }, form, leftNote, out),
       footer: [again, h('span', { class: 'spacer' }), ui.button('Close', { variant: 'ghost', big: true, onClick: () => s.close() }), go, addBtn] });
   }
 
   // The two buttons, for page headers. Hidden for viewers.
   function buttons(session) {
     if (!session.can('items.write')) return [];
-    return [ui.button('Add bookings', { icon: 'sparkle', variant: 'gold', onClick: () => bookings(session) }), ui.button('Plan with AI', { icon: 'sparkle', onClick: () => plan(session) })];
+    return [ui.button('Add bookings', { icon: 'sparkle', variant: 'gold', onClick: () => bookings(session) }), ui.button('Build a trip for me', { icon: 'sparkle', onClick: () => plan(session) })];
   }
 
   TR.ai = { bookings, plan, buttons };

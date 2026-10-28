@@ -142,6 +142,8 @@
 
   function mount(root, ctx) {
     const session = ctx.session;
+    // Coming from "✨ Build a trip for me" on My Trips: the trip was just made, so open the planner.
+    if (TR.planNext && TR.planNext === session.trip().id) { TR.planNext = null; setTimeout(() => TR.ai.plan(session), 0); }
     let view = TR.storage.get('itView', 'timeline');
     if (!VIEWS.some((v) => v.value === view)) view = 'timeline';
     let day = null, weekStart = null;
@@ -252,7 +254,7 @@
     }
     function empty() {
       return ui.emptyState({ icon: 'calendar', title: 'Nothing planned yet', text: canAdd() ? 'Upload your flight and hotel bookings, let AI plan the whole trip, or add things yourself. Everyone on the trip sees them right away.' : 'Plans appear here when an editor adds them.',
-        action: canAdd() ? h('div', { class: 'btn-row', style: 'justify-content:center' }, ui.button('Upload bookings', { icon: 'sparkle', variant: 'gold', onClick: () => TR.ai.bookings(session) }), ui.button('Plan my trip with AI', { icon: 'sparkle', onClick: () => TR.ai.plan(session) }), addBtn('', 'Add by hand')) : null });
+        action: canAdd() ? h('div', { class: 'btn-row', style: 'justify-content:center' }, ui.button('Upload bookings', { icon: 'sparkle', variant: 'gold', onClick: () => TR.ai.bookings(session) }), ui.button('Build a trip for me', { icon: 'sparkle', onClick: () => TR.ai.plan(session) }), addBtn('', 'Add by hand')) : null });
     }
 
     function render() {
