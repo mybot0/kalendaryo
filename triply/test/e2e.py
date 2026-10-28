@@ -64,7 +64,7 @@ with sync_playwright() as p:
     def add_plan(page, kind, fill):
         page.get_by_role('button', name='Itinerary').first.click()
         page.get_by_role('button', name='Add', exact=True).first.click()
-        page.get_by_role('button', name=kind).click()
+        page.get_by_role('button', name=kind, exact=True).click()
         fill(page)
         page.get_by_role('button', name='Add to trip').click()
         expect(page.get_by_text('Added to the trip.')).to_be_visible()

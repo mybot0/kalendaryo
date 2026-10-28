@@ -40,6 +40,34 @@ function register(r, d) {
     ok(c.res, { item: itemOut(rows[0]) });
   });
 
+  // Many plans at once (bookings read by AI, a planned trip). One chat post for all of them.
+  r.post('/trips/:id/items/bulk', async (c) => {
+    const { member, trip } = await auth.authenticate(c.req, c.params.id);
+    P.require(member, 'items.write', trip, 'Viewers can look at the plans but not change them.');
+    const body = await readJson(c.req, 1024 * 1024);
+    const list = (Array.isArray(body.items) ? body.items : []).slice(0, 200).map((x) => M.item(x, null));
+    if (!list.length) throw bad('invalid', 'There is nothing to add.');
+    const count = await db.q('select count(*)::int as n from items where trip_id = $1', [trip.id]);
+    if (count.rows[0].n + list.length > MAX_ITEMS) throw bad('too_many', 'A trip can hold up to ' + MAX_ITEMS + ' plans.');
+    const rows = await db.tx(async (cl) => {
+      const out = [];
+      for (const it of list) {
+        const r1 = await cl.query(`insert into items (trip_id, ${COLS}, created_by, updated_by) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$12) returning *`,
+          [trip.id, it.type, it.title, it.start_date, it.start_time, it.end_date, it.end_time, it.location, it.confirmation, it.notes, JSON.stringify(it.data), member.id]);
+        out.push(r1.rows[0]);
+      }
+      return out;
+    });
+    hub.publish(trip.id, 'items', { by: member.id });
+    if (rows.length === 1) await postActivity(db, hub, trip.id, member.id, 'added', rows[0]);
+    else {
+      const m = await db.q(`insert into messages (trip_id, sender_id, kind, meta) values ($1, $2, 'activity', $3)
+        returning id, sender_id, to_member, kind, body, mentions, blob_id, item_id, meta, created_at`, [trip.id, member.id, JSON.stringify({ event: 'bulk', count: rows.length, title: M.text(body.label, 80) })]);
+      hub.publish(trip.id, 'chat', { thread: 'trip', message: require('../shapes').messageOut(m.rows[0]) });
+    }
+    ok(c.res, { items: rows.map(itemOut) });
+  });
+
   r.patch('/trips/:id/items/:itemId', async (c) => {
     const { member, trip } = await auth.authenticate(c.req, c.params.id);
     P.require(member, 'items.write', trip, 'Viewers can look at the plans but not change them.');

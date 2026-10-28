@@ -23,10 +23,11 @@ fs.writeFileSync(htmlPath, '<!doctype html><title>Triply</title><!--TRIPLY_CONFI
 
 let triply, server, base;
 const quiet = { log() {}, error() {} };
-const BIG = { create: { windowMs: 1000, max: 100000 }, invite: { windowMs: 1000, max: 100000 }, message: { windowMs: 1000, max: 100000 }, upload: { windowMs: 1000, max: 100000 }, lookup: { windowMs: 1000, max: 100000 } };
+const BIG = { aiPlan: { windowMs: 1000, max: 100000 }, ai: { windowMs: 1000, max: 100000 }, aiAddr: { windowMs: 1000, max: 100000 }, create: { windowMs: 1000, max: 100000 }, invite: { windowMs: 1000, max: 100000 }, message: { windowMs: 1000, max: 100000 }, upload: { windowMs: 1000, max: 100000 }, lookup: { windowMs: 1000, max: 100000 } };
 
 test.before(async () => {
-  triply = createTriply({ databaseUrl: DATABASE_URL, schema, log: quiet, htmlPath, limits: BIG, maxBlobMb: 1, maxTripMb: 3, publicUrl: '' });
+  triply = createTriply({ databaseUrl: DATABASE_URL, schema, log: quiet, htmlPath, limits: BIG, maxBlobMb: 1, maxTripMb: 3, publicUrl: '',
+    aiFake: path.join(__dirname, 'fakes', 'ai.js'), aiDailyUsd: 2 }); // AI answers come from the stand-in; the cap is $2 a day here
   await triply.ready;
   server = http.createServer((req, res) => (triply.owns(req.url) ? triply.handle(req, res) : (res.writeHead(404), res.end())));
   await new Promise((r) => server.listen(0, '127.0.0.1', r));
@@ -681,4 +682,42 @@ test('message search only finds what the person may read', async () => {
   assert.equal((await search(t.token, '100%')).json.messages.length, 1, 'percent sign is literal');
   assert.equal((await search(t.token, '%%')).json.messages.length, 0);
   assert.equal((await api('GET', '/trips/' + t.id + '/search?q=casa')).status, 401);
+});
+
+test('AI: read a booking, find a flight, calendar files are free, viewers cannot, and the daily cap holds', async () => {
+  const t = await newTrip();
+  const v = await joined(t, 'viewer', 'Vic');
+  const st = await api('GET', '/trips/' + t.id + '/ai/status', { token: t.token });
+  assert.equal(st.json.enabled, true); assert.equal(st.json.resting, false);
+  const r = await api('POST', '/trips/' + t.id + '/ai/read', { token: t.token, body: { text: 'Air Canada booking 7XK2PQ' } });
+  assert.equal(r.status, 200); assert.equal(r.json.found.length, 3);
+  const hotel = r.json.found.find((x) => x.item.type === 'hotel');
+  assert.equal(hotel.price, 4650); assert.equal(hotel.item.data.room, 'Family suite');
+  assert.equal((await api('POST', '/trips/' + t.id + '/ai/read', { token: v.token, body: { text: 'x' } })).status, 403, 'viewers cannot use AI');
+  const f = await api('POST', '/trips/' + t.id + '/ai/flight', { token: t.token, body: { query: 'AC 880, Jun 4' } });
+  assert.equal(f.json.found[0].item.data.flightNo, 'AC 880'); assert.match(f.json.found[0].extra, /9 h 35/);
+  const ics = 'BEGIN:VCALENDAR\nBEGIN:VEVENT\nSUMMARY:Hotel stay - Shangri-La Paris\nDTSTART;VALUE=DATE:' + t.trip.start_date.replace(/-/g, '') + '\nLOCATION:Paris\nDESCRIPTION:Confirmation 88213X\nEND:VEVENT\nEND:VCALENDAR';
+  const c = await api('POST', '/trips/' + t.id + '/ai/read', { token: t.token, body: { text: ics } });
+  assert.equal(c.json.source, 'calendar'); assert.equal(c.json.found[0].item.type, 'hotel'); assert.equal(c.json.found[0].item.confirmation, '88213X');
+  const spend = await triply.db.q("select count(*)::int as n from ai_usage where trip_id = $1", [t.id]);
+  assert.equal(spend.rows[0].n, 2, 'the calendar file did not use AI');
+  const bulk = await api('POST', '/trips/' + t.id + '/items/bulk', { token: t.token, body: { items: r.json.found.map((x) => x.item), label: 'from a booking' } });
+  assert.equal(bulk.status, 200); assert.equal(bulk.json.items.length, 3);
+  // 2 free trip plans per person, then ask the owner for more
+  const planIt = () => api('POST', '/trips/' + t.id + '/ai/plan', { token: t.token, body: { description: 'Paris and Rome with kids' } });
+  const p1 = await planIt();
+  assert.equal(p1.status, 200); assert.equal(p1.json.travelers, 4, 'travelers worked out from the description'); assert.equal(p1.json.items.length, 5);
+  assert.equal((await planIt()).status, 200);
+  const p3 = await planIt(); assert.equal(p3.status, 429); assert.equal(p3.json.error.code, 'ai_user_limit');
+  assert.equal((await api('GET', '/trips/' + t.id + '/ai/status', { token: t.token })).json.left.myPlans, 0);
+  assert.equal((await api('POST', '/trips/' + t.id + '/ai/request', { token: t.token, body: { message: 'Planning a family reunion!' } })).status, 200);
+  assert.equal((await api('POST', '/trips/' + t.id + '/ai/request', { token: t.token, body: { message: 'again' } })).json.error.code, 'already_asked');
+  const me = (await api('GET', '/trips/' + t.id + '/state', { token: t.token })).json.me.id;
+  await triply.db.q('insert into ai_grants (member_id, extra) values ($1, 1)', [me]);
+  assert.equal((await planIt()).status, 200, 'the owner gave one more');
+  // the whole-site daily cap
+  await triply.db.q("insert into ai_usage (day, kind, micro_usd) values ((now() at time zone 'America/Vancouver')::date, 'other', 5000000)");
+  const cap = await api('POST', '/trips/' + t.id + '/ai/read', { token: t.token, body: { text: 'x' } });
+  assert.equal(cap.status, 429); assert.equal(cap.json.error.code, 'ai_resting');
+  assert.equal((await api('GET', '/trips/' + t.id + '/ai/status', { token: t.token })).json.resting, true);
 });

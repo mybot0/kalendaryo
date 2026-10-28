@@ -129,11 +129,13 @@
   function typePicker(session, date) {
     const s = ui.sheet({
       title: 'What are you adding?',
-      body: h('div', { class: 'type-grid' }, cfg.typeOrder.map((t) => {
+      body: h('div', { class: 'stack' }, TR.ai ? h('button', { type: 'button', class: 'ai-pick-banner', onclick: () => { s.close(); TR.ai.bookings(session); } },
+        h('span', { class: 'ai-drop-ic' }, TR.icon('sparkle')), h('span', {}, h('b', {}, 'Have a booking email or a flight number?'), h('span', { class: 'sub' }, 'Upload it or type the flight, and we fill everything in.'))) : null,
+        h('div', { class: 'type-grid' }, cfg.typeOrder.map((t) => {
         const T = cfg.types[t];
         return h('button', { type: 'button', class: 'type-opt', onclick: () => { s.close(); itemSheet({ session, type: t, date }); } },
           h('span', { class: 'tp-ic', style: '--c:' + T.color }, TR.icon(T.icon)), T.label);
-      }))
+      })))
     });
   }
 

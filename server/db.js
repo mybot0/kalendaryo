@@ -90,6 +90,12 @@ CREATE TABLE IF NOT EXISTS places (
 -- each person's link can point at their family profile (members doc), so color, icon and birthday are theirs
 ALTER TABLE access ADD COLUMN IF NOT EXISTS member_id TEXT;
 ALTER TABLE invites ADD COLUMN IF NOT EXISTS member_id TEXT;
+-- AI spending for the whole site, per day (micro-dollars), for the AI_DAILY_USD cap
+CREATE TABLE IF NOT EXISTS ai_spend (
+  day DATE PRIMARY KEY,
+  micro BIGINT NOT NULL DEFAULT 0,
+  uses INT NOT NULL DEFAULT 0
+);
 `;
 
 async function migrate() { await pool.query(SCHEMA); }

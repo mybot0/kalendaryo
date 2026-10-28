@@ -11,7 +11,10 @@ const DEFAULTS = {
   invite:  { windowMs: 10 * 60 * 1000, max: 60 },   // invite look-ups and joins per address
   message: { windowMs: 60 * 1000, max: 60 },        // chat messages per member per minute
   upload:  { windowMs: 60 * 1000, max: 30 },        // uploads per member per minute
-  lookup:  { windowMs: 60 * 1000, max: 120 }        // My Trips refreshes per address per minute
+  lookup:  { windowMs: 60 * 1000, max: 120 },       // My Trips refreshes per address per minute
+  ai:      { windowMs: 60 * 1000, max: 10 },        // AI helpers per member per minute
+  aiAddr:  { windowMs: 60 * 60 * 1000, max: 60 },   // AI helpers per internet address per hour
+  aiPlan:  { windowMs: 24 * 60 * 60 * 1000, max: 6 } // trip plans per internet address per day (stops "new trip, new free plans")
 };
 
 function createLimiter(overrides) {

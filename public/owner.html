@@ -126,17 +126,28 @@ button, .btn { font: 700 14px 'Figtree', sans-serif; border: 0; cursor: pointer;
         d.trips.map((x) => '<tr><td><b>' + esc(x.name) + '</b></td><td>' + day(x.start_date + 'T12:00:00') + (x.end_date && x.end_date !== x.start_date ? ' – ' + day(x.end_date + 'T12:00:00') : '') + '</td><td>' + where(x) +
           '</td><td class="c">' + x.people + '</td><td>' + ago(x.last_active) + '</td><td class="c">' + x.plans + '</td><td class="c">' + mb(x.file_bytes) + '</td></tr>').join('') + '</table></div>'
         : '<p class="empty">No trips yet.</p>') + '</section>';
+    const asks = d.asks == null ? '' : '<section class="card"><h2><span class="pill trip">TRIPLY</span>Asks for more free trip plans' + (d.asks.length ? ' (' + d.asks.length + ')' : '') + '</h2>' +
+      (d.asks.length ? '<div class="scroll"><table><tr><th>Who</th><th>Trip</th><th>Message</th><th>When</th><th class="c">Used</th><th></th></tr>' +
+        d.asks.map((a) => '<tr><td><b>' + esc(a.name) + '</b></td><td>' + esc(a.trip || '') + '</td><td>' + esc(a.message || '—') + '</td><td>' + ago(new Date(a.created_at).getTime()) +
+          '</td><td class="c">' + a.used + ' of ' + (2 + a.extra) + '</td><td style="white-space:nowrap"><button class="view ask" data-id="' + esc(a.id) + '" data-give="2">Give 2 more</button> <button class="view ask no" data-id="' + esc(a.id) + '" data-give="0">No thanks</button></td></tr>').join('') + '</table></div>'
+        : '<p class="empty">No one is asking right now. Each person gets 2 free trip plans.</p>') +
+      '<p class="note">Each “Plan my trip” costs about 15–45¢. The daily cap still applies.</p></section>';
     app.innerHTML =
       '<div class="top"><span class="mark">' + CAL + '</span><h1>Kalendaryo</h1><span class="badge">OWNER VIEW</span><span class="upd">Updated ' + new Date(d.now).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }) + ' · refreshes every 30 s</span></div>' +
       '<div class="tiles">' + tile(d.visitors_now, 'Visitors now', 'active in the last 2 min', 'var(--ok)') + tile(t.today, 'Visitors today', t.week + ' this week') +
         tile(t.homes, 'Homes', '+' + t.homes_week + ' this week') + (t.trips != null ? tile(t.trips, 'Trips', '+' + t.trips_week + ' this week') : '') +
-        tile(t.people, 'People', 'in homes' + (t.trips != null ? ' and trips' : '')) + tile(t.ai_today, 'AI uses today', d.ai_on ? 'across all homes' : 'AI is off') + '</div>' +
-      '<div class="row2"><section class="card"><h2>Visitors, last 14 days</h2><div class="chart">' + bars + '</div><p class="note">Counted once per device per day. Addresses are never saved.</p></section>' +
+        tile(t.people, 'People', 'in homes' + (t.trips != null ? ' and trips' : '')) + tile(t.ai_today, 'AI uses today', d.ai_on ? 'across all homes' : 'AI is off') +
+          tile('$' + (t.ai_usd || 0).toFixed(2), 'AI spent today', 'homes, of $' + (t.ai_cap != null ? t.ai_cap : 1) + ' a day' + (t.trip_ai_usd != null ? ' · trips $' + t.trip_ai_usd.toFixed(2) : '')) + '</div>' +
+      (d.asks && d.asks.length ? asks : '') + '<div class="row2"><section class="card"><h2>Visitors, last 14 days</h2><div class="chart">' + bars + '</div><p class="note">Counted once per device per day. Addresses are never saved.</p></section>' +
         '<section class="card where"><h2>Where visitors are</h2>' + countries + '<p class="note">Last 30 days. City and country only.</p></section></div>' +
       '<section class="card"><h2>Recent visitors</h2>' + recent + '<p class="note">The last 20 visits by real people. Bots, search engines and link previews are not counted. “Device” is a short code, not a name.</p></section>' +
-      '<section class="card"><h2><span class="pill">HOMES</span>' + d.homes.length + (d.homes.length === 1 ? ' home' : ' homes') + '</h2>' + homes + '</section>' + trips +
+      (d.asks && d.asks.length ? '' : asks) + '<section class="card"><h2><span class="pill">HOMES</span>' + d.homes.length + (d.homes.length === 1 ? ' home' : ' homes') + '</h2>' + homes + '</section>' + trips +
       '<p class="note">Database: ' + mb(t.db_bytes) + ' used. “View” opens that home read-only for 2 hours; your visit doesn’t count as theirs.</p>';
-    app.querySelectorAll('.view').forEach((b) => (b.onclick = async () => {
+    app.querySelectorAll('.ask').forEach((b) => (b.onclick = async () => {
+      b.disabled = true;
+      try { await api('POST', '/api/owner/ai-request', { id: b.dataset.id, give: Number(b.dataset.give) }); load(); } catch (e) { alert(e.message); b.disabled = false; }
+    }));
+    app.querySelectorAll('.view:not(.ask)').forEach((b) => (b.onclick = async () => {
       const w = window.open('about:blank', '_blank');
       try { const r = await api('POST', '/api/owner/view', { familyId: b.dataset.id }); if (w) w.location = r.link; else location.href = r.link; }
       catch (e) { if (w) w.close(); alert(e.message); }

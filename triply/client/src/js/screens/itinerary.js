@@ -251,14 +251,15 @@
         })), h('div', { style: 'height:16px' }), ideas());
     }
     function empty() {
-      return ui.emptyState({ icon: 'calendar', title: 'Nothing planned yet', text: canAdd() ? 'Add flights, hotels, tours and restaurants. Everyone on the trip sees them right away.' : 'Plans appear here when an editor adds them.', action: addBtn('', 'Add the first plan') });
+      return ui.emptyState({ icon: 'calendar', title: 'Nothing planned yet', text: canAdd() ? 'Upload your flight and hotel bookings, let AI plan the whole trip, or add things yourself. Everyone on the trip sees them right away.' : 'Plans appear here when an editor adds them.',
+        action: canAdd() ? h('div', { class: 'btn-row', style: 'justify-content:center' }, ui.button('Upload bookings', { icon: 'sparkle', variant: 'gold', onClick: () => TR.ai.bookings(session) }), ui.button('Plan my trip with AI', { icon: 'sparkle', onClick: () => TR.ai.plan(session) }), addBtn('', 'Add by hand')) : null });
     }
 
     function render() {
       const seg = ui.segmented(VIEWS, view, (v) => { view = v; TR.storage.set('itView', v); if (v === 'week') weekStart = D.startOfWeek(day || defaultDay(), 0); render(); }, 'View');
       const body = view === 'day' ? dayView() : view === 'week' ? weekView() : view === 'full' ? fullView() : timeline();
       root.replaceChildren(
-        h('div', { class: 'page-head' }, h('h1', {}, 'Itinerary'), h('div', { class: 'btn-row' }, session.items().length ? ui.button('Share', { icon: 'share', onClick: () => shareSheet(session) }) : null, addBtn(''))),
+        h('div', { class: 'page-head' }, h('h1', {}, 'Itinerary'), h('div', { class: 'btn-row' }, ...TR.ai.buttons(session), session.items().length ? ui.button('Share', { icon: 'share', onClick: () => shareSheet(session) }) : null, addBtn(''))),
         h('div', { class: 'it-bar' }, seg.el),
         body);
     }

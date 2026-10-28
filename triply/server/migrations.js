@@ -157,5 +157,42 @@ module.exports = [
       alter table trips add column budget numeric(12,2);
       alter table trips add column budget_currency text not null default '';
     `
+  },
+  {
+    id: '005_ai_usage',
+    sql: `
+      create table ai_usage (
+        id bigserial primary key,
+        day date not null,
+        trip_id uuid references trips(id) on delete set null,
+        member_id uuid references members(id) on delete set null,
+        kind text not null,
+        micro_usd bigint not null default 0,
+        created_at timestamptz not null default now()
+      );
+      create index ai_usage_day on ai_usage(day);
+      create index ai_usage_trip on ai_usage(trip_id, day);
+    `
+  },
+  {
+    id: '006_ai_requests',
+    sql: `
+      create table ai_grants (
+        member_id uuid primary key references members(id) on delete cascade,
+        extra int not null default 0
+      );
+      create table ai_requests (
+        id uuid primary key default gen_random_uuid(),
+        trip_id uuid references trips(id) on delete cascade,
+        member_id uuid references members(id) on delete cascade,
+        name text not null default '',
+        message text not null default '',
+        status text not null default 'open',
+        granted int not null default 0,
+        created_at timestamptz not null default now(),
+        done_at timestamptz
+      );
+      create index ai_requests_open on ai_requests(status, created_at);
+    `
   }
 ];

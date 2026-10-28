@@ -190,7 +190,13 @@ function createOwner({ db, live, ipOf, fail, triplySchema }) {
         (SELECT count(*) FROM families WHERE created_at > now() - interval '7 days')::int AS homes_week,
         (SELECT count(*) FROM access)::int AS people,
         (SELECT COALESCE(sum(ai_count), 0) FROM families WHERE ai_day = CURRENT_DATE)::int AS ai_today,
+        (SELECT COALESCE(sum(micro), 0) FROM ai_spend WHERE day = (now() AT TIME ZONE 'America/Vancouver')::date)::bigint AS ai_micro,
         pg_database_size(current_database())::bigint AS db_bytes`);
+    tiles.ai_usd = Number(tiles.ai_micro) / 1e6; delete tiles.ai_micro;
+    tiles.ai_cap = (() => { const n = Number(process.env.AI_DAILY_USD === undefined || process.env.AI_DAILY_USD === '' ? 1 : process.env.AI_DAILY_USD); return Number.isFinite(n) ? n : 1; })();
+    if (triplySchema) {
+      try { tiles.trip_ai_usd = Number((await db.q(`SELECT COALESCE(sum(micro_usd), 0)::bigint AS n FROM ${triplySchema}.ai_usage WHERE day = (now() AT TIME ZONE 'America/Vancouver')::date`)).rows[0].n) / 1e6; } catch (e) { tiles.trip_ai_usd = 0; }
+    }
     const days = (await db.q(`SELECT to_char(d, 'YYYY-MM-DD') AS day, COALESCE(v.n, 0)::int AS n
         FROM generate_series(CURRENT_DATE - 13, CURRENT_DATE, interval '1 day') d
         LEFT JOIN (SELECT day, count(*) n FROM visits GROUP BY day) v ON v.day = d::date ORDER BY d`)).rows;
@@ -215,7 +221,7 @@ function createOwner({ db, live, ipOf, fail, triplySchema }) {
     }
     homes.sort((a, b) => (b.last_active || 0) - (a.last_active || 0));
 
-    let trips = null;
+    let trips = null, asks = null;
     if (triplySchema) {
       const s = triplySchema;
       try {
@@ -236,12 +242,30 @@ function createOwner({ db, live, ipOf, fail, triplySchema }) {
         tiles.trips_week = trips.filter((t) => Date.now() - new Date(t.created_at).getTime() < 7 * 86400000).length;
         tiles.people += trips.reduce((n, t) => n + t.people, 0);
       } catch (e) { trips = null; } // Triply's tables are not there yet
+      try {
+        asks = (await db.q(`SELECT r.id::text AS id, r.name, r.message, r.created_at, t.name AS trip,
+            (SELECT count(*) FROM ${s}.ai_usage u WHERE u.member_id = r.member_id AND u.kind = 'plan')::int AS used,
+            COALESCE((SELECT extra FROM ${s}.ai_grants g WHERE g.member_id = r.member_id), 0)::int AS extra
+          FROM ${s}.ai_requests r LEFT JOIN ${s}.trips t ON t.id = r.trip_id WHERE r.status = 'open' ORDER BY r.created_at LIMIT 50`)).rows;
+      } catch (e) { asks = []; }
     }
-    return { now: Date.now(), visitors_now: visitorsNow(), tiles, days, countries, recent, homes, trips, ai_on: !!process.env.ANTHROPIC_API_KEY };
+    return { now: Date.now(), visitors_now: visitorsNow(), tiles, days, countries, recent, homes, trips, asks, ai_on: !!process.env.ANTHROPIC_API_KEY };
   }
 
   function install(r, json, send) {
     r.get('/api/owner/summary', async (req, res) => { guard(req); send(res, 200, await summary()); });
+    // Triply: "can I have more free trip plans?" -> give some, or say no.
+    r.post('/api/owner/ai-request', json, async (req, res) => {
+      guard(req);
+      if (!triplySchema) fail(404, 'not_found', 'Triply is not on.');
+      const s = triplySchema, id = String((req.body && req.body.id) || ''), give = Math.min(20, Math.max(0, parseInt(req.body && req.body.give, 10) || 0));
+      if (!/^[0-9a-f-]{36}$/i.test(id)) fail(400, 'bad_request', 'Bad request.');
+      const r1 = await db.q(`SELECT member_id FROM ${s}.ai_requests WHERE id = $1 AND status = 'open'`, [id]);
+      if (!r1.rowCount) fail(404, 'not_found', 'That request was already handled.');
+      if (give && r1.rows[0].member_id) await db.q(`INSERT INTO ${s}.ai_grants (member_id, extra) VALUES ($1, $2) ON CONFLICT (member_id) DO UPDATE SET extra = ${s}.ai_grants.extra + $2`, [r1.rows[0].member_id, give]);
+      await db.q(`UPDATE ${s}.ai_requests SET status = $2, granted = $3, done_at = now() WHERE id = $1`, [id, give ? 'granted' : 'declined', give]);
+      send(res, 200, { ok: true });
+    });
     r.post('/api/owner/view', json, async (req, res) => {
       guard(req);
       const familyId = String((req.body && req.body.familyId) || '');

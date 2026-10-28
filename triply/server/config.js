@@ -29,6 +29,16 @@ function load(options) {
     maxBlobBytes: num(pick('maxBlobMb', 'MAX_BLOB_MB', 8), 8) * 1024 * 1024,
     poolSize: num(pick('poolSize', 'PG_POOL_SIZE', 6), 6),
     ssl: pick('ssl', 'PGSSL', '') === '1' || pick('ssl', 'PGSSL', '') === true,
+    // AI helpers (read bookings, find a flight, plan my trip). Off when there is no key.
+    ai: {
+      key: String(pick('aiKey', 'ANTHROPIC_API_KEY', '')),
+      model: String(pick('aiModel', 'TRIPLY_AI_MODEL', 'claude-haiku-5-5')),
+      planModel: String(pick('aiPlanModel', 'TRIPLY_AI_PLAN_MODEL', '') || pick('aiModel', 'TRIPLY_AI_MODEL', 'claude-haiku-5-5')),
+      dailyUsd: (() => { const n = Number(pick('aiDailyUsd', 'TRIPLY_AI_DAILY_USD', 1)); return Number.isFinite(n) && n >= 0 ? n : 1; })(), // 0 turns AI off
+      planSearches: Math.min(20, Math.max(0, parseInt(pick('aiPlanSearches', 'TRIPLY_AI_PLAN_SEARCHES', 8), 10) || 0)),
+      timeZone: String(pick('aiTimeZone', 'TRIPLY_AI_TIMEZONE', 'America/Vancouver')),
+      fake: o.aiFake || env.TRIPLY_AI_FAKE_JS || '' // tests only: a module that answers like the AI
+    },
     // Test and tuning knobs
     limits: o.limits || null,
     log: o.log === undefined ? console : o.log,

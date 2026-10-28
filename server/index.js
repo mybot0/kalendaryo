@@ -9,6 +9,8 @@
  *   ANTHROPIC_API_KEY   optional, turns on AI ideas
  *   ANTHROPIC_MODEL     optional, default claude-haiku-5-5
  *   AI_DAILY_LIMIT      optional, AI requests per family per day (default 20)
+ *   AI_DAILY_USD        optional, most the whole site spends on AI per day, in US$ (default 1; 0 = AI off).
+ *                       Triply has its own: TRIPLY_AI_DAILY_USD (default 1)
  *   INVITE_DAYS         optional, days before an invite link expires (default 7)
  *   OWNER_KEY           optional, turns on the owner view at /owner?key=<OWNER_KEY>
  *   HOLIDAYS_API        optional, the public holiday list (default https://date.nager.at/api/v3)
@@ -354,14 +356,16 @@ r.post('/api/ai', auth, json, need('editor'), async (req, res) => {
   const prompt = clean(req.body.prompt, 6000);
   if (!prompt) fail(400, 'bad_request', 'Nothing to ask.');
   if (!(await ai.take(req.me.family_id))) fail(429, 'daily_limit', 'Your family used all of today’s AI ideas. Try again tomorrow.');
-  let text;
-  try { text = await ai.ask(prompt); }
+  const day = await ai.reserve();
+  if (!day) { await ai.giveBack(req.me.family_id); fail(429, 'ai_resting', 'AI help is resting until tomorrow. Lots of homes used it today. You can still do everything by hand.'); }
+  let text, usd = 0.0005;
+  try { const r = await ai.ask(prompt); text = r.text; usd = r.usd; }
   catch (e) {
     await ai.giveBack(req.me.family_id);
     console.error('ai', e.message);
     if (e.code === 'rate_limited') fail(429, 'rate_limited', 'The AI is busy. Please try again in a minute.');
     fail(502, 'ai_failed', 'Could not get ideas right now. Please try again.');
-  }
+  } finally { await ai.settle(day, usd); }
   send(res, 200, { text, left: await ai.left(req.me.family_id) });
 });
 

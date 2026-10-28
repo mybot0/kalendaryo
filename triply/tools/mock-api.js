@@ -360,6 +360,46 @@
     delete db.expenses[c.p.eid]; emit(m.trip_id, { kind: 'expenses' }); return {};
   });
 
+  /* ---------- AI helpers (demo: sample answers, no real AI) ---------- */
+  const tripOf = (m) => db.trips[m.trip_id];
+  const demoFound = (t, kind) => {
+    const d = (n) => addDays(t.start_date, n), F = (o) => ({ item: Object.assign({ start_date: null, start_time: null, end_date: null, end_time: null, location: '', confirmation: '', notes: '', data: {} }, o), price: o.price || null, currency: o.currency || '' });
+    const flight = F({ type: 'flight', title: 'Vancouver (YVR) → Paris (CDG)', start_date: d(0), start_time: '15:55', end_date: d(1), end_time: '10:30', confirmation: kind === 'flight' ? '' : 'DEMO-7XK2PQ', data: { airline: 'Air Canada', flightNo: 'AC 880', from: 'Vancouver (YVR)', to: 'Paris (CDG)', terminal: 'M', seat: kind === 'flight' ? '' : '31A–31D' } });
+    if (kind === 'flight') return [Object.assign(flight, { extra: '9 h 35 min · Boeing 787 (sample answer in the demo)' })];
+    return [flight,
+      F({ type: 'flight', title: 'Rome (FCO) → Vancouver (YVR)', start_date: d(13), start_time: '11:35', end_date: d(13), end_time: '20:15', confirmation: 'DEMO-7XK2PQ', data: { airline: 'Air Canada', flightNo: 'AC 891', from: 'Rome (FCO)', to: 'Vancouver (YVR)', terminal: '3' } }),
+      F({ type: 'hotel', title: 'Hotel Plaza Athénée', start_date: d(1), start_time: '15:00', end_date: d(4), end_time: '12:00', location: '25 Avenue Montaigne, Paris', confirmation: 'DEMO-PA-5512', data: { room: 'Family suite', contact: '+33 1 53 67 66 65' }, price: 6200, currency: 'EUR' })];
+  };
+  R('GET', '/trips/:id/ai/status', (c) => { auth(c.token, c.p.id); return { enabled: true, resting: false, left: { read: 40, flight: 20, plan: 5, myPlans: 2, asked: false } }; });
+  R('POST', '/trips/:id/ai/request', (c) => { auth(c.token, c.p.id); return { ok: true }; });
+  R('POST', '/trips/:id/ai/read', (c) => { const m = auth(c.token, c.p.id); need(m, 'items.write', 'Viewers can look at the plans but not add them.'); return { source: 'ai', found: demoFound(tripOf(m), 'read') }; });
+  R('POST', '/trips/:id/ai/flight', (c) => { const m = auth(c.token, c.p.id); need(m, 'items.write', 'Viewers can look at the plans but not add them.'); return { found: demoFound(tripOf(m), 'flight') }; });
+  R('POST', '/trips/:id/ai/plan', (c) => {
+    const m = auth(c.token, c.p.id); need(m, 'items.write', 'Viewers can look at the plans but not add them.');
+    const t = tripOf(m), d = (n) => addDays(t.start_date, n), lv = c.body.level || 'comfortable', k = lv === 'save' ? 0.6 : lv === 'fancy' ? 1.6 : 1;
+    const P = (day, type, title, o) => Object.assign({ day: day + 1, est: o.est ? Math.round(o.est * k) : null, currency: 'EUR', on: true, item: Object.assign({ type, title, start_date: d(day), start_time: null, end_date: null, end_time: null, location: '', confirmation: '', notes: '', data: {} }, o.i || {}) });
+    const items = [P(0, 'flight', 'Vancouver (YVR) → Lisbon (LIS)', { est: 3200, i: { start_time: '17:10', end_date: d(1), end_time: '12:40', data: { airline: 'Air Canada', flightNo: 'AC 2032', from: 'Vancouver (YVR)', to: 'Lisbon (LIS)' } } }),
+      P(1, 'hotel', 'Bairro Alto Hotel', { est: 1800, i: { start_time: '15:00', end_date: d(4), end_time: '11:00', location: 'Praça Luís de Camões 2, Lisbon' } }),
+      P(2, 'activity', 'Tram 28 and Alfama walking tour', { est: 160, i: { start_time: '10:00', location: 'Alfama, Lisbon' } }),
+      P(2, 'restaurant', 'Time Out Market', { i: { start_time: '19:00', location: 'Cais do Sodré, Lisbon' } }),
+      P(3, 'activity', 'Sintra day trip by coach', { est: 380, i: { start_time: '09:00', location: 'Pick-up: hotel' } }),
+      P(4, 'car', 'Train Lisbon → Porto', { est: 120, i: { start_time: '10:00', end_date: d(4), end_time: '13:00', data: { company: 'CP Alfa Pendular', vehicle: 'Train', dropoffLocation: 'Porto Campanhã' } } }),
+      P(4, 'hotel', 'The Yeatman', { est: 1500, i: { start_time: '15:00', end_date: d(7), end_time: '11:00', location: 'Rua do Choupelo, Vila Nova de Gaia' } }),
+      P(5, 'activity', 'Port wine cellar tour', { est: 120, i: { start_time: '15:00', location: 'Vila Nova de Gaia' } })];
+    const cost = { currency: 'EUR', flights: Math.round(3200 * k), hotels: Math.round(3300 * k), tours: Math.round(660 * k), food: Math.round(1200 * k), transport: Math.round(300 * k) };
+    const sum = cost.flights + cost.hotels + cost.tours + cost.food + cost.transport;
+    return { summary: 'A sample plan: the demo shows what the AI gives back (Lisbon and Porto).', cities: [{ name: 'Lisbon', from_day: 2, to_day: 4, highlights: 'Tram 28, Alfama, Sintra' }, { name: 'Porto', from_day: 5, to_day: 8, highlights: 'Port wine cellars, the river' }],
+      items, cost: Object.assign(cost, { low: Math.round(sum * 0.9), high: Math.round(sum * 1.1) }), packing: ['Plug adapters', 'Comfy walking shoes', 'Light jacket'], level: lv, travelers: parseInt(c.body.travelers, 10) || 2 };
+  });
+  R('POST', '/trips/:id/items/bulk', (c) => {
+    const m = auth(c.token, c.p.id); need(m, 'items.write', 'Viewers can look at the plans but not change them.');
+    const out = (c.body.items || []).slice(0, 200).map((b) => { const i = Object.assign({ id: uid(), trip_id: m.trip_id, version: 1, created_by: m.id, updated_by: m.id, created_at: now(), updated_at: now() }, cleanItem(b, null)); db.items[i.id] = i; return i; });
+    emit(m.trip_id, { kind: 'items' });
+    const msg = { id: String(seq()), trip_id: m.trip_id, sender_id: m.id, to_member: null, kind: 'activity', body: '', mentions: [], blob: null, item_id: null, meta: { event: 'bulk', count: out.length, title: txt(c.body.label, 80) }, created_at: now() };
+    db.messages.push(msg); emit(m.trip_id, { kind: 'chat', thread: 'trip', message: msg });
+    return { items: out.map(itemOut) };
+  });
+
   /* ---------- packing and search ---------- */
   const CATS = ['Documents', 'Clothes', 'Toiletries', 'Tech', 'Health', 'Other'];
   const packOut = (x) => Object.assign({}, x, { trip_id: undefined });
@@ -424,7 +464,7 @@
           if (e instanceof Err) resolve(json(e.status, { error: Object.assign({ code: e.code, message: e.message }, e.extra || {}) }));
           else { console.error(e); resolve(json(500, { error: { code: 'error', message: 'Demo error: ' + e.message } })); }
         }
-      }, 40));
+      }, path.includes('/ai/') && method === 'POST' ? 1800 : 40));
     });
   };
 

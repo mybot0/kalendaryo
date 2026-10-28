@@ -11,10 +11,10 @@
       const items = session.items();
       const groups = cfg.bookingTypes.map((type) => ({ type, list: items.filter((i) => i.type === type).sort((a, b) => ((a.start_date || '') + (a.start_time || '')).localeCompare((b.start_date || '') + (b.start_time || ''))) })).filter((g) => g.list.length);
       const head = h('div', { class: 'page-head' }, h('h1', {}, 'Reservations'),
-        session.can('items.write') ? ui.button('Add', { icon: 'plus', variant: 'primary', onClick: () => TR.forms.typePicker(session) }) : null);
+        session.can('items.write') ? h('div', { class: 'btn-row' }, ui.button('Add bookings for me', { icon: 'sparkle', variant: 'gold', onClick: () => TR.ai.bookings(session) }), ui.button('Add', { icon: 'plus', variant: 'primary', onClick: () => TR.forms.typePicker(session) })) : null);
       if (!groups.length) {
         return root.replaceChildren(head, h('div', { class: 'card' }, ui.emptyState({ icon: 'ticket', title: 'No reservations yet', text: 'Flights, hotels, car rentals, cruises and restaurant bookings show up here with their confirmation numbers.',
-          action: session.can('items.write') ? ui.button('Add a reservation', { icon: 'plus', variant: 'primary', onClick: () => TR.forms.typePicker(session) }) : null })));
+          action: session.can('items.write') ? h('div', { class: 'btn-row' }, ui.button('Upload a booking', { icon: 'sparkle', variant: 'gold', onClick: () => TR.ai.bookings(session) }), ui.button('Add by hand', { icon: 'plus', onClick: () => TR.forms.typePicker(session) })) : null })));
       }
       root.replaceChildren(head, ...groups.map((g) => {
         const T = cfg.types[g.type];

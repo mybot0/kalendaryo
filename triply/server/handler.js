@@ -20,7 +20,7 @@ const { createLimiter } = require('./limits');
 const { createAuth } = require('./auth');
 const { router, send, sendError, ApiError } = require('./mini');
 
-const ROUTES = ['trips', 'members', 'invites', 'items', 'chat', 'blobs', 'expenses', 'packing'];
+const ROUTES = ['trips', 'members', 'invites', 'items', 'chat', 'blobs', 'expenses', 'packing', 'ai'];
 const FAVICON = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="16" fill="#B8583A"/><path d="M14 33l36-15-12 30-8-12z" fill="none" stroke="#fff" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/></svg>';
 
 function createTriply(options) {

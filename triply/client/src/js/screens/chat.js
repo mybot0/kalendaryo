@@ -76,6 +76,7 @@
         case 'left': return [h('b', {}, who), ' left the trip'];
         case 'added': return [h('b', {}, who), ' added ' + (/^[aeiou]/.test(kind) ? 'an ' : 'a ') + kind + ': ', h('b', {}, meta.title || ''), when];
         case 'removed': return [h('b', {}, who), ' removed ', h('b', {}, meta.title || kind)];
+        case 'bulk': return [h('b', {}, who), ' added ' + (meta.count || 'some') + ' plans' + (meta.title ? ': ' : ''), meta.title ? h('b', {}, meta.title) : ''];
         default: return [h('b', {}, who), ' updated ', h('b', {}, meta.title || kind), when];
       }
     }
