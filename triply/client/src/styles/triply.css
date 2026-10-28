@@ -204,6 +204,21 @@ button.act-pill:hover { border-color: var(--primary); background: var(--primary-
 .field-inline { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .sect { border-top: 1px solid var(--line); padding-top: 14px; display: flex; flex-direction: column; gap: 12px; }
 .sect > h4 { margin: 0; font-size: .8rem; text-transform: uppercase; letter-spacing: .06em; color: var(--ink-3); }
+/* Drawn trip covers (covers.js) */
+.cv { position: relative; overflow: hidden; container-type: inline-size; }
+.cv-l { position: absolute; left: 0; bottom: 0; width: 100%; display: block; }
+.cv-m { position: absolute; display: block; overflow: visible; }
+.cv-star { position: absolute; width: 3px; height: 3px; border-radius: 50%; background: #fff; opacity: .9; }
+@container (max-width: 640px) { .cv-x { display: none; } }
+.cover.cv .badge { z-index: 2; }
+.photo-prev { overflow: hidden; }
+.scene-fill { width: 100%; height: 100%; }
+.scene-pick { display: flex; gap: 10px; overflow-x: auto; padding: 4px 2px 10px; scroll-snap-type: x proximity; }
+.scene-opt { flex: none; width: 112px; border: 2px solid transparent; border-radius: 14px; padding: 0; background: var(--surface); text-align: center; scroll-snap-align: start; overflow: hidden; }
+.scene-opt span { display: block; font-size: .78rem; font-weight: 700; color: var(--ink-2); padding: 4px 4px 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.scene-opt.on { border-color: var(--primary); }
+.scene-opt.on span { color: var(--primary); }
+.scene-thumb { height: 62px; }
 .photo-prev { width: 100%; height: 120px; border-radius: var(--radius-sm); background: var(--c, var(--primary-soft)) center / cover no-repeat; display: grid; place-items: center; font-size: 2.6rem; }
 
 /* ---------- navigation: "More" on phones ---------- */

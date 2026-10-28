@@ -194,5 +194,10 @@ module.exports = [
       );
       create index ai_requests_open on ai_requests(status, created_at);
     `
+  },
+  {
+    // A drawn cover scene ('' = pick one from the destination).
+    id: '007_cover_scene',
+    sql: `alter table trips add column cover_scene text not null default ''`
   }
 ];

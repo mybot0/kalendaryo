@@ -11,7 +11,7 @@ const path = require('node:path');
 
 const src = (p) => fs.readFileSync(path.join(__dirname, 'src', p), 'utf8');
 const CSS = ['theme', 'base', 'components', 'shell', 'triply'];
-const JS = ['util', 'config', 'api', 'store', 'ui-kit', 'forms',
+const JS = ['util', 'config', 'api', 'store', 'ui-kit', 'covers', 'forms',
   'screens/trips', 'screens/join', 'screens/overview', 'screens/itinerary', 'screens/bookings', 'screens/expenses', 'screens/files', 'screens/packing', 'screens/search', 'screens/updates', 'screens/chat', 'screens/people', 'screens/device', 'screens/ai',
   'shell', 'main'];
 

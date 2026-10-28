@@ -9,7 +9,7 @@ const iso = (v) => (v instanceof Date ? v.toISOString() : v);
 const tripOut = (t) => ({
   id: t.id, name: t.name, destination: t.destination, route: t.route || [],
   start_date: t.start_date, end_date: t.end_date, description: t.description,
-  cover_emoji: t.cover_emoji, cover_color: t.cover_color, cover_blob: t.cover_blob || null,
+  cover_emoji: t.cover_emoji, cover_color: t.cover_color, cover_scene: t.cover_scene || '', cover_blob: t.cover_blob || null,
   viewers_chat: !!t.viewers_chat, budget: t.budget == null ? null : Number(t.budget), budget_currency: t.budget_currency || '',
   created_at: iso(t.created_at), updated_at: iso(t.updated_at)
 });

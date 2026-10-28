@@ -152,7 +152,7 @@
     if (ed && !isDate(ed)) throw bad('That end date does not look right.');
     if (sd && ed && ed < sd) throw bad('The trip cannot end before it starts.');
     const bud = g('budget', null), budget = bud === null || bud === '' || !(Number(bud) > 0) ? null : Math.min(1e9, Math.round(Number(bud) * 100) / 100);
-    return { name, destination: txt(g('destination', ''), 120), route, start_date: sd, end_date: ed, description: txt(g('description', ''), 600), cover_emoji: txt(g('cover_emoji', '✈️'), 8) || '✈️', cover_color: g('cover_color', '#F6C28E'), viewers_chat: g('viewers_chat', true) !== false,
+    return { name, destination: txt(g('destination', ''), 120), route, start_date: sd, end_date: ed, description: txt(g('description', ''), 600), cover_emoji: txt(g('cover_emoji', '✈️'), 8) || '✈️', cover_color: g('cover_color', '#F6C28E'), cover_scene: /^[a-z0-9-]{1,30}$/.test(String(g('cover_scene', ''))) ? String(g('cover_scene', '')) : '', viewers_chat: g('viewers_chat', true) !== false,
       budget, budget_currency: budget ? (txt(g('budget_currency', 'CAD'), 3).toUpperCase().replace(/[^A-Z]/g, '') || 'CAD') : '' };
   }
   function cleanItem(b, base) {

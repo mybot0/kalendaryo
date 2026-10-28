@@ -23,6 +23,22 @@
     return { el: h('div', { class: 'swatches' }, btns), get: () => current };
   }
 
+  // The drawn cover scenes. '' = Auto (matches the trip's words, worked out live by guess()).
+  function scenePicker(value, guess, onChange) {
+    let current = value || '';
+    const thumb = (key, label) => h('button', { type: 'button', class: 'scene-opt', 'aria-label': label, title: label, onclick: () => { current = key; paint(); onChange && onChange(); } },
+      TR.covers.el(key || guess(), 'scene-thumb'), h('span', {}, label));
+    let autoBtn = thumb('', 'Auto');
+    const btns = TR.covers.list.map((s) => thumb(s.key, s.name));
+    const row = h('div', { class: 'scene-pick' }, autoBtn, btns);
+    function paint() {
+      [autoBtn].concat(btns).forEach((b, i) => { const on = (i === 0 ? '' : TR.covers.list[i - 1].key) === current; b.classList.toggle('on', on); b.setAttribute('aria-pressed', on ? 'true' : 'false'); });
+    }
+    paint();
+    return { el: row, get: () => current,
+      refresh() { const n = thumb('', 'Auto'); row.replaceChild(n, autoBtn); autoBtn = n; paint(); } };
+  }
+
   /* ---------- trip: create / edit ---------- */
   // opts: { session }  -> edit that trip;  none -> make a new one
   function tripSheet(opts) {
@@ -34,17 +50,17 @@
     const end = input('date', trip ? trip.end_date : '');
     const desc = h('textarea', { rows: 3, maxlength: 600, placeholder: 'What is this trip about?' }); desc.value = trip ? trip.description || '' : '';
     let coverBlob = trip ? trip.cover_blob : null, newPhoto = null, removePhoto = false;
-    const emoji = emojiPicker(trip ? trip.cover_emoji : '✈️');
-    const color = swatches(trip ? trip.cover_color : cfg.coverColors[1]);
+    const guessNow = () => TR.covers.guess({ name: name.value, destination: dest.value, route: ['', ...route.value.split(/\s*(?:→|->|,)\s*/)] });
+    const scene = scenePicker(trip ? trip.cover_scene : '', guessNow, () => paintPrev());
     const prev = h('div', { class: 'photo-prev' });
     function paintPrev() {
       const photo = newPhoto ? URL.createObjectURL(newPhoto) : !removePhoto && coverBlob ? TR.blobUrl(coverBlob) : '';
-      prev.style.setProperty('--c', color.get()); prev.style.backgroundImage = photo ? 'url("' + photo + '")' : '';
-      prev.textContent = photo ? '' : emoji.get();
+      prev.style.backgroundImage = photo ? 'url("' + photo + '")' : '';
+      prev.replaceChildren(...(photo ? [] : [TR.covers.el(scene.get() || guessNow(), 'scene-fill')]));
     }
+    let typing = null;
+    [name, dest, route].forEach((x) => x.addEventListener('input', () => { clearTimeout(typing); typing = setTimeout(() => { scene.refresh(); paintPrev(); }, 250); }));
     const fileIn = h('input', { type: 'file', accept: 'image/*', hidden: true, onchange: (e) => { newPhoto = e.target.files[0] || null; removePhoto = false; paintPrev(); } });
-    const origEmoji = emoji.el, origColor = color.el;
-    [origEmoji, origColor].forEach((el) => el.addEventListener('click', () => { setTimeout(paintPrev, 0); }));
     const viewers = ui.toggle('Viewers can chat and share photos', trip ? trip.viewers_chat : true);
     const me = TR.profile.get();
     const ownName = input('text', me.name, { maxlength: 40, placeholder: 'Your name' });
@@ -61,7 +77,7 @@
         h('div', { class: 'btn-row' },
           ui.button('Use a photo', { icon: 'image', onClick: () => fileIn.click() }),
           trip && (coverBlob || newPhoto) ? ui.button('Remove photo', { variant: 'ghost', onClick: () => { newPhoto = null; removePhoto = true; paintPrev(); } }) : null, fileIn),
-        emoji.el, color.el),
+        h('p', { class: 'hint', style: 'margin:4px 0 0' }, 'Or pick a picture. Auto matches where you are going.'), scene.el),
       trip ? h('div', { class: 'sect' }, h('h4', {}, 'People'), viewers.el) : null,
       trip ? null : h('div', { class: 'sect' }, h('h4', {}, 'About you'), ui.field('Your name', ownName), h('div', { class: 'field' }, h('span', { class: 'field-label' }, 'Your picture'), ownAv.el)),
       err, h('button', { type: 'submit', hidden: true }));
@@ -87,7 +103,7 @@
       if (!name.value.trim()) { err.textContent = 'Please give the trip a name.'; name.focus(); return; }
       if (!trip && !ownName.value.trim()) { err.textContent = 'Please add your name.'; ownName.focus(); return; }
       if (o.thenPlan && (!start.value || !end.value)) { err.textContent = 'Please pick the dates so we can plan each day.'; (start.value ? end : start).focus(); return; }
-      const payload = { name: name.value, destination: dest.value, route: route.value, start_date: start.value || null, end_date: end.value || null, cover_emoji: emoji.get(), cover_color: color.get() };
+      const payload = { name: name.value, destination: dest.value, route: route.value, start_date: start.value || null, end_date: end.value || null, cover_scene: scene.get() };
       saveBtn.disabled = true;
       try {
         if (trip) {

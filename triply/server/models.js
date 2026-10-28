@@ -58,6 +58,7 @@ function trip(d, base) {
     end_date: end,
     description: d.description !== undefined ? text(d.description, 2000) : b.description || '',
     cover_emoji: d.cover_emoji !== undefined ? emoji(d.cover_emoji, '✈️') : b.cover_emoji || '✈️',
+    cover_scene: d.cover_scene !== undefined ? (/^[a-z0-9-]{1,30}$/.test(String(d.cover_scene)) ? String(d.cover_scene) : '') : b.cover_scene || '',
     cover_color: d.cover_color !== undefined ? (isColor(d.cover_color) ? d.cover_color : PALETTE[0]) : b.cover_color || PALETTE[0],
     viewers_chat: d.viewers_chat !== undefined ? !!d.viewers_chat : b.viewers_chat !== false,
     ...budgetOf(d, b)

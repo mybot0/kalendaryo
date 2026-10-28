@@ -22,9 +22,9 @@ function register(r, d) {
     const token = randomToken(24);
     const out = await db.tx(async (cl) => {
       const tr = await cl.query(
-        `insert into trips (name, destination, route, start_date, end_date, description, cover_emoji, cover_color, viewers_chat)
-         values ($1,$2,$3,$4,$5,$6,$7,$8,$9) returning *`,
-        [t.name, t.destination, t.route, t.start_date, t.end_date, t.description, t.cover_emoji, t.cover_color, t.viewers_chat]
+        `insert into trips (name, destination, route, start_date, end_date, description, cover_emoji, cover_color, viewers_chat, cover_scene)
+         values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) returning *`,
+        [t.name, t.destination, t.route, t.start_date, t.end_date, t.description, t.cover_emoji, t.cover_color, t.viewers_chat, t.cover_scene]
       );
       const mem = await cl.query(
         `insert into members (trip_id, name, avatar, color, role, token_hash) values ($1,$2,$3,$4,'owner',$5)
@@ -107,9 +107,9 @@ function register(r, d) {
     }
     const { rows } = await db.q(
       `update trips set name=$2, destination=$3, route=$4, start_date=$5, end_date=$6, description=$7,
-              cover_emoji=$8, cover_color=$9, cover_blob=$10, viewers_chat=$11, budget=$12, budget_currency=$13, updated_at=now()
+              cover_emoji=$8, cover_color=$9, cover_blob=$10, viewers_chat=$11, budget=$12, budget_currency=$13, cover_scene=$14, updated_at=now()
         where id=$1 returning *`,
-      [trip.id, t.name, t.destination, t.route, t.start_date, t.end_date, t.description, t.cover_emoji, t.cover_color, cover, t.viewers_chat, t.budget, t.budget_currency]
+      [trip.id, t.name, t.destination, t.route, t.start_date, t.end_date, t.description, t.cover_emoji, t.cover_color, cover, t.viewers_chat, t.budget, t.budget_currency, t.cover_scene]
     );
     if (trip.cover_blob && trip.cover_blob !== cover) await db.q('delete from blobs where id = $1 and trip_id = $2', [trip.cover_blob, trip.id]);
     hub.publish(trip.id, 'trip', { by: member.id });

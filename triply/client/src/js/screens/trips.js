@@ -23,8 +23,10 @@
   }
 
   TR.tripCover = function (t, cls) {
-    const el = h('div', { class: cls || 'cover', style: '--c:' + (t.cover_color || '#F6C28E') });
-    if (t.cover_blob) el.style.backgroundImage = 'url("' + TR.blobUrl(t.cover_blob) + '")'; else el.textContent = t.cover_emoji || '✈️';
+    // Your own photo if you added one; otherwise a drawn scene that matches the trip.
+    if (!t.cover_blob) return TR.covers.el(TR.covers.pick(t), cls || 'cover');
+    const el = h('div', { class: cls || 'cover' });
+    el.style.backgroundImage = 'url("' + TR.blobUrl(t.cover_blob) + '")';
     return el;
   };
 

@@ -64,7 +64,7 @@ function register(r, d) {
     limiter.check('invite', clientIp(c.req));
     const inv = await findInvite(c.params.code);
     const t = await db.q(
-      `select t.name, t.destination, t.start_date, t.end_date, t.cover_emoji, t.cover_color, t.cover_blob,
+      `select t.name, t.destination, t.start_date, t.end_date, t.cover_emoji, t.cover_color, t.cover_blob, t.cover_scene,
               (select count(*)::int from members where trip_id = t.id) as travelers,
               (select name from members where id = $2) as inviter
          from trips t where t.id = $1`,
