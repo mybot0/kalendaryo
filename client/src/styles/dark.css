@@ -48,6 +48,11 @@
 :root[data-theme="dark"] .wall.photos .wall-top { background: rgba(23,28,26,.8); }
 :root[data-theme="dark"] .wch-kid { background: color-mix(in srgb, var(--t) 22%, var(--surface)); color: var(--ink); }
 
+:root[data-theme="dark"] .wall-veil { background: rgba(23,28,26,.55); }
+
+/* Sky strip lines */
+:root[data-theme="dark"] { --sky-ink: #8C9A93; --sky-ink-dark: #6F7C76; }
+
 /* Empty boxes: an even lighter fade in the dark */
 :root[data-theme="dark"] :is(.widget:has(.empty-state), .main .card:has(> .empty-state)) {
   background: linear-gradient(180deg, var(--surface) 62%, color-mix(in srgb, var(--edge, #555) 6%, var(--surface)) 100%);

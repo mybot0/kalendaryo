@@ -4,6 +4,10 @@
 .home-top { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
 .greeting { color: var(--ink-2); font-weight: 600; }
 .clock-time { font: 700 3.2rem/1.05 var(--font-head); letter-spacing: -.02em; }
+/* Seconds and AM/PM, small and stacked beside the hours and minutes (PL.clock). Together they are as tall as the numbers. */
+.clk-side { display: inline-block; margin-left: .1em; font-size: .4em; line-height: .9; letter-spacing: 0; }
+.clk-s, .clk-ap { display: block; }
+.clk-s { color: var(--ink-3); font-weight: 600; font-variant-numeric: tabular-nums; }
 .clock-date { font-size: 1.15rem; color: var(--ink-2); }
 .reminders { display: flex; flex-direction: column; gap: 8px; }
 .reminder { display: flex; align-items: center; gap: 12px; text-align: left; border: 0; border-radius: var(--radius-sm); padding: 12px 16px; background: var(--c); color: var(--ink); min-height: var(--tap); }

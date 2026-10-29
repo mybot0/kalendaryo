@@ -39,3 +39,17 @@
 .empty-art { width: 210px; max-width: 70%; margin: 0 auto 2px; line-height: 0; }
 .empty-art svg { width: 100%; height: auto; display: block; }
 .widget .empty-art { width: 150px; }
+
+/* Wall mode: the same soft glow and doodles as the pages (never a flat color) */
+.wall.board { background-color: var(--bg); background-image: var(--page-art); background-size: var(--page-art-size); background-repeat: var(--page-art-repeat); }
+
+/* Photo viewer: the same soft background as the pages */
+.viewer { background-color: var(--bg); background-image: var(--page-art); background-size: var(--page-art-size); background-repeat: var(--page-art-repeat); }
+
+/* The animated sky next to the clock (sky.js), in the doodle line style */
+.sky { flex: 1 1 260px; max-width: 560px; min-width: 200px; align-self: stretch; min-height: 92px; position: relative; pointer-events: none; }
+.sky svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.sky svg :is(path, circle) { fill: none; stroke: var(--sky-ink, #B49C8E); stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+.sky.sky-dark .sky-clouds path { stroke: var(--sky-ink-dark, #8F7F78); }
+.wall-top .sky { align-self: stretch; margin: 0 2vw; min-height: clamp(80px, 12vh, 150px); }
+@media (max-width: 899px) { .home-top .sky { display: none; } } /* phones: no room */

@@ -20,7 +20,7 @@
 
   const ART = {
     // Today / nothing planned: a calendar page and the sun
-    sparkle: V + floor + cal(new Date().getDate(), '#E9806E') + '<circle cx="210" cy="40" r="16" fill="#FFD666"/><path d="M210 16 v-6 M234 40 h6 M227 23 l4 -4" stroke="#FFD666" stroke-width="3" stroke-linecap="round"/></svg>',
+    sparkle: V + floor + cal('', '#E9806E') + '<circle cx="210" cy="40" r="16" fill="#FFD666"/><path d="M210 16 v-6 M234 40 h6 M227 23 l4 -4" stroke="#FFD666" stroke-width="3" stroke-linecap="round"/></svg>',
     // Coming up / agenda: a calendar with a little flag
     calendar: V + floor + cal('', '#7FB8E8') + '<path d="M96 76 h16 M120 76 h16 M144 76 h16 M96 96 h16 M120 96 h16" stroke="#C9D6CB" stroke-width="6" stroke-linecap="round"/><circle cx="152" cy="100" r="10" fill="#E9806E"/><path d="M200 40 v40" stroke="#5A6470" stroke-width="3"/><path d="M200 40 h26 l-6 8 l6 8 h-26z" fill="#F2C14E"/></svg>',
     // Chores: a broom, a bubbly bucket and stars
@@ -60,5 +60,7 @@
       '<path d="M120 122 q-24 0 -20 -22 q4 -16 22 -12 q8 -20 30 -14 q20 6 18 26 q18 2 14 16 q-2 6 -10 6z" fill="#fff" stroke="#D9E3DA" stroke-width="2"/></svg>'
   };
 
-  PL.look = { art: (name) => ART[name] || '', ART };
+  // The Today calendar drawing shows today's date (the home's day).
+  const art = (name) => name === 'sparkle' ? ART.sparkle.replace('"></text>', '">' + (PL.now ? PL.now() : new Date()).getDate() + '</text>') : ART[name] || '';
+  PL.look = { art, ART };
 })();

@@ -22,7 +22,7 @@
       if (!you.value.trim()) { showErr(err, 'Please type your name.'); you.focus(); return; }
       btn.disabled = true; showErr(err, '');
       try {
-        const r = await KAL.api('POST', '/api/families', { yourName: you.value.trim(), familyName: fam.value.trim() });
+        const r = await KAL.api('POST', '/api/families', { yourName: you.value.trim(), familyName: fam.value.trim(), timeZone: PL.deviceZone() });
         if (pick && weekStart) {
           // Save the chosen week start in the new home's settings (same document the Settings screen writes).
           await fetch('/api/docs/settings/main', { method: 'PUT', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + r.token },

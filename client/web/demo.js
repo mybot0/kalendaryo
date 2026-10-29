@@ -112,7 +112,7 @@
     ].forEach((e, i) => put('events', 'event', 'dme' + String(i + 1).padStart(2, '0'), ev(e)));
 
     // Public holidays (BC), this year and next
-    const settings = { householdName: 'The Santos family', weekStart: 0, hour12: true, tempUnit: 'c', starsOn: true,
+    const settings = { householdName: 'The Santos family', timeZone: 'America/Vancouver', weekStart: 0, hour12: true, tempUnit: 'c', starsOn: true,
       weatherPlace: { name: 'Vancouver', lat: 49.28, lon: -123.12 },
       holidaySets: [{ key: 'CA-BC', name: 'British Columbia', full: 'Canada · British Columbia', flag: '🇨🇦', years: [y, y + 1], auto: true }] };
     [y, y + 1].forEach((yy) => bcHolidays(yy).forEach(([date, title]) => put('holidays', 'holiday', 'CA-BC~' + date + '~1', { date, title, set: 'CA-BC' })));

@@ -123,7 +123,7 @@
   function defaultTimes(date) {
     let startMin = 9 * 60;
     if (date === D.today()) {
-      const n = new Date();
+      const n = PL.now();
       startMin = Math.min(22 * 60, (Math.floor((n.getHours() * 60 + n.getMinutes()) / 30) + 1) * 30);
     }
     const t = (m) => D.pad(Math.floor(m / 60)) + ':' + D.pad(m % 60);

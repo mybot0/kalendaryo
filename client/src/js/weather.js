@@ -32,9 +32,9 @@
 
   async function load(place, u) {
     const url = 'https://api.open-meteo.com/v1/forecast?latitude=' + place.lat + '&longitude=' + place.lon +
-      '&current=temperature_2m,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min&forecast_days=3&timezone=auto&temperature_unit=' + (u === 'f' ? 'fahrenheit' : 'celsius');
+      '&current=temperature_2m,weather_code,wind_speed_10m&daily=weather_code,temperature_2m_max,temperature_2m_min,sunrise,sunset&wind_speed_unit=kmh&forecast_days=3&timezone=auto&temperature_unit=' + (u === 'f' ? 'fahrenheit' : 'celsius');
     const j = await getJson(url);
-    const data = { at: Date.now(), now: { t: j.current.temperature_2m, code: j.current.weather_code },
+    const data = { at: Date.now(), now: { t: j.current.temperature_2m, code: j.current.weather_code, wind: j.current.wind_speed_10m }, sun: { rise: j.daily.sunrise && j.daily.sunrise[0], set: j.daily.sunset && j.daily.sunset[0] },
       days: j.daily.time.map((d, i) => ({ date: d, code: j.daily.weather_code[i], hi: j.daily.temperature_2m_max[i], lo: j.daily.temperature_2m_min[i] })) };
     PL.storage.set('wx', { key: place.lat + ',' + place.lon + ',' + u, data });
     return data;
@@ -81,5 +81,17 @@
       footer: [ui.button('Cancel', { variant: 'ghost', big: true, onClick: () => s.close() }), ui.button('Search', { variant: 'primary', big: true, onClick: go })] });
   }
 
-  PL.weather = { widget, openPlace, unit };
+  // For the sky strip: the saved weather right away, and a quiet refresh in the background when it is old.
+  let loading = null;
+  function current() {
+    const place = PL.state.settings.weatherPlace, u = unit();
+    if (!place) return null;
+    const key = place.lat + ',' + place.lon + ',' + u;
+    const saved = PL.storage.get('wx', null);
+    const data = saved && saved.key === key ? saved.data : null;
+    if ((!data || Date.now() - data.at > 30 * 60000 || !data.sun) && !loading) loading = load(place, u).catch(() => null).finally(() => { loading = null; });
+    return data;
+  }
+
+  PL.weather = { widget, openPlace, unit, current };
 })();

@@ -476,14 +476,14 @@
       ui.button('Reset to automatic', { icon: 'repeat', onClick: () => resetArrange() }),
       ui.button('Done', { variant: 'primary', icon: 'check', onClick: () => finishArrange() }));
     arrBar.hidden = true;
-    const top = h('header', { class: 'wall-top' }, h('div', { class: 'wall-clock' }, timeEl, dateEl), h('div', { class: 'wall-top-right' }, roomBtn, greetEl));
+    const top = h('header', { class: 'wall-top' }, h('div', { class: 'wall-clock' }, timeEl, dateEl), PL.sky ? PL.sky.el() : null, h('div', { class: 'wall-top-right' }, roomBtn, greetEl));
     const root = h('div', { class: 'wall board', role: 'dialog', 'aria-label': 'Wall mode', tabindex: '-1' }, bg.el, h('div', { class: 'wall-veil' }), bar, arrBar, top, main, live);
     const kid = kidScreen({ focusBoard: () => { try { root.focus({ preventScroll: true }); } catch (e) { /* fine */ } } });
     root.append(kid.el);
 
     function tick() {
-      const now = new Date();
-      timeEl.textContent = now.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit', hour12: PL.state.settings.hour12 !== false });
+      const now = PL.now();
+      PL.clock.fill(timeEl, now, PL.state.settings.hour12);
       dateEl.textContent = D.fmt(D.key(now), { weekday: 'long', month: 'long', day: 'numeric' });
       const hr = now.getHours();
       greetEl.textContent = (hr < 12 ? 'Good morning' : hr < 18 ? 'Good afternoon' : 'Good evening') + (PL.state.settings.householdName ? ', ' + PL.state.settings.householdName : '');
@@ -913,7 +913,7 @@
     }
     const soon = () => { clearTimeout(renderT); renderT = setTimeout(() => { if (root.querySelector('.dragging, .resizing')) return soon(); paint(); nextPhotoIfBlank(); }, 250); };
     function close() {
-      timers.forEach(clearInterval); clearTimeout(idleT); clearTimeout(renderT); kid.close();
+      timers.forEach((t) => (t && t.stop ? t.stop() : clearInterval(t))); clearTimeout(idleT); clearTimeout(renderT); kid.close();
       document.removeEventListener('keydown', onKey); removeEventListener('resize', soon);
       try { if (lock) lock.release(); } catch (e) { /* ignore */ }
       try { if (document.fullscreenElement) document.exitFullscreen(); } catch (e) { /* ignore */ }
@@ -925,7 +925,8 @@
     root.addEventListener('pointerdown', wake); root.addEventListener('mousemove', wake);
     document.addEventListener('keydown', onKey); addEventListener('resize', soon);
     paint(); nextPhoto(); wake(); closeBtn.focus();
-    timers.push(setInterval(tick, 10000), setInterval(() => { if (!kid.isOpen() && !arranging) paint(); }, 60000), setInterval(nextPhoto, 12000));
+    const stopClock = PL.clock.start(tick); // every second, and right away when the screen wakes up
+    timers.push({ stop: stopClock }, setInterval(() => { if (!kid.isOpen() && !arranging) paint(); }, 60000), setInterval(nextPhoto, 12000));
     try { if (root.requestFullscreen) { const p = root.requestFullscreen(); if (p && p.catch) p.catch(() => {}); } } catch (e) { /* ignore */ }
     try { if (navigator.wakeLock) navigator.wakeLock.request('screen').then((l) => { lock = l; }).catch(() => {}); } catch (e) { /* ignore */ }
     return { close, openKid: kid.show, arrange: startArrange };

@@ -96,6 +96,11 @@ const json = jsonBody(200 * 1024);
 const r = router();
 
 /* ---------- create a family ---------- */
+// The home's time zone, from the browser of the person who starts it (they can change it in Settings).
+function zoneOf(z) {
+  if (typeof z !== 'string' || !/^[A-Za-z][A-Za-z0-9_+\-]*(\/[A-Za-z0-9_+\-]+){0,2}$/.test(z) || z.length > 64) return {};
+  try { new Intl.DateTimeFormat('en-US', { timeZone: z }); return { timeZone: z }; } catch (e) { return {}; }
+}
 r.post('/api/families', json, async (req, res) => {
   if (!limit('create:' + ipOf(req), 10, 3600000)) fail(429, 'rate_limited', 'Too many new families from here. Please try again later.');
   const familyName = clean(req.body.familyName, 40) || 'Our home';
@@ -104,7 +109,7 @@ r.post('/api/families', json, async (req, res) => {
   const familyId = hexId(), accessId = hexId(), token = rand(24);
   await db.tx(async (c) => {
     await c.query('INSERT INTO families (id, name) VALUES ($1, $2)', [familyId, familyName]);
-    await c.query("INSERT INTO docs (family_id, col, id, data) VALUES ($1, 'settings', 'main', $2)", [familyId, JSON.stringify({ householdName: familyName })]);
+    await c.query("INSERT INTO docs (family_id, col, id, data) VALUES ($1, 'settings', 'main', $2)", [familyId, JSON.stringify(Object.assign({ householdName: familyName }, zoneOf(req.body.timeZone)))]);
     const [memberId] = await newMember(c, familyId, yourName, 'parent'); // the person who starts the home is in the family right away
     await c.query('INSERT INTO access (id, family_id, token_hash, name, role, last_seen, member_id) VALUES ($1,$2,$3,$4,$5, now(), $6)', [accessId, familyId, hash(token), yourName, 'owner', memberId]);
   });

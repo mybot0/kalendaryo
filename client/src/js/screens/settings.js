@@ -78,8 +78,17 @@
         const starsToggle = ui.toggle('Stars and rewards', S.starsOn !== false, async (on) => {
           if (await PL.pin.require('Enter the PIN to change this.')) PL.store.saveSettings({ starsOn: on }); else render();
         });
+        // Home time zone: every screen shows the family's time, even a computer set to the wrong zone.
+        const devZ = PL.deviceZone(), curZ = PL.homeZone();
+        let zones = [];
+        try { zones = Intl.supportedValuesOf('timeZone'); } catch (e) { zones = []; }
+        ['America/Vancouver', 'America/Edmonton', 'America/Winnipeg', 'America/Toronto', 'America/Halifax', 'America/St_Johns', 'Asia/Manila', 'Europe/London', 'Europe/Madrid'].concat([devZ, curZ]).forEach((z) => { if (z && !zones.includes(z)) zones.push(z); });
+        const zoneName = (z) => z.split('/').pop().replace(/_/g, ' ') + ' (' + z + ')';
+        const zoneSel = ui.select([{ value: '', label: 'Same as this device' + (devZ ? ' (' + devZ + ')' : '') }].concat(zones.slice().sort().map((z) => ({ value: z, label: zoneName(z) }))), curZ, (v) => PL.store.saveSettings({ timeZone: v || null }));
+        zoneSel.setAttribute('aria-label', 'Home time zone');
         const household = section('Home', 'Shared by everyone using this calendar.',
-          ui.field('Home name', nameIn), ui.field('Week starts on', weekStart.el), ui.field('Clock', clock.el), starsToggle.el);
+          ui.field('Home name', nameIn), ui.field('Week starts on', weekStart.el), ui.field('Clock', clock.el),
+          ui.field('Home time zone', zoneSel, 'The clock, Today and reminders use this, on every screen.'), starsToggle.el);
 
         /* parent PIN */
         const pinOn = PL.pin.isSet();

@@ -10,7 +10,7 @@
 
   function check() {
     if (!PL.state.device.notify || !PL.state.ready) return;
-    const now = new Date();
+    const now = PL.now();
     PL.cal.dueReminders(now).forEach((i) => {
       const k = keyOf(i);
       if (fired.has(k)) return;

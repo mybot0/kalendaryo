@@ -19,7 +19,7 @@
   let mode = store.get(KEY, 'auto'), wall = store.get(WALL, 'night'), inWall = false;
   const listeners = new Set();
   const mq = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
-  const night = () => { const hr = new Date().getHours(); return hr >= NIGHT_FROM || hr < NIGHT_TO; };
+  const night = () => { const hr = (PL.now ? PL.now() : new Date()).getHours(); return hr >= NIGHT_FROM || hr < NIGHT_TO; };
 
   function appDark() { return mode === 'dark' || (mode === 'auto' && !!(mq && mq.matches)); }
   function isDark() {

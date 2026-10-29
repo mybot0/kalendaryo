@@ -117,7 +117,7 @@
     if (autoDone || !PL.state.live || !sets().some((s) => s.auto)) return;
     autoDone = true;
     try { const u = window.claude && (await window.claude.use('user')); if (u && u.canEdit && !u.canEdit()) return; } catch (e) { return; }
-    const now = new Date(), y = now.getFullYear();
+    const now = PL.now(), y = now.getFullYear();
     const want = now.getMonth() === 11 ? [y, y + 1] : [y];
     for (const s of sets().filter((x) => x.auto)) {
       const place = placeOf(s.key) || { key: s.key, cc: s.key.split('-')[0], sub: '', name: s.name, full: s.full || s.name, flag: s.flag, ai: true };
@@ -143,8 +143,8 @@
   /* ---------- the "Add holidays" sheet ---------- */
   function openAdd(onDone) {
     loadCountries();
-    const thisYear = new Date().getFullYear();
-    let place = null, year = new Date().getMonth() >= 9 ? thisYear + 1 : thisYear, auto = true, rows = [], ai = false, busy = false, err = '';
+    const thisYear = PL.now().getFullYear();
+    let place = null, year = PL.now().getMonth() >= 9 ? thisYear + 1 : thisYear, auto = true, rows = [], ai = false, busy = false, err = '';
     const input = h('input', { type: 'search', maxlength: '60', placeholder: 'For example: BC holidays', autocomplete: 'off', 'aria-label': 'Which holidays?', autofocus: true });
     const matches = h('div', { class: 'chip-row hol-chips' });
     const listBox = h('div', { class: 'hol-list' });

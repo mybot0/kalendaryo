@@ -113,25 +113,30 @@
     mount(root) {
       const el = h('div', { class: 'home' });
       root.append(el);
-      let renderedDay = D.today(), timeEl = null, dateEl = null, timer = null;
+      const sky = PL.sky ? PL.sky.el() : null; // kept across redraws so it doesn't restart
+      let renderedDay = D.today(), renderedGreeting = '', renderedAt = 0, timeEl = null, dateEl = null, stopClock = null;
+      const greetingFor = (hour) => (hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening');
 
-      function tickClock() {
-        const now = new Date();
-        if (timeEl) timeEl.textContent = timeText(now);
-        if (D.key(now) !== renderedDay) render();
+      // Every second: the clock. A new day or greeting, or 5 minutes passing, redraws Home so "Today" stays current.
+      function tickClock(now) {
+        if (timeEl) PL.clock.fill(timeEl, now, PL.state.settings.hour12);
+        if (D.key(now) !== renderedDay || greetingFor(now.getHours()) !== renderedGreeting || (Date.now() - renderedAt > 5 * 60 * 1000 && !document.querySelector('.sheet-backdrop, .sheet'))) render();
       }
 
       function render() {
-        const now = new Date();
-        renderedDay = D.key(now);
+        const now = PL.now();
+        renderedDay = D.key(now); renderedAt = Date.now();
         const state = PL.state;
         const hour = now.getHours();
-        const greeting = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening';
-        timeEl = h('div', { class: 'clock-time' }, timeText(now));
+        const greeting = greetingFor(hour);
+        renderedGreeting = greeting;
+        timeEl = h('div', { class: 'clock-time' });
+        PL.clock.fill(timeEl, now, PL.state.settings.hour12);
         dateEl = h('div', { class: 'clock-date' }, D.fmt(renderedDay, { weekday: 'long', month: 'long', day: 'numeric' }));
 
         const top = h('header', { class: 'home-top' },
           h('div', { class: 'clock' }, h('div', { class: 'greeting' }, greeting), timeEl, dateEl),
+          sky,
           h('div', { class: 'quick btn-row' }, ui.button('Wall mode', { big: true, icon: 'expand', onClick: () => PL.photos.openWall('wall') }), ui.button('Add event', { variant: 'primary', big: true, icon: 'plus', onClick: newEvent() })));
 
         const reminders = PL.cal.dueReminders(now);
@@ -157,8 +162,8 @@
       }
 
       render();
-      timer = setInterval(tickClock, 15000);
-      return { update: render, destroy() { clearInterval(timer); } };
+      stopClock = PL.clock.start(tickClock);
+      return { update: render, destroy() { if (stopClock) stopClock(); } };
     }
   };
 })();

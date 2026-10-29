@@ -87,7 +87,28 @@
   D.pad = pad;
   D.key = (d) => d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
   D.parse = (k) => { const [y, m, d] = k.split('-').map(Number); return new Date(y, m - 1, d); };
-  D.today = () => D.key(new Date());
+  /* ---------- the home's time zone ----------
+   * PL.now() is "right now" as the family's wall clock (settings.timeZone, for example America/Vancouver).
+   * It returns a normal Date whose hours, minutes and day are the home's, so the rest of the app can use
+   * getHours(), D.key() and so on as before. Without a home time zone it is just new Date().
+   * This keeps the clock right even on a computer or browser that reports the wrong time zone. */
+  const fmtCache = {};
+  function zoneParts(tz, ms) {
+    const f = fmtCache[tz] || (fmtCache[tz] = new Intl.DateTimeFormat('en-US', { timeZone: tz, hourCycle: 'h23', year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric', second: 'numeric' }));
+    const o = {}; f.formatToParts(new Date(ms)).forEach((p) => { o[p.type] = +p.value; });
+    return o;
+  }
+  PL.homeZone = () => { const z = PL.state && PL.state.settings && PL.state.settings.timeZone; return PL.validZone(z) ? z : ''; };
+  PL.validZone = (z) => { if (!z || typeof z !== 'string') return false; try { new Intl.DateTimeFormat('en-US', { timeZone: z }); return true; } catch (e) { return false; } };
+  PL.deviceZone = () => { try { return Intl.DateTimeFormat().resolvedOptions().timeZone || ''; } catch (e) { return ''; } };
+  PL.now = (ms) => {
+    const t = ms == null ? Date.now() : ms;
+    const tz = PL.homeZone();
+    if (!tz) return new Date(t);
+    const p = zoneParts(tz, t);
+    return new Date(p.year, p.month - 1, p.day, p.hour % 24, p.minute, p.second, new Date(t).getMilliseconds());
+  };
+  D.today = () => D.key(PL.now());
   D.addDays = (k, n) => { const d = D.parse(k); d.setDate(d.getDate() + n); return D.key(d); };
   // Whole days from key a to key b (b - a). Uses UTC so daylight-saving changes never skew it.
   D.diff = (a, b) => {
@@ -122,10 +143,43 @@
   D.weekdayShort = (i) => new Date(2023, 0, 1 + i).toLocaleDateString(undefined, { weekday: 'short' }); // 0 = Sunday
   D.weekdayLong = (i) => new Date(2023, 0, 1 + i).toLocaleDateString(undefined, { weekday: 'long' });
   D.ordinal = (n) => { const s = ['th', 'st', 'nd', 'rd'], v = n % 100; return n + (s[(v - 20) % 10] || s[v] || s[0]); };
-  D.nowTime = () => { const n = new Date(); return pad(n.getHours()) + ':' + pad(n.getMinutes()); };
+  D.nowTime = () => { const n = PL.now(); return pad(n.getHours()) + ':' + pad(n.getMinutes()); };
   // A moment in time from a date key and "HH:MM".
   D.at = (k, t) => { const d = D.parse(k); const [h, m] = (t || '00:00').split(':').map(Number); d.setHours(h, m, 0, 0); return d; };
   PL.D = D;
+
+  /* ---------- clock: big hours:minutes with small seconds and AM/PM stacked beside them ---------- */
+  // PL.clock.fill(el, date, hour12)  draws or updates the time inside el
+  // PL.clock.start(fn)               calls fn right on every new second, and right away when the page comes back; returns stop()
+  PL.clock = {
+    fill(el, now, hour12) {
+      const parts = new Intl.DateTimeFormat(undefined, { hour: 'numeric', minute: '2-digit', hour12: hour12 !== false }).formatToParts(now);
+      let hm = '', ap = '';
+      parts.forEach((p) => { if (p.type === 'dayPeriod') ap = p.value; else if (p.type === 'hour' || p.type === 'minute' || (p.type === 'literal' && p.value.trim() === ':')) hm += p.value; });
+      const ss = ':' + String(now.getSeconds()).padStart(2, '0');
+      if (!el._clk) {
+        const c = { hm: document.createElement('span'), s: document.createElement('span'), ap: document.createElement('span') };
+        const side = document.createElement('span');
+        c.hm.className = 'clk-hm'; side.className = 'clk-side'; c.s.className = 'clk-s'; c.ap.className = 'clk-ap';
+        c.s.setAttribute('aria-hidden', 'true');
+        side.append(c.s, c.ap);
+        el.replaceChildren(c.hm, side);
+        el._clk = c;
+      }
+      const c = el._clk;
+      if (c.hm.textContent !== hm) c.hm.textContent = hm;
+      if (c.ap.textContent !== ap) { c.ap.textContent = ap; c.ap.hidden = !ap; }
+      c.s.textContent = ss;
+    },
+    start(fn) {
+      let t = null, stopped = false;
+      const run = () => { if (stopped) return; try { fn(PL.now()); } catch (e) { /* keep ticking */ } t = setTimeout(run, 1000 - (Date.now() % 1000) + 5); };
+      const back = () => { if (!document.hidden) { clearTimeout(t); run(); } };
+      document.addEventListener('visibilitychange', back); window.addEventListener('focus', back);
+      run();
+      return () => { stopped = true; clearTimeout(t); document.removeEventListener('visibilitychange', back); window.removeEventListener('focus', back); };
+    }
+  };
 
   /* ---------- Storage (this device only) ---------- */
   // The web version sets PL_STORAGE_PREFIX so each family keeps its own saved copy on a shared browser.
