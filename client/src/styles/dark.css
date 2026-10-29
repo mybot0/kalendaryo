@@ -1,0 +1,68 @@
+/*
+ * dark.css — dark mode colors for Kalendaryo. Switched on by <html data-theme="dark"> (theme.js).
+ * Same idea as cozy.css: everything for dark mode is in this one file.
+ * Pastel things (event chips, person colors, yellow buttons) stay pastel with dark text, so they stay readable.
+ */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #171C1A;
+  --surface: #222A26;
+  --surface-2: #2A332E;
+  --line: #37423C;
+  --ink: #ECEFEA;
+  --ink-2: #B9C3BC;
+  --ink-3: #8C968F;
+  --primary: #72B597;
+  --primary-ink: #0F1F18;
+  --primary-soft: #2B4037;
+  --danger: #E88A78;
+  --danger-soft: #3D2622;
+  --focus: #8FC4EA;
+  --shadow: 0 1px 2px rgba(0,0,0,.35), 0 6px 18px rgba(0,0,0,.25);
+  --ink-on-color: #26302B; /* text on pastel backgrounds */
+  /* page glow (base.css) */
+  --glow1: rgba(120,70,60,.20); --glow2: rgba(80,70,120,.20); --glow3: rgba(120,100,40,.14);
+}
+
+
+
+/* Pastel backgrounds keep dark text */
+:root[data-theme="dark"] :is(.reminder, .mv-ev, .wk-item, .btn.gold, .toast-act, .hol-bar, .hol-pill, .star-chip, .kid-back, .kid-card, .wall-room, .gc-also, .li-also, .find-box, .status-banner, .land-demo) { color: var(--ink-on-color); }
+:root[data-theme="dark"] .btn.gold .ic { color: var(--ink-on-color); }
+
+/* Grey text on pastel cards */
+:root[data-theme="dark"] .land-demo .sub { color: #5C675F; }
+
+/* Text on the main color uses the dark ink (white on light green is hard to read) */
+:root[data-theme="dark"] :is(.seg-btn.on, .tour-state, .g-next:not(.trip)) { color: var(--primary-ink); }
+
+/* Guided tour and its switch */
+:root[data-theme="dark"] :is(.g-box, .g-box::before, .tour-switch) { background: var(--surface); color: var(--ink); }
+:root[data-theme="dark"] .tour-switch.off .tour-state { background: var(--surface-2); color: var(--ink-2); }
+
+/* Person-colored tiles: a dark tint of the person's color instead of a bright pastel */
+:root[data-theme="dark"] :is(.star-tile, .member-tile, .family-card, .member-head) { background: color-mix(in srgb, var(--c) 24%, var(--surface)); }
+
+/* Wall mode */
+:root[data-theme="dark"] :is(.wall-panel, .arr-hint) { background: rgba(34,42,38,.93); color: var(--ink); }
+:root[data-theme="dark"] .wall.photos .wall-top { background: rgba(23,28,26,.8); }
+:root[data-theme="dark"] .wch-kid { background: color-mix(in srgb, var(--t) 22%, var(--surface)); color: var(--ink); }
+
+/* Empty boxes: an even lighter fade in the dark */
+:root[data-theme="dark"] :is(.widget:has(.empty-state), .main .card:has(> .empty-state)) {
+  background: linear-gradient(180deg, var(--surface) 62%, color-mix(in srgb, var(--edge, #555) 6%, var(--surface)) 100%);
+}
+
+/* Drawings and photos: a little softer so they don't glow */
+:root[data-theme="dark"] :is(.empty-art svg, .photo-tile img, .wall-photo-img) { filter: brightness(.85) saturate(.92); }
+
+/* Forms */
+:root[data-theme="dark"] :is(input, select, textarea) { background: var(--surface-2); color: var(--ink); border-color: var(--line); }
+:root[data-theme="dark"] ::placeholder { color: var(--ink-3); }
+
+/* Menu: the Dark mode / Light mode line sits at the bottom on computers; on phones it lives in Settings. */
+.theme-btn { display: none; }
+@media (min-width: 900px) {
+  .rail { display: flex; flex-direction: column; }
+  .theme-btn { display: flex; margin-top: auto; }
+}

@@ -11,8 +11,8 @@ const root = __dirname;
 const target = process.argv[2] || 'artifact';
 const rd = (p) => fs.readFileSync(path.join(root, p), 'utf8');
 
-const css = ['theme', 'base', 'components', 'shell', 'screens', 'chores', 'lists', 'meals', 'cozy'];
-const js = ['config', 'util', 'models', 'recurrence', 'store', 'calendar-data', 'chores-data', 'routines-data', 'rewards-data', 'event-actions', 'data-tools', 'ics',
+const css = ['theme', 'base', 'components', 'shell', 'screens', 'chores', 'lists', 'meals', 'cozy', 'dark'];
+const js = ['config', 'util', 'theme', 'models', 'recurrence', 'store', 'calendar-data', 'chores-data', 'routines-data', 'rewards-data', 'event-actions', 'data-tools', 'ics',
   'ui-kit', 'look', 'pin', 'event-ui', 'holidays', 'weather', 'photos', 'wall', 'notify', 'screens/family', 'screens/routines', 'screens/rewards', 'screens/tasks', 'screens/lists', 'screens/notes', 'screens/photos', 'screens/meals', 'screens/countdowns', 'screens/dashboard', 'screens/calendar', 'screens/settings',
   'shell', 'main'];
 
@@ -32,7 +32,8 @@ const head = web
      '<meta name="robots" content="noindex">', '<meta name="theme-color" content="#F4F3EE">', '<title>Kalendaryo</title>']
   : ['<title>Kalendaryo</title>', '<meta name="claude:viewport-fit-sides" content="cover">'];
 const out = head.concat(
-  ['<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;600;700;800&family=Outfit:wght@600;700;800&display=swap">',
+  ["<script>try{var t=localStorage.getItem('kal.theme')||'auto';if(t==='dark'||(t==='auto'&&matchMedia('(prefers-color-scheme: dark)').matches))document.documentElement.dataset.theme='dark'}catch(e){}</script>",
+   '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;600;700;800&family=Outfit:wght@600;700;800&display=swap">',
    '<style>', ...styles, '</style>'],
   web ? ['</head>', '<body>'] : [],
   ['<div id="porchlight-root"></div>'],

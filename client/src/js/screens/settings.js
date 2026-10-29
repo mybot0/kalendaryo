@@ -78,8 +78,8 @@
         const starsToggle = ui.toggle('Stars and rewards', S.starsOn !== false, async (on) => {
           if (await PL.pin.require('Enter the PIN to change this.')) PL.store.saveSettings({ starsOn: on }); else render();
         });
-        const household = section('Household', 'Shared by everyone using this calendar.',
-          ui.field('Family name', nameIn), ui.field('Week starts on', weekStart.el), ui.field('Clock', clock.el), starsToggle.el);
+        const household = section('Home', 'Shared by everyone using this calendar.',
+          ui.field('Home name', nameIn), ui.field('Week starts on', weekStart.el), ui.field('Clock', clock.el), starsToggle.el);
 
         /* parent PIN */
         const pinOn = PL.pin.isSet();
@@ -112,6 +112,12 @@
           });
           return h('div', { class: 'toggle-row' }, ui.avatar(m, 28), t.el);
         })) : h('p', { class: 'sub' }, 'Add family members to choose who is shown.');
+        /* appearance (this device) */
+        const look = ui.segmented([{ value: 'auto', label: 'Auto' }, { value: 'light', label: 'Light' }, { value: 'dark', label: 'Dark' }], PL.theme.get(), (v) => PL.theme.set(v), 'Appearance');
+        const wallLook = ui.select([{ value: 'night', label: 'Dark at night (9 PM – 7 AM)' }, { value: 'app', label: 'Same as the app' }, { value: 'dark', label: 'Always dark' }, { value: 'light', label: 'Always light' }], PL.theme.wallLook(), (v) => PL.theme.setWallLook(v));
+        wallLook.setAttribute('aria-label', 'Wall mode look');
+        const appearance = section('Appearance', 'Light, dark, or Auto to follow this phone or computer.',
+          ui.field('Look', look.el), ui.field('Wall mode', wallLook));
         const device = section('This device', 'These only change this screen, not other devices.',
           ui.field('Text size', text.el), ui.field('Starting calendar view', view.el), motion.el, notify.el,
           h('p', { class: 'hint' }, 'Reminders only appear while Kalendaryo is open.'),
@@ -159,7 +165,7 @@
 
         // Cards in a sensible order: the family, then screens, then data. They are spread over
         // balanced columns (each card goes under the shortest column), so there are no big gaps.
-        const cards = [household, pinCard, wxCard, device, layout, PL.wall.card(), data, about];
+        const cards = [appearance, household, pinCard, wxCard, device, layout, PL.wall.card(), data, about];
         el.replaceChildren(h('header', { class: 'page-head' }, h('h1', {}, 'Settings')), masonry.wrap);
         masonry.set(cards);
       }

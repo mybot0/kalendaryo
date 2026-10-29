@@ -44,7 +44,7 @@
       return b;
     }));
     const brand = h('div', { class: 'brand', 'aria-hidden': 'true' }, icon('calendar'), h('span', { class: 'brand-text' }, h('span', { class: 'brand-name' }, PL.config.appName), h('span', { class: 'brand-tag' }, PL.config.tagline)));
-    root.replaceChildren(h('div', { class: 'app' }, h('aside', { class: 'rail' }, brand, nav), h('div', { class: 'content' }, banner, main)));
+    root.replaceChildren(h('div', { class: 'app' }, h('aside', { class: 'rail' }, brand, nav, PL.theme.button()), h('div', { class: 'content' }, banner, main)));
     PL.store.subscribe(() => { status(); if (current && current.update) current.update(); });
   }
 

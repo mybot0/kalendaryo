@@ -140,7 +140,7 @@
     railTop = h('div', {});
     const brand = h('button', { type: 'button', class: 'brand', 'aria-label': 'Triply – My Trips', style: 'border:0;background:none;text-align:left;cursor:pointer', onclick: () => TR.go('/') },
       icon('send'), h('span', { class: 'brand-text' }, h('span', { class: 'brand-name' }, TR.config.appName), h('span', { class: 'brand-tag' }, TR.config.tagline)));
-    root.replaceChildren(h('div', { class: 'app' }, h('aside', { class: 'rail' }, brand, railTop, nav), h('div', { class: 'content' }, banner, main)));
+    root.replaceChildren(h('div', { class: 'app' }, h('aside', { class: 'rail' }, brand, railTop, nav, TR.theme.button()), h('div', { class: 'content' }, banner, main)));
     window.addEventListener('hashchange', route);
     window.addEventListener('online', () => { const s = TR.currentTrip(); if (s) s.refresh(); });
   }

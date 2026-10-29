@@ -17,6 +17,9 @@
       root.replaceChildren(
         h('div', { class: 'page-head' }, h('h1', {}, 'Settings')),
         h('div', { class: 'settings-grid' },
+          h('section', { class: 'card settings-card' }, h('h2', {}, 'Appearance'),
+            h('p', { class: 'sub' }, 'Light, dark, or Auto to follow this phone or computer.'),
+            ui.segmented([{ value: 'auto', label: 'Auto' }, { value: 'light', label: 'Light' }, { value: 'dark', label: 'Dark' }], TR.theme.get(), (v) => TR.theme.set(v), 'Appearance').el),
           h('section', { class: 'card settings-card' }, h('h2', {}, 'About you'),
             h('p', { class: 'sub' }, 'Used to fill in the form when you start or join a trip on this device.'),
             ui.field('Name', name), h('div', { class: 'field' }, h('span', { class: 'field-label' }, 'Picture'), av.el),

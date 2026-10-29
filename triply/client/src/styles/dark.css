@@ -1,0 +1,57 @@
+/*
+ * dark.css — dark mode colors for Triply. Switched on by <html data-theme="dark"> (theme.js).
+ * Same idea as cozy.css: everything for dark mode is in this one file.
+ * Pastel things (event chips, person colors, yellow buttons) stay pastel with dark text, so they stay readable.
+ */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #1D1917;
+  --surface: #2A2421;
+  --surface-2: #332B27;
+  --line: #463B35;
+  --ink: #F3EDE9;
+  --ink-2: #C9BCB4;
+  --ink-3: #978A82;
+  --primary: #E28A6C;
+  --primary-ink: #2A140C;
+  --primary-soft: #4A2F26;
+  --danger: #E88A78;
+  --danger-soft: #3D2622;
+  --focus: #8FC4EA;
+  --shadow: 0 1px 2px rgba(0,0,0,.35), 0 6px 18px rgba(0,0,0,.25);
+  --ink-on-color: #26302B; /* text on pastel backgrounds */
+  /* page glow (base.css) */
+  --glow1: rgba(140,70,50,.22); --glow2: rgba(50,80,110,.20); --glow3: rgba(130,100,40,.14);
+}
+
+
+
+/* Pastel backgrounds keep dark text */
+:root[data-theme="dark"] :is(.btn.gold, .toast-act, .status-banner) { color: var(--ink-on-color); }
+:root[data-theme="dark"] .btn.gold .ic { color: var(--ink-on-color); }
+
+/* Text on the main color uses the dark ink (white on light coral is hard to read) */
+:root[data-theme="dark"] :is(.seg-btn.on, .nt-btn) { color: var(--primary-ink); }
+
+/* Empty boxes: an even lighter fade in the dark */
+:root[data-theme="dark"] :is(.widget:has(.empty-state), .main .card:has(> .empty-state)) {
+  background: linear-gradient(180deg, var(--surface) 62%, color-mix(in srgb, var(--edge, #555) 6%, var(--surface)) 100%);
+}
+
+/* Drawings and photos: a little softer so they don't glow */
+:root[data-theme="dark"] :is(.empty-art svg, .cv, .ai-tile, .new-tile .tile-art, .file-thumb img, .photo-prev) { filter: brightness(.85) saturate(.92); }
+
+/* Forms */
+:root[data-theme="dark"] :is(input, select, textarea) { background: var(--surface-2); color: var(--ink); border-color: var(--line); }
+:root[data-theme="dark"] ::placeholder { color: var(--ink-3); }
+
+/* Menu: the Dark mode / Light mode line sits at the bottom on computers; on phones it lives in Settings. */
+.theme-btn { display: none; }
+@media (min-width: 900px) {
+  .rail { display: flex; flex-direction: column; }
+  .theme-btn { display: flex; margin-top: auto; }
+}
+
+/* Triply tiles on My Trips */
+:root[data-theme="dark"] .new-tile { background: #2E2925; }
+:root[data-theme="dark"] .new-tile .tile-art { opacity: .55; }

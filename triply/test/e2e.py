@@ -71,7 +71,7 @@ with sync_playwright() as p:
 
     def flight(pg):
         pg.get_by_label('Airline').fill('Air Canada'); pg.get_by_label('Flight number').fill('AC123')
-        pg.get_by_label('From').fill('Vancouver (YVR)'); pg.get_by_label('To').fill('Montreal (YUL)')
+        pg.get_by_label('From', exact=True).fill('Vancouver (YVR)'); pg.get_by_label('To', exact=True).fill('Montreal (YUL)')
         pg.get_by_label('Departs – day').fill('2027-07-23'); pg.get_by_label('Departs – day').locator('xpath=ancestor::div[contains(@class,"row2")]').get_by_label('Time').fill('07:00')
         pg.get_by_label('Arrives – day').fill('2027-07-23')
         pg.get_by_label('Confirmation number').fill('ABC123')

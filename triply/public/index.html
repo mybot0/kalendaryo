@@ -6,6 +6,7 @@
 <meta name="referrer" content="no-referrer">
 <title>Triply</title>
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
+<script>try{var t=localStorage.getItem('triply.theme')||'auto';if(t==='dark'||(t==='auto'&&matchMedia('(prefers-color-scheme: dark)').matches))document.documentElement.dataset.theme='dark'}catch(e){}</script>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;600;700;800&family=Outfit:wght@600;700;800&display=swap">
 <style>
 /* theme.css — same tokens as Kalendaryo; the accent is terracotta instead of green. */
@@ -42,9 +43,9 @@ body { margin: 0; background: var(--bg); color: var(--ink); font: 1rem/1.45 var(
 body {
   background-color: var(--bg);
   background-image:
-    radial-gradient(700px 500px at 5% 0%, rgba(248,231,224,.9), transparent 70%),
-    radial-gradient(640px 520px at 100% 25%, rgba(221,236,246,.85), transparent 70%),
-    radial-gradient(700px 520px at 40% 100%, rgba(251,240,214,.8), transparent 70%),
+    radial-gradient(700px 500px at 5% 0%, var(--glow1, rgba(248,231,224,.9)), transparent 70%),
+    radial-gradient(640px 520px at 100% 25%, var(--glow2, rgba(221,236,246,.85)), transparent 70%),
+    radial-gradient(700px 520px at 40% 100%, var(--glow3, rgba(251,240,214,.8)), transparent 70%),
     url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%22680%22%20height%3D%22680%22%20viewBox%3D%220%200%20680%20680%22%3E%3Cg%20fill%3D%22none%22%20stroke%3D%22%23B8583A%22%20stroke-opacity%3D%220.12%22%20stroke-width%3D%221.5%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cg%20transform%3D%22translate%2834%2017%29%20rotate%287%2024%2024%29%20scale%282.97%29%22%3E%3Ccircle%20cx%3D%2212%22%20cy%3D%2212%22%20r%3D%228%22/%3E%3Cpath%20d%3D%22M4%2012h16M12%204c3%203%203%2013%200%2016M12%204c-3%203-3%2013%200%2016%22/%3E%3C/g%3E%3Cg%20transform%3D%22translate%28183%2089%29%20rotate%286%2024%2024%29%20scale%283.08%29%22%3E%3Cpath%20d%3D%22M12%2021c0-5%201-9%202-12%22/%3E%3Cpath%20d%3D%22M14%209c-2-3-6-3-8-1M14%209c1-3%205-4%207-2M14%209c3%200%206%202%206%205M14%209c-3%200-6%202-7%205%22/%3E%3Cpath%20d%3D%22M5%2021h14%22/%3E%3C/g%3E%3Cg%20transform%3D%22translate%28399%2023%29%20rotate%281%2024%2024%29%20scale%282.41%29%22%3E%3Crect%20x%3D%224%22%20y%3D%228%22%20width%3D%2216%22%20height%3D%2212%22%20rx%3D%222%22/%3E%3Cpath%20d%3D%22M9%208V5h6v3M4%2013h16M8%2020v1M16%2020v1%22/%3E%3C/g%3E%3Cg%20transform%3D%22translate%28525%2025%29%20rotate%28-17%2024%2024%29%20scale%282.57%29%22%3E%3Cpath%20d%3D%22M3%2013l18-7-6%2016-3-6z%22/%3E%3Cpath%20d%3D%22M12%2016l-2%204%22/%3E%3C/g%3E%3Cg%20transform%3D%22translate%2847%20215%29%20rotate%281%2024%2024%29%20scale%282.99%29%22%3E%3Cpath%20d%3D%22M3%2015h18l-3%205H6z%22/%3E%3Cpath%20d%3D%22M12%2015V4l6%209M12%206l-5%207%22/%3E%3C/g%3E%3Cg%20transform%3D%22translate%28231%20220%29%20rotate%28-2%2024%2024%29%20scale%282.86%29%22%3E%3Cpath%20d%3D%22M12%2021s-6-6-6-11a6%206%200%200%201%2012%200c0%205-6%2011-6%2011z%22/%3E%3Ccircle%20cx%3D%2212%22%20cy%3D%2210%22%20r%3D%222.2%22/%3E%3C/g%3E%3Cg%20transform%3D%22translate%28372%20260%29%20rotate%2812%2024%2024%29%20scale%283.10%29%22%3E%3Cpath%20d%3D%22M3%208h18v3a2%202%200%200%200%200%204v3H3v-3a2%202%200%200%200%200-4z%22/%3E%3Cpath%20d%3D%22M14%208v10%22/%3E%3C/g%3E%3Cg%20transform%3D%22translate%28577%20205%29%20rotate%28-8%2024%2024%29%20scale%282.56%29%22%3E%3Crect%20x%3D%226%22%20y%3D%223%22%20width%3D%2212%22%20height%3D%2218%22%20rx%3D%222%22/%3E%3Ccircle%20cx%3D%2212%22%20cy%3D%2211%22%20r%3D%223%22/%3E%3Cpath%20d%3D%22M9%2017h6%22/%3E%3C/g%3E%3Cg%20transform%3D%22translate%2816%20411%29%20rotate%2812%2024%2024%29%20scale%282.68%29%22%3E%3Crect%20x%3D%223%22%20y%3D%227%22%20width%3D%2218%22%20height%3D%2212%22%20rx%3D%222%22/%3E%3Cpath%20d%3D%22M8%207l1.5-3h5L16%207%22/%3E%3Ccircle%20cx%3D%2212%22%20cy%3D%2213%22%20r%3D%223.5%22/%3E%3C/g%3E%3Cg%20transform%3D%22translate%28211%20427%29%20rotate%28-18%2024%2024%29%20scale%282.99%29%22%3E%3Ccircle%20cx%3D%227%22%20cy%3D%2214%22%20r%3D%223.2%22/%3E%3Ccircle%20cx%3D%2217%22%20cy%3D%2214%22%20r%3D%223.2%22/%3E%3Cpath%20d%3D%22M10.2%2014h3.6M3.8%2013L5%208M20.2%2013L19%208%22/%3E%3C/g%3E%3Cg%20transform%3D%22translate%28367%20423%29%20rotate%2817%2024%2024%29%20scale%282.73%29%22%3E%3Ccircle%20cx%3D%2212%22%20cy%3D%2212%22%20r%3D%224%22/%3E%3Cpath%20d%3D%22M12%202v3M12%2019v3M2%2012h3M19%2012h3M4.9%204.9l2.1%202.1M17%2017l2.1%202.1M4.9%2019.1L7%2017M17%207l2.1-2.1%22/%3E%3C/g%3E%3Cg%20transform%3D%22translate%28552%20356%29%20rotate%2810%2024%2024%29%20scale%282.84%29%22%3E%3Cpath%20d%3D%22M3%206l6-2%206%202%206-2v14l-6%202-6-2-6%202z%22/%3E%3Cpath%20d%3D%22M9%204v14M15%206v14%22/%3E%3C/g%3E%3Cg%20transform%3D%22translate%2832%20527%29%20rotate%2817%2024%2024%29%20scale%282.63%29%22%3E%3Cpath%20d%3D%22M2%2019l7-11%204%206%203-4%206%209z%22/%3E%3Cpath%20d%3D%22M7.5%2010.5l1.5%201.5%201.5-1.5%22/%3E%3C/g%3E%3Cg%20transform%3D%22translate%28241%20529%29%20rotate%28-14%2024%2024%29%20scale%282.57%29%22%3E%3Ccircle%20cx%3D%2212%22%20cy%3D%2212%22%20r%3D%228%22/%3E%3Cpath%20d%3D%22M15%209l-2%205-4%201%202-5z%22/%3E%3C/g%3E%3Cg%20transform%3D%22translate%28355%20584%29%20rotate%282%2024%2024%29%20scale%282.52%29%22%3E%3Ccircle%20cx%3D%2212%22%20cy%3D%2212%22%20r%3D%228%22/%3E%3Cpath%20d%3D%22M4%2012h16M12%204c3%203%203%2013%200%2016M12%204c-3%203-3%2013%200%2016%22/%3E%3C/g%3E%3Cg%20transform%3D%22translate%28556%20535%29%20rotate%28-13%2024%2024%29%20scale%282.91%29%22%3E%3Cpath%20d%3D%22M12%2021c0-5%201-9%202-12%22/%3E%3Cpath%20d%3D%22M14%209c-2-3-6-3-8-1M14%209c1-3%205-4%207-2M14%209c3%200%206%202%206%205M14%209c-3%200-6%202-7%205%22/%3E%3Cpath%20d%3D%22M5%2021h14%22/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
   background-size: auto, auto, auto, 680px 680px;
   background-repeat: no-repeat, no-repeat, no-repeat, repeat;
@@ -593,6 +594,64 @@ mark { background: rgba(184,88,58,.2); color: inherit; border-radius: 4px; paddi
 .empty-art { width: 220px; max-width: 72%; margin: 0 auto 2px; line-height: 0; }
 .empty-art svg { width: 100%; height: auto; display: block; }
 
+/*
+ * dark.css — dark mode colors for Triply. Switched on by <html data-theme="dark"> (theme.js).
+ * Same idea as cozy.css: everything for dark mode is in this one file.
+ * Pastel things (event chips, person colors, yellow buttons) stay pastel with dark text, so they stay readable.
+ */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #1D1917;
+  --surface: #2A2421;
+  --surface-2: #332B27;
+  --line: #463B35;
+  --ink: #F3EDE9;
+  --ink-2: #C9BCB4;
+  --ink-3: #978A82;
+  --primary: #E28A6C;
+  --primary-ink: #2A140C;
+  --primary-soft: #4A2F26;
+  --danger: #E88A78;
+  --danger-soft: #3D2622;
+  --focus: #8FC4EA;
+  --shadow: 0 1px 2px rgba(0,0,0,.35), 0 6px 18px rgba(0,0,0,.25);
+  --ink-on-color: #26302B; /* text on pastel backgrounds */
+  /* page glow (base.css) */
+  --glow1: rgba(140,70,50,.22); --glow2: rgba(50,80,110,.20); --glow3: rgba(130,100,40,.14);
+}
+
+
+
+/* Pastel backgrounds keep dark text */
+:root[data-theme="dark"] :is(.btn.gold, .toast-act, .status-banner) { color: var(--ink-on-color); }
+:root[data-theme="dark"] .btn.gold .ic { color: var(--ink-on-color); }
+
+/* Text on the main color uses the dark ink (white on light coral is hard to read) */
+:root[data-theme="dark"] :is(.seg-btn.on, .nt-btn) { color: var(--primary-ink); }
+
+/* Empty boxes: an even lighter fade in the dark */
+:root[data-theme="dark"] :is(.widget:has(.empty-state), .main .card:has(> .empty-state)) {
+  background: linear-gradient(180deg, var(--surface) 62%, color-mix(in srgb, var(--edge, #555) 6%, var(--surface)) 100%);
+}
+
+/* Drawings and photos: a little softer so they don't glow */
+:root[data-theme="dark"] :is(.empty-art svg, .cv, .ai-tile, .new-tile .tile-art, .file-thumb img, .photo-prev) { filter: brightness(.85) saturate(.92); }
+
+/* Forms */
+:root[data-theme="dark"] :is(input, select, textarea) { background: var(--surface-2); color: var(--ink); border-color: var(--line); }
+:root[data-theme="dark"] ::placeholder { color: var(--ink-3); }
+
+/* Menu: the Dark mode / Light mode line sits at the bottom on computers; on phones it lives in Settings. */
+.theme-btn { display: none; }
+@media (min-width: 900px) {
+  .rail { display: flex; flex-direction: column; }
+  .theme-btn { display: flex; margin-top: auto; }
+}
+
+/* Triply tiles on My Trips */
+:root[data-theme="dark"] .new-tile { background: #2E2925; }
+:root[data-theme="dark"] .new-tile .tile-art { opacity: .55; }
+
 </style>
 <!--TRIPLY_CONFIG-->
 <div id="triply-root"></div>
@@ -748,6 +807,75 @@ mark { background: rgba(184,88,58,.2); color: inherit; border-radius: 4px; paddi
   TR.plural = (n, one, many) => n + ' ' + (n === 1 ? one : many || one + 's');
   TR.initial = (name) => (String(name || '?').trim().charAt(0) || '?').toUpperCase();
   TR.mapsUrl = (q) => 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(q);
+})();
+
+</script>
+<script>
+/*
+ * theme.js — light and dark mode. Colors for dark mode live in styles/dark.css.
+ *
+ *   TR.theme.get()        'auto' | 'light' | 'dark'   (saved on this device)
+ *   TR.theme.set(v)
+ *   TR.theme.isDark()     what is showing right now
+ *   TR.theme.toggle()     the quick switch at the bottom of the menu
+ *   TR.theme.wallLook()   'app' | 'night' | 'dark' | 'light'  (not used in Triply)
+ *   TR.theme.setWall(on)  wall mode tells us when it opens and closes
+ *   TR.theme.button()     the small "Dark mode / Light mode" menu line
+ *
+ * Auto follows the phone or computer (prefers-color-scheme). Wall mode can go dark at night by itself.
+ */
+(function () {
+  const TR = (window.TR = window.TR || {});
+  const KEY = 'theme', WALL = 'wallLook', NIGHT_FROM = 21, NIGHT_TO = 7; // 9 PM to 7 AM
+  const store = { get: (k, d) => { try { const v = localStorage.getItem('triply.' + k); return v == null ? d : v; } catch (e) { return d; } },
+    set: (k, v) => { try { localStorage.setItem('triply.' + k, v); } catch (e) { /* private mode: still works until reload */ } } };
+  let mode = store.get(KEY, 'auto'), wall = store.get(WALL, 'night'), inWall = false;
+  const listeners = new Set();
+  const mq = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
+  const night = () => { const hr = new Date().getHours(); return hr >= NIGHT_FROM || hr < NIGHT_TO; };
+
+  function appDark() { return mode === 'dark' || (mode === 'auto' && !!(mq && mq.matches)); }
+  function isDark() {
+    if (inWall && wall !== 'app') return wall === 'dark' || (wall === 'night' && night());
+    return appDark();
+  }
+  function apply() {
+    const d = isDark();
+    document.documentElement.dataset.theme = d ? 'dark' : 'light';
+    const meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) meta.setAttribute('content', d ? '#1D1917' : '#F4F3EE');
+    listeners.forEach((f) => { try { f(d); } catch (e) { /* ignore */ } });
+  }
+  if (mq) (mq.addEventListener ? mq.addEventListener('change', apply) : mq.addListener(apply));
+  setInterval(() => { if (inWall && wall === 'night') apply(); }, 60 * 1000);
+
+  const MOON = '<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg>';
+  const SUN = '<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>';
+
+  function button(cls) {
+    const b = document.createElement('button');
+    b.type = 'button'; b.className = cls || 'nav-btn theme-btn';
+    const paint = () => { const d = isDark(); b.innerHTML = (d ? SUN : MOON) + '<span class="nav-label">' + (d ? 'Light mode' : 'Dark mode') + '</span>'; b.setAttribute('aria-label', d ? 'Switch to light mode' : 'Switch to dark mode'); };
+    b.addEventListener('click', () => TR.theme.toggle());
+    listeners.add(paint); paint();
+    return b;
+  }
+
+  TR.theme = {
+    get: () => mode,
+    set(v) { mode = ['light', 'dark'].includes(v) ? v : 'auto'; store.set(KEY, mode); apply(); },
+    isDark,
+    toggle() {
+      if (inWall) { wall = isDark() ? 'light' : 'dark'; store.set(WALL, wall); return apply(); }
+      TR.theme.set(appDark() ? 'light' : 'dark');
+    },
+    wallLook: () => wall,
+    setWallLook(v) { wall = ['app', 'night', 'dark', 'light'].includes(v) ? v : 'night'; store.set(WALL, wall); apply(); },
+    setWall(on) { inWall = !!on; apply(); },
+    onChange(f) { listeners.add(f); return () => listeners.delete(f); },
+    button
+  };
+  apply();
 })();
 
 </script>
@@ -3552,6 +3680,9 @@ mark { background: rgba(184,88,58,.2); color: inherit; border-radius: 4px; paddi
       root.replaceChildren(
         h('div', { class: 'page-head' }, h('h1', {}, 'Settings')),
         h('div', { class: 'settings-grid' },
+          h('section', { class: 'card settings-card' }, h('h2', {}, 'Appearance'),
+            h('p', { class: 'sub' }, 'Light, dark, or Auto to follow this phone or computer.'),
+            ui.segmented([{ value: 'auto', label: 'Auto' }, { value: 'light', label: 'Light' }, { value: 'dark', label: 'Dark' }], TR.theme.get(), (v) => TR.theme.set(v), 'Appearance').el),
           h('section', { class: 'card settings-card' }, h('h2', {}, 'About you'),
             h('p', { class: 'sub' }, 'Used to fill in the form when you start or join a trip on this device.'),
             ui.field('Name', name), h('div', { class: 'field' }, h('span', { class: 'field-label' }, 'Picture'), av.el),
@@ -4006,7 +4137,7 @@ mark { background: rgba(184,88,58,.2); color: inherit; border-radius: 4px; paddi
     railTop = h('div', {});
     const brand = h('button', { type: 'button', class: 'brand', 'aria-label': 'Triply – My Trips', style: 'border:0;background:none;text-align:left;cursor:pointer', onclick: () => TR.go('/') },
       icon('send'), h('span', { class: 'brand-text' }, h('span', { class: 'brand-name' }, TR.config.appName), h('span', { class: 'brand-tag' }, TR.config.tagline)));
-    root.replaceChildren(h('div', { class: 'app' }, h('aside', { class: 'rail' }, brand, railTop, nav), h('div', { class: 'content' }, banner, main)));
+    root.replaceChildren(h('div', { class: 'app' }, h('aside', { class: 'rail' }, brand, railTop, nav, TR.theme.button()), h('div', { class: 'content' }, banner, main)));
     window.addEventListener('hashchange', route);
     window.addEventListener('online', () => { const s = TR.currentTrip(); if (s) s.refresh(); });
   }

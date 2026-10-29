@@ -470,7 +470,7 @@
     const modeBtn = ui.button('Photos only', { icon: 'image', onClick: () => { curMode = curMode === 'wall' ? 'photos' : 'wall'; kid.close(); paint(); nextPhotoIfBlank(); } });
     const optBtn = ui.button('Choose what shows', { icon: 'settings', aria: 'Choose what shows', onClick: openOptions });
     const closeBtn = ui.button('Close', { icon: 'x', aria: 'Close', onClick: close });
-    const bar = h('div', { class: 'wall-bar' }, arrBtn, optBtn, modeBtn, closeBtn);
+    const bar = h('div', { class: 'wall-bar' }, arrBtn, optBtn, modeBtn, PL.theme.button('btn theme-wall'), closeBtn);
     const undoBtn = ui.button('Undo', { icon: 'left', onClick: () => undoArrange() });
     const arrBar = h('div', { class: 'wall-bar arr-bar' }, arrHint, undoBtn,
       ui.button('Reset to automatic', { icon: 'repeat', onClick: () => resetArrange() }),
@@ -917,10 +917,11 @@
       document.removeEventListener('keydown', onKey); removeEventListener('resize', soon);
       try { if (lock) lock.release(); } catch (e) { /* ignore */ }
       try { if (document.fullscreenElement) document.exitFullscreen(); } catch (e) { /* ignore */ }
-      root.remove(); unsub();
+      root.remove(); unsub(); PL.theme.setWall(false);
     }
     const unsub = PL.store.subscribe(soon);
     document.body.append(root);
+    PL.theme.setWall(true);
     root.addEventListener('pointerdown', wake); root.addEventListener('mousemove', wake);
     document.addEventListener('keydown', onKey); addEventListener('resize', soon);
     paint(); nextPhoto(); wake(); closeBtn.focus();
