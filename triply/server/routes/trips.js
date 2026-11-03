@@ -70,7 +70,7 @@ function register(r, d) {
     const [members, items, unread, expenses, packing] = await Promise.all([
       db.q('select id, name, avatar, color, role, joined_at, last_seen_at from members where trip_id = $1 order by joined_at, id', [trip.id]),
       db.q('select * from items where trip_id = $1 order by start_date nulls last, start_time nulls first, created_at', [trip.id]),
-      unreadFor(db.q, trip.id, member.id),
+      member.owner_view ? { trip: 0, mentions: 0, dm: {} } : unreadFor(db.q, trip.id, member.id),
       db.q('select * from expenses where trip_id = $1 order by coalesce(spent_on, \'9999\') desc, created_at desc', [trip.id]),
       db.q('select * from packing_items where trip_id = $1 order by created_at, id', [trip.id])
     ]);
@@ -80,8 +80,8 @@ function register(r, d) {
     }
     ok(c.res, {
       trip: tripOut(trip),
-      me: memberOut(member, member.id),
-      perms: P.summary(member, trip),
+      me: Object.assign(memberOut(member, member.id), member.owner_view ? { owner_view: true } : {}),
+      perms: member.owner_view ? { 'trip.read': true } : P.summary(member, trip),
       members: members.rows.map((m) => memberOut(m, member.id)),
       items: items.rows.map(itemOut),
       invites,

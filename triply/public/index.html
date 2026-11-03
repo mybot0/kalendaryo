@@ -218,6 +218,9 @@ input:focus, select:focus, textarea:focus { border-color: var(--primary); outlin
 }
 @media (min-width: 1700px) { html { font-size: calc(112.5% * var(--text-scale)); } .main { max-width: 1700px; } }
 @media (max-width: 520px) { .nav { padding: 4px 0; } .nav-btn { padding: 8px 0; font-size: .62rem; letter-spacing: -.01em; } .nav-btn .ic { width: 21px; height: 21px; } }
+/* The site owner's read-only view (same bar as Kalendaryo's owner view) */
+.status-banner.owner-viewing { background: #26302B; color: #fff; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; font-weight: 700; text-align: left; }
+.owner-viewing .owner-back { margin-left: auto; background: #fff; color: #26302B; padding: 6px 14px; border-radius: 999px; text-decoration: none; }
 
 /* triply.css — screens that only Triply has: trips, itinerary, bookings, chat, people. Uses the shared tokens from theme.css. */
 
@@ -623,7 +626,7 @@ mark { background: rgba(184,88,58,.2); color: inherit; border-radius: 4px; paddi
 
 
 /* Pastel backgrounds keep dark text */
-:root[data-theme="dark"] :is(.btn.gold, .toast-act, .status-banner) { color: var(--ink-on-color); }
+:root[data-theme="dark"] :is(.btn.gold, .toast-act, .status-banner:not(.owner-viewing)) { color: var(--ink-on-color); }
 :root[data-theme="dark"] .btn.gold .ic { color: var(--ink-on-color); }
 
 /* Text on the main color uses the dark ink (white on light coral is hard to read) */
@@ -1095,6 +1098,12 @@ mark { background: rgba(184,88,58,.2); color: inherit; border-radius: 4px; paddi
     on: savedBus.on
   };
 
+  // The site owner's read-only viewing link (from Kalendaryo's owner page). Kept for this tab only, never in My Trips.
+  TR.ownerView = {
+    get() { try { return JSON.parse(sessionStorage.getItem('triply.ownerView') || 'null'); } catch (e) { return null; } },
+    set(tripId, token) { try { sessionStorage.setItem('triply.ownerView', JSON.stringify({ tripId, token })); } catch (e) { /* ignore */ } }
+  };
+
   TR.profile = {
     get() { return Object.assign({ name: '', avatar: TR.config.avatars[0] }, TR.storage.get('profile', {})); },
     set(p) { TR.storage.set('profile', { name: p.name || '', avatar: p.avatar || '' }); }
@@ -1106,7 +1115,8 @@ mark { background: rgba(184,88,58,.2); color: inherit; border-radius: 4px; paddi
   function openTrip(tripId) {
     if (current && current.id === tripId) return current;
     if (current) current.close();
-    const saved = TR.saved.find(tripId);
+    const ov = TR.ownerView.get();
+    const saved = ov && ov.tripId === tripId ? ov : TR.saved.find(tripId);
     current = createSession(tripId, saved ? saved.token : null);
     return current;
   }
@@ -1123,7 +1133,13 @@ mark { background: rgba(184,88,58,.2); color: inherit; border-radius: 4px; paddi
     let streamH = null, refreshTimer = null, closed = false;
 
     s.on = bus.on;
-    s.req = (method, path, body) => TR.api.call(method, '/trips/' + tripId + path, { token, body });
+    const ownerToken = !!(token && token.startsWith('tv'));
+    s.ownerView = () => ownerToken;
+    s.req = (method, path, body) => {
+      // Owner view is read-only: nothing is sent that would change the trip (read marks and so on are skipped quietly).
+      if (ownerToken && method !== 'GET') return Promise.reject(Object.assign(new Error('You are viewing this trip as the site owner. Nothing can be changed.'), { status: 403 }));
+      return TR.api.call(method, '/trips/' + tripId + path, { token, body });
+    };
     s.can = (perm) => !!(s.state && s.state.perms && s.state.perms[perm]);
     s.me = () => (s.state ? s.state.me : null);
     s.member = (id) => (s.state ? s.state.members.find((m) => m.id === id) || null : null);
@@ -1195,6 +1211,7 @@ mark { background: rgba(184,88,58,.2); color: inherit; border-radius: 4px; paddi
     // Which conversation does this message belong to, from my side?
     function threadOf(m) {
       if (!m.to_member) return 'trip';
+      if (ownerToken) return [m.sender_id, m.to_member].sort().join('~');
       return m.sender_id === (s.me() && s.me().id) ? m.to_member : m.sender_id;
     }
     function addMessage(m) {
@@ -2497,7 +2514,8 @@ mark { background: rgba(184,88,58,.2); color: inherit; border-radius: 4px; paddi
     let dead = false;
     TR.api.call('GET', '/me', { token: ctx.token }).then((r) => {
       if (dead) return;
-      TR.saved.add(r.trip.id, ctx.token);
+      if (ctx.token.startsWith('tv')) TR.ownerView.set(r.trip.id, ctx.token); // owner view: this tab only
+      else TR.saved.add(r.trip.id, ctx.token);
       TR.go('/trip/' + r.trip.id + '/overview', true);
     }, (e) => { if (!dead) problem(root, 'This link does not work', e.status === 401 ? 'The link is wrong, or you were removed from the trip. Ask the trip owner for a new invitation.' : e.message); });
     return { destroy() { dead = true; } };
@@ -3394,7 +3412,22 @@ mark { background: rgba(184,88,58,.2); color: inherit; border-radius: 4px; paddi
     const name = (id) => { const m = session.member(id); return m ? m.name : 'Someone'; };
 
     /* ----- thread buttons ----- */
+    // Site owner view: the group chat plus every private conversation, shown as "Leo ↔ Maya".
+    const owner = !!(session.ownerView && session.ownerView());
+    let pairs = [];
+    if (owner) session.req('GET', '/dm-pairs').then((r) => { pairs = r.pairs || []; renderThreads(); }, () => {});
     function renderThreads() {
+      if (owner) {
+        if (cur !== 'trip' && !pairs.some((p) => p.a + '~' + p.b === cur)) cur = 'trip';
+        threadsEl.replaceChildren(
+          h('button', { type: 'button', role: 'tab', 'aria-selected': cur === 'trip' ? 'true' : 'false', class: 'thread-btn group' + (cur === 'trip' ? ' on' : ''), onclick: () => pick('trip') }, icon('users'), 'Group chat'),
+          ...pairs.map((p) => {
+            const key = p.a + '~' + p.b, A = session.member(p.a), B = session.member(p.b);
+            return h('button', { type: 'button', role: 'tab', 'aria-selected': cur === key ? 'true' : 'false', class: 'thread-btn' + (cur === key ? ' on' : ''), title: p.n + ' messages', onclick: () => pick(key) },
+              ui.avatar(A, 24), ui.avatar(B, 24), (A ? A.name : 'Former traveler') + ' ↔ ' + (B ? B.name : 'Former traveler'));
+          }));
+        return;
+      }
       const u = session.state.unread, others = session.state.members.filter((m) => !m.you);
       if (cur !== 'trip' && !session.member(cur)) cur = 'trip';
       threadsEl.replaceChildren(
@@ -3430,7 +3463,7 @@ mark { background: rgba(184,88,58,.2); color: inherit; border-radius: 4px; paddi
       const same = prev && prev.kind === 'text' && prev.sender_id === m.sender_id && D.key(new Date(prev.created_at)) === D.key(new Date(m.created_at));
       const names = (m.mentions || []).map((id) => name(id));
       const col = h('div', { class: 'msg-col' });
-      if (!mine && !same && cur === 'trip') col.append(h('span', { class: 'msg-name' }, sender ? sender.name : 'Former traveler'));
+      if (!mine && !same && (cur === 'trip' || owner)) col.append(h('span', { class: 'msg-name' }, sender ? sender.name : 'Former traveler'));
       if (m.blob) {
         const url = TR.blobUrl(m.blob.id);
         col.append(/^image\//.test(m.blob.mime) && m.blob.mime !== 'image/heic'
@@ -4076,6 +4109,15 @@ mark { background: rgba(184,88,58,.2); color: inherit; border-radius: 4px; paddi
   }
 
   function banner_(session) {
+    if (session && session.ownerView && session.ownerView() && session.state) {
+      // The site owner looking at this trip from Kalendaryo's owner page (same bar as Kalendaryo's owner view).
+      banner.className = 'status-banner owner-viewing';
+      banner.replaceChildren('👁 Viewing “' + session.trip().name + '” as the site owner · read-only · your visit doesn’t count as theirs',
+        h('a', { class: 'owner-back', href: '/owner' }, 'Back to owner view'));
+      banner.hidden = false;
+      return;
+    }
+    banner.className = 'status-banner';
     const msg = session && !session.online && session.state ? 'You are offline. Showing the last loaded copy; changes cannot be saved until you reconnect.' : '';
     banner.textContent = msg; banner.hidden = !msg;
   }

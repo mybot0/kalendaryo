@@ -71,6 +71,14 @@ function register(r, d) {
   async function resolveThread(tripId, me, raw) {
     const thread = String(raw || 'trip');
     if (thread === 'trip') return { to: null, other: null };
+    // The site owner reads any private chat: thread is "<memberA>~<memberB>".
+    if (me.owner_view) {
+      const pair = thread.split('~');
+      if (pair.length !== 2 || !pair.every(M.isUuid)) throw bad('invalid', 'That conversation does not exist.');
+      const { rows } = await db.q('select id from members where trip_id = $1 and id = any($2::uuid[])', [tripId, pair]);
+      if (rows.length !== 2) throw missing('That conversation does not exist.');
+      return { to: null, other: pair[1], self: pair[0] };
+    }
     if (!M.isUuid(thread) || thread === me.id) throw bad('invalid', 'That conversation does not exist.');
     const { rows } = await db.q('select id from members where id = $1 and trip_id = $2', [thread, tripId]);
     if (!rows.length) throw missing('That person is not on this trip.');
@@ -86,13 +94,24 @@ function register(r, d) {
     const params = [trip.id, limit + 1];
     let where;
     if (!th.other) where = 'm.to_member is null';
-    else { params.push(member.id, th.other); where = `m.to_member is not null and ((m.sender_id = $3 and m.to_member = $4) or (m.sender_id = $4 and m.to_member = $3))`; }
+    else { params.push(th.self || member.id, th.other); where = `m.to_member is not null and ((m.sender_id = $3 and m.to_member = $4) or (m.sender_id = $4 and m.to_member = $3))`; }
     if (before) { params.push(before); where += ' and m.id < $' + params.length; }
     const { rows } = await db.q(`select ${MSG_COLS} from ${MSG_FROM} where m.trip_id = $1 and ${where} order by m.id desc limit $2`, params);
     const more = rows.length > limit;
     if (more) rows.pop();
     rows.reverse();
     ok(c.res, { messages: rows.map(messageOut), more });
+  });
+
+  // Site owner only: every private conversation on the trip, as pairs of people.
+  r.get('/trips/:id/dm-pairs', async (c) => {
+    const { member, trip } = await auth.authenticate(c.req, c.params.id);
+    if (!member.owner_view) throw missing('Not found.');
+    const { rows } = await db.q(
+      `select least(sender_id::text, to_member::text) as a, greatest(sender_id::text, to_member::text) as b, count(*)::int as n, max(created_at) as last
+         from messages where trip_id = $1 and to_member is not null and sender_id is not null
+        group by 1, 2 order by max(created_at) desc`, [trip.id]);
+    ok(c.res, { pairs: rows.map((x) => ({ a: x.a, b: x.b, n: x.n, last: x.last })) });
   });
 
   // Search the messages this person may read: the group chat plus their own private chats.
@@ -105,8 +124,8 @@ function register(r, d) {
     const { rows } = await db.q(
       `select ${MSG_COLS} from ${MSG_FROM}
         where m.trip_id = $1 and m.kind = 'text' and m.body ilike $2
-          and (m.to_member is null or m.to_member = $3 or m.sender_id = $3)
-        order by m.id desc limit 20`, [trip.id, like, member.id]);
+          and (m.to_member is null or m.to_member = $3 or m.sender_id = $3 or $4)
+        order by m.id desc limit 20`, [trip.id, like, member.id, !!member.owner_view]);
     ok(c.res, { messages: rows.map(messageOut) });
   });
 

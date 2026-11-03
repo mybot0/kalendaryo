@@ -28,6 +28,12 @@
     on: savedBus.on
   };
 
+  // The site owner's read-only viewing link (from Kalendaryo's owner page). Kept for this tab only, never in My Trips.
+  TR.ownerView = {
+    get() { try { return JSON.parse(sessionStorage.getItem('triply.ownerView') || 'null'); } catch (e) { return null; } },
+    set(tripId, token) { try { sessionStorage.setItem('triply.ownerView', JSON.stringify({ tripId, token })); } catch (e) { /* ignore */ } }
+  };
+
   TR.profile = {
     get() { return Object.assign({ name: '', avatar: TR.config.avatars[0] }, TR.storage.get('profile', {})); },
     set(p) { TR.storage.set('profile', { name: p.name || '', avatar: p.avatar || '' }); }
@@ -39,7 +45,8 @@
   function openTrip(tripId) {
     if (current && current.id === tripId) return current;
     if (current) current.close();
-    const saved = TR.saved.find(tripId);
+    const ov = TR.ownerView.get();
+    const saved = ov && ov.tripId === tripId ? ov : TR.saved.find(tripId);
     current = createSession(tripId, saved ? saved.token : null);
     return current;
   }
@@ -56,7 +63,13 @@
     let streamH = null, refreshTimer = null, closed = false;
 
     s.on = bus.on;
-    s.req = (method, path, body) => TR.api.call(method, '/trips/' + tripId + path, { token, body });
+    const ownerToken = !!(token && token.startsWith('tv'));
+    s.ownerView = () => ownerToken;
+    s.req = (method, path, body) => {
+      // Owner view is read-only: nothing is sent that would change the trip (read marks and so on are skipped quietly).
+      if (ownerToken && method !== 'GET') return Promise.reject(Object.assign(new Error('You are viewing this trip as the site owner. Nothing can be changed.'), { status: 403 }));
+      return TR.api.call(method, '/trips/' + tripId + path, { token, body });
+    };
     s.can = (perm) => !!(s.state && s.state.perms && s.state.perms[perm]);
     s.me = () => (s.state ? s.state.me : null);
     s.member = (id) => (s.state ? s.state.members.find((m) => m.id === id) || null : null);
@@ -128,6 +141,7 @@
     // Which conversation does this message belong to, from my side?
     function threadOf(m) {
       if (!m.to_member) return 'trip';
+      if (ownerToken) return [m.sender_id, m.to_member].sort().join('~');
       return m.sender_id === (s.me() && s.me().id) ? m.to_member : m.sender_id;
     }
     function addMessage(m) {

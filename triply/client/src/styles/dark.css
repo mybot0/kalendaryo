@@ -27,7 +27,7 @@
 
 
 /* Pastel backgrounds keep dark text */
-:root[data-theme="dark"] :is(.btn.gold, .toast-act, .status-banner) { color: var(--ink-on-color); }
+:root[data-theme="dark"] :is(.btn.gold, .toast-act, .status-banner:not(.owner-viewing)) { color: var(--ink-on-color); }
 :root[data-theme="dark"] .btn.gold .ic { color: var(--ink-on-color); }
 
 /* Text on the main color uses the dark ink (white on light coral is hard to read) */

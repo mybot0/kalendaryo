@@ -28,7 +28,7 @@ function createTriply(options) {
   const db = createDb(cfg);
   const hub = createHub();
   const limiter = createLimiter(cfg.limits);
-  const auth = createAuth(db);
+  const auth = createAuth(db, cfg.ownerView);
   const deps = { cfg, db, hub, limiter, auth };
 
   const api = router();

@@ -43,6 +43,7 @@ function createOwner({ db, live, ipOf, fail, triplySchema }) {
   const homeActive = new Map(); // familyId -> last request time (finer than access.last_seen)
   const tripActive = new Map(); // tripId -> last request time
   const views = new Map();      // viewing token -> { familyId, exp }
+  const tripViews = new Map();  // Triply viewing token ('tv…') -> { tripId, exp }
 
   function isOwnerKey(k) {
     const key = KEY();
@@ -165,7 +166,15 @@ function createOwner({ db, live, ipOf, fail, triplySchema }) {
     let t = h.startsWith('Bearer ') ? h.slice(7) : '';
     if (!t) { const m = String(req.url).match(/[?&]t=([^&]+)/); t = m ? decodeURIComponent(m[1]) : ''; }
     if (!t) { const m = String(req.url).match(/^\/c\/([A-Za-z0-9_-]+)/); t = m ? m[1] : ''; }
-    return t.startsWith('ov') && views.has(t) ? t : null;
+    if (!t) { const m = String(req.url).match(/[?&]ov=([^&#]+)/); t = m ? decodeURIComponent(m[1]) : ''; }
+    return (t.startsWith('ov') && views.has(t)) || (t.startsWith('tv') && tripViews.has(t)) ? t : null;
+  }
+  // Used by Triply's auth (see triply/server/auth.js): { tripId } for a live viewing link, or null.
+  function tripViewer(token) {
+    const v = tripViews.get(String(token || ''));
+    if (!v) return null;
+    if (v.exp < Date.now()) { tripViews.delete(token); return null; }
+    return { tripId: v.tripId };
   }
   // Used by Kalendaryo's auth: returns a read-only "me" for a viewing link, or null.
   async function viewer(token, req) {
@@ -220,6 +229,9 @@ function createOwner({ db, live, ipOf, fail, triplySchema }) {
       delete h.last_seen;
     }
     homes.sort((a, b) => (b.last_active || 0) - (a.last_active || 0));
+    // "Never came back": made more than a day ago and not opened again after its first day. Only a label.
+    const neverBack = (x) => { const made = new Date(x.created_at).getTime(); return Date.now() - made > 86400000 && (!x.last_active || x.last_active - made < 86400000); };
+    homes.forEach((h) => { h.never_back = neverBack(h); });
 
     let trips = null, asks = null;
     if (triplySchema) {
@@ -238,6 +250,7 @@ function createOwner({ db, live, ipOf, fail, triplySchema }) {
           delete t.last_seen;
         }
         trips.sort((a, b) => (b.last_active || 0) - (a.last_active || 0));
+        trips.forEach((t) => { t.never_back = neverBack(t); });
         tiles.trips = trips.length;
         tiles.trips_week = trips.filter((t) => Date.now() - new Date(t.created_at).getTime() < 7 * 86400000).length;
         tiles.people += trips.reduce((n, t) => n + t.people, 0);
@@ -276,9 +289,47 @@ function createOwner({ db, live, ipOf, fail, triplySchema }) {
       views.set(token, { familyId, exp: Date.now() + VIEW_TTL });
       send(res, 200, { link: '/c/' + token });
     });
+    // View a Triply trip read-only (everything, private chats included) for 2 hours.
+    r.post('/api/owner/view-trip', json, async (req, res) => {
+      guard(req);
+      if (!triplySchema) fail(404, 'not_found', 'Triply is not on.');
+      const tripId = String((req.body && req.body.tripId) || '');
+      if (!/^[0-9a-f-]{36}$/i.test(tripId)) fail(400, 'bad_request', 'Bad request.');
+      const t = await db.q(`SELECT id FROM ${triplySchema}.trips WHERE id = $1`, [tripId]);
+      if (!t.rowCount) fail(404, 'not_found', 'That trip does not exist anymore.');
+      for (const [k, v] of tripViews) if (v.exp < Date.now()) tripViews.delete(k);
+      const token = 'tv' + crypto.randomBytes(24).toString('base64url');
+      tripViews.set(token, { tripId: tripId.toLowerCase(), exp: Date.now() + VIEW_TTL });
+      send(res, 200, { link: '/triply/?ov=' + token + '#/t/' + token });
+    });
+    // Delete a home or a trip for good. Only from the owner page, one at a time, and the name must be typed exactly.
+    r.post('/api/owner/delete', json, async (req, res) => {
+      guard(req);
+      const kind = req.body && req.body.kind, id = String((req.body && req.body.id) || ''), typed = String((req.body && req.body.name) || '').trim();
+      if (kind === 'home') {
+        const f = await db.q('SELECT name FROM families WHERE id = $1', [id]);
+        if (!f.rowCount) fail(404, 'not_found', 'That home is already gone.');
+        if (typed !== String(f.rows[0].name).trim()) fail(400, 'name_mismatch', 'The name does not match. Nothing was deleted.');
+        await db.q('DELETE FROM families WHERE id = $1', [id]); // access, invites, docs and photos go with it
+        await db.q("DELETE FROM places WHERE kind = 'home' AND ref = $1", [id]).catch(() => {});
+        homeActive.delete(id);
+        for (const [t, v] of views) if (v.familyId === id) views.delete(t);
+      } else if (kind === 'trip') {
+        if (!triplySchema) fail(404, 'not_found', 'Triply is not on.');
+        if (!/^[0-9a-f-]{36}$/i.test(id)) fail(400, 'bad_request', 'Bad request.');
+        const t = await db.q(`SELECT name FROM ${triplySchema}.trips WHERE id = $1`, [id]);
+        if (!t.rowCount) fail(404, 'not_found', 'That trip is already gone.');
+        if (typed !== String(t.rows[0].name).trim()) fail(400, 'name_mismatch', 'The name does not match. Nothing was deleted.');
+        await db.q(`DELETE FROM ${triplySchema}.trips WHERE id = $1`, [id]); // members, plans, chat, files and costs go with it
+        await db.q("DELETE FROM places WHERE kind = 'trip' AND ref = $1", [id]).catch(() => {});
+        tripActive.delete(id);
+        for (const [k, v] of tripViews) if (v.tripId === id) tripViews.delete(k);
+      } else fail(400, 'bad_request', 'Bad request.');
+      send(res, 200, { ok: true });
+    });
   }
 
-  return { cookie, touch, countPage, noteUse, noteTrip, viewer, viewingToken, install, isOwnerKey, visitorsNow };
+  return { cookie, touch, countPage, noteUse, noteTrip, viewer, viewingToken, tripViewer, install, isOwnerKey, visitorsNow };
 }
 
 module.exports = { createOwner };

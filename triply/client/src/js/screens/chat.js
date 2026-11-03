@@ -55,7 +55,22 @@
     const name = (id) => { const m = session.member(id); return m ? m.name : 'Someone'; };
 
     /* ----- thread buttons ----- */
+    // Site owner view: the group chat plus every private conversation, shown as "Leo ↔ Maya".
+    const owner = !!(session.ownerView && session.ownerView());
+    let pairs = [];
+    if (owner) session.req('GET', '/dm-pairs').then((r) => { pairs = r.pairs || []; renderThreads(); }, () => {});
     function renderThreads() {
+      if (owner) {
+        if (cur !== 'trip' && !pairs.some((p) => p.a + '~' + p.b === cur)) cur = 'trip';
+        threadsEl.replaceChildren(
+          h('button', { type: 'button', role: 'tab', 'aria-selected': cur === 'trip' ? 'true' : 'false', class: 'thread-btn group' + (cur === 'trip' ? ' on' : ''), onclick: () => pick('trip') }, icon('users'), 'Group chat'),
+          ...pairs.map((p) => {
+            const key = p.a + '~' + p.b, A = session.member(p.a), B = session.member(p.b);
+            return h('button', { type: 'button', role: 'tab', 'aria-selected': cur === key ? 'true' : 'false', class: 'thread-btn' + (cur === key ? ' on' : ''), title: p.n + ' messages', onclick: () => pick(key) },
+              ui.avatar(A, 24), ui.avatar(B, 24), (A ? A.name : 'Former traveler') + ' ↔ ' + (B ? B.name : 'Former traveler'));
+          }));
+        return;
+      }
       const u = session.state.unread, others = session.state.members.filter((m) => !m.you);
       if (cur !== 'trip' && !session.member(cur)) cur = 'trip';
       threadsEl.replaceChildren(
@@ -91,7 +106,7 @@
       const same = prev && prev.kind === 'text' && prev.sender_id === m.sender_id && D.key(new Date(prev.created_at)) === D.key(new Date(m.created_at));
       const names = (m.mentions || []).map((id) => name(id));
       const col = h('div', { class: 'msg-col' });
-      if (!mine && !same && cur === 'trip') col.append(h('span', { class: 'msg-name' }, sender ? sender.name : 'Former traveler'));
+      if (!mine && !same && (cur === 'trip' || owner)) col.append(h('span', { class: 'msg-name' }, sender ? sender.name : 'Former traveler'));
       if (m.blob) {
         const url = TR.blobUrl(m.blob.id);
         col.append(/^image\//.test(m.blob.mime) && m.blob.mime !== 'image/heic'

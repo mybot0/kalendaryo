@@ -57,7 +57,8 @@
     let dead = false;
     TR.api.call('GET', '/me', { token: ctx.token }).then((r) => {
       if (dead) return;
-      TR.saved.add(r.trip.id, ctx.token);
+      if (ctx.token.startsWith('tv')) TR.ownerView.set(r.trip.id, ctx.token); // owner view: this tab only
+      else TR.saved.add(r.trip.id, ctx.token);
       TR.go('/trip/' + r.trip.id + '/overview', true);
     }, (e) => { if (!dead) problem(root, 'This link does not work', e.status === 401 ? 'The link is wrong, or you were removed from the trip. Ask the trip owner for a new invitation.' : e.message); });
     return { destroy() { dead = true; } };

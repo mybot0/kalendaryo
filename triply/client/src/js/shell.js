@@ -79,6 +79,15 @@
   }
 
   function banner_(session) {
+    if (session && session.ownerView && session.ownerView() && session.state) {
+      // The site owner looking at this trip from Kalendaryo's owner page (same bar as Kalendaryo's owner view).
+      banner.className = 'status-banner owner-viewing';
+      banner.replaceChildren('👁 Viewing “' + session.trip().name + '” as the site owner · read-only · your visit doesn’t count as theirs',
+        h('a', { class: 'owner-back', href: '/owner' }, 'Back to owner view'));
+      banner.hidden = false;
+      return;
+    }
+    banner.className = 'status-banner';
     const msg = session && !session.online && session.state ? 'You are offline. Showing the last loaded copy; changes cannot be saved until you reconnect.' : '';
     banner.textContent = msg; banner.hidden = !msg;
   }

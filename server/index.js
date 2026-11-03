@@ -415,7 +415,8 @@ const triply = TRIPLY_ON ? require('../triply/server/handler').createTriply({
   databaseUrl: process.env.DATABASE_URL,
   ssl: process.env.PGSSL === '1' || (process.env.PGSSL !== '0' && /render\.com/.test(process.env.DATABASE_URL || '')), // same rule as server/db.js
   maxTripMb: Number(process.env.TRIPLY_MAX_TRIP_MB) || 20, // low while testing: shares the 1 GB database
-  maxBlobMb: Number(process.env.TRIPLY_MAX_FILE_MB) || 5
+  maxBlobMb: Number(process.env.TRIPLY_MAX_FILE_MB) || 5,
+  ownerView: (token) => owner.tripViewer(token) // the owner page's read-only trip links
 }) : null;
 
 /* ---------- owner view (see server/owner.js) ---------- */

@@ -22,3 +22,6 @@
 }
 @media (min-width: 1700px) { html { font-size: calc(112.5% * var(--text-scale)); } .main { max-width: 1700px; } }
 @media (max-width: 520px) { .nav { padding: 4px 0; } .nav-btn { padding: 8px 0; font-size: .62rem; letter-spacing: -.01em; } .nav-btn .ic { width: 21px; height: 21px; } }
+/* The site owner's read-only view (same bar as Kalendaryo's owner view) */
+.status-banner.owner-viewing { background: #26302B; color: #fff; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; font-weight: 700; text-align: left; }
+.owner-viewing .owner-back { margin-left: auto; background: #fff; color: #26302B; padding: 6px 14px; border-radius: 999px; text-decoration: none; }
