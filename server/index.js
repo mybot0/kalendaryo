@@ -416,12 +416,18 @@ const triply = TRIPLY_ON ? require('../triply/server/handler').createTriply({
   ssl: process.env.PGSSL === '1' || (process.env.PGSSL !== '0' && /render\.com/.test(process.env.DATABASE_URL || '')), // same rule as server/db.js
   maxTripMb: Number(process.env.TRIPLY_MAX_TRIP_MB) || 20, // low while testing: shares the 1 GB database
   maxBlobMb: Number(process.env.TRIPLY_MAX_FILE_MB) || 5,
-  ownerView: (token) => owner.tripViewer(token) // the owner page's read-only trip links
+  ownerView: (token) => owner.tripViewer(token), // the owner page's read-only trip links
+  support: () => support.forTrip                  // Help & ideas chat (server/support.js)
 }) : null;
 
 /* ---------- owner view (see server/owner.js) ---------- */
 const owner = require('./owner').createOwner({ db, live, ipOf, fail, triplySchema: triply ? (process.env.TRIPLY_SCHEMA || 'triply') : null });
 owner.install(r, json, send);
+
+/* ---------- Help & ideas (see server/support.js) ---------- */
+const support = require('./support').createSupport({ db, fail });
+support.install(r, { auth, json, send, helpJson: jsonBody(1200 * 1024),
+  ownerGuard: (req) => { if (!owner.isOwnerKey(req.headers['x-owner-key'])) fail(404, 'not_found', 'Not found.'); } });
 const OWNER_PAGE = path.join(__dirname, '..', 'public', 'owner.html');
 r.get('/owner', async (req, res) => {
   res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store', 'X-Robots-Tag': 'noindex' });

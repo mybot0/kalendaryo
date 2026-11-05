@@ -10,9 +10,9 @@ const fs = require('node:fs');
 const path = require('node:path');
 
 const src = (p) => fs.readFileSync(path.join(__dirname, 'src', p), 'utf8');
-const CSS = ['theme', 'base', 'components', 'shell', 'triply', 'cozy', 'dark'];
+const CSS = ['theme', 'base', 'components', 'shell', 'triply', 'cozy', 'help', 'dark'];
 const JS = ['util', 'theme', 'config', 'api', 'store', 'ui-kit', 'look', 'covers', 'forms',
-  'screens/trips', 'screens/join', 'screens/overview', 'screens/itinerary', 'screens/bookings', 'screens/expenses', 'screens/files', 'screens/packing', 'screens/search', 'screens/updates', 'screens/chat', 'screens/people', 'screens/device', 'screens/ai',
+  'screens/trips', 'screens/join', 'screens/overview', 'screens/itinerary', 'screens/bookings', 'screens/expenses', 'screens/files', 'screens/packing', 'screens/search', 'screens/updates', 'screens/chat', 'screens/people', 'screens/device', 'screens/ai', 'help', 'help-tr',
   'shell', 'main'];
 
 const out = [

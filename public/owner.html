@@ -44,6 +44,51 @@ button, .btn { font: 700 14px 'Figtree', sans-serif; border: 0; cursor: pointer;
 .del { background: #FBE9E5; color: #B3402F; }
 .acts { white-space: nowrap; display: flex; gap: 6px; }
 .tag { font-size: 11px; font-weight: 800; padding: 3px 8px; border-radius: 999px; background: #EFEDE7; color: #8A948C; margin-left: 8px; white-space: nowrap; }
+/* Help & ideas inbox */
+.ib-head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.ib-new { font-size: 13px; color: #fff; background: #E5533D; border-radius: 999px; padding: 2px 9px; }
+.ib-filters { margin-left: auto; display: flex; gap: 6px; }
+.ib-filters button { background: #F0EEE8; color: var(--ink-2); min-height: 32px; font-size: 13px; }
+.ib-filters button.on { background: var(--ink); color: #fff; }
+.ib-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: 18px; margin-top: 12px; }
+.ib-list { display: flex; flex-direction: column; max-height: 520px; overflow-y: auto; }
+.ib-item { display: flex; gap: 10px; padding: 12px; border-radius: 14px; border: 0; background: none; text-align: left; font: inherit; color: inherit; cursor: pointer; border-bottom: 1px solid #F0EEE8; min-height: 0; }
+.ib-item:hover { background: #FAF9F6; }
+.ib-item.sel { background: #F3F8F5; }
+.ib-dot { width: 10px; height: 10px; border-radius: 50%; margin-top: 6px; flex: none; }
+.ib-item.new .ib-dot { background: #E5533D; }
+.ib-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.ib-top { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.ib-item.new .ib-name { font-weight: 800; }
+.ib-name { font-weight: 600; }
+.ib-app { font-size: 12px; font-weight: 800; padding: 2px 8px; border-radius: 999px; background: var(--primary-soft); color: var(--primary-ink); }
+.ib-app.trip { background: var(--trip-soft); color: var(--trip-ink); }
+.ib-place { color: var(--muted); font-size: 13px; }
+.ib-when { margin-left: auto; color: var(--muted); font-size: 12px; }
+.ib-prev { color: var(--ink-2); font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ib-conv { border: 1px solid #EEECE6; border-radius: 16px; display: flex; flex-direction: column; min-height: 360px; max-height: 560px; }
+.ib-conv-head { padding: 12px 14px; border-bottom: 1px solid #EEECE6; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.ib-conv-head .acts { margin-left: auto; }
+.ib-done { background: var(--ink); color: #fff; }
+.ib-msgs { flex: 1; overflow-y: auto; padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+.ib-msg { display: flex; flex-direction: column; gap: 2px; max-width: 80%; }
+.ib-msg.team { align-self: flex-end; align-items: flex-end; }
+.ib-bubble { padding: 10px 14px; border-radius: 18px; background: #F4F3EE; white-space: pre-wrap; overflow-wrap: anywhere; }
+.ib-msg.team .ib-bubble { background: var(--primary); color: #fff; }
+.ib-msg.auto .ib-bubble { background: #EEF4F0; color: var(--ink-2); font-style: italic; }
+.ib-msg img { max-width: 220px; border-radius: 12px; cursor: zoom-in; }
+.ib-msg img.big { max-width: 100%; cursor: zoom-out; }
+.ib-meta { font-size: 11px; color: var(--muted); }
+.ib-reply { padding: 10px; border-top: 1px solid #EEECE6; display: flex; gap: 8px; align-items: flex-end; }
+.ib-reply textarea { flex: 1; resize: none; min-height: 42px; max-height: 140px; border: 1px solid #DCDAD3; border-radius: 18px; padding: 10px 14px; font: inherit; }
+.ib-send { background: var(--primary); color: #fff; min-height: 42px; }
+.ib-pick { margin: auto; color: var(--muted); text-align: center; padding: 30px; }
+.ib-welcome { margin-top: 14px; }
+.ib-welcome summary { cursor: pointer; font-weight: 700; color: var(--ink-2); }
+.ib-welcome .wrow { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 10px; }
+.ib-welcome textarea { width: 100%; box-sizing: border-box; min-height: 120px; border: 1px solid #DCDAD3; border-radius: 12px; padding: 10px; font: inherit; }
+.ib-welcome label { font-weight: 700; font-size: 13px; display: block; margin-bottom: 4px; }
+@media (max-width: 860px) { .ib-grid, .ib-welcome .wrow { grid-template-columns: 1fr; } }
 .modal-wrap { position: fixed; inset: 0; background: rgba(38,48,43,.45); display: flex; align-items: center; justify-content: center; padding: 16px; z-index: 50; }
 .modal { background: #fff; border-radius: 20px; padding: 22px; max-width: 440px; width: 100%; display: flex; flex-direction: column; gap: 12px; box-shadow: 0 20px 50px rgba(0,0,0,.25); }
 .modal h3 { margin: 0; font: 800 20px 'Outfit', 'Figtree', sans-serif; }
@@ -151,11 +196,13 @@ button, .btn { font: 700 14px 'Figtree', sans-serif; border: 0; cursor: pointer;
         tile(t.homes, 'Homes', '+' + t.homes_week + ' this week') + (t.trips != null ? tile(t.trips, 'Trips', '+' + t.trips_week + ' this week') : '') +
         tile(t.people, 'People', 'in homes' + (t.trips != null ? ' and trips' : '')) + tile(t.ai_today, 'AI uses today', d.ai_on ? 'across all homes' : 'AI is off') +
           tile('$' + (t.ai_usd || 0).toFixed(2), 'AI spent today', 'homes, of $' + (t.ai_cap != null ? t.ai_cap : 1) + ' a day' + (t.trip_ai_usd != null ? ' · trips $' + t.trip_ai_usd.toFixed(2) : '')) + '</div>' +
-      (d.asks && d.asks.length ? asks : '') + '<div class="row2"><section class="card"><h2>Visitors, last 14 days</h2><div class="chart">' + bars + '</div><p class="note">Counted once per device per day. Addresses are never saved.</p></section>' +
+      '<div id="inbox-slot"></div>' + (d.asks && d.asks.length ? asks : '') + '<div class="row2"><section class="card"><h2>Visitors, last 14 days</h2><div class="chart">' + bars + '</div><p class="note">Counted once per device per day. Addresses are never saved.</p></section>' +
         '<section class="card where"><h2>Where visitors are</h2>' + countries + '<p class="note">Last 30 days. City and country only.</p></section></div>' +
       '<section class="card"><h2>Recent visitors</h2>' + recent + '<p class="note">The last 20 visits by real people. Bots, search engines and link previews are not counted. “Device” is a short code, not a name.</p></section>' +
       (d.asks && d.asks.length ? '' : asks) + '<section class="card"><h2><span class="pill">HOMES</span>' + d.homes.length + (d.homes.length === 1 ? ' home' : ' homes') + '</h2>' + homes + '</section>' + trips +
       '<p class="note">Database: ' + mb(t.db_bytes) + ' used. “View” opens that home or trip read-only for 2 hours; your visit doesn’t count as theirs. “Delete” removes it for good, only when you click it.</p>';
+    const slot = document.getElementById('inbox-slot'); if (slot) slot.replaceWith(inbox.el);
+    inbox.load();
     app.querySelectorAll('.ask').forEach((b) => (b.onclick = async () => {
       b.disabled = true;
       try { await api('POST', '/api/owner/ai-request', { id: b.dataset.id, give: Number(b.dataset.give) }); load(); } catch (e) { alert(e.message); b.disabled = false; }
@@ -168,6 +215,84 @@ button, .btn { font: 700 14px 'Figtree', sans-serif; border: 0; cursor: pointer;
     }));
     app.querySelectorAll('.del').forEach((b) => (b.onclick = () => askDelete(b.dataset.kind, b.dataset.id, b.dataset.name)));
   }
+
+  /* ---------- Help & ideas inbox: messages from people in both apps; the team replies here ---------- */
+  const inbox = (function () {
+    const el = document.createElement('section');
+    el.className = 'card';
+    let filter = 'open', threads = [], unread = 0, sel = null, conv = null, welcome = null, draft = '', loading = false;
+    const APP = { home: 'Kalendaryo', trip: 'Triply' };
+    const TAG = { problem: '🐞', idea: '💡', question: '❓' };
+    async function load() {
+      if (loading) return; loading = true;
+      try {
+        const r = await api('GET', '/api/owner/help?filter=' + filter);
+        threads = r.threads; unread = r.unread; if (!welcome) welcome = r.welcome;
+        if (sel) { try { conv = await api('GET', '/api/owner/help/' + sel); } catch (e) { sel = null; conv = null; } }
+      } catch (e) { /* keep what we have */ }
+      loading = false;
+      document.title = (unread ? '(' + unread + ') ' : '') + 'Kalendaryo · Owner view';
+      paint();
+    }
+    function paint() {
+      const box = el.querySelector('.ib-reply textarea'); if (box) draft = box.value;
+      const msgsBox = el.querySelector('.ib-msgs'); const atBottom = !msgsBox || msgsBox.scrollHeight - msgsBox.scrollTop - msgsBox.clientHeight < 60;
+      const list = threads.length ? threads.map((t) => '<button class="ib-item' + (t.owner_unread ? ' new' : '') + (t.id === sel ? ' sel' : '') + '" data-id="' + t.id + '"><span class="ib-dot"></span><span class="ib-main"><span class="ib-top"><span class="ib-name">' + esc(t.name || 'Someone') +
+        '</span><span class="ib-app' + (t.app === 'trip' ? ' trip' : '') + '">' + APP[t.app] + '</span><span class="ib-place">' + esc(t.place_name) + '</span><span class="ib-when">' + ago(new Date(t.last_at).getTime()) + '</span></span><span class="ib-prev">' +
+        (t.tag ? TAG[t.tag] + ' ' : '') + esc(t.last_body || (t.last_image ? '📎 Screenshot' : '')) + '</span></span></button>').join('')
+        : '<p class="empty">' + (filter === 'open' ? 'No open messages. When people write from “Help & ideas”, they show up here.' : 'Nothing here.') + '</p>';
+      let right = '<div class="ib-conv"><p class="ib-pick">Pick a message on the left to read and reply.</p></div>';
+      if (conv) {
+        const t = conv.thread;
+        right = '<div class="ib-conv"><div class="ib-conv-head"><b>' + esc(t.name || 'Someone') + '</b><span class="ib-app' + (t.app === 'trip' ? ' trip' : '') + '">' + APP[t.app] + '</span><span class="ib-place">' + esc(t.place_name) + '</span>' +
+          '<span class="acts"><button class="view ib-view">' + EYE + (t.app === 'trip' ? 'View trip' : 'View home') + '</button><button class="ib-done">' + (t.status === 'done' ? '↺ Reopen' : '✓ Mark done') + '</button></span></div><div class="ib-msgs">' +
+          conv.messages.map((m) => '<div class="ib-msg' + (m.team ? ' team' : '') + (m.team && m.auto ? ' auto' : '') + '">' + (m.image ? '<img src="' + esc(m.image) + '" alt="Screenshot">' : '') + (m.body ? '<div class="ib-bubble">' + (m.tag ? TAG[m.tag] + ' ' : '') + esc(m.body) + '</div>' : '') +
+            '<span class="ib-meta">' + (m.team ? esc(t.team) : esc(t.name)) + ' · ' + new Date(m.at).toLocaleString([], { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) + '</span></div>').join('') +
+          '</div><div class="ib-reply"><textarea rows="1" placeholder="Reply as ' + esc(t.team) + '…"></textarea><button class="ib-send">Send</button></div></div>';
+      }
+      el.innerHTML = '<div class="ib-head"><h2 style="margin:0"><span class="pill">INBOX</span> Help & ideas</h2>' + (unread ? '<span class="ib-new">' + unread + ' new</span>' : '') +
+        '<span class="ib-filters">' + ['open', 'done', 'all'].map((f) => '<button data-f="' + f + '" class="' + (filter === f ? 'on' : '') + '">' + f[0].toUpperCase() + f.slice(1) + '</button>').join('') + '</span></div>' +
+        '<div class="ib-grid"><div class="ib-list">' + list + '</div>' + right + '</div>' +
+        '<details class="ib-welcome"' + (el.querySelector('.ib-welcome[open]') ? ' open' : '') + '><summary>Welcome message (sent once to each person)</summary>' +
+        '<p class="note">Use {name} for the person’s first name. Changes are used for people who have not received it yet. Leave a box empty to go back to the original text.</p><div class="wrow">' +
+        ['home', 'trip'].map((a) => '<div><label for="w-' + a + '">' + APP[a] + '</label><textarea id="w-' + a + '">' + esc(welcome ? welcome[a] : '') + '</textarea><button class="view w-save" data-app="' + a + '" style="margin-top:6px">Save</button></div>').join('') + '</div></details>';
+      const ta = el.querySelector('.ib-reply textarea');
+      if (ta) { ta.value = draft; ta.oninput = () => { draft = ta.value; ta.style.height = 'auto'; ta.style.height = Math.min(140, ta.scrollHeight) + 'px'; }; ta.onkeydown = (e) => { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) send(); }; }
+      const mb = el.querySelector('.ib-msgs'); if (mb && atBottom) mb.scrollTop = mb.scrollHeight;
+      el.querySelectorAll('.ib-item').forEach((b) => (b.onclick = () => openThread(Number(b.dataset.id))));
+      el.querySelectorAll('.ib-filters button').forEach((b) => (b.onclick = () => { filter = b.dataset.f; load(); }));
+      el.querySelectorAll('.ib-msg img').forEach((i) => (i.onclick = () => i.classList.toggle('big')));
+      const sb = el.querySelector('.ib-send'); if (sb) sb.onclick = send;
+      const db = el.querySelector('.ib-done'); if (db) db.onclick = async () => { await api('POST', '/api/owner/help/' + sel + '/status', { status: conv.thread.status === 'done' ? 'open' : 'done' }); load(); };
+      const vb = el.querySelector('.ib-view'); if (vb) vb.onclick = async () => {
+        const w = window.open('about:blank', '_blank'), t = conv.thread;
+        try { const r = await api('POST', t.app === 'trip' ? '/api/owner/view-trip' : '/api/owner/view', t.app === 'trip' ? { tripId: t.place_id } : { familyId: t.place_id }); if (w) w.location = r.link; }
+        catch (e) { if (w) w.close(); alert(e.message); }
+      };
+      el.querySelectorAll('.w-save').forEach((b) => (b.onclick = async () => {
+        b.disabled = true;
+        try { welcome = await api('POST', '/api/owner/help-welcome', { app: b.dataset.app, text: el.querySelector('#w-' + b.dataset.app).value }); b.textContent = 'Saved ✓'; setTimeout(() => { b.textContent = 'Save'; }, 1500); }
+        catch (e) { alert(e.message); }
+        b.disabled = false;
+      }));
+    }
+    async function openThread(id) {
+      if (id !== sel) draft = '';
+      sel = id;
+      try { conv = await api('GET', '/api/owner/help/' + id); } catch (e) { alert(e.message); return; }
+      const t = threads.find((x) => x.id === id); if (t && t.owner_unread) { unread = Math.max(0, unread - 1); t.owner_unread = 0; }
+      document.title = (unread ? '(' + unread + ') ' : '') + 'Kalendaryo · Owner view';
+      paint(); const ta = el.querySelector('.ib-reply textarea'); if (ta) ta.focus();
+    }
+    async function send() {
+      const ta = el.querySelector('.ib-reply textarea'), text = ta ? ta.value.trim() : '';
+      if (!text || !sel) return;
+      const b = el.querySelector('.ib-send'); b.disabled = true;
+      try { await api('POST', '/api/owner/help/' + sel + '/reply', { body: text }); draft = ''; await load(); }
+      catch (e) { alert(e.message); b.disabled = false; }
+    }
+    return { el, load };
+  })();
 
   // Delete one home or trip. You must type its name exactly. Nothing is ever deleted any other way.
   function askDelete(kind, id, name) {

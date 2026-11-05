@@ -42,6 +42,7 @@ function load(options) {
     // Test and tuning knobs
     limits: o.limits || null,
     log: o.log === undefined ? console : o.log,
+    support: o.support || null, // Help & ideas functions from Kalendaryo (server/support.js)
     ownerView: typeof o.ownerView === 'function' ? o.ownerView : null, // (token) -> { tripId } | null, from Kalendaryo's owner page
     htmlPath: o.htmlPath || null
   };

@@ -66,6 +66,7 @@
       nav.append(h('button', { type: 'button', class: 'nav-btn more-btn' + (inMore ? ' on' : ''), onclick: () => moreMenu(r, session) }, icon('dots'), h('span', { class: 'nav-label' }, 'More'), news ? h('span', { class: 'nav-badge' }, news > 99 ? '99+' : String(news)) : null));
     }
     nav.hidden = !items.length;
+    if (TR.help) TR.help.tripShown(mode === 'trip' ? session : null); // Help & ideas is per trip
     railTop.replaceChildren();
     if (mode === 'trip') {
       railTop.append(h('div', { class: 'rail-back' }, h('button', { type: 'button', class: 'link-btn', onclick: () => TR.go('/') }, icon('left'), 'My Trips')));
@@ -75,7 +76,8 @@
 
   function moreMenu(r, session) {
     const s = TR.ui.sheet({ title: 'More', body: h('div', { class: 'choices' }, TRIP_SCREENS.filter((x) => x.more).map((x) =>
-      h('button', { type: 'button', class: 'choice', onclick: () => { s.close(); TR.go('/trip/' + r.id + '/' + x.id); } }, h('strong', {}, x.label + (x.id === 'updates' && session && session.state && session.updates().length ? ' (' + session.updates().length + ')' : ''))))) });
+      h('button', { type: 'button', class: 'choice', onclick: () => { s.close(); TR.go('/trip/' + r.id + '/' + x.id); } }, h('strong', {}, x.label + (x.id === 'updates' && session && session.state && session.updates().length ? ' (' + session.updates().length + ')' : '')))),
+      TR.help && !(session && session.ownerView && session.ownerView()) ? h('button', { type: 'button', class: 'choice', onclick: () => { s.close(); TR.help.open(); } }, h('strong', {}, 'Help & ideas' + (TR.help.unread() ? ' (new)' : ''))) : null) });
   }
 
   function banner_(session) {
@@ -149,7 +151,7 @@
     railTop = h('div', {});
     const brand = h('button', { type: 'button', class: 'brand', 'aria-label': 'Triply – My Trips', style: 'border:0;background:none;text-align:left;cursor:pointer', onclick: () => TR.go('/') },
       icon('send'), h('span', { class: 'brand-text' }, h('span', { class: 'brand-name' }, TR.config.appName), h('span', { class: 'brand-tag' }, TR.config.tagline)));
-    root.replaceChildren(h('div', { class: 'app' }, h('aside', { class: 'rail' }, brand, railTop, nav, TR.theme.button()), h('div', { class: 'content' }, banner, main)));
+    root.replaceChildren(h('div', { class: 'app' }, h('aside', { class: 'rail' }, brand, railTop, nav, TR.help ? TR.help.button() : null, TR.theme.button()), h('div', { class: 'content' }, banner, main)));
     window.addEventListener('hashchange', route);
     window.addEventListener('online', () => { const s = TR.currentTrip(); if (s) s.refresh(); });
   }

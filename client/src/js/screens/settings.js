@@ -174,9 +174,11 @@
 
         // Cards in a sensible order: the family, then screens, then data. They are spread over
         // balanced columns (each card goes under the shortest column), so there are no big gaps.
-        const cards = [appearance, household, pinCard, wxCard, device, layout, PL.wall.card(), data, about];
+        // Help & ideas (web version): a way to reach the team, mostly for phones where the side menu is a bottom bar.
+        const helpCard = PL.help ? section('Help & ideas', 'Ask for help, report a problem, or share an idea with the Kalendaryo team.', PL.help.button('btn help-open')) : null;
+        const cards = [appearance, helpCard, household, pinCard, wxCard, device, layout, PL.wall.card(), data, about];
         el.replaceChildren(h('header', { class: 'page-head' }, h('h1', {}, 'Settings')), masonry.wrap);
-        masonry.set(cards);
+        masonry.set(cards.filter(Boolean));
       }
       render();
       return { update: () => { const a = document.activeElement; if (!(a && el.contains(a) && a.type === 'text')) render(); }, destroy() {} };

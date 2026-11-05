@@ -1,0 +1,48 @@
+/* help.css — "Help & ideas" chat window (help.js). Same file in Kalendaryo and Triply; uses each app's colors. */
+.help-btn { position: relative; display: none; }
+@media (min-width: 900px) { .help-btn { display: flex; margin-top: auto; } .help-btn + .theme-btn { margin-top: 0; } }
+.help-btn[hidden] { display: none !important; }
+.help-btn .nav-label { white-space: nowrap; }
+.help-dot { position: absolute; top: 10px; left: 30px; width: 10px; height: 10px; border-radius: 50%; background: #E5533D; box-shadow: 0 0 0 2px var(--surface); }
+.help-dot[hidden] { display: none; }
+.help-open { position: relative; }
+.help-open .help-dot { top: 4px; left: auto; right: 4px; }
+
+.help-panel { position: fixed; right: 20px; bottom: 20px; z-index: 90; width: min(400px, calc(100vw - 40px)); height: min(580px, calc(100vh - 40px));
+  background: var(--surface); color: var(--ink); border-radius: 22px; box-shadow: 0 24px 60px rgba(0,0,0,.28); display: flex; flex-direction: column; overflow: hidden; }
+.help-head { display: flex; align-items: center; gap: 10px; padding: 14px 16px; background: var(--primary); color: var(--primary-ink); }
+.help-ic { width: 36px; height: 36px; border-radius: 50%; background: rgba(255,255,255,.2); display: grid; place-items: center; flex: none; }
+.help-ic svg { width: 20px; height: 20px; }
+.help-title { flex: 1; display: flex; flex-direction: column; line-height: 1.25; }
+.help-title b { font: 800 1.05rem var(--font-head); }
+.help-title span { font-size: .82rem; opacity: .9; }
+.help-x { border: 0; background: rgba(255,255,255,.18); color: inherit; width: 36px; height: 36px; border-radius: 50%; font-size: 1.4rem; line-height: 1; cursor: pointer; }
+.help-tags { display: flex; gap: 6px; padding: 10px 14px; border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+.help-tag { border: 0; border-radius: 999px; padding: 6px 12px; font-weight: 700; font-size: .82rem; background: var(--surface-2); color: var(--ink-2); cursor: pointer; }
+.help-tag.on { background: var(--primary); color: var(--primary-ink); }
+.help-msgs { flex: 1; overflow-y: auto; padding: 14px; display: flex; flex-direction: column; gap: 12px; }
+.help-msg { display: flex; flex-direction: column; gap: 3px; max-width: 84%; }
+.help-msg.me { align-self: flex-end; align-items: flex-end; }
+.help-msg.team { align-self: flex-start; }
+.help-by { font-size: .74rem; font-weight: 800; color: var(--ink-3); }
+.help-bubble { padding: 10px 14px; border-radius: 18px; white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.4; }
+.help-msg.team .help-bubble { background: var(--surface-2); border-bottom-left-radius: 6px; }
+.help-msg.me .help-bubble { background: var(--primary); color: var(--primary-ink); border-bottom-right-radius: 6px; }
+.help-img { max-width: 180px; max-height: 160px; border-radius: 12px; cursor: zoom-in; object-fit: cover; }
+.help-img.big { max-width: 100%; max-height: none; cursor: zoom-out; }
+.help-time { font-size: .7rem; color: var(--ink-3); }
+.help-loading { color: var(--ink-3); text-align: center; margin: auto; }
+.help-err { margin: 0 14px; color: var(--danger); font-weight: 700; font-size: .85rem; }
+.help-compose { border-top: 1px solid var(--line); padding: 10px; display: flex; flex-direction: column; gap: 8px; }
+.help-row { display: flex; align-items: flex-end; gap: 8px; }
+.help-row textarea { flex: 1; resize: none; border: 1px solid var(--line); border-radius: 20px; padding: 10px 14px; font: inherit; background: var(--surface-2); color: var(--ink); min-height: 42px; max-height: 120px; }
+.help-attach, .help-send { border: 0; width: 42px; height: 42px; border-radius: 50%; flex: none; cursor: pointer; font-size: 1.05rem; }
+.help-attach { background: var(--surface-2); color: var(--ink-2); }
+.help-send { background: var(--primary); color: var(--primary-ink); }
+.help-send:disabled { opacity: .5; }
+.help-chip { display: flex; align-items: center; gap: 8px; font-size: .82rem; font-weight: 700; color: var(--ink-2); }
+.help-chip[hidden] { display: none; }
+.help-chip img { width: 40px; height: 40px; border-radius: 8px; object-fit: cover; }
+.help-chip button { border: 0; background: var(--surface-2); border-radius: 50%; width: 26px; height: 26px; cursor: pointer; margin-left: auto; }
+@media (max-width: 639px) { .help-panel { inset: 0; width: auto; height: auto; border-radius: 0; } }
+.wall .help-panel, .wall .help-btn { display: none !important; }
