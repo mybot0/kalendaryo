@@ -91,6 +91,8 @@ CREATE TABLE IF NOT EXISTS places (
 ALTER TABLE access ADD COLUMN IF NOT EXISTS member_id TEXT;
 ALTER TABLE invites ADD COLUMN IF NOT EXISTS member_id TEXT;
 -- AI spending for the whole site, per day (micro-dollars), for the AI_DAILY_USD cap
+-- each person's light/dark choice, so it follows them to every device
+ALTER TABLE access ADD COLUMN IF NOT EXISTS theme TEXT;
 CREATE TABLE IF NOT EXISTS ai_spend (
   day DATE PRIMARY KEY,
   micro BIGINT NOT NULL DEFAULT 0,

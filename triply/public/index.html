@@ -6,7 +6,7 @@
 <meta name="referrer" content="no-referrer">
 <title>Triply</title>
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
-<script>try{var t=localStorage.getItem('triply.theme')||'auto';if(t==='dark'||(t==='auto'&&matchMedia('(prefers-color-scheme: dark)').matches))document.documentElement.dataset.theme='dark'}catch(e){}</script>
+<script>try{var t=localStorage.getItem('triply.theme')||'light';if(t==='dark'||(t==='auto'&&matchMedia('(prefers-color-scheme: dark)').matches))document.documentElement.dataset.theme='dark'}catch(e){}</script>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;600;700;800&family=Outfit:wght@600;700;800&display=swap">
 <style>
 /* theme.css — same tokens as Kalendaryo; the accent is terracotta instead of green. */
@@ -881,8 +881,9 @@ mark { background: rgba(184,88,58,.2); color: inherit; border-radius: 4px; paddi
   const KEY = 'theme', WALL = 'wallLook', NIGHT_FROM = 21, NIGHT_TO = 7; // 9 PM to 7 AM
   const store = { get: (k, d) => { try { const v = localStorage.getItem('triply.' + k); return v == null ? d : v; } catch (e) { return d; } },
     set: (k, v) => { try { localStorage.setItem('triply.' + k, v); } catch (e) { /* private mode: still works until reload */ } } };
-  let mode = store.get(KEY, 'auto'), wall = store.get(WALL, 'night'), inWall = false;
+  let mode = store.get(KEY, 'light'), wall = store.get(WALL, 'night'), inWall = false;
   const listeners = new Set();
+  let saver = () => {};
   const mq = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
   const night = () => { const hr = new Date().getHours(); return hr >= NIGHT_FROM || hr < NIGHT_TO; };
 
@@ -915,7 +916,10 @@ mark { background: rgba(184,88,58,.2); color: inherit; border-radius: 4px; paddi
 
   TR.theme = {
     get: () => mode,
-    set(v) { mode = ['light', 'dark'].includes(v) ? v : 'auto'; store.set(KEY, mode); apply(); },
+    // Light is the default. A choice is saved on this device and, through onSave, to the person (so it follows them).
+    set(v) { mode = ['dark', 'auto'].includes(v) ? v : 'light'; store.set(KEY, mode); apply(); saver(mode); },
+    load(v) { if (!['light', 'dark', 'auto'].includes(v) || v === mode) return; mode = v; store.set(KEY, mode); apply(); }, // the person's saved choice, from the server
+    onSave(fn) { saver = typeof fn === 'function' ? fn : () => {}; },
     isDark,
     toggle() {
       if (inWall) { wall = isDark() ? 'light' : 'dark'; store.set(WALL, wall); return apply(); }
@@ -3764,7 +3768,7 @@ mark { background: rgba(184,88,58,.2); color: inherit; border-radius: 4px; paddi
         h('div', { class: 'settings-grid' },
           h('section', { class: 'card settings-card' }, h('h2', {}, 'Appearance'),
             h('p', { class: 'sub' }, 'Light, dark, or Auto to follow this phone or computer.'),
-            ui.segmented([{ value: 'auto', label: 'Auto' }, { value: 'light', label: 'Light' }, { value: 'dark', label: 'Dark' }], TR.theme.get(), (v) => TR.theme.set(v), 'Appearance').el),
+            ui.segmented([{ value: 'light', label: 'Light' }, { value: 'dark', label: 'Dark' }, { value: 'auto', label: 'Auto' }], TR.theme.get(), (v) => TR.theme.set(v), 'Appearance').el),
           h('section', { class: 'card settings-card' }, h('h2', {}, 'About you'),
             h('p', { class: 'sub' }, 'Used to fill in the form when you start or join a trip on this device.'),
             ui.field('Name', name), h('div', { class: 'field' }, h('span', { class: 'field-label' }, 'Picture'), av.el),
@@ -4082,7 +4086,8 @@ mark { background: rgba(184,88,58,.2); color: inherit; border-radius: 4px; paddi
  * The same file is used by Kalendaryo (client/web/help.js) and Triply (triply/client/src/js/help.js); keep them identical.
  * Each app plugs it in with HelpUI.create({ ...how to reach the server... }).
  *
- * It never opens by itself and has no overlay: a red dot on "Help & ideas" says there is a new message.
+ * It has no overlay. A red dot on "Help & ideas" says there is a new message. It opens by itself only for an
+ * automatic message (the welcome, or a thank-you now and then), once each, and never while wall mode is on.
  * The window sits at the bottom right (full screen on phones) and closes with ×, Esc, or a click outside.
  */
 (function () {
@@ -4128,7 +4133,7 @@ mark { background: rgba(184,88,58,.2); color: inherit; border-radius: 4px; paddi
    */
   function create(opts) {
     const buttons = new Set();
-    let unread = 0, panel = null, state = null, tag = '', image = null, pollT = null, openPollT = null, busy = false;
+    let popWait = null, unread = 0, panel = null, state = null, tag = '', image = null, pollT = null, openPollT = null, busy = false;
 
     function paintButtons() {
       buttons.forEach((b) => {
@@ -4149,8 +4154,21 @@ mark { background: rgba(184,88,58,.2); color: inherit; border-radius: 4px; paddi
     }
     async function checkUnread() {
       if (!opts.ready() || opts.demo) { unread = opts.demo && opts.ready() && !(state && state.seen) ? 1 : 0; return paintButtons(); }
-      try { unread = (await opts.unread()).unread || 0; } catch (e) { /* offline: try later */ }
+      let popup = false;
+      try { const r = await opts.unread(); unread = r.unread || 0; popup = !!r.popup; } catch (e) { /* offline: try later */ }
       paintButtons();
+      // An automatic message (welcome or thank-you) opens the chat once, a moment after the page is ready.
+      // It waits while the guided tour, a popup sheet or wall mode is showing.
+      if (popup && !panel && !popWait) {
+        let tries = 0;
+        const tryOpen = () => {
+          if (panel || !opts.ready()) { popWait = null; return; }
+          const busyNow = document.hidden || document.querySelector('.wall, .g-layer, .sheet-wrap, .modal-wrap');
+          if (busyNow && ++tries < 200) { popWait = setTimeout(tryOpen, 3000); return; }
+          popWait = null; if (!busyNow) open();
+        };
+        popWait = setTimeout(tryOpen, 2500);
+      }
     }
     function startPolling() {
       clearInterval(pollT);
@@ -4176,7 +4194,7 @@ mark { background: rgba(184,88,58,.2); color: inherit; border-radius: 4px; paddi
         m.team ? el('span', { class: 'help-by' }, team) : null,
         m.image ? el('img', { class: 'help-img', src: m.image, alt: 'Screenshot', onclick: (e) => e.target.classList.toggle('big') }) : null,
         m.body ? el('div', { class: 'help-bubble' }, (m.tag ? TAGS.find((t) => t[0] === m.tag)[1].split(' ')[0] + ' ' : '') + m.body) : null,
-        el('span', { class: 'help-time' }, time(m.at))));
+        el('span', { class: 'help-time' }, (m.auto ? 'Automated message · ' : '') + time(m.at))));
       if (!state) kids.push(el('p', { class: 'help-loading' }, 'Loading…'));
       list.replaceChildren(...kids);
       list.scrollTop = list.scrollHeight;
@@ -4257,7 +4275,7 @@ mark { background: rgba(184,88,58,.2); color: inherit; border-radius: 4px; paddi
   const s = () => TR.currentTrip && TR.currentTrip();
   const live = () => { const x = s(); return x && x.state && !(x.ownerView && x.ownerView()) ? x : null; };
   const DEMO = [
-    { team: true, body: 'Hi Maya! 👋 Thank you for planning your trip with Triply. It means a lot to us. We build it around what travelers actually need, so if anything is confusing, missing, or could be better, just reply here. Every message is read, and many of our updates come straight from ideas like yours. ✈️💛', at: new Date(Date.now() - 3 * 86400000).toISOString() },
+    { team: true, auto: true, body: 'Hi Maya! 👋 Thank you for planning your trip with Triply. It means a lot to us. We build it around what travelers actually need, so if anything is confusing, missing, or could be better, just reply here. Every message is read, and many of our updates come straight from ideas like yours. ✈️💛', at: new Date(Date.now() - 3 * 86400000).toISOString() },
     { team: false, tag: 'question', body: 'Can my brother edit the itinerary too?', at: new Date(Date.now() - 2 * 86400000).toISOString() },
     { team: true, body: 'Yes! Go to People, then make him an Editor. 😊', at: new Date(Date.now() - 2 * 86400000 + 3600000).toISOString() }
   ];
@@ -4271,8 +4289,14 @@ mark { background: rgba(184,88,58,.2); color: inherit; border-radius: 4px; paddi
     seen: () => live().req('POST', '/help/seen')
   });
   // A different trip is a different conversation: check for new replies whenever the open trip changes.
+  // The person's saved light/dark choice for this trip is applied at the same time.
   let lastId = null;
-  TR.help.tripShown = (session) => { const id = session && session.state ? session.id : null; if (id !== lastId) { lastId = id; TR.help.refresh(); } };
+  TR.help.tripShown = (session) => {
+    const id = session && session.state ? session.id : null;
+    if (id !== lastId) { lastId = id; TR.help.refresh(); if (live() && session.state.me && session.state.me.theme) TR.theme.load(session.state.me.theme); }
+  };
+  // Light/dark is saved to the person (for this trip), so it follows them to every device.
+  TR.theme.onSave((v) => { const x = live(); if (x && !demo) x.req('PATCH', '/members/me/theme', { theme: v }).catch(() => {}); });
 })();
 
 </script>

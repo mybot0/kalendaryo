@@ -20,6 +20,15 @@ function register(r, d) {
     ok(c.res, { member: memberOut(member, member.id), trip: tripOut(trip) });
   });
 
+  // Light / dark / auto, saved to the person for this trip.
+  r.patch('/trips/:id/members/me/theme', async (c) => {
+    const { member } = await auth.authenticate(c.req, c.params.id);
+    const body = await readJson(c.req);
+    const t = ['light', 'dark', 'auto'].includes(body.theme) ? body.theme : 'light';
+    await db.q('update members set theme = $2 where id = $1', [member.id, t]);
+    ok(c.res, { ok: true, theme: t });
+  });
+
   r.patch('/trips/:id/members/me', async (c) => {
     const { member, trip } = await auth.authenticate(c.req, c.params.id);
     const body = await readJson(c.req);

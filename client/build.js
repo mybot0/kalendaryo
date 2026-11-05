@@ -23,7 +23,7 @@ const scripts = [];
 if (web) scripts.push(rd('web/shim.js'));
 for (const j of js) {
   scripts.push(rd('src/js/' + j + '.js'));
-  if (web && j === 'event-ui') scripts.push(rd('web/examples.js'), rd('web/landing.js'), rd('web/access.js'), rd('web/me.js'), rd('web/demo.js'), rd('web/guide.js'), rd('web/help.js'), rd('web/help-kal.js'));
+  if (web && j === 'event-ui') scripts.push(rd('web/examples.js'), rd('web/landing.js'), rd('web/access.js'), rd('web/me.js'), rd('web/demo.js'), rd('web/guide.js'), rd('web/help.js'), rd('web/help-kal.js'), rd('web/theme-sync.js'));
 }
 for (const s of scripts) if (/<\/script/i.test(s)) throw new Error('a script contains </script');
 
@@ -32,7 +32,7 @@ const head = web
      '<meta name="robots" content="noindex">', '<meta name="theme-color" content="#F4F3EE">', '<title>Kalendaryo</title>']
   : ['<title>Kalendaryo</title>', '<meta name="claude:viewport-fit-sides" content="cover">'];
 const out = head.concat(
-  ["<script>try{var t=localStorage.getItem('kal.theme')||'auto';if(t==='dark'||(t==='auto'&&matchMedia('(prefers-color-scheme: dark)').matches))document.documentElement.dataset.theme='dark'}catch(e){}</script>",
+  ["<script>try{var t=localStorage.getItem('kal.theme')||'light';if(t==='dark'||(t==='auto'&&matchMedia('(prefers-color-scheme: dark)').matches))document.documentElement.dataset.theme='dark'}catch(e){}</script>",
    '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;600;700;800&family=Outfit:wght@600;700;800&display=swap">',
    '<style>', ...styles, '</style>'],
   web ? ['</head>', '<body>'] : [],

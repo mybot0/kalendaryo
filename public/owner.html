@@ -247,15 +247,17 @@ button, .btn { font: 700 14px 'Figtree', sans-serif; border: 0; cursor: pointer;
         right = '<div class="ib-conv"><div class="ib-conv-head"><b>' + esc(t.name || 'Someone') + '</b><span class="ib-app' + (t.app === 'trip' ? ' trip' : '') + '">' + APP[t.app] + '</span><span class="ib-place">' + esc(t.place_name) + '</span>' +
           '<span class="acts"><button class="view ib-view">' + EYE + (t.app === 'trip' ? 'View trip' : 'View home') + '</button><button class="ib-done">' + (t.status === 'done' ? '↺ Reopen' : '✓ Mark done') + '</button></span></div><div class="ib-msgs">' +
           conv.messages.map((m) => '<div class="ib-msg' + (m.team ? ' team' : '') + (m.team && m.auto ? ' auto' : '') + '">' + (m.image ? '<img src="' + esc(m.image) + '" alt="Screenshot">' : '') + (m.body ? '<div class="ib-bubble">' + (m.tag ? TAG[m.tag] + ' ' : '') + esc(m.body) + '</div>' : '') +
-            '<span class="ib-meta">' + (m.team ? esc(t.team) : esc(t.name)) + ' · ' + new Date(m.at).toLocaleString([], { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) + '</span></div>').join('') +
+            '<span class="ib-meta">' + (m.team ? esc(t.team) + (m.auto ? ' · Automated message' : '') : esc(t.name)) + ' · ' + new Date(m.at).toLocaleString([], { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) + '</span></div>').join('') +
           '</div><div class="ib-reply"><textarea rows="1" placeholder="Reply as ' + esc(t.team) + '…"></textarea><button class="ib-send">Send</button></div></div>';
       }
       el.innerHTML = '<div class="ib-head"><h2 style="margin:0"><span class="pill">INBOX</span> Help & ideas</h2>' + (unread ? '<span class="ib-new">' + unread + ' new</span>' : '') +
         '<span class="ib-filters">' + ['open', 'done', 'all'].map((f) => '<button data-f="' + f + '" class="' + (filter === f ? 'on' : '') + '">' + f[0].toUpperCase() + f.slice(1) + '</button>').join('') + '</span></div>' +
         '<div class="ib-grid"><div class="ib-list">' + list + '</div>' + right + '</div>' +
-        '<details class="ib-welcome"' + (el.querySelector('.ib-welcome[open]') ? ' open' : '') + '><summary>Welcome message (sent once to each person)</summary>' +
-        '<p class="note">Use {name} for the person’s first name. Changes are used for people who have not received it yet. Leave a box empty to go back to the original text.</p><div class="wrow">' +
-        ['home', 'trip'].map((a) => '<div><label for="w-' + a + '">' + APP[a] + '</label><textarea id="w-' + a + '">' + esc(welcome ? welcome[a] : '') + '</textarea><button class="view w-save" data-app="' + a + '" style="margin-top:6px">Save</button></div>').join('') + '</div></details>';
+        '<details class="ib-welcome"' + (el.querySelector('.ib-welcome[open]') ? ' open' : '') + '><summary>Automatic messages (welcome and thank-you)</summary>' +
+        '<p class="note">Each one opens the person’s chat once and is marked “Automated message”. Kalendaryo: welcome on the first visit, then a thank-you at most every 2 weeks. ' +
+        'Triply: welcome on the first visit, a thank-you after 3 days of planning, nothing during the trip, and a welcome back the day after it ends. ' +
+        'Use {name} for the person’s first name. Leave a box empty to go back to the original text.</p><div class="wrow">' +
+        (Array.isArray(welcome) ? welcome : []).map((w) => '<div><label for="w-' + w.key + '">' + esc(w.label) + '</label><textarea id="w-' + w.key + '">' + esc(w.text) + '</textarea><button class="view w-save" data-key="' + w.key + '" style="margin-top:6px">Save</button></div>').join('') + '</div></details>';
       const ta = el.querySelector('.ib-reply textarea');
       if (ta) { ta.value = draft; ta.oninput = () => { draft = ta.value; ta.style.height = 'auto'; ta.style.height = Math.min(140, ta.scrollHeight) + 'px'; }; ta.onkeydown = (e) => { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) send(); }; }
       const mb = el.querySelector('.ib-msgs'); if (mb && atBottom) mb.scrollTop = mb.scrollHeight;
@@ -271,7 +273,7 @@ button, .btn { font: 700 14px 'Figtree', sans-serif; border: 0; cursor: pointer;
       };
       el.querySelectorAll('.w-save').forEach((b) => (b.onclick = async () => {
         b.disabled = true;
-        try { welcome = await api('POST', '/api/owner/help-welcome', { app: b.dataset.app, text: el.querySelector('#w-' + b.dataset.app).value }); b.textContent = 'Saved ✓'; setTimeout(() => { b.textContent = 'Save'; }, 1500); }
+        try { welcome = await api('POST', '/api/owner/help-welcome', { key: b.dataset.key, text: el.querySelector('#w-' + b.dataset.key).value }); b.textContent = 'Saved ✓'; setTimeout(() => { b.textContent = 'Save'; }, 1500); }
         catch (e) { alert(e.message); }
         b.disabled = false;
       }));

@@ -8,7 +8,7 @@
 const { ApiError, missing } = require('./mini');
 const { sha256 } = require('./db');
 
-const MEMBER_COLS = 'm.id, m.trip_id, m.name, m.avatar, m.color, m.role, m.joined_at, m.last_seen_at';
+const MEMBER_COLS = 'm.id, m.trip_id, m.name, m.avatar, m.color, m.role, m.joined_at, m.last_seen_at, m.theme';
 
 function tokenOf(req) {
   const h = String(req.headers.authorization || '');

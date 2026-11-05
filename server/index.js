@@ -83,7 +83,7 @@ async function auth(req) {
   const viewing = token && token.startsWith('ov') ? await owner.viewer(token, req) : null; // the site owner viewing, read-only
   if (viewing) { req.me = viewing; return; }
   if (!token || token.length > 100) fail(401, 'no_access', 'This link is not valid.');
-  const r = await db.q('SELECT a.id, a.family_id, a.name, a.role, a.last_seen, a.member_id, f.name AS family_name FROM access a JOIN families f ON f.id = a.family_id WHERE a.token_hash = $1', [hash(token)]);
+  const r = await db.q('SELECT a.id, a.family_id, a.name, a.role, a.last_seen, a.member_id, a.theme, f.name AS family_name FROM access a JOIN families f ON f.id = a.family_id WHERE a.token_hash = $1', [hash(token)]);
   if (!r.rowCount) fail(401, 'no_access', 'This link is not valid anymore. Ask an owner of the family for a new invite.');
   req.me = r.rows[0];
   owner.noteUse(req, 'home', req.me.family_id);
@@ -158,8 +158,15 @@ r.post('/api/join', json, async (req, res) => {
 
 /* ---------- everything below needs a personal link ---------- */
 r.get('/api/me', auth, async (req, res) => {
-  send(res, 200, { me: { id: req.me.id, name: req.me.name, role: req.me.role, viewing: !!req.me.viewing, memberId: req.me.member_id || null }, family: { id: req.me.family_id, name: req.me.family_name },
+  send(res, 200, { me: { id: req.me.id, name: req.me.name, role: req.me.role, viewing: !!req.me.viewing, memberId: req.me.member_id || null, theme: req.me.theme || null }, family: { id: req.me.family_id, name: req.me.family_name },
     ai: { enabled: ai.enabled(), left: await ai.left(req.me.family_id) } });
+});
+// Light / dark / auto, saved to the person so it follows them on every device.
+r.patch('/api/me/theme', auth, json, async (req, res) => {
+  if (req.me.viewing) fail(403, 'read_only', 'Viewing only.');
+  const t = ['light', 'dark', 'auto'].includes(req.body.theme) ? req.body.theme : 'light';
+  await db.q('UPDATE access SET theme=$1 WHERE id=$2', [t, req.me.id]);
+  send(res, 200, { ok: true, theme: t });
 });
 r.patch('/api/me', auth, json, async (req, res) => {
   if (req.me.viewing) fail(403, 'read_only', 'Viewing only.');

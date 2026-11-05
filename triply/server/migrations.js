@@ -199,5 +199,10 @@ module.exports = [
     // A drawn cover scene ('' = pick one from the destination).
     id: '007_cover_scene',
     sql: `alter table trips add column cover_scene text not null default ''`
+  },
+  {
+    // Each person's light/dark choice for this trip, so it follows them to every device.
+    id: '008_member_theme',
+    sql: `alter table members add column theme text`
   }
 ];

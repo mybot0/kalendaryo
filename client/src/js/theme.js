@@ -16,8 +16,9 @@
   const KEY = 'theme', WALL = 'wallLook', NIGHT_FROM = 21, NIGHT_TO = 7; // 9 PM to 7 AM
   const store = { get: (k, d) => { try { const v = localStorage.getItem('kal.' + k); return v == null ? d : v; } catch (e) { return d; } },
     set: (k, v) => { try { localStorage.setItem('kal.' + k, v); } catch (e) { /* private mode: still works until reload */ } } };
-  let mode = store.get(KEY, 'auto'), wall = store.get(WALL, 'night'), inWall = false;
+  let mode = store.get(KEY, 'light'), wall = store.get(WALL, 'night'), inWall = false;
   const listeners = new Set();
+  let saver = () => {};
   const mq = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
   const night = () => { const hr = (PL.now ? PL.now() : new Date()).getHours(); return hr >= NIGHT_FROM || hr < NIGHT_TO; };
 
@@ -50,7 +51,10 @@
 
   PL.theme = {
     get: () => mode,
-    set(v) { mode = ['light', 'dark'].includes(v) ? v : 'auto'; store.set(KEY, mode); apply(); },
+    // Light is the default. A choice is saved on this device and, through onSave, to the person (so it follows them).
+    set(v) { mode = ['dark', 'auto'].includes(v) ? v : 'light'; store.set(KEY, mode); apply(); saver(mode); },
+    load(v) { if (!['light', 'dark', 'auto'].includes(v) || v === mode) return; mode = v; store.set(KEY, mode); apply(); }, // the person's saved choice, from the server
+    onSave(fn) { saver = typeof fn === 'function' ? fn : () => {}; },
     isDark,
     toggle() {
       if (inWall) { wall = isDark() ? 'light' : 'dark'; store.set(WALL, wall); return apply(); }

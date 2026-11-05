@@ -80,7 +80,7 @@ function register(r, d) {
     }
     ok(c.res, {
       trip: tripOut(trip),
-      me: Object.assign(memberOut(member, member.id), member.owner_view ? { owner_view: true } : {}),
+      me: Object.assign(memberOut(member, member.id), { theme: member.theme || null }, member.owner_view ? { owner_view: true } : {}),
       perms: member.owner_view ? { 'trip.read': true } : P.summary(member, trip),
       members: members.rows.map((m) => memberOut(m, member.id)),
       items: items.rows.map(itemOut),

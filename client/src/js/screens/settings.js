@@ -122,10 +122,10 @@
           return h('div', { class: 'toggle-row' }, ui.avatar(m, 28), t.el);
         })) : h('p', { class: 'sub' }, 'Add family members to choose who is shown.');
         /* appearance (this device) */
-        const look = ui.segmented([{ value: 'auto', label: 'Auto' }, { value: 'light', label: 'Light' }, { value: 'dark', label: 'Dark' }], PL.theme.get(), (v) => PL.theme.set(v), 'Appearance');
-        const wallLook = ui.select([{ value: 'night', label: 'Dark at night (9 PM – 7 AM)' }, { value: 'app', label: 'Same as the app' }, { value: 'dark', label: 'Always dark' }, { value: 'light', label: 'Always light' }], PL.theme.wallLook(), (v) => PL.theme.setWallLook(v));
+        const look = ui.segmented([{ value: 'light', label: 'Light' }, { value: 'dark', label: 'Dark' }, { value: 'auto', label: 'Auto' }], PL.theme.get(), (v) => PL.theme.set(v), 'Appearance');
+        const wallLook = ui.select([{ value: 'night', label: 'Auto: dark at night (9 PM – 7 AM)' }, { value: 'app', label: 'Same as the app' }, { value: 'dark', label: 'Always dark' }, { value: 'light', label: 'Always light' }], PL.theme.wallLook(), (v) => PL.theme.setWallLook(v));
         wallLook.setAttribute('aria-label', 'Wall mode look');
-        const appearance = section('Appearance', 'Light, dark, or Auto to follow this phone or computer.',
+        const appearance = section('Appearance', 'Light, dark, or Auto to follow this phone or computer. Saved for you, on every device.',
           ui.field('Look', look.el), ui.field('Wall mode', wallLook));
         const device = section('This device', 'These only change this screen, not other devices.',
           ui.field('Text size', text.el), ui.field('Starting calendar view', view.el), motion.el, notify.el,

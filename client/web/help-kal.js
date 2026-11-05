@@ -6,7 +6,7 @@
   const PL = window.PL, KAL = window.KAL;
   if (!PL || !KAL || !window.HelpUI) return;
   const DEMO = [
-    { team: true, body: 'Hi Maya! 👋 Thank you for using Kalendaryo. It means a lot to us. We build it around what families actually need, so if anything is confusing, missing, or could be better, just reply here. Every message is read, and many of our updates come straight from ideas like yours. 💛', at: new Date(Date.now() - 3 * 86400000).toISOString() },
+    { team: true, auto: true, body: 'Hi Maya! 👋 Thank you for using Kalendaryo. It means a lot to us. We build it around what families actually need, so if anything is confusing, missing, or could be better, just reply here. Every message is read, and many of our updates come straight from ideas like yours. 💛', at: new Date(Date.now() - 3 * 86400000).toISOString() },
     { team: false, tag: 'idea', body: 'Could we print the grocery list for the store?', at: new Date(Date.now() - 2 * 86400000).toISOString() },
     { team: true, body: 'Great idea! A Print button for Lists is on the way. 🛒', at: new Date(Date.now() - 2 * 86400000 + 3600000).toISOString() }
   ];

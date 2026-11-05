@@ -3,7 +3,8 @@
  * The same file is used by Kalendaryo (client/web/help.js) and Triply (triply/client/src/js/help.js); keep them identical.
  * Each app plugs it in with HelpUI.create({ ...how to reach the server... }).
  *
- * It never opens by itself and has no overlay: a red dot on "Help & ideas" says there is a new message.
+ * It has no overlay. A red dot on "Help & ideas" says there is a new message. It opens by itself only for an
+ * automatic message (the welcome, or a thank-you now and then), once each, and never while wall mode is on.
  * The window sits at the bottom right (full screen on phones) and closes with ×, Esc, or a click outside.
  */
 (function () {
@@ -49,7 +50,7 @@
    */
   function create(opts) {
     const buttons = new Set();
-    let unread = 0, panel = null, state = null, tag = '', image = null, pollT = null, openPollT = null, busy = false;
+    let popWait = null, unread = 0, panel = null, state = null, tag = '', image = null, pollT = null, openPollT = null, busy = false;
 
     function paintButtons() {
       buttons.forEach((b) => {
@@ -70,8 +71,21 @@
     }
     async function checkUnread() {
       if (!opts.ready() || opts.demo) { unread = opts.demo && opts.ready() && !(state && state.seen) ? 1 : 0; return paintButtons(); }
-      try { unread = (await opts.unread()).unread || 0; } catch (e) { /* offline: try later */ }
+      let popup = false;
+      try { const r = await opts.unread(); unread = r.unread || 0; popup = !!r.popup; } catch (e) { /* offline: try later */ }
       paintButtons();
+      // An automatic message (welcome or thank-you) opens the chat once, a moment after the page is ready.
+      // It waits while the guided tour, a popup sheet or wall mode is showing.
+      if (popup && !panel && !popWait) {
+        let tries = 0;
+        const tryOpen = () => {
+          if (panel || !opts.ready()) { popWait = null; return; }
+          const busyNow = document.hidden || document.querySelector('.wall, .g-layer, .sheet-wrap, .modal-wrap');
+          if (busyNow && ++tries < 200) { popWait = setTimeout(tryOpen, 3000); return; }
+          popWait = null; if (!busyNow) open();
+        };
+        popWait = setTimeout(tryOpen, 2500);
+      }
     }
     function startPolling() {
       clearInterval(pollT);
@@ -97,7 +111,7 @@
         m.team ? el('span', { class: 'help-by' }, team) : null,
         m.image ? el('img', { class: 'help-img', src: m.image, alt: 'Screenshot', onclick: (e) => e.target.classList.toggle('big') }) : null,
         m.body ? el('div', { class: 'help-bubble' }, (m.tag ? TAGS.find((t) => t[0] === m.tag)[1].split(' ')[0] + ' ' : '') + m.body) : null,
-        el('span', { class: 'help-time' }, time(m.at))));
+        el('span', { class: 'help-time' }, (m.auto ? 'Automated message · ' : '') + time(m.at))));
       if (!state) kids.push(el('p', { class: 'help-loading' }, 'Loading…'));
       list.replaceChildren(...kids);
       list.scrollTop = list.scrollHeight;

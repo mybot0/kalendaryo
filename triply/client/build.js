@@ -24,7 +24,7 @@ const out = [
   '<meta name="referrer" content="no-referrer">',
   '<title>Triply</title>',
   '<link rel="icon" href="favicon.svg" type="image/svg+xml">',
-  "<script>try{var t=localStorage.getItem('triply.theme')||'auto';if(t==='dark'||(t==='auto'&&matchMedia('(prefers-color-scheme: dark)').matches))document.documentElement.dataset.theme='dark'}catch(e){}</script>",
+  "<script>try{var t=localStorage.getItem('triply.theme')||'light';if(t==='dark'||(t==='auto'&&matchMedia('(prefers-color-scheme: dark)').matches))document.documentElement.dataset.theme='dark'}catch(e){}</script>",
   '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;600;700;800&family=Outfit:wght@600;700;800&display=swap">',
   '<style>', ...CSS.map((c) => src('styles/' + c + '.css')), '</style>',
   '<!--TRIPLY_CONFIG-->',
