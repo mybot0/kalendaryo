@@ -69,13 +69,15 @@
 .wall.bgphoto .wall-veil { display: block; }
 .wall.board:not(.bgphoto) .wall-bg { display: none; }
 .wall.photos .wall-veil { display: none; }
-.wall-bar { position: absolute; top: 12px; right: 12px; z-index: 3; display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; transition: opacity .4s; }
-.wall.idle .wall-bar { opacity: 0; pointer-events: none; }
+/* the buttons sit at the top left, next to (not under) Safari's full-screen X on iPad, and hide when not used */
+.wall-bar { position: absolute; top: 12px; left: 64px; right: 12px; z-index: 3; display: flex; flex-wrap: wrap; justify-content: flex-start; gap: 8px; transition: opacity .4s; pointer-events: none; }
+.wall-bar > * { pointer-events: auto; }
+.wall.idle .wall-bar, .wall.idle .wall-bar > * { opacity: 0; pointer-events: none; }
 .wall-top { position: relative; z-index: 1; display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; padding: clamp(12px, 2.4vh, 32px) clamp(16px, 2.6vw, 40px) clamp(6px, 1.2vh, 14px); }
-.wall-clock { display: flex; flex-direction: column; gap: 2px; }
+.wall-clock { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; text-align: right; }
 .wall-time { font: 800 clamp(2.4rem, min(8.5vw, 12vh), 7.5rem)/1 var(--font-head); letter-spacing: -.03em; }
 .wall-date { font-size: clamp(1rem, min(2.4vw, 3.2vh), 2rem); color: var(--ink-2); font-weight: 600; }
-.wall-greet { font-size: clamp(.95rem, min(1.8vw, 2.6vh), 1.6rem); color: var(--ink-2); font-weight: 700; text-align: right; }
+.wall-greet { font-size: clamp(.95rem, min(1.8vw, 2.6vh), 1.6rem); color: var(--ink-2); font-weight: 700; text-align: left; }
 .wall-main { position: relative; z-index: 1; flex: 1; min-height: 0; display: flex; gap: clamp(8px, 1.4vh, 18px); padding: 4px clamp(16px, 2.6vw, 40px) clamp(12px, 2.4vh, 32px); }
 .wall-agenda { flex: 0 0 34%; max-width: 620px; }
 .wall.port .wall-agenda { flex-basis: 42%; }
@@ -101,6 +103,8 @@
 .wall.photos .wall-time { font-size: clamp(2rem, 4vw, 3rem); }
 .wall.photos .wall-date { font-size: 1rem; }
 .wall.photos .wall-greet { display: none; }
+.wall.photos .wall-top-left:not(:has(.wall-room:not([hidden]))) { display: none; }
+.wall.photos .wall-clock { align-items: flex-start; text-align: left; }
 .wall.photos.nophotos::after { content: 'Add photos in the Photos tab to see a slideshow here.'; position: absolute; inset: 0; display: grid; place-items: center; color: var(--ink-2); font-weight: 600; padding: 24px; text-align: center; }
 .wall-toggles { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 160px), 1fr)); gap: 2px 12px; }
 @media (max-width: 640px) { .wall-bar .btn span { display: none; } .wall-bar .btn { padding: 0 12px; } }
@@ -226,7 +230,7 @@
 .arr-hint { margin-right: auto; padding: 10px 16px; border-radius: 999px; background: rgba(255,255,255,.92); font-weight: 700; color: var(--ink-2); }
 .wall.arranging .wall-bar { opacity: 1; pointer-events: auto; }
 .wall.arranging .wall-top { visibility: hidden; height: clamp(56px, 8vh, 72px); padding-top: 0; padding-bottom: 0; }
-.wall-top-right { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
+.wall-top-left { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; min-width: 0; padding-bottom: clamp(2px, .6vh, 8px); }
 .wall-room { background: #FFF3D6; color: #6B4E00; }
 .arr-live { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 @media (max-width: 760px) { .arr-hint { display: none; } }

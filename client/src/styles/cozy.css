@@ -46,10 +46,29 @@
 /* Photo viewer: the same soft background as the pages */
 .viewer { background-color: var(--bg); background-image: var(--page-art); background-size: var(--page-art-size); background-repeat: var(--page-art-repeat); }
 
-/* The animated sky next to the clock (sky.js), in the doodle line style */
+/* The animated sky next to the clock (sky.js): its own colors, so it stands out from the doodles */
 .sky { flex: 1 1 260px; max-width: 560px; min-width: 200px; align-self: stretch; min-height: 92px; position: relative; pointer-events: none; }
 .sky svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
-.sky svg :is(path, circle) { fill: none; stroke: var(--sky-ink, #B49C8E); stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
-.sky.sky-dark .sky-clouds path { stroke: var(--sky-ink-dark, #8F7F78); }
+.sky svg :is(path, circle) { fill: none; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+.sky .sky-sun .sky-disc { fill: #FFC93C; stroke: #E8862A; }
+.sky .sky-sun .sky-rays path { stroke: #F0A030; stroke-width: 3; }
+.sky .sky-sun .sky-glow { fill: #FFD666; stroke: none; opacity: .3; }
+.sky .sky-moon .sky-disc { fill: #FBE7A1; stroke: #D9A93A; }
+.sky .sky-moon .sky-glow { fill: #FBE7A1; stroke: none; opacity: .3; }
+.sky .sky-stars path { fill: #FFD666; stroke: #E0A82E; stroke-width: 1.4; }
+.sky .sky-clouds path { fill: #fff; stroke: #8FA6BC; }
+.sky.sky-dark .sky-clouds path { fill: #DCE2E8; stroke: #6F8193; }
+.sky.sky-flash .sky-clouds path { fill: #FFF6CC; stroke: #C9A43A; }
+.sky .sky-rain path { stroke: #3E8BD8; stroke-width: 2.6; }
+.sky .sky-snow circle { fill: #fff; stroke: #7FB2E5; stroke-width: 2; }
+.sky .sky-wind path { stroke: #7E9BB5; stroke-width: 2.6; }
+.sky .sky-bolt path { fill: #FFD43B; stroke: #E0A000; }
 .wall-top .sky { align-self: stretch; margin: 0 2vw; min-height: clamp(80px, 12vh, 150px); }
 @media (max-width: 899px) { .home-top .sky { display: none; } } /* phones: no room */
+/* phones in wall mode: the sky may sit behind the greeting, but never over the time and date */
+@media (max-width: 640px) {
+  .wall-top { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: end; }
+  .wall-top .wall-top-left { grid-area: 1 / 1; position: relative; z-index: 1; }
+  .wall-top .sky { grid-area: 1 / 1; margin: 0; min-width: 0; max-width: none; min-height: 80px; }
+  .wall-top .wall-clock { grid-area: 1 / 2; }
+}

@@ -560,13 +560,15 @@ html.has-sheet .toast { bottom: calc(110px + env(safe-area-inset-bottom)); }
 .wall.bgphoto .wall-veil { display: block; }
 .wall.board:not(.bgphoto) .wall-bg { display: none; }
 .wall.photos .wall-veil { display: none; }
-.wall-bar { position: absolute; top: 12px; right: 12px; z-index: 3; display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; transition: opacity .4s; }
-.wall.idle .wall-bar { opacity: 0; pointer-events: none; }
+/* the buttons sit at the top left, next to (not under) Safari's full-screen X on iPad, and hide when not used */
+.wall-bar { position: absolute; top: 12px; left: 64px; right: 12px; z-index: 3; display: flex; flex-wrap: wrap; justify-content: flex-start; gap: 8px; transition: opacity .4s; pointer-events: none; }
+.wall-bar > * { pointer-events: auto; }
+.wall.idle .wall-bar, .wall.idle .wall-bar > * { opacity: 0; pointer-events: none; }
 .wall-top { position: relative; z-index: 1; display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; padding: clamp(12px, 2.4vh, 32px) clamp(16px, 2.6vw, 40px) clamp(6px, 1.2vh, 14px); }
-.wall-clock { display: flex; flex-direction: column; gap: 2px; }
+.wall-clock { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; text-align: right; }
 .wall-time { font: 800 clamp(2.4rem, min(8.5vw, 12vh), 7.5rem)/1 var(--font-head); letter-spacing: -.03em; }
 .wall-date { font-size: clamp(1rem, min(2.4vw, 3.2vh), 2rem); color: var(--ink-2); font-weight: 600; }
-.wall-greet { font-size: clamp(.95rem, min(1.8vw, 2.6vh), 1.6rem); color: var(--ink-2); font-weight: 700; text-align: right; }
+.wall-greet { font-size: clamp(.95rem, min(1.8vw, 2.6vh), 1.6rem); color: var(--ink-2); font-weight: 700; text-align: left; }
 .wall-main { position: relative; z-index: 1; flex: 1; min-height: 0; display: flex; gap: clamp(8px, 1.4vh, 18px); padding: 4px clamp(16px, 2.6vw, 40px) clamp(12px, 2.4vh, 32px); }
 .wall-agenda { flex: 0 0 34%; max-width: 620px; }
 .wall.port .wall-agenda { flex-basis: 42%; }
@@ -592,6 +594,8 @@ html.has-sheet .toast { bottom: calc(110px + env(safe-area-inset-bottom)); }
 .wall.photos .wall-time { font-size: clamp(2rem, 4vw, 3rem); }
 .wall.photos .wall-date { font-size: 1rem; }
 .wall.photos .wall-greet { display: none; }
+.wall.photos .wall-top-left:not(:has(.wall-room:not([hidden]))) { display: none; }
+.wall.photos .wall-clock { align-items: flex-start; text-align: left; }
 .wall.photos.nophotos::after { content: 'Add photos in the Photos tab to see a slideshow here.'; position: absolute; inset: 0; display: grid; place-items: center; color: var(--ink-2); font-weight: 600; padding: 24px; text-align: center; }
 .wall-toggles { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 160px), 1fr)); gap: 2px 12px; }
 @media (max-width: 640px) { .wall-bar .btn span { display: none; } .wall-bar .btn { padding: 0 12px; } }
@@ -717,7 +721,7 @@ html.has-sheet .toast { bottom: calc(110px + env(safe-area-inset-bottom)); }
 .arr-hint { margin-right: auto; padding: 10px 16px; border-radius: 999px; background: rgba(255,255,255,.92); font-weight: 700; color: var(--ink-2); }
 .wall.arranging .wall-bar { opacity: 1; pointer-events: auto; }
 .wall.arranging .wall-top { visibility: hidden; height: clamp(56px, 8vh, 72px); padding-top: 0; padding-bottom: 0; }
-.wall-top-right { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
+.wall-top-left { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; min-width: 0; padding-bottom: clamp(2px, .6vh, 8px); }
 .wall-room { background: #FFF3D6; color: #6B4E00; }
 .arr-live { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 @media (max-width: 760px) { .arr-hint { display: none; } }
@@ -859,13 +863,32 @@ html.has-sheet .toast { bottom: calc(110px + env(safe-area-inset-bottom)); }
 /* Photo viewer: the same soft background as the pages */
 .viewer { background-color: var(--bg); background-image: var(--page-art); background-size: var(--page-art-size); background-repeat: var(--page-art-repeat); }
 
-/* The animated sky next to the clock (sky.js), in the doodle line style */
+/* The animated sky next to the clock (sky.js): its own colors, so it stands out from the doodles */
 .sky { flex: 1 1 260px; max-width: 560px; min-width: 200px; align-self: stretch; min-height: 92px; position: relative; pointer-events: none; }
 .sky svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
-.sky svg :is(path, circle) { fill: none; stroke: var(--sky-ink, #B49C8E); stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
-.sky.sky-dark .sky-clouds path { stroke: var(--sky-ink-dark, #8F7F78); }
+.sky svg :is(path, circle) { fill: none; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+.sky .sky-sun .sky-disc { fill: #FFC93C; stroke: #E8862A; }
+.sky .sky-sun .sky-rays path { stroke: #F0A030; stroke-width: 3; }
+.sky .sky-sun .sky-glow { fill: #FFD666; stroke: none; opacity: .3; }
+.sky .sky-moon .sky-disc { fill: #FBE7A1; stroke: #D9A93A; }
+.sky .sky-moon .sky-glow { fill: #FBE7A1; stroke: none; opacity: .3; }
+.sky .sky-stars path { fill: #FFD666; stroke: #E0A82E; stroke-width: 1.4; }
+.sky .sky-clouds path { fill: #fff; stroke: #8FA6BC; }
+.sky.sky-dark .sky-clouds path { fill: #DCE2E8; stroke: #6F8193; }
+.sky.sky-flash .sky-clouds path { fill: #FFF6CC; stroke: #C9A43A; }
+.sky .sky-rain path { stroke: #3E8BD8; stroke-width: 2.6; }
+.sky .sky-snow circle { fill: #fff; stroke: #7FB2E5; stroke-width: 2; }
+.sky .sky-wind path { stroke: #7E9BB5; stroke-width: 2.6; }
+.sky .sky-bolt path { fill: #FFD43B; stroke: #E0A000; }
 .wall-top .sky { align-self: stretch; margin: 0 2vw; min-height: clamp(80px, 12vh, 150px); }
 @media (max-width: 899px) { .home-top .sky { display: none; } } /* phones: no room */
+/* phones in wall mode: the sky may sit behind the greeting, but never over the time and date */
+@media (max-width: 640px) {
+  .wall-top { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: end; }
+  .wall-top .wall-top-left { grid-area: 1 / 1; position: relative; z-index: 1; }
+  .wall-top .sky { grid-area: 1 / 1; margin: 0; min-width: 0; max-width: none; min-height: 80px; }
+  .wall-top .wall-clock { grid-area: 1 / 2; }
+}
 
 /*
  * dark.css — dark mode colors for Kalendaryo. Switched on by <html data-theme="dark"> (theme.js).
@@ -920,7 +943,9 @@ html.has-sheet .toast { bottom: calc(110px + env(safe-area-inset-bottom)); }
 :root[data-theme="dark"] .wall-veil { background: rgba(23,28,26,.55); }
 
 /* Sky strip lines */
-:root[data-theme="dark"] { --sky-ink: #8C9A93; --sky-ink-dark: #6F7C76; }
+:root[data-theme="dark"] .sky .sky-clouds path { fill: #E9EEF3; stroke: #A9BCCD; }
+:root[data-theme="dark"] .sky.sky-dark .sky-clouds path { fill: #9AA7B4; stroke: #C4CFDA; }
+:root[data-theme="dark"] .sky .sky-rain path { stroke: #6FB0F0; }
 
 /* Empty boxes: an even lighter fade in the dark */
 :root[data-theme="dark"] :is(.widget:has(.empty-state), .main .card:has(> .empty-state)) {
@@ -5470,9 +5495,11 @@ body:has(> .tour-switch) .main { padding-top: 62px; }
 <script>
 /*
  * sky.js — the little animated sky next to the clock on Home and in wall mode (part of the Cozy look).
- * Drawn in the same thin-line doodle style as the page background:
- *   the sun moves across the sky with the real time of day (sunrise to sunset), then a moon and stars at night,
+ * It has its own colors (filled shapes), so it stands out from the thin-line doodles of the page background:
+ *   the sun moves across the sky with the real time of day (sunrise to sunset), then a moon and twinkling stars at night,
  *   and the current weather from the Weather box: sunny, windy, cloudy, rain, snow, thunderstorm.
+ * Everything moves so it can be seen: clouds drift across and come back around, the sun pulses, rain and snow fall,
+ * lightning flashes every few seconds.
  *
  *   PL.sky.el()  -> element; it animates itself and stops when removed from the page.
  * "Reduce motion" (Settings) keeps it still. No weather place set = just the sun or moon.
@@ -5483,8 +5510,6 @@ body:has(> .tour-switch) .main { padding-top: 62px; }
   const W = 580, H = 122;
   const CLOUD = 'M10 30 Q10 20 20 20 Q24 10 36 12 Q46 6 52 18 Q64 18 64 28 Q64 34 58 34 H16 Q10 34 10 30Z';
   const STARS = [[80, 30], [170, 14], [260, 40], [350, 18], [440, 34], [520, 20]];
-
-  // Open-Meteo weather code -> kind of sky
   function kindOf(code) {
     if ([95, 96, 99].includes(code)) return 'storm';
     if ([71, 73, 75, 77, 85, 86].includes(code)) return 'snow';
@@ -5501,17 +5526,18 @@ body:has(> .tour-switch) .main { padding-top: 62px; }
     box.className = 'sky'; box.setAttribute('aria-hidden', 'true');
     const g = (cls, inner) => '<g class="' + cls + '">' + inner + '</g>';
     box.innerHTML = '<svg viewBox="0 0 ' + W + ' ' + H + '" xmlns="' + NS + '">' +
-      g('sky-sun', '<circle r="13"/><g class="sky-rays">' + [0, 45, 90, 135, 180, 225, 270, 315].map((a) => '<path d="M0 -20 V-26" transform="rotate(' + a + ')"/>').join('') + '</g>') +
-      g('sky-moon', '<path d="M10 -12 A14 14 0 1 0 12 10 A11 11 0 1 1 10 -12Z"/>') +
-      g('sky-stars', STARS.map((s) => '<path d="M' + s[0] + ' ' + s[1] + ' m-4 0 h8 m-4 -4 v8"/>').join('')) +
-      g('sky-clouds', [0, 1, 2, 3].map(() => '<g><path d="' + CLOUD + '"/></g>').join('')) +
-      g('sky-rain', Array.from({ length: 18 }, () => '<path d="M0 0 l-4 11"/>').join('')) +
-      g('sky-snow', Array.from({ length: 16 }, () => '<path d="M-4 0 h8 M0 -4 v8 M-3 -3 l6 6 M3 -3 l-6 6"/>').join('')) +
+      g('sky-stars', STARS.map((s) => '<g transform="translate(' + s[0] + ' ' + s[1] + ')"><path d="M0 -6 L1.6 -1.6 L6 0 L1.6 1.6 L0 6 L-1.6 1.6 L-6 0 L-1.6 -1.6Z"/></g>').join('')) +
+      g('sky-sun', '<circle class="sky-glow" r="22"/><g class="sky-rays">' + [0, 45, 90, 135, 180, 225, 270, 315].map((a) => '<path d="M0 -19 V-27" transform="rotate(' + a + ')"/>').join('') + '</g><circle class="sky-disc" r="13"/>') +
+      g('sky-moon', '<circle class="sky-glow" r="22"/><path class="sky-disc" d="M10 -12 A14 14 0 1 0 12 10 A11 11 0 1 1 10 -12Z"/>') +
+      g('sky-clouds', [0, 1, 2, 3, 4].map(() => '<g><path d="' + CLOUD + '"/></g>').join('')) +
+      g('sky-rain', Array.from({ length: 24 }, () => '<path d="M0 0 l-4 12"/>').join('')) +
+      g('sky-snow', Array.from({ length: 20 }, () => '<g><circle r="4.5"/></g>').join('')) +
       g('sky-wind', Array.from({ length: 4 }, () => '<path d="M0 0 h40 q10 0 10 -7 q0 -6 -6 -6"/>').join('')) +
       g('sky-bolt', '<path d="M0 0 l-10 22 h10 l-6 20 l18 -28 h-10 l6 -14z"/>') + '</svg>';
     const q = (s) => box.querySelector(s), qa = (s) => [...box.querySelectorAll(s)];
-    const sun = q('.sky-sun'), rays = q('.sky-rays'), moon = q('.sky-moon'), stars = qa('.sky-stars path'), starsG = q('.sky-stars');
-    const clouds = qa('.sky-clouds > g'), rain = qa('.sky-rain path'), rainG = q('.sky-rain'), snow = qa('.sky-snow path'), snowG = q('.sky-snow');
+    const sun = q('.sky-sun'), rays = q('.sky-rays'), sunGlow = q('.sky-sun .sky-glow'), moon = q('.sky-moon'), moonGlow = q('.sky-moon .sky-glow');
+    const stars = qa('.sky-stars > g'), starsG = q('.sky-stars');
+    const clouds = qa('.sky-clouds > g'), rain = qa('.sky-rain path'), rainG = q('.sky-rain'), snow = qa('.sky-snow > g'), snowG = q('.sky-snow');
     const wind = qa('.sky-wind path'), windG = q('.sky-wind'), bolt = q('.sky-bolt');
     const show = (n, on) => { n.style.display = on ? '' : 'none'; };
 
@@ -5520,46 +5546,61 @@ body:has(> .tour-switch) .main { padding-top: 62px; }
       raf = requestAnimationFrame(frame);
       if (!box.isConnected) { if (ts - last > 2000) cancelAnimationFrame(raf); return; }
       const still = document.documentElement.classList.contains('reduce-motion') || (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
-      if (ts - last < (still ? 30000 : 50)) return; // about 20 frames a second, or once in a while when still
+      if (ts - last < (still ? 30000 : 33)) return; // about 30 frames a second, or once in a while when still
       last = ts;
       if (!wx || Date.now() - wxAt > 60000) { wx = PL.weather && PL.weather.current ? PL.weather.current() : null; wxAt = Date.now(); }
-      const t = still ? 0 : ts / 1000; // seconds, for the gentle motion
+      const t = still ? 0 : ts / 1000; // seconds, for the motion
       const now = PL.now(), m = mins(now);
       const rise = hm(wx && wx.sun && wx.sun.rise, 7 * 60), set = hm(wx && wx.sun && wx.sun.set, 19 * 60);
       const isDay = m >= rise && m < set;
-      // where the sun (or moon) is on its arc, 0 = left, 1 = right
       const f = isDay ? (m - rise) / (set - rise) : ((m - set + 1440) % 1440) / (1440 - (set - rise));
       const x = 20 + 540 * f, y = 104 - 4 * f * (1 - f) * 62;
       const kind = wx ? kindOf(wx.now.code) : 'sunny';
       const windy = !!(wx && wx.now.wind >= 30);
       const dark = kind === 'gloomy' || kind === 'storm';
+      const clear = kind === 'sunny' || kind === 'partly';
+      const pulse = Math.sin(t * 2);
 
-      show(sun, isDay); show(moon, !isDay); show(starsG, !isDay && (kind === 'sunny' || kind === 'partly'));
-      if (isDay) { sun.setAttribute('transform', 'translate(' + x + ' ' + y + ')'); rays.setAttribute('transform', 'rotate(' + (t * 6 % 360) + ')'); sun.style.opacity = kind === 'sunny' || kind === 'partly' ? 1 : 0.45; }
-      else { moon.setAttribute('transform', 'translate(' + x + ' ' + y + ')'); moon.style.opacity = kind === 'sunny' || kind === 'partly' ? 1 : 0.45; stars.forEach((s, i) => s.setAttribute('opacity', 0.3 + 0.7 * Math.abs(Math.sin(t * 0.8 + i * 1.7)))); }
+      show(sun, isDay); show(moon, !isDay); show(starsG, !isDay && clear);
+      if (isDay) {
+        sun.setAttribute('transform', 'translate(' + x + ' ' + y + ') scale(' + (1 + 0.06 * pulse) + ')');
+        rays.setAttribute('transform', 'rotate(' + (t * 30 % 360) + ')');
+        sunGlow.setAttribute('r', 21 + 4 * pulse);
+        sun.style.opacity = clear ? 1 : 0.8;
+      } else {
+        moon.setAttribute('transform', 'translate(' + x + ' ' + (y + 3 * Math.sin(t * 1.2)) + ')');
+        moonGlow.setAttribute('r', 20 + 4 * pulse);
+        moon.style.opacity = clear ? 1 : 0.8;
+        stars.forEach((s, i) => { const k = Math.sin(t * 2.4 + i * 1.7); s.setAttribute('opacity', 0.35 + 0.65 * Math.abs(k)); s.firstChild.setAttribute('transform', 'scale(' + (0.7 + 0.5 * Math.abs(k)) + ')'); });
+      }
 
-      const nClouds = { sunny: 1, partly: 2, gloomy: 4, rain: 3, snow: 3, storm: 4 }[kind] + (windy && kind === 'sunny' ? 1 : 0);
-      const cx = [60, 200, 330, 450], cy = [20, 8, 26, 12];
+      // clouds drift across the whole sky and come back around
+      const nClouds = { sunny: 1, partly: 2, gloomy: 5, rain: 4, snow: 4, storm: 5 }[kind] + (windy && kind === 'sunny' ? 1 : 0);
+      const speed = windy ? 60 : 16, span = W + 140, cy = [18, 4, 26, 10, 22];
+      const flash = kind === 'storm' && !still && (t % 4 < 0.12 || (t % 4 > 0.22 && t % 4 < 0.4));
       clouds.forEach((c, i) => {
         show(c, i < nClouds);
-        if (i < nClouds) c.setAttribute('transform', 'translate(' + (cx[i] + Math.sin(t * (windy ? 0.5 : 0.15) + i) * (windy ? 26 : 14)) + ' ' + cy[i] + ') scale(' + (dark ? 1.3 : 1) + ')');
+        if (i >= nClouds) return;
+        const cx = ((i * span / nClouds + t * speed * (1 + i * 0.12)) % span) - 90;
+        c.setAttribute('transform', 'translate(' + cx + ' ' + (cy[i] + 3 * Math.sin(t * 1.3 + i)) + ') scale(' + (dark ? 1.35 : 1.1) + ')');
+        c.setAttribute('opacity', Math.min(1, (cx + 90) / 50, (W + 50 - cx) / 50));
       });
       box.classList.toggle('sky-dark', dark);
+      box.classList.toggle('sky-flash', flash);
 
       const rainy = kind === 'rain' || kind === 'storm';
       show(rainG, rainy);
-      if (rainy) rain.forEach((r, i) => { const p = (t * 0.9 + i * 0.37) % 1; r.setAttribute('transform', 'translate(' + (90 + (i % 9) * 45 + (i > 8 ? 20 : 0) - p * 10) + ' ' + (58 + p * 60) + ')'); r.setAttribute('opacity', p < 0.85 ? 1 : (1 - p) * 6); });
+      if (rainy) rain.forEach((r, i) => { const p = (t * 1.6 + i * 0.37) % 1; r.setAttribute('transform', 'translate(' + (70 + (i % 12) * 38 + (i > 11 ? 18 : 0) - p * 14) + ' ' + (50 + p * 70) + ')'); r.setAttribute('opacity', p < 0.85 ? 1 : (1 - p) * 6); });
       show(snowG, kind === 'snow');
-      if (kind === 'snow') snow.forEach((s, i) => { const p = (t * 0.18 + i * 0.41) % 1; s.setAttribute('transform', 'translate(' + (90 + (i % 8) * 55 + Math.sin(p * 6 + i) * 8) + ' ' + (56 + p * 62) + ') rotate(' + (p * 180) + ')'); });
+      if (kind === 'snow') snow.forEach((s, i) => { const p = (t * 0.35 + i * 0.41) % 1; s.setAttribute('transform', 'translate(' + (60 + (i % 10) * 48 + Math.sin(p * 7 + i) * 14) + ' ' + (48 + p * 74) + ') scale(' + (0.7 + (i % 3) * 0.2) + ')'); s.setAttribute('opacity', p < 0.85 ? 1 : (1 - p) * 6); });
       show(windG, windy);
-      if (windy) wind.forEach((w, i) => { const p = (t * 0.25 + i * 0.27) % 1; w.setAttribute('transform', 'translate(' + (-40 + p * 620) + ' ' + (50 + i * 16) + ')'); w.setAttribute('opacity', Math.sin(p * Math.PI)); });
+      if (windy) wind.forEach((w, i) => { const p = (t * 0.5 + i * 0.27) % 1; w.setAttribute('transform', 'translate(' + (-40 + p * 620) + ' ' + (50 + i * 16) + ')'); w.setAttribute('opacity', Math.sin(p * Math.PI)); });
       show(bolt, kind === 'storm');
-      if (kind === 'storm') { bolt.setAttribute('transform', 'translate(270 60)'); bolt.style.opacity = !still && Math.floor(t * 2) % 7 === 0 ? 1 : 0; }
+      if (kind === 'storm') { bolt.setAttribute('transform', 'translate(' + (200 + 140 * (Math.floor(t / 4) % 3)) + ' 52)'); bolt.style.opacity = flash ? 1 : 0; }
     }
     raf = requestAnimationFrame(frame);
     return box;
   }
-
   PL.sky = { el, kindOf };
 })();
 
@@ -6135,7 +6176,8 @@ body:has(> .tour-switch) .main { padding-top: 62px; }
       ui.button('Reset to automatic', { icon: 'repeat', onClick: () => resetArrange() }),
       ui.button('Done', { variant: 'primary', icon: 'check', onClick: () => finishArrange() }));
     arrBar.hidden = true;
-    const top = h('header', { class: 'wall-top' }, h('div', { class: 'wall-clock' }, timeEl, dateEl), PL.sky ? PL.sky.el() : null, h('div', { class: 'wall-top-right' }, roomBtn, greetEl));
+    // Greeting on the left, time and date on the right (on iPad, Safari's full-screen X sits at the top left).
+    const top = h('header', { class: 'wall-top' }, h('div', { class: 'wall-top-left' }, roomBtn, greetEl), PL.sky ? PL.sky.el() : null, h('div', { class: 'wall-clock' }, timeEl, dateEl));
     const root = h('div', { class: 'wall board', role: 'dialog', 'aria-label': 'Wall mode', tabindex: '-1' }, bg.el, h('div', { class: 'wall-veil' }), bar, arrBar, top, main, live);
     const kid = kidScreen({ focusBoard: () => { try { root.focus({ preventScroll: true }); } catch (e) { /* fine */ } } });
     root.append(kid.el);

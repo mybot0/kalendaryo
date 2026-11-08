@@ -51,7 +51,9 @@
 :root[data-theme="dark"] .wall-veil { background: rgba(23,28,26,.55); }
 
 /* Sky strip lines */
-:root[data-theme="dark"] { --sky-ink: #8C9A93; --sky-ink-dark: #6F7C76; }
+:root[data-theme="dark"] .sky .sky-clouds path { fill: #E9EEF3; stroke: #A9BCCD; }
+:root[data-theme="dark"] .sky.sky-dark .sky-clouds path { fill: #9AA7B4; stroke: #C4CFDA; }
+:root[data-theme="dark"] .sky .sky-rain path { stroke: #6FB0F0; }
 
 /* Empty boxes: an even lighter fade in the dark */
 :root[data-theme="dark"] :is(.widget:has(.empty-state), .main .card:has(> .empty-state)) {

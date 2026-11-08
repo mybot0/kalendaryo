@@ -476,7 +476,8 @@
       ui.button('Reset to automatic', { icon: 'repeat', onClick: () => resetArrange() }),
       ui.button('Done', { variant: 'primary', icon: 'check', onClick: () => finishArrange() }));
     arrBar.hidden = true;
-    const top = h('header', { class: 'wall-top' }, h('div', { class: 'wall-clock' }, timeEl, dateEl), PL.sky ? PL.sky.el() : null, h('div', { class: 'wall-top-right' }, roomBtn, greetEl));
+    // Greeting on the left, time and date on the right (on iPad, Safari's full-screen X sits at the top left).
+    const top = h('header', { class: 'wall-top' }, h('div', { class: 'wall-top-left' }, roomBtn, greetEl), PL.sky ? PL.sky.el() : null, h('div', { class: 'wall-clock' }, timeEl, dateEl));
     const root = h('div', { class: 'wall board', role: 'dialog', 'aria-label': 'Wall mode', tabindex: '-1' }, bg.el, h('div', { class: 'wall-veil' }), bar, arrBar, top, main, live);
     const kid = kidScreen({ focusBoard: () => { try { root.focus({ preventScroll: true }); } catch (e) { /* fine */ } } });
     root.append(kid.el);
