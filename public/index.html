@@ -583,6 +583,26 @@ html.has-sheet .toast { bottom: calc(110px + env(safe-area-inset-bottom)); }
 .wall-panel .week-strip { height: 100%; }
 .wall-panel .wk-day { min-height: 0; }
 .wall-items { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap: 4px; font-weight: 600; }
+/* lists you can tick (Shopping list, List) */
+.wall-shopping .wall-panel-body, .wall-list .wall-panel-body { display: flex; flex-direction: column; }
+.wl-wrap { display: flex; flex-direction: column; flex: 1; min-height: 0; }
+.wl-wrap > .wl-box, .wall-panel-body > .wl-box { flex: 1; min-height: 0; }
+.wl-sub { margin: 0 0 6px; font-weight: 600; }
+.wl-box { overflow: hidden; }
+.wl-items { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.wl-item { width: 100%; display: flex; align-items: center; gap: 12px; padding: 6px 10px; min-height: var(--tap, 44px); border: 0; border-radius: var(--radius-sm); background: var(--surface-2); color: var(--ink); font: 600 1rem var(--font); text-align: left; cursor: pointer; transition: opacity .3s; }
+.wl-ring { flex: 0 0 26px; height: 26px; border-radius: 50%; border: 2.5px solid color-mix(in srgb, var(--primary) 45%, transparent); display: grid; place-items: center; color: transparent; }
+.wl-ring .ic { width: 16px; height: 16px; }
+.wl-item.done { opacity: .45; }
+.wl-item.done .wl-ring { background: var(--primary); border-color: var(--primary); color: #fff; }
+.wl-item.done .wl-t { text-decoration: line-through; }
+.wl-more { margin: 6px 2px 0; color: var(--ink-2); font-weight: 600; font-size: .9rem; }
+/* the Notes card: a sticky note */
+.wn { height: 100%; box-sizing: border-box; background: #FFF4C2; color: #4A3B10; border-radius: var(--radius-sm); padding: 14px 16px 12px; transform: rotate(-.6deg); display: flex; flex-direction: column; gap: 8px; overflow: hidden; position: relative; }
+.wn::before { content: ''; position: absolute; top: -6px; left: 50%; width: 54px; height: 16px; margin-left: -27px; background: rgba(255,255,255,.65); border-radius: 3px; transform: rotate(2deg); }
+.wn b { font: 800 1.15rem var(--font-head); }
+.wn p { margin: 0; flex: 1; min-height: 0; overflow: hidden; white-space: pre-line; font: 600 1.02rem/1.45 var(--font); -webkit-mask-image: linear-gradient(#000 80%, transparent); mask-image: linear-gradient(#000 80%, transparent); }
+.wn small { color: #8A7330; font-weight: 700; }
 .wall-photo { position: relative; padding: 0; background: var(--surface-2); }
 .wall-photo-img { position: absolute; inset: 0; background-size: cover; background-position: center; opacity: 0; transition: opacity 1.4s; }
 .wall-photo-img.on { opacity: 1; }
@@ -880,6 +900,13 @@ html.has-sheet .toast { bottom: calc(110px + env(safe-area-inset-bottom)); }
 .sky .sky-snow circle { fill: #fff; stroke: #7FB2E5; stroke-width: 2; }
 .sky .sky-wind path { stroke: #7E9BB5; stroke-width: 2.6; }
 .sky .sky-bolt path { fill: #FFD43B; stroke: #E0A000; }
+/* the dotted path of the sun or moon, with sunrise and sunset times at the ends */
+.sky .sky-path path { fill: none; stroke-linecap: round; }
+.sky .sky-path .sky-arc { stroke: #E0B070; stroke-width: 2; stroke-dasharray: 0.1 7; opacity: .7; }
+.sky .sky-path .sky-done { stroke: #E8862A; stroke-width: 2.6; stroke-dasharray: 0.1 7; }
+.sky .sky-path.night .sky-arc { stroke: #B9B08A; }
+.sky .sky-path.night .sky-done { stroke: #C9A23A; }
+.sky .sky-path text { font: 700 20px var(--font); fill: #A07A50; stroke: none; }
 .wall-top .sky { align-self: stretch; margin: 0 2vw; min-height: clamp(80px, 12vh, 150px); }
 @media (max-width: 899px) { .home-top .sky { display: none; } } /* phones: no room */
 /* phones in wall mode: the sky may sit behind the greeting, but never over the time and date */
@@ -965,6 +992,10 @@ html.has-sheet .toast { bottom: calc(110px + env(safe-area-inset-bottom)); }
   .rail { display: flex; flex-direction: column; }
   .theme-btn { display: flex; margin-top: auto; }
 }
+
+/* wall Notes card: a dimmer sticky note at night */
+:root[data-theme="dark"] .wn { background: #E9D98F; }
+:root[data-theme="dark"] .sky .sky-path text { fill: #D9BE8C; }
 
 /* web.css — web version only: start page, join page, people with access. */
 .land { max-width: 640px; margin: 0 auto; padding: 40px 16px 60px; display: flex; flex-direction: column; gap: 18px; }
@@ -3100,6 +3131,8 @@ body:has(> .tour-switch) .main { padding-top: 62px; }
   const h = PL.h, icon = PL.icon;
   let uid = 0;
   const nextId = (p) => p + '-' + ++uid;
+  // Where popups go: the full-screen element if there is one (wall mode), so they show on top of it.
+  const host = () => document.fullscreenElement || document.webkitFullscreenElement || document.body;
 
   /* ---------- toast (short message at the bottom) ---------- */
   let toastTimer = null;
@@ -3108,8 +3141,8 @@ body:has(> .tour-switch) .main { padding-top: 62px; }
     let el = document.getElementById('pl-toast');
     if (!el) {
       el = h('div', { id: 'pl-toast', role: 'status', 'aria-live': 'polite', class: 'toast' });
-      document.body.append(el);
     }
+    if (el.parentNode !== host()) host().append(el);
     const o = opts || {};
     el.replaceChildren(h('span', {}, message));
     el.classList.toggle('has-action', !!o.action);
@@ -3256,7 +3289,7 @@ body:has(> .tour-switch) .main { padding-top: 62px; }
     };
     stack.push(api);
     document.documentElement.classList.add('has-sheet');
-    document.body.append(wrap);
+    host().append(wrap); // inside the full-screen wall when it is open, or it would be hidden behind it
     const first = panel.querySelector('[autofocus]') || panel.querySelector('input:not([type=hidden]),textarea,select');
     (first || panel).focus({ preventScroll: true });
     return api;
@@ -5498,6 +5531,8 @@ body:has(> .tour-switch) .main { padding-top: 62px; }
  * It has its own colors (filled shapes), so it stands out from the thin-line doodles of the page background:
  *   the sun moves across the sky with the real time of day (sunrise to sunset), then a moon and twinkling stars at night,
  *   and the current weather from the Weather box: sunny, windy, cloudy, rain, snow, thunderstorm.
+ * A dotted path shows where the sun (or moon) goes, from sunrise on the left to sunset on the right; the part
+ * already passed is darker, so you can tell the time of day. The sunrise and sunset times sit at the two ends.
  * Everything moves so it can be seen: clouds drift across and come back around, the sun pulses, rain and snow fall,
  * lightning flashes every few seconds.
  *
@@ -5526,6 +5561,7 @@ body:has(> .tour-switch) .main { padding-top: 62px; }
     box.className = 'sky'; box.setAttribute('aria-hidden', 'true');
     const g = (cls, inner) => '<g class="' + cls + '">' + inner + '</g>';
     box.innerHTML = '<svg viewBox="0 0 ' + W + ' ' + H + '" xmlns="' + NS + '">' +
+      g('sky-path', '<path class="sky-arc"/><path class="sky-done"/><text class="sky-t0" x="20" y="121" text-anchor="middle"></text><text class="sky-t1" x="560" y="121" text-anchor="middle"></text>') +
       g('sky-stars', STARS.map((s) => '<g transform="translate(' + s[0] + ' ' + s[1] + ')"><path d="M0 -6 L1.6 -1.6 L6 0 L1.6 1.6 L0 6 L-1.6 1.6 L-6 0 L-1.6 -1.6Z"/></g>').join('')) +
       g('sky-sun', '<circle class="sky-glow" r="22"/><g class="sky-rays">' + [0, 45, 90, 135, 180, 225, 270, 315].map((a) => '<path d="M0 -19 V-27" transform="rotate(' + a + ')"/>').join('') + '</g><circle class="sky-disc" r="13"/>') +
       g('sky-moon', '<circle class="sky-glow" r="22"/><path class="sky-disc" d="M10 -12 A14 14 0 1 0 12 10 A11 11 0 1 1 10 -12Z"/>') +
@@ -5539,6 +5575,11 @@ body:has(> .tour-switch) .main { padding-top: 62px; }
     const stars = qa('.sky-stars > g'), starsG = q('.sky-stars');
     const clouds = qa('.sky-clouds > g'), rain = qa('.sky-rain path'), rainG = q('.sky-rain'), snow = qa('.sky-snow > g'), snowG = q('.sky-snow');
     const wind = qa('.sky-wind path'), windG = q('.sky-wind'), bolt = q('.sky-bolt');
+    const arc = q('.sky-arc'), done = q('.sky-done'), t0 = q('.sky-t0'), t1 = q('.sky-t1'), pathG = q('.sky-path');
+    const pt = (f) => (20 + 540 * f).toFixed(1) + ' ' + (104 - 4 * f * (1 - f) * 62).toFixed(1);
+    const line = (a, b) => { let d = 'M' + pt(a); for (let k = 1; k <= 40; k++) d += ' L' + pt(a + (b - a) * k / 40); return d; };
+    const hhmm = (m) => { m = Math.round(m); let h = Math.floor(m / 60) % 24; const mm = String(m % 60).padStart(2, '0'); if (!PL.state || !PL.state.settings || PL.state.settings.hour12 !== false) h = h % 12 || 12; return h + ':' + mm; };
+    arc.setAttribute('d', line(0, 1));
     const show = (n, on) => { n.style.display = on ? '' : 'none'; };
 
     let raf = 0, last = 0, wx = null, wxAt = 0;
@@ -5561,6 +5602,11 @@ body:has(> .tour-switch) .main { padding-top: 62px; }
       const clear = kind === 'sunny' || kind === 'partly';
       const pulse = Math.sin(t * 2);
 
+      done.setAttribute('d', line(0, Math.max(0.001, f)));
+      pathG.classList.toggle('night', !isDay);
+      // sunrise and sunset of the weather place (left and right ends of the path); none without a weather place
+      const known = !!(wx && wx.sun && wx.sun.rise && wx.sun.set);
+      t0.textContent = known ? hhmm(isDay ? rise : set) : ''; t1.textContent = known ? hhmm(isDay ? set : rise) : '';
       show(sun, isDay); show(moon, !isDay); show(starsG, !isDay && clear);
       if (isDay) {
         sun.setAttribute('transform', 'translate(' + x + ' ' + y + ') scale(' + (1 + 0.06 * pulse) + ')');
@@ -5731,7 +5777,9 @@ body:has(> .tour-switch) .main { padding-top: 62px; }
     { id: 'photos', label: 'Photos', on: true, tall: true },
     { id: 'week', label: 'This week', on: false, wide: true },
     { id: 'shopping', label: 'Shopping list', on: false },
-    { id: 'family', label: 'People', on: false }
+    { id: 'family', label: 'People', on: false },
+    { id: 'list', label: 'List', on: false },
+    { id: 'notes', label: 'Notes', on: false }
   ];
   const PHOTO_MODES = [{ value: 'tile', label: 'In a panel' }, { value: 'background', label: 'Background' }, { value: 'off', label: 'Off' }];
   const KID_IDLE_MS = 20000, CHEER_MS = 6000;
@@ -5743,11 +5791,12 @@ body:has(> .tour-switch) .main { padding-top: 62px; }
     PANELS.forEach((p) => { panels[p.id] = typeof sp[p.id] === 'boolean' ? sp[p.id] : p.on; });
     // Older choices had "Today" and "Coming up" as two panels.
     if (typeof sp.agenda !== 'boolean' && sp.today === false && sp.upcoming === false) panels.agenda = false;
-    return { panels, photo: PHOTO_MODES.some((m) => m.value === saved.photo) ? saved.photo : 'tile', layout: cleanLayout(saved.layout) };
+    return { panels, photo: PHOTO_MODES.some((m) => m.value === saved.photo) ? saved.photo : 'tile', layout: cleanLayout(saved.layout), list: saved.list || '', note: saved.note || '' };
   }
   function save(patch) {
     const cur = settings();
-    PL.store.setDevice({ wall: { panels: Object.assign({}, cur.panels, patch.panels || {}), photo: patch.photo || cur.photo, layout: patch.layout !== undefined ? patch.layout : cur.layout } });
+    PL.store.setDevice({ wall: { panels: Object.assign({}, cur.panels, patch.panels || {}), photo: patch.photo || cur.photo, layout: patch.layout !== undefined ? patch.layout : cur.layout,
+      list: patch.list !== undefined ? patch.list : cur.list, note: patch.note !== undefined ? patch.note : cur.note } });
   }
 
   /* ---------- your own layout (Arrange) ----------
@@ -5909,8 +5958,12 @@ body:has(> .tour-switch) .main { padding-top: 62px; }
     const s = settings();
     const toggles = h('div', { class: 'wall-toggles' }, PANELS.map((p) => ui.toggle(p.label, s.panels[p.id], (v) => save({ panels: { [p.id]: v } })).el));
     const photo = ui.segmented(PHOTO_MODES, s.photo, (v) => save({ photo: v }), 'Photos on the wall');
+    // Which list and which note the "List" and "Notes" cards show.
+    const lists = PL.state.lists || [], notes = noteChoices(), curList = chosenList(), curNote = chosenNote();
+    const listPick = lists.length ? ui.field('Which list', ui.select(lists.map((l) => ({ value: l.id, label: l.title })), curList ? curList.id : '', (v) => save({ list: v }))) : null;
+    const notePick = notes.length ? ui.field('Which note', ui.select(notes.map((n) => ({ value: n.id, label: n.title || 'Untitled note' })), curNote ? curNote.id : '', (v) => save({ note: v }))) : null;
     return h('div', { class: 'stack' },
-      h('h3', { class: 'mini-h' }, 'Show on the wall'), toggles,
+      h('h3', { class: 'mini-h' }, 'Show on the wall'), toggles, listPick, notePick,
       ui.field('Photos', photo.el),
       h('p', { class: 'hint' }, 'Today and coming up always sits on the left. Everything is sized to fit one screen: the more you turn on, the smaller each part gets. These choices are saved on this device only.'));
   }
@@ -5997,17 +6050,79 @@ body:has(> .tour-switch) .main { padding-top: 62px; }
       })) : '');
   }
 
+  /* ---------- lists you can tick on the wall (Shopping list and List) ----------
+   * A tapped item shows a check right away and is marked done 2 seconds later, then it leaves the card.
+   * Tap it again before then to undo. Items that don't fit become "+3 more".
+   */
+  const pendingTicks = new Map(); // item id -> timer
+  function tickRow(item) {
+    const on = pendingTicks.has(item.id);
+    const btn = h('button', { type: 'button', class: 'wl-item' + (on ? ' done' : ''), 'aria-pressed': on ? 'true' : 'false', onclick: () => toggleTick(item, btn) },
+      h('span', { class: 'wl-ring', 'aria-hidden': 'true' }, icon('check')), h('span', { class: 'wl-t' }, item.text));
+    return h('li', {}, btn);
+  }
+  function toggleTick(item, btn) {
+    const on = pendingTicks.has(item.id);
+    if (on) { clearTimeout(pendingTicks.get(item.id)); pendingTicks.delete(item.id); }
+    else pendingTicks.set(item.id, setTimeout(() => {
+      pendingTicks.delete(item.id);
+      const cur = (PL.state.listitems || []).find((i) => i.id === item.id);
+      if (cur && !cur.done) PL.store.set('listitems', cur.id, Object.assign({}, cur, { done: true }));
+    }, 2000));
+    btn.classList.toggle('done', !on); btn.setAttribute('aria-pressed', !on ? 'true' : 'false');
+  }
+  // Hide the rows that don't fit in the card and say how many are left.
+  function fitRows(box, ul, more) {
+    const fit = () => {
+      if (!box.isConnected) return;
+      const rows = [...ul.children];
+      rows.forEach((r) => { r.hidden = false; }); more.hidden = true;
+      if (box.closest('.wall.board.scroll')) return;
+      const limit = box.clientHeight;
+      if (!limit || box.scrollHeight <= limit + 1) return;
+      more.hidden = false;
+      for (let i = rows.length - 1, n = 1; i > 0; i--, n++) { rows[i].hidden = true; more.textContent = '+' + n + ' more'; if (box.scrollHeight <= limit + 1) break; }
+    };
+    requestAnimationFrame(fit);
+    if (window.ResizeObserver) {
+      let lastH = -1;
+      const ro = new ResizeObserver(() => { if (!box.isConnected) { if (lastH >= 0) ro.disconnect(); return; } if (box.clientHeight !== lastH) { lastH = box.clientHeight; fit(); } });
+      ro.observe(box);
+    }
+  }
+  function listBody(list, emptyText) {
+    if (!list) return h('p', { class: 'sub' }, 'No lists yet.');
+    const items = (PL.state.listitems || []).filter((i) => i.listId === list.id && !i.done).sort((a, b) => a.at - b.at);
+    if (!items.length) return h('p', { class: 'sub' }, emptyText);
+    const ul = h('ul', { class: 'wl-items' }, items.map(tickRow)), more = h('p', { class: 'wl-more', hidden: true });
+    const box = h('div', { class: 'wl-box' }, ul, more);
+    fitRows(box, ul, more);
+    return box;
+  }
   function shoppingPanel() {
     const lists = PL.state.lists || [];
     const list = lists.find((l) => /grocer|shopping/i.test(l.title)) || lists[0];
-    if (!list) return h('p', { class: 'sub' }, 'No lists yet.');
-    const items = (PL.state.listitems || []).filter((i) => i.listId === list.id && !i.done).sort((a, b) => a.at - b.at);
-    return h('div', { class: 'stack wall-list' }, h('p', { class: 'sub' }, list.title),
-      items.length ? h('ul', { class: 'wall-items' }, items.map((i) => h('li', {}, i.text))) : h('p', {}, 'Nothing to buy.'));
+    return h('div', { class: 'wl-wrap' }, list ? h('p', { class: 'sub wl-sub' }, list.title) : null, listBody(list, 'Nothing to buy.'));
+  }
+  // The "List" card: the list picked in "Choose what shows", or the first list that isn't for shopping.
+  function chosenList() {
+    const lists = PL.state.lists || [], id = settings().list;
+    return lists.find((l) => l.id === id) || lists.find((l) => !/grocer|shopping/i.test(l.title)) || lists[0] || null;
+  }
+  function listPanel() { return listBody(chosenList(), 'All done! 🎉'); }
+  // The "Notes" card: one note, like a sticky note. Reading only (typing on a wall screen is awkward).
+  const noteChoices = () => (PL.state.notes || []).filter((n) => n.kind !== 'table').sort((a, b) => (b.at || 0) - (a.at || 0));
+  function chosenNote() { const ns = noteChoices(), id = settings().note; return ns.find((n) => n.id === id) || ns[0] || null; }
+  function notesPanel() {
+    const n = chosenNote();
+    if (!n) return h('p', { class: 'sub' }, 'Add a note in the Notes tab.');
+    return h('div', { class: 'wn' }, h('b', {}, n.title || 'Note'), h('p', {}, n.text || ''), n.by ? h('small', {}, 'by ' + n.by) : null);
   }
   function render(id) {
     const reg = PL.widgetRegistry || {};
     if (id === 'shopping') return shoppingPanel();
+    if (id === 'list') return listPanel();
+    if (id === 'notes') return notesPanel();
     if (reg[id]) return reg[id].render();
     return h('p', { class: 'sub' }, '');
   }
@@ -6236,9 +6351,11 @@ body:has(> .tour-switch) .main { padding-top: 62px; }
       if (p.id === 'photos') { tileEl.className = 'wall-panel wall-photo'; tileEl.classList.toggle('empty', !PL.photos.list().length); return tileEl; }
       let body;
       try { body = p.id === 'chores' ? choresPanel(kid.show) : render(p.id); } catch (e) { console.warn('wall panel', p.id, e); body = h('p', { class: 'sub' }, 'Could not show this.'); }
-      // Panels are for reading; only Chores can be tapped (so kids can tick their own).
-      const b = h('div', p.id === 'chores' && !arranging ? { class: 'wall-panel-body' } : { class: 'wall-panel-body', inert: '' }, body);
-      return h('section', { class: 'wall-panel wall-' + p.id, 'aria-label': p.label }, h('h2', {}, p.label), b);
+      // Panels are for reading; Chores and the lists can be tapped (so people can tick things off).
+      const tappable = ['chores', 'shopping', 'list'].includes(p.id) && !arranging;
+      const b = h('div', tappable ? { class: 'wall-panel-body' } : { class: 'wall-panel-body', inert: '' }, body);
+      const title = p.id === 'list' ? ((chosenList() || {}).title || p.label) : p.label;
+      return h('section', { class: 'wall-panel wall-' + p.id, 'aria-label': title }, h('h2', {}, title), b);
     }
     const clearPos = (el) => {
       el.style.gridRow = ''; el.style.gridColumn = ''; el.style.transform = '';

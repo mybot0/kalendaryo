@@ -8,6 +8,8 @@
   const h = PL.h, icon = PL.icon;
   let uid = 0;
   const nextId = (p) => p + '-' + ++uid;
+  // Where popups go: the full-screen element if there is one (wall mode), so they show on top of it.
+  const host = () => document.fullscreenElement || document.webkitFullscreenElement || document.body;
 
   /* ---------- toast (short message at the bottom) ---------- */
   let toastTimer = null;
@@ -16,8 +18,8 @@
     let el = document.getElementById('pl-toast');
     if (!el) {
       el = h('div', { id: 'pl-toast', role: 'status', 'aria-live': 'polite', class: 'toast' });
-      document.body.append(el);
     }
+    if (el.parentNode !== host()) host().append(el);
     const o = opts || {};
     el.replaceChildren(h('span', {}, message));
     el.classList.toggle('has-action', !!o.action);
@@ -164,7 +166,7 @@
     };
     stack.push(api);
     document.documentElement.classList.add('has-sheet');
-    document.body.append(wrap);
+    host().append(wrap); // inside the full-screen wall when it is open, or it would be hidden behind it
     const first = panel.querySelector('[autofocus]') || panel.querySelector('input:not([type=hidden]),textarea,select');
     (first || panel).focus({ preventScroll: true });
     return api;

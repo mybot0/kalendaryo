@@ -3,6 +3,8 @@
  * It has its own colors (filled shapes), so it stands out from the thin-line doodles of the page background:
  *   the sun moves across the sky with the real time of day (sunrise to sunset), then a moon and twinkling stars at night,
  *   and the current weather from the Weather box: sunny, windy, cloudy, rain, snow, thunderstorm.
+ * A dotted path shows where the sun (or moon) goes, from sunrise on the left to sunset on the right; the part
+ * already passed is darker, so you can tell the time of day. The sunrise and sunset times sit at the two ends.
  * Everything moves so it can be seen: clouds drift across and come back around, the sun pulses, rain and snow fall,
  * lightning flashes every few seconds.
  *
@@ -31,6 +33,7 @@
     box.className = 'sky'; box.setAttribute('aria-hidden', 'true');
     const g = (cls, inner) => '<g class="' + cls + '">' + inner + '</g>';
     box.innerHTML = '<svg viewBox="0 0 ' + W + ' ' + H + '" xmlns="' + NS + '">' +
+      g('sky-path', '<path class="sky-arc"/><path class="sky-done"/><text class="sky-t0" x="20" y="121" text-anchor="middle"></text><text class="sky-t1" x="560" y="121" text-anchor="middle"></text>') +
       g('sky-stars', STARS.map((s) => '<g transform="translate(' + s[0] + ' ' + s[1] + ')"><path d="M0 -6 L1.6 -1.6 L6 0 L1.6 1.6 L0 6 L-1.6 1.6 L-6 0 L-1.6 -1.6Z"/></g>').join('')) +
       g('sky-sun', '<circle class="sky-glow" r="22"/><g class="sky-rays">' + [0, 45, 90, 135, 180, 225, 270, 315].map((a) => '<path d="M0 -19 V-27" transform="rotate(' + a + ')"/>').join('') + '</g><circle class="sky-disc" r="13"/>') +
       g('sky-moon', '<circle class="sky-glow" r="22"/><path class="sky-disc" d="M10 -12 A14 14 0 1 0 12 10 A11 11 0 1 1 10 -12Z"/>') +
@@ -44,6 +47,11 @@
     const stars = qa('.sky-stars > g'), starsG = q('.sky-stars');
     const clouds = qa('.sky-clouds > g'), rain = qa('.sky-rain path'), rainG = q('.sky-rain'), snow = qa('.sky-snow > g'), snowG = q('.sky-snow');
     const wind = qa('.sky-wind path'), windG = q('.sky-wind'), bolt = q('.sky-bolt');
+    const arc = q('.sky-arc'), done = q('.sky-done'), t0 = q('.sky-t0'), t1 = q('.sky-t1'), pathG = q('.sky-path');
+    const pt = (f) => (20 + 540 * f).toFixed(1) + ' ' + (104 - 4 * f * (1 - f) * 62).toFixed(1);
+    const line = (a, b) => { let d = 'M' + pt(a); for (let k = 1; k <= 40; k++) d += ' L' + pt(a + (b - a) * k / 40); return d; };
+    const hhmm = (m) => { m = Math.round(m); let h = Math.floor(m / 60) % 24; const mm = String(m % 60).padStart(2, '0'); if (!PL.state || !PL.state.settings || PL.state.settings.hour12 !== false) h = h % 12 || 12; return h + ':' + mm; };
+    arc.setAttribute('d', line(0, 1));
     const show = (n, on) => { n.style.display = on ? '' : 'none'; };
 
     let raf = 0, last = 0, wx = null, wxAt = 0;
@@ -66,6 +74,11 @@
       const clear = kind === 'sunny' || kind === 'partly';
       const pulse = Math.sin(t * 2);
 
+      done.setAttribute('d', line(0, Math.max(0.001, f)));
+      pathG.classList.toggle('night', !isDay);
+      // sunrise and sunset of the weather place (left and right ends of the path); none without a weather place
+      const known = !!(wx && wx.sun && wx.sun.rise && wx.sun.set);
+      t0.textContent = known ? hhmm(isDay ? rise : set) : ''; t1.textContent = known ? hhmm(isDay ? set : rise) : '';
       show(sun, isDay); show(moon, !isDay); show(starsG, !isDay && clear);
       if (isDay) {
         sun.setAttribute('transform', 'translate(' + x + ' ' + y + ') scale(' + (1 + 0.06 * pulse) + ')');

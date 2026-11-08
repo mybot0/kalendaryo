@@ -63,6 +63,13 @@
 .sky .sky-snow circle { fill: #fff; stroke: #7FB2E5; stroke-width: 2; }
 .sky .sky-wind path { stroke: #7E9BB5; stroke-width: 2.6; }
 .sky .sky-bolt path { fill: #FFD43B; stroke: #E0A000; }
+/* the dotted path of the sun or moon, with sunrise and sunset times at the ends */
+.sky .sky-path path { fill: none; stroke-linecap: round; }
+.sky .sky-path .sky-arc { stroke: #E0B070; stroke-width: 2; stroke-dasharray: 0.1 7; opacity: .7; }
+.sky .sky-path .sky-done { stroke: #E8862A; stroke-width: 2.6; stroke-dasharray: 0.1 7; }
+.sky .sky-path.night .sky-arc { stroke: #B9B08A; }
+.sky .sky-path.night .sky-done { stroke: #C9A23A; }
+.sky .sky-path text { font: 700 20px var(--font); fill: #A07A50; stroke: none; }
 .wall-top .sky { align-self: stretch; margin: 0 2vw; min-height: clamp(80px, 12vh, 150px); }
 @media (max-width: 899px) { .home-top .sky { display: none; } } /* phones: no room */
 /* phones in wall mode: the sky may sit behind the greeting, but never over the time and date */

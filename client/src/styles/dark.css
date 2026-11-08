@@ -73,3 +73,7 @@
   .rail { display: flex; flex-direction: column; }
   .theme-btn { display: flex; margin-top: auto; }
 }
+
+/* wall Notes card: a dimmer sticky note at night */
+:root[data-theme="dark"] .wn { background: #E9D98F; }
+:root[data-theme="dark"] .sky .sky-path text { fill: #D9BE8C; }

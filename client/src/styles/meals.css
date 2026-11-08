@@ -92,6 +92,26 @@
 .wall-panel .week-strip { height: 100%; }
 .wall-panel .wk-day { min-height: 0; }
 .wall-items { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap: 4px; font-weight: 600; }
+/* lists you can tick (Shopping list, List) */
+.wall-shopping .wall-panel-body, .wall-list .wall-panel-body { display: flex; flex-direction: column; }
+.wl-wrap { display: flex; flex-direction: column; flex: 1; min-height: 0; }
+.wl-wrap > .wl-box, .wall-panel-body > .wl-box { flex: 1; min-height: 0; }
+.wl-sub { margin: 0 0 6px; font-weight: 600; }
+.wl-box { overflow: hidden; }
+.wl-items { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.wl-item { width: 100%; display: flex; align-items: center; gap: 12px; padding: 6px 10px; min-height: var(--tap, 44px); border: 0; border-radius: var(--radius-sm); background: var(--surface-2); color: var(--ink); font: 600 1rem var(--font); text-align: left; cursor: pointer; transition: opacity .3s; }
+.wl-ring { flex: 0 0 26px; height: 26px; border-radius: 50%; border: 2.5px solid color-mix(in srgb, var(--primary) 45%, transparent); display: grid; place-items: center; color: transparent; }
+.wl-ring .ic { width: 16px; height: 16px; }
+.wl-item.done { opacity: .45; }
+.wl-item.done .wl-ring { background: var(--primary); border-color: var(--primary); color: #fff; }
+.wl-item.done .wl-t { text-decoration: line-through; }
+.wl-more { margin: 6px 2px 0; color: var(--ink-2); font-weight: 600; font-size: .9rem; }
+/* the Notes card: a sticky note */
+.wn { height: 100%; box-sizing: border-box; background: #FFF4C2; color: #4A3B10; border-radius: var(--radius-sm); padding: 14px 16px 12px; transform: rotate(-.6deg); display: flex; flex-direction: column; gap: 8px; overflow: hidden; position: relative; }
+.wn::before { content: ''; position: absolute; top: -6px; left: 50%; width: 54px; height: 16px; margin-left: -27px; background: rgba(255,255,255,.65); border-radius: 3px; transform: rotate(2deg); }
+.wn b { font: 800 1.15rem var(--font-head); }
+.wn p { margin: 0; flex: 1; min-height: 0; overflow: hidden; white-space: pre-line; font: 600 1.02rem/1.45 var(--font); -webkit-mask-image: linear-gradient(#000 80%, transparent); mask-image: linear-gradient(#000 80%, transparent); }
+.wn small { color: #8A7330; font-weight: 700; }
 .wall-photo { position: relative; padding: 0; background: var(--surface-2); }
 .wall-photo-img { position: absolute; inset: 0; background-size: cover; background-position: center; opacity: 0; transition: opacity 1.4s; }
 .wall-photo-img.on { opacity: 1; }

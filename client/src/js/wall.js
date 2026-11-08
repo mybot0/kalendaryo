@@ -31,7 +31,9 @@
     { id: 'photos', label: 'Photos', on: true, tall: true },
     { id: 'week', label: 'This week', on: false, wide: true },
     { id: 'shopping', label: 'Shopping list', on: false },
-    { id: 'family', label: 'People', on: false }
+    { id: 'family', label: 'People', on: false },
+    { id: 'list', label: 'List', on: false },
+    { id: 'notes', label: 'Notes', on: false }
   ];
   const PHOTO_MODES = [{ value: 'tile', label: 'In a panel' }, { value: 'background', label: 'Background' }, { value: 'off', label: 'Off' }];
   const KID_IDLE_MS = 20000, CHEER_MS = 6000;
@@ -43,11 +45,12 @@
     PANELS.forEach((p) => { panels[p.id] = typeof sp[p.id] === 'boolean' ? sp[p.id] : p.on; });
     // Older choices had "Today" and "Coming up" as two panels.
     if (typeof sp.agenda !== 'boolean' && sp.today === false && sp.upcoming === false) panels.agenda = false;
-    return { panels, photo: PHOTO_MODES.some((m) => m.value === saved.photo) ? saved.photo : 'tile', layout: cleanLayout(saved.layout) };
+    return { panels, photo: PHOTO_MODES.some((m) => m.value === saved.photo) ? saved.photo : 'tile', layout: cleanLayout(saved.layout), list: saved.list || '', note: saved.note || '' };
   }
   function save(patch) {
     const cur = settings();
-    PL.store.setDevice({ wall: { panels: Object.assign({}, cur.panels, patch.panels || {}), photo: patch.photo || cur.photo, layout: patch.layout !== undefined ? patch.layout : cur.layout } });
+    PL.store.setDevice({ wall: { panels: Object.assign({}, cur.panels, patch.panels || {}), photo: patch.photo || cur.photo, layout: patch.layout !== undefined ? patch.layout : cur.layout,
+      list: patch.list !== undefined ? patch.list : cur.list, note: patch.note !== undefined ? patch.note : cur.note } });
   }
 
   /* ---------- your own layout (Arrange) ----------
@@ -209,8 +212,12 @@
     const s = settings();
     const toggles = h('div', { class: 'wall-toggles' }, PANELS.map((p) => ui.toggle(p.label, s.panels[p.id], (v) => save({ panels: { [p.id]: v } })).el));
     const photo = ui.segmented(PHOTO_MODES, s.photo, (v) => save({ photo: v }), 'Photos on the wall');
+    // Which list and which note the "List" and "Notes" cards show.
+    const lists = PL.state.lists || [], notes = noteChoices(), curList = chosenList(), curNote = chosenNote();
+    const listPick = lists.length ? ui.field('Which list', ui.select(lists.map((l) => ({ value: l.id, label: l.title })), curList ? curList.id : '', (v) => save({ list: v }))) : null;
+    const notePick = notes.length ? ui.field('Which note', ui.select(notes.map((n) => ({ value: n.id, label: n.title || 'Untitled note' })), curNote ? curNote.id : '', (v) => save({ note: v }))) : null;
     return h('div', { class: 'stack' },
-      h('h3', { class: 'mini-h' }, 'Show on the wall'), toggles,
+      h('h3', { class: 'mini-h' }, 'Show on the wall'), toggles, listPick, notePick,
       ui.field('Photos', photo.el),
       h('p', { class: 'hint' }, 'Today and coming up always sits on the left. Everything is sized to fit one screen: the more you turn on, the smaller each part gets. These choices are saved on this device only.'));
   }
@@ -297,17 +304,79 @@
       })) : '');
   }
 
+  /* ---------- lists you can tick on the wall (Shopping list and List) ----------
+   * A tapped item shows a check right away and is marked done 2 seconds later, then it leaves the card.
+   * Tap it again before then to undo. Items that don't fit become "+3 more".
+   */
+  const pendingTicks = new Map(); // item id -> timer
+  function tickRow(item) {
+    const on = pendingTicks.has(item.id);
+    const btn = h('button', { type: 'button', class: 'wl-item' + (on ? ' done' : ''), 'aria-pressed': on ? 'true' : 'false', onclick: () => toggleTick(item, btn) },
+      h('span', { class: 'wl-ring', 'aria-hidden': 'true' }, icon('check')), h('span', { class: 'wl-t' }, item.text));
+    return h('li', {}, btn);
+  }
+  function toggleTick(item, btn) {
+    const on = pendingTicks.has(item.id);
+    if (on) { clearTimeout(pendingTicks.get(item.id)); pendingTicks.delete(item.id); }
+    else pendingTicks.set(item.id, setTimeout(() => {
+      pendingTicks.delete(item.id);
+      const cur = (PL.state.listitems || []).find((i) => i.id === item.id);
+      if (cur && !cur.done) PL.store.set('listitems', cur.id, Object.assign({}, cur, { done: true }));
+    }, 2000));
+    btn.classList.toggle('done', !on); btn.setAttribute('aria-pressed', !on ? 'true' : 'false');
+  }
+  // Hide the rows that don't fit in the card and say how many are left.
+  function fitRows(box, ul, more) {
+    const fit = () => {
+      if (!box.isConnected) return;
+      const rows = [...ul.children];
+      rows.forEach((r) => { r.hidden = false; }); more.hidden = true;
+      if (box.closest('.wall.board.scroll')) return;
+      const limit = box.clientHeight;
+      if (!limit || box.scrollHeight <= limit + 1) return;
+      more.hidden = false;
+      for (let i = rows.length - 1, n = 1; i > 0; i--, n++) { rows[i].hidden = true; more.textContent = '+' + n + ' more'; if (box.scrollHeight <= limit + 1) break; }
+    };
+    requestAnimationFrame(fit);
+    if (window.ResizeObserver) {
+      let lastH = -1;
+      const ro = new ResizeObserver(() => { if (!box.isConnected) { if (lastH >= 0) ro.disconnect(); return; } if (box.clientHeight !== lastH) { lastH = box.clientHeight; fit(); } });
+      ro.observe(box);
+    }
+  }
+  function listBody(list, emptyText) {
+    if (!list) return h('p', { class: 'sub' }, 'No lists yet.');
+    const items = (PL.state.listitems || []).filter((i) => i.listId === list.id && !i.done).sort((a, b) => a.at - b.at);
+    if (!items.length) return h('p', { class: 'sub' }, emptyText);
+    const ul = h('ul', { class: 'wl-items' }, items.map(tickRow)), more = h('p', { class: 'wl-more', hidden: true });
+    const box = h('div', { class: 'wl-box' }, ul, more);
+    fitRows(box, ul, more);
+    return box;
+  }
   function shoppingPanel() {
     const lists = PL.state.lists || [];
     const list = lists.find((l) => /grocer|shopping/i.test(l.title)) || lists[0];
-    if (!list) return h('p', { class: 'sub' }, 'No lists yet.');
-    const items = (PL.state.listitems || []).filter((i) => i.listId === list.id && !i.done).sort((a, b) => a.at - b.at);
-    return h('div', { class: 'stack wall-list' }, h('p', { class: 'sub' }, list.title),
-      items.length ? h('ul', { class: 'wall-items' }, items.map((i) => h('li', {}, i.text))) : h('p', {}, 'Nothing to buy.'));
+    return h('div', { class: 'wl-wrap' }, list ? h('p', { class: 'sub wl-sub' }, list.title) : null, listBody(list, 'Nothing to buy.'));
+  }
+  // The "List" card: the list picked in "Choose what shows", or the first list that isn't for shopping.
+  function chosenList() {
+    const lists = PL.state.lists || [], id = settings().list;
+    return lists.find((l) => l.id === id) || lists.find((l) => !/grocer|shopping/i.test(l.title)) || lists[0] || null;
+  }
+  function listPanel() { return listBody(chosenList(), 'All done! 🎉'); }
+  // The "Notes" card: one note, like a sticky note. Reading only (typing on a wall screen is awkward).
+  const noteChoices = () => (PL.state.notes || []).filter((n) => n.kind !== 'table').sort((a, b) => (b.at || 0) - (a.at || 0));
+  function chosenNote() { const ns = noteChoices(), id = settings().note; return ns.find((n) => n.id === id) || ns[0] || null; }
+  function notesPanel() {
+    const n = chosenNote();
+    if (!n) return h('p', { class: 'sub' }, 'Add a note in the Notes tab.');
+    return h('div', { class: 'wn' }, h('b', {}, n.title || 'Note'), h('p', {}, n.text || ''), n.by ? h('small', {}, 'by ' + n.by) : null);
   }
   function render(id) {
     const reg = PL.widgetRegistry || {};
     if (id === 'shopping') return shoppingPanel();
+    if (id === 'list') return listPanel();
+    if (id === 'notes') return notesPanel();
     if (reg[id]) return reg[id].render();
     return h('p', { class: 'sub' }, '');
   }
@@ -536,9 +605,11 @@
       if (p.id === 'photos') { tileEl.className = 'wall-panel wall-photo'; tileEl.classList.toggle('empty', !PL.photos.list().length); return tileEl; }
       let body;
       try { body = p.id === 'chores' ? choresPanel(kid.show) : render(p.id); } catch (e) { console.warn('wall panel', p.id, e); body = h('p', { class: 'sub' }, 'Could not show this.'); }
-      // Panels are for reading; only Chores can be tapped (so kids can tick their own).
-      const b = h('div', p.id === 'chores' && !arranging ? { class: 'wall-panel-body' } : { class: 'wall-panel-body', inert: '' }, body);
-      return h('section', { class: 'wall-panel wall-' + p.id, 'aria-label': p.label }, h('h2', {}, p.label), b);
+      // Panels are for reading; Chores and the lists can be tapped (so people can tick things off).
+      const tappable = ['chores', 'shopping', 'list'].includes(p.id) && !arranging;
+      const b = h('div', tappable ? { class: 'wall-panel-body' } : { class: 'wall-panel-body', inert: '' }, body);
+      const title = p.id === 'list' ? ((chosenList() || {}).title || p.label) : p.label;
+      return h('section', { class: 'wall-panel wall-' + p.id, 'aria-label': title }, h('h2', {}, title), b);
     }
     const clearPos = (el) => {
       el.style.gridRow = ''; el.style.gridColumn = ''; el.style.transform = '';
