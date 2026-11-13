@@ -35,6 +35,7 @@ There are no accounts. Each person's link is their key. If a link is shared, the
 | `ANTHROPIC_MODEL` | Which Claude model | `claude-haiku-5-5` |
 | `AI_DAILY_LIMIT` | AI requests per family per day | `20` |
 | `INVITE_DAYS` | Days before an invite link expires | `7` |
+| `MOVE_TO` | The site's new address. Pages opened on the old `onrender.com` address go there (same page, saved lists come along, one-time "We moved" note). `0` turns this off. See `server/move.js` | `https://kalendaryo.co` |
 
 ## Changing the app
 

@@ -53,7 +53,7 @@ function createTriply(options) {
       const file = cfg.htmlPath || path.join(__dirname, '..', 'public', 'index.html');
       const raw = fs.readFileSync(file, 'utf8');
       const boot = '<script>window.TRIPLY=' + JSON.stringify({ base: cfg.basePath, publicUrl: cfg.publicUrl || '' }).replace(/</g, '\\u003c') + ';</script>';
-      htmlCache = raw.replace('<!--TRIPLY_CONFIG-->', boot);
+      htmlCache = raw.replace('<!--TRIPLY_CONFIG-->', () => boot + (options && options.headExtra ? String(options.headExtra) : '')); // headExtra: set by the host app (Kalendaryo's "We moved" note)
     }
     return htmlCache;
   }
