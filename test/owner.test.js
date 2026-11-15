@@ -45,17 +45,48 @@ test('the owner API is hidden without the right key', async () => {
   assert.ok(!(await page.text()).includes(KEY));
 });
 
-test('visits are counted once per device per day', async () => {
-  const before = (await summary()).tiles.today;
+test('visits are counted once per device per day, only after the page says a person is here', async () => {
+  const before = (await summary()).tiles;
   const run = Math.random().toString(36).slice(2); // new devices every run
+  const hi = (ua, ip, kv, body) => fetch(BASE + '/api/hi', { method: 'POST', headers: { 'User-Agent': ua, 'X-Forwarded-For': ip, 'Content-Type': 'application/json', Cookie: kv }, body: JSON.stringify(body) });
   const a1 = await req('GET', '/', { ua: 'phone-a-' + run, ip: '198.51.100.1' });
+  assert.ok((await a1.text()).includes('<script src="/hi.js" defer></script>'), 'the page loads the real-person check');
   const kv = (a1.headers.get('set-cookie') || '').split(';')[0]; // a real browser sends its ID back
   await fetch(BASE + '/', { headers: { 'User-Agent': 'phone-a-' + run, 'X-Forwarded-For': '198.51.100.1', Cookie: kv } });
-  await req('GET', '/', { ua: 'laptop-b-' + run, ip: '198.51.100.2' });
-  const s = await summary();
-  assert.strictEqual(s.tiles.today - before, 2, 'two browsers, three page loads');
+  const b1 = await req('GET', '/', { ua: 'laptop-b-' + run, ip: '198.51.100.2' });
+  const kvb = (b1.headers.get('set-cookie') || '').split(';')[0];
+  await req('GET', '/', { ua: 'botty-c-' + run, ip: '198.51.100.3' }); // opens the page, never says hi: a bot
+  await req('GET', '/', { ua: 'Googlebot/2.1 ' + run, ip: '198.51.100.4' });
+  let s = await summary();
+  assert.strictEqual(s.tiles.today - before.today, 0, 'nothing counts before the page says hi');
+  assert.strictEqual((await hi('phone-a-' + run, '198.51.100.1', kv, { page: 'start', src: 'direct' })).status, 204);
+  await hi('phone-a-' + run, '198.51.100.1', kv, { page: 'start', src: 'fb' }); // within 10 minutes: ignored
+  await hi('laptop-b-' + run, '198.51.100.2', kvb, { page: 'start', src: 'fb' });
+  await hi('laptop-b-' + run, '198.51.100.2', kvb, { page: 'nope', src: 'fb' }); // unknown page: ignored
+  await new Promise((r) => setTimeout(r, 300));
+  s = await summary();
+  assert.strictEqual(s.tiles.today - before.today, 2, 'two people, four page opens');
+  assert.ok(s.tiles.bots_today - before.bots_today >= 2, 'the silent page and Googlebot are hidden bots');
   assert.ok(s.visitors_now >= 2);
   assert.strictEqual(s.days.length, 14);
+  assert.ok(s.sources.some((x) => x.src === 'fb') && s.sources.some((x) => x.src === 'direct'));
+  assert.ok(s.recent.every((v) => v.src), 'recent visitors show where they came from');
+  const js = await (await req('GET', '/hi.js')).text();
+  assert.ok(js.includes('/api/hi') && js.includes('navigator.webdriver'));
+});
+
+test("the owner's own browser is never counted", async () => {
+  const run = Math.random().toString(36).slice(2);
+  const ua = 'owner-phone-' + run, ip = '198.51.100.9';
+  const p = await fetch(BASE + '/owner', { headers: { 'User-Agent': ua, 'X-Forwarded-For': ip } });
+  const kv = (p.headers.get('set-cookie') || '').split(';')[0];
+  assert.ok(kv.startsWith('kv='));
+  const before = (await summary()).tiles.today;
+  await fetch(BASE + '/api/owner/summary', { headers: { 'User-Agent': ua, 'X-Forwarded-For': ip, 'X-Owner-Key': KEY, Cookie: kv } });
+  await fetch(BASE + '/', { headers: { 'User-Agent': ua, 'X-Forwarded-For': ip, Cookie: kv } });
+  await fetch(BASE + '/api/hi', { method: 'POST', headers: { 'User-Agent': ua, 'X-Forwarded-For': ip, Cookie: kv, 'Content-Type': 'application/json' }, body: '{"page":"start","src":"direct"}' });
+  await new Promise((r) => setTimeout(r, 300));
+  assert.strictEqual((await summary()).tiles.today, before);
 });
 
 test('homes show up, and viewing is read-only with no trace', async () => {
@@ -102,7 +133,10 @@ test('bots and link previews are not counted; recent visitors list real visits',
     await req('GET', '/', { ua: ua + ' ' + run, ip: '198.51.100.9' });
   }
   assert.strictEqual((await summary()).tiles.today, before, 'robots leave no visit');
-  await req('GET', '/', { ua: 'Mozilla/5.0 (iPhone) real-person-' + run, ip: '198.51.100.10' });
+  const rp = await req('GET', '/', { ua: 'Mozilla/5.0 (iPhone) real-person-' + run, ip: '198.51.100.10' });
+  const rkv = (rp.headers.get('set-cookie') || '').split(';')[0];
+  await fetch(BASE + '/api/hi', { method: 'POST', headers: { 'User-Agent': 'Mozilla/5.0 (iPhone) real-person-' + run, 'X-Forwarded-For': '198.51.100.10', Cookie: rkv, 'Content-Type': 'application/json' }, body: '{"page":"start","src":"ig"}' });
+  await new Promise((r) => setTimeout(r, 300));
   const s = await summary();
   assert.strictEqual(s.tiles.today, before + 1, 'a real browser is counted');
   assert.ok(Array.isArray(s.recent) && s.recent.length >= 1, 'recent visitors listed');
@@ -120,6 +154,8 @@ test('one browser counts once, even when its internet address changes', async ()
   for (const ip of ['198.51.100.21', '203.0.113.50', '192.0.2.200']) {
     const r = await fetch(BASE + '/', { headers: { 'User-Agent': ua, 'X-Forwarded-For': ip, Cookie: kv } });
     assert.strictEqual(r.headers.get('set-cookie'), null, 'no new ID once it has one');
+    await fetch(BASE + '/api/hi', { method: 'POST', headers: { 'User-Agent': ua, 'X-Forwarded-For': ip, Cookie: kv, 'Content-Type': 'application/json' }, body: '{"page":"start","src":"direct"}' });
   }
+  await new Promise((r) => setTimeout(r, 300));
   assert.strictEqual((await summary()).tiles.today, before + 1, 'four visits from three addresses = one visitor');
 });

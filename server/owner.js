@@ -14,6 +14,10 @@
  *   - Visitors now: devices that asked the site for anything in the last 2 minutes, or have a page open with live updates.
  *   - Bots, search engines, link previews (Messenger, WhatsApp, Slack…) and scripts are not counted.
  *   - Recent visitors: the latest page opens (start page, a home, a trip), with city and country, kept 30 days.
+ *   - Real people only: a page open counts only after /hi.js runs in the browser and the person stays 3 seconds
+ *     or taps/scrolls. Page opens that never do are bots ("bots hidden"). The owner's own browsers never count.
+ *   - Where they came from: a ?s= tag on the shared link (?s=fb, ?s=ig…), else the Facebook/Instagram app,
+ *     else the site that linked here, else "direct" (typed it or a bookmark).
  *   - Homes and trips: names, people, last active, how much they store. Read straight from the database.
  * Viewing: the owner can open any home read-only with a short-lived viewing link (2 hours, kept in memory).
  *   The visit is not saved as theirs, and every change is refused.
@@ -27,6 +31,20 @@ const sha = (s) => crypto.createHash('sha256').update(String(s)).digest('hex');
 const BOT_RE = /bot\b|bot\/|crawl|spider|slurp|preview|facebookexternalhit|facebookcatalog|meta-external|whatsapp|telegram|discord|slack|skype|line\/|vkshare|embedly|quora link|pinterest|redditbot|applebot|bingpreview|google-?(inspectiontool|read-aloud|site-verification)|lighthouse|pagespeed|headless|phantom|puppeteer|playwright|selenium|curl|wget|python|go-http|java\/|okhttp|axios|node-fetch|undici|libwww|httpclient|postman|insomnia|uptime|pingdom|monitor|statuscake|render|ahrefs|semrush|mj12|dotbot|petalbot|bytespider|gptbot|claudebot|ccbot|amazonbot|yandex|baidu|duckduck|sogou|exabot|seznam|zgrab|masscan|nmap|scan/i;
 // Internet providers that are server farms, not homes or phones (from the location lookup's company name).
 const CLOUD_RE = /google(?! fiber)|amazon|aws\b|microsoft|azure|digitalocean|linode|akamai|ovh|hetzner|oracle cloud|oracle corporation|alibaba|tencent|cloudflare|fastly|vultr|choopa|contabo|scaleway|leaseweb|m247|datacamp|hosting|data ?cent(er|re)|colocation|\bvps\b|ionos|heroku|render|facebook|meta platforms|hurricane electric|cogent|zscaler|ovh/i;
+// Runs on every page: tells the server "a person is here" after 3 seconds on screen, or at the first tap,
+// scroll or key. Most robots never run it, or leave before. Also says where the person came from.
+const HI_JS = `(function(){try{
+if(navigator.webdriver)return;
+var q=new URLSearchParams(location.search),s=(q.get('s')||'').toLowerCase().replace(/[^a-z0-9_-]/g,'').slice(0,20);
+var ua=navigator.userAgent||'',r='';try{r=document.referrer?new URL(document.referrer).hostname.replace(/^www\\./,''):''}catch(e){}
+if(!s){if(/FBAN|FBAV|FB_IAB|FBIOS/.test(ua))s='fb';else if(/Instagram/.test(ua))s='ig';
+else if(r&&r!==location.hostname.replace(/^www\\./,''))s=/(^|\\.)(facebook\\.com|fb\\.me|fb\\.com)$/.test(r)?'fb':/instagram\\.com$/.test(r)?'ig':/(^|\\.)google\\./.test(r)?'google':/bing\\.com$|duckduckgo\\.com$|yahoo\\./.test(r)?'search':/^(t\\.co|x\\.com|twitter\\.com)$/.test(r)?'x':'site:'+r.slice(0,40);
+else s='direct';}
+if(q.has('s')){q.delete('s');var qs=q.toString();history.replaceState(history.state,'',location.pathname+(qs?'?'+qs:'')+location.hash);}
+var p=location.pathname,page=/^\\/triply/.test(p)?'trip':/^\\/c\\//.test(p)?'home':/^\\/join\\//.test(p)?'invite':/^\\/demo/.test(p)?'demo':'start';
+var sent=false;function go(){if(sent||document.hidden)return;sent=true;try{fetch('/api/hi',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({page:page,src:s}),keepalive:true,credentials:'same-origin'})}catch(e){}}
+setTimeout(go,3000);['pointerdown','scroll','keydown','touchstart'].forEach(function(e){addEventListener(e,go,{once:true,passive:true})});
+}catch(e){}})();`;
 const isBot = (req) => { const ua = String(req.headers['user-agent'] || ''); return !ua || ua.length < 12 || BOT_RE.test(ua); };
 
 function createOwner({ db, live, ipOf, fail, triplySchema }) {
@@ -44,6 +62,11 @@ function createOwner({ db, live, ipOf, fail, triplySchema }) {
   const tripActive = new Map(); // tripId -> last request time
   const views = new Map();      // viewing token -> { familyId, exp }
   const tripViews = new Map();  // Triply viewing token ('tv…') -> { tripId, exp }
+  const mine = new Set();       // the owner's own devices (also in owner_devices)
+  const realSeen = new Map();   // device -> last time it proved to be a person (/api/hi)
+  const hiDone = new Map();     // device|page -> time, so /api/hi is handled once per 10 minutes
+  let uaBots = { day: '', n: 0 }; // page opens refused for a robot name today (in memory)
+  db.q('SELECT vid FROM owner_devices').then((r) => r.rows.forEach((x) => mine.add(x.vid)), () => {});
 
   function isOwnerKey(k) {
     const key = KEY();
@@ -112,7 +135,7 @@ function createOwner({ db, live, ipOf, fail, triplySchema }) {
   function touch(req) {
     if (isOwnerRequest(req) || String(req.url).startsWith('/owner') || isBot(req)) return;
     const device = deviceOf(req);
-    if (cloud.has(device)) return;
+    if (cloud.has(device) || mine.has(device)) return;
     seen.set(device, Date.now());
     // Live update connections count as "here now" while they stay open.
     if (/\/stream(\?|$)/.test(String(req.url).split('#')[0]) && !viewingToken(req)) {
@@ -123,15 +146,17 @@ function createOwner({ db, live, ipOf, fail, triplySchema }) {
   // A page was opened: one visit per device per day, plus a line in "Recent visitors"
   // (the same device opening the same kind of page again within 10 minutes is not listed twice).
   const logged = new Map(); // device|page -> time
+  // Saved as "not real yet": /api/hi turns it real. Ones that never do are the hidden bots.
   function countPage(req, page) {
-    if (req.method !== 'GET' || viewingToken(req) || isBot(req)) return;
+    if (req.method !== 'GET' || viewingToken(req)) return;
+    if (isBot(req)) { const d = new Date().toISOString().slice(0, 10); if (uaBots.day !== d) uaBots = { day: d, n: 0 }; uaBots.n++; return; }
     const device = deviceOf(req);
-    if (cloud.has(device)) return;
-    db.q('INSERT INTO visits (day, vid) VALUES (CURRENT_DATE, $1) ON CONFLICT DO NOTHING', [device]).catch(() => {});
+    if (cloud.has(device) || mine.has(device)) return;
+    db.q('INSERT INTO visits (day, vid, real) VALUES (CURRENT_DATE, $1, false) ON CONFLICT DO NOTHING', [device]).catch(() => {});
     const k = device + '|' + page, now = Date.now();
     const log = now - (logged.get(k) || 0) > 600000;
     if (log) logged.set(k, now);
-    const logId = log ? db.q('INSERT INTO visit_log (vid, page) VALUES ($1, $2) RETURNING id', [device, page]).then((r) => r.rows[0].id, () => null) : Promise.resolve(null);
+    const logId = log ? db.q('INSERT INTO visit_log (vid, page, real) VALUES ($1, $2, false) RETURNING id', [device, page]).then((r) => r.rows[0].id, () => null) : Promise.resolve(null);
     locate(req, device, (loc) => {
       db.q('UPDATE visits SET city=$2, country=$3, cc=$4 WHERE day=CURRENT_DATE AND vid=$1 AND country IS NULL', [device, ...loc]).catch(() => {});
       logId.then((id) => id && db.q('UPDATE visit_log SET city=$2, country=$3, cc=$4 WHERE id=$1', [id, ...loc]).catch(() => {}));
@@ -154,9 +179,40 @@ function createOwner({ db, live, ipOf, fail, triplySchema }) {
     const m = String(req.url).match(/^\/triply\/api\/trips\/([0-9a-f-]{36})(\/|\?|$)/i);
     if (m) noteUse(req, 'trip', m[1].toLowerCase());
   }
+  // The page proved a person is there (see HI_JS): make today's visit real and remember where they came from.
+  const PAGES = new Set(['start', 'home', 'invite', 'demo', 'trip']);
+  function hi(req) {
+    if (isBot(req) || viewingToken(req)) return;
+    const b = req.body || {}, page = String(b.page || ''), src = String(b.src || 'direct').toLowerCase().slice(0, 48);
+    if (!PAGES.has(page) || !/^[a-z0-9_.:-]+$/.test(src)) return;
+    const device = deviceOf(req);
+    if (cloud.has(device) || mine.has(device)) return;
+    const now = Date.now(), k = device + '|' + page;
+    realSeen.set(device, now); seen.set(device, now);
+    if (now - (hiDone.get(k) || 0) < 600000) return;
+    hiDone.set(k, now);
+    if (hiDone.size > 5000) for (const [kk, t] of hiDone) if (now - t > 600000) hiDone.delete(kk);
+    // A real source beats "direct" (inside the site the address of the page before is not sent).
+    db.q(`INSERT INTO visits (day, vid, real, src) VALUES (CURRENT_DATE, $1, true, $2)
+      ON CONFLICT (day, vid) DO UPDATE SET real = true,
+        src = CASE WHEN visits.src IS NULL OR (visits.src = 'direct' AND EXCLUDED.src <> 'direct') THEN EXCLUDED.src ELSE visits.src END`, [device, src]).catch(() => {});
+    db.q(`UPDATE visit_log SET real = true, src = $3 WHERE id = (SELECT id FROM visit_log WHERE vid = $1 AND page = $2
+      AND at > now() - interval '30 minutes' ORDER BY at DESC LIMIT 1)`, [device, page, src]).catch(() => {});
+  }
+  // The owner's own browser: remember it, and take back what it counted.
+  function markMine(req) {
+    const device = deviceOf(req);
+    if (mine.has(device)) return;
+    mine.add(device); seen.delete(device); streams.delete(device); realSeen.delete(device);
+    db.q('INSERT INTO owner_devices (vid) VALUES ($1) ON CONFLICT DO NOTHING', [device]).catch(() => {});
+    db.q('DELETE FROM visits WHERE vid=$1', [device]).catch(() => {});
+    db.q('DELETE FROM visit_log WHERE vid=$1', [device]).catch(() => {});
+  }
+  // Only devices that proved to be people (or have live updates open, which needs the app running).
   function visitorsNow() {
-    const now = Date.now(), out = new Set(streams.keys());
-    for (const [d, t] of seen) { if (now - t <= NOW_WINDOW) out.add(d); else if (now - t > 86400000) seen.delete(d); }
+    const now = Date.now(), out = new Set();
+    for (const d of streams.keys()) if (!mine.has(d)) out.add(d);
+    for (const [d, t] of seen) { if (now - t <= NOW_WINDOW && realSeen.has(d)) out.add(d); else if (now - t > 86400000) { seen.delete(d); realSeen.delete(d); } }
     return out.size;
   }
 
@@ -188,13 +244,14 @@ function createOwner({ db, live, ipOf, fail, triplySchema }) {
   }
 
   /* ---------- the owner API ---------- */
-  function guard(req) { if (!isOwnerRequest(req)) fail(404, 'not_found', 'Not found.'); }
+  function guard(req) { if (!isOwnerRequest(req)) fail(404, 'not_found', 'Not found.'); markMine(req); }
 
   async function summary() {
     const one = async (sql, p) => (await db.q(sql, p)).rows[0];
     const tiles = await one(`SELECT
-        (SELECT count(*) FROM visits WHERE day = CURRENT_DATE)::int AS today,
-        (SELECT count(DISTINCT vid) FROM visits WHERE day > CURRENT_DATE - 7)::int AS week,
+        (SELECT count(*) FROM visits WHERE day = CURRENT_DATE AND real)::int AS today,
+        (SELECT count(DISTINCT vid) FROM visits WHERE day > CURRENT_DATE - 7 AND real)::int AS week,
+        (SELECT count(*) FROM visits WHERE day = CURRENT_DATE AND NOT real)::int AS bots_today,
         (SELECT count(*) FROM families)::int AS homes,
         (SELECT count(*) FROM families WHERE created_at > now() - interval '7 days')::int AS homes_week,
         (SELECT count(*) FROM access)::int AS people,
@@ -202,17 +259,20 @@ function createOwner({ db, live, ipOf, fail, triplySchema }) {
         (SELECT COALESCE(sum(micro), 0) FROM ai_spend WHERE day = (now() AT TIME ZONE 'America/Vancouver')::date)::bigint AS ai_micro,
         pg_database_size(current_database())::bigint AS db_bytes`);
     tiles.ai_usd = Number(tiles.ai_micro) / 1e6; delete tiles.ai_micro;
+    if (uaBots.day === new Date().toISOString().slice(0, 10)) tiles.bots_today += uaBots.n;
     tiles.ai_cap = (() => { const n = Number(process.env.AI_DAILY_USD === undefined || process.env.AI_DAILY_USD === '' ? 1 : process.env.AI_DAILY_USD); return Number.isFinite(n) ? n : 1; })();
     if (triplySchema) {
       try { tiles.trip_ai_usd = Number((await db.q(`SELECT COALESCE(sum(micro_usd), 0)::bigint AS n FROM ${triplySchema}.ai_usage WHERE day = (now() AT TIME ZONE 'America/Vancouver')::date`)).rows[0].n) / 1e6; } catch (e) { tiles.trip_ai_usd = 0; }
     }
     const days = (await db.q(`SELECT to_char(d, 'YYYY-MM-DD') AS day, COALESCE(v.n, 0)::int AS n
         FROM generate_series(CURRENT_DATE - 13, CURRENT_DATE, interval '1 day') d
-        LEFT JOIN (SELECT day, count(*) n FROM visits GROUP BY day) v ON v.day = d::date ORDER BY d`)).rows;
+        LEFT JOIN (SELECT day, count(*) n FROM visits WHERE real GROUP BY day) v ON v.day = d::date ORDER BY d`)).rows;
     const countries = (await db.q(`SELECT COALESCE(city, '') AS city, country, cc, count(DISTINCT vid)::int AS n FROM visits
-        WHERE day > CURRENT_DATE - 30 AND country IS NOT NULL AND country <> '' GROUP BY city, country, cc ORDER BY n DESC, country LIMIT 10`)).rows;
-    const recent = (await db.q(`SELECT extract(epoch FROM at) * 1000 AS at, page, city, country, cc, substr(vid, 1, 6) AS who
-        FROM visit_log ORDER BY at DESC LIMIT 20`)).rows.map((r) => Object.assign(r, { at: Number(r.at) }));
+        WHERE day > CURRENT_DATE - 30 AND real AND country IS NOT NULL AND country <> '' GROUP BY city, country, cc ORDER BY n DESC, country LIMIT 10`)).rows;
+    const sources = (await db.q(`SELECT COALESCE(src, 'unknown') AS src, count(*)::int AS n FROM visits
+        WHERE day > CURRENT_DATE - 7 AND real GROUP BY 1 ORDER BY n DESC LIMIT 12`)).rows;
+    const recent = (await db.q(`SELECT extract(epoch FROM at) * 1000 AS at, page, src, city, country, cc, substr(vid, 1, 6) AS who
+        FROM visit_log WHERE real ORDER BY at DESC LIMIT 20`)).rows.map((r) => Object.assign(r, { at: Number(r.at) }));
     const homes = (await db.q(`SELECT f.id, f.name, f.created_at,
         (SELECT count(*) FROM access a WHERE a.family_id = f.id)::int AS people,
         (SELECT max(last_seen) FROM access a WHERE a.family_id = f.id) AS last_seen,
@@ -262,10 +322,15 @@ function createOwner({ db, live, ipOf, fail, triplySchema }) {
           FROM ${s}.ai_requests r LEFT JOIN ${s}.trips t ON t.id = r.trip_id WHERE r.status = 'open' ORDER BY r.created_at LIMIT 50`)).rows;
       } catch (e) { asks = []; }
     }
-    return { now: Date.now(), visitors_now: visitorsNow(), tiles, days, countries, recent, homes, trips, asks, ai_on: !!process.env.ANTHROPIC_API_KEY };
+    return { now: Date.now(), visitors_now: visitorsNow(), tiles, days, countries, sources, recent, homes, trips, asks, ai_on: !!process.env.ANTHROPIC_API_KEY };
   }
 
   function install(r, json, send) {
+    r.get('/hi.js', async (req, res) => {
+      res.writeHead(200, { 'Content-Type': 'text/javascript; charset=utf-8', 'Cache-Control': 'public, max-age=3600' });
+      res.end(req.method === 'HEAD' ? undefined : HI_JS);
+    });
+    r.post('/api/hi', json, async (req, res) => { hi(req); res.writeHead(204); res.end(); });
     r.get('/api/owner/summary', async (req, res) => { guard(req); send(res, 200, await summary()); });
     // Triply: "can I have more free trip plans?" -> give some, or say no.
     r.post('/api/owner/ai-request', json, async (req, res) => {
@@ -329,7 +394,7 @@ function createOwner({ db, live, ipOf, fail, triplySchema }) {
     });
   }
 
-  return { cookie, touch, countPage, noteUse, noteTrip, viewer, viewingToken, tripViewer, install, isOwnerKey, visitorsNow };
+  return { cookie, touch, countPage, hi, noteUse, noteTrip, viewer, viewingToken, tripViewer, install, isOwnerKey, visitorsNow };
 }
 
 module.exports = { createOwner };

@@ -14,7 +14,6 @@
  *   INVITE_DAYS         optional, days before an invite link expires (default 7)
  *   OWNER_KEY           optional, turns on the owner view at /owner?key=<OWNER_KEY>
  *   HOLIDAYS_API        optional, the public holiday list (default https://date.nager.at/api/v3)
- *   MOVE_TO             optional, the new address (default https://kalendaryo.co; 0 = off). See server/move.js
  */
 const fs = require('fs');
 const path = require('path');
@@ -24,7 +23,6 @@ const db = require('./db');
 const live = require('./live');
 const ai = require('./ai');
 const { router, jsonBody, rawBody, send, HttpError } = require('./mini');
-const move = require('./move'); // kalendaryo-triply.onrender.com -> kalendaryo.co (see server/move.js)
 
 /* ---------- helpers ---------- */
 const rand = (bytes) => crypto.randomBytes(bytes).toString('base64url');
@@ -426,8 +424,8 @@ const triply = TRIPLY_ON ? require('../triply/server/handler').createTriply({
   maxTripMb: Number(process.env.TRIPLY_MAX_TRIP_MB) || 20, // low while testing: shares the 1 GB database
   maxBlobMb: Number(process.env.TRIPLY_MAX_FILE_MB) || 5,
   ownerView: (token) => owner.tripViewer(token), // the owner page's read-only trip links
-  support: () => support.forTrip,                 // Help & ideas chat (server/support.js)
-  headExtra: move.noteScript()                    // the one-time "We moved" note (server/move.js)
+  headExtra: '<script src="/hi.js" defer></script>', // owner view: real-person check (server/owner.js)
+  support: () => support.forTrip                  // Help & ideas chat (server/support.js)
 }) : null;
 
 /* ---------- owner view (see server/owner.js) ---------- */
@@ -440,6 +438,7 @@ support.install(r, { auth, json, send, helpJson: jsonBody(1200 * 1024),
   ownerGuard: (req) => { if (!owner.isOwnerKey(req.headers['x-owner-key'])) fail(404, 'not_found', 'Not found.'); } });
 const OWNER_PAGE = path.join(__dirname, '..', 'public', 'owner.html');
 r.get('/owner', async (req, res) => {
+  owner.cookie(req, res); // same browser ID as the site, so the owner's own visits are left out
   res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store', 'X-Robots-Tag': 'noindex' });
   res.end(req.method === 'HEAD' ? undefined : fs.readFileSync(OWNER_PAGE));
 });
@@ -455,17 +454,16 @@ const page = async (req, res) => {
     indexHtml = fs.readFileSync(INDEX);
     // TOUCH POINT A (server, part 2): lets the start page show the home/trip choice. Nothing is added when Triply is off.
     if (triply) indexHtml = Buffer.from(indexHtml.toString('utf8').replace('</head>', '<script>window.KAL_TRIPLY=true;</script></head>'));
-    indexHtml = Buffer.from(indexHtml.toString('utf8').replace('</head>', () => move.noteScript() + '</head>')); // one-time "We moved" note
+    // Owner view: tells the server a real person is here, and where they came from (server/owner.js, HI_JS).
+    indexHtml = Buffer.from(indexHtml.toString('utf8').replace('</head>', '<script src="/hi.js" defer></script></head>'));
   }
   res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-cache' });
   res.end(req.method === 'HEAD' ? undefined : indexHtml);
 };
 r.get('/', page); r.get('/c/:token', page); r.get('/join/:code', page); r.get('/demo', page);
-r.get('/moved', async (req, res) => move.movedPage(req, res)); // unpacks this device's lists from the old address
 
 const server = http.createServer(async (req, res) => {
   owner.touch(req);
-  if (move.shouldMove(req)) return move.sendMove(req, res); // old address: open the same page on kalendaryo.co
   if (triply && triply.owns(req.url)) { // TOUCH POINT A: the mount line
     owner.noteTrip(req);
     if (req.method === 'GET' && /^\/triply\/?(\?|$)/.test(req.url)) { owner.cookie(req, res); owner.countPage(req, 'trip'); }

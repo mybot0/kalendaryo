@@ -44,6 +44,7 @@ function load(options) {
     log: o.log === undefined ? console : o.log,
     support: o.support || null, // Help & ideas functions from Kalendaryo (server/support.js)
     ownerView: typeof o.ownerView === 'function' ? o.ownerView : null, // (token) -> { tripId } | null, from Kalendaryo's owner page
+    headExtra: typeof o.headExtra === 'string' ? o.headExtra : '', // extra tags for the page's <head> (Kalendaryo's owner view)
     htmlPath: o.htmlPath || null
   };
 }

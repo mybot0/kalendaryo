@@ -93,6 +93,14 @@ ALTER TABLE invites ADD COLUMN IF NOT EXISTS member_id TEXT;
 -- AI spending for the whole site, per day (micro-dollars), for the AI_DAILY_USD cap
 -- each person's light/dark choice, so it follows them to every device
 ALTER TABLE access ADD COLUMN IF NOT EXISTS theme TEXT;
+-- owner view: a visit is "real" only after the page ran in a browser and a person stayed or tapped (see /hi.js).
+-- Old rows count as real. src = where they came from (fb, ig, direct, google, site:example.com, or a ?s= tag).
+ALTER TABLE visits ADD COLUMN IF NOT EXISTS real BOOLEAN NOT NULL DEFAULT true;
+ALTER TABLE visits ADD COLUMN IF NOT EXISTS src TEXT;
+ALTER TABLE visit_log ADD COLUMN IF NOT EXISTS real BOOLEAN NOT NULL DEFAULT true;
+ALTER TABLE visit_log ADD COLUMN IF NOT EXISTS src TEXT;
+-- the owner's own browsers: never counted
+CREATE TABLE IF NOT EXISTS owner_devices (vid TEXT PRIMARY KEY, added_at TIMESTAMPTZ NOT NULL DEFAULT now());
 CREATE TABLE IF NOT EXISTS ai_spend (
   day DATE PRIMARY KEY,
   micro BIGINT NOT NULL DEFAULT 0,
