@@ -1245,6 +1245,13 @@ html.care-mode .toast .toast-act, html.care-open .toast .toast-act { min-height:
 /* dark (at night): keep the board's messages readable */
 :root[data-theme="dark"] .care-start { background: color-mix(in srgb, var(--bg) 92%, transparent); }
 :root[data-theme="dark"].care-mode .toast, :root[data-theme="dark"].care-open .toast { background: #F4F3EE; color: #1F2A25; }
+/* phones: greeting and "I need help" on top, clock under it, nothing cut off */
+@media (max-width: 640px) {
+  .care-board .wall-top { flex-direction: column; align-items: flex-start; gap: 8px; }
+  .care-board .wall-clock { align-items: flex-start; text-align: left; }
+  .care-board .wall-top-left { flex-direction: row; flex-wrap: wrap; align-items: center; width: 100%; justify-content: space-between; }
+}
+html.care-mode .toast, html.care-open .toast { border-radius: 22px; width: max-content; max-width: calc(100vw - 32px); }
 
 /* web.css — web version only: start page, join page, people with access. */
 .land { max-width: 640px; margin: 0 auto; padding: 40px 16px 60px; display: flex; flex-direction: column; gap: 18px; }
@@ -9442,6 +9449,7 @@ body:has(> .tour-switch) .main { padding-top: 62px; }
 
   const MISS_AFTER = 180;  // minutes: after 3 hours a pill time is "missed" and the board asks about it
   const LATE_ALERT = 30;   // minutes: the family is told after 30 minutes
+  const GONE_AFTER = 960;  // minutes: after 16 hours it is not asked about anymore (last night's pills are still asked in the morning)
   // State of one pill time on one day: null (nothing), 'future', 'now', 'miss', 'gone' (old and never marked), 'ok', 'skip'.
   function slotState(who, date, time, at) {
     const meds = medsAt(who, date, time);
@@ -9451,7 +9459,7 @@ body:has(> .tour-switch) .main { padding-top: 62px; }
     const n = at || nowParts();
     if (date > n.date || (date === n.date && hm(time) > n.min)) return 'future';
     const late = (D.diff(date, n.date) * 1440) + n.min - hm(time); // minutes since the pill time
-    if (late >= 1440 + 180) return 'gone';
+    if (late >= GONE_AFTER) return 'gone'; // too long ago to ask about (no "yesterday morning" questions the next day)
     return late >= MISS_AFTER ? 'miss' : 'now';
   }
   const minutesLate = (date, time) => { const n = nowParts(); return D.diff(date, n.date) * 1440 + n.min - hm(time); };

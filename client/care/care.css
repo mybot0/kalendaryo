@@ -246,3 +246,10 @@ html.care-mode .toast .toast-act, html.care-open .toast .toast-act { min-height:
 /* dark (at night): keep the board's messages readable */
 :root[data-theme="dark"] .care-start { background: color-mix(in srgb, var(--bg) 92%, transparent); }
 :root[data-theme="dark"].care-mode .toast, :root[data-theme="dark"].care-open .toast { background: #F4F3EE; color: #1F2A25; }
+/* phones: greeting and "I need help" on top, clock under it, nothing cut off */
+@media (max-width: 640px) {
+  .care-board .wall-top { flex-direction: column; align-items: flex-start; gap: 8px; }
+  .care-board .wall-clock { align-items: flex-start; text-align: left; }
+  .care-board .wall-top-left { flex-direction: row; flex-wrap: wrap; align-items: center; width: 100%; justify-content: space-between; }
+}
+html.care-mode .toast, html.care-open .toast { border-radius: 22px; width: max-content; max-width: calc(100vw - 32px); }

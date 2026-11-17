@@ -145,6 +145,7 @@
 
   const MISS_AFTER = 180;  // minutes: after 3 hours a pill time is "missed" and the board asks about it
   const LATE_ALERT = 30;   // minutes: the family is told after 30 minutes
+  const GONE_AFTER = 960;  // minutes: after 16 hours it is not asked about anymore (last night's pills are still asked in the morning)
   // State of one pill time on one day: null (nothing), 'future', 'now', 'miss', 'gone' (old and never marked), 'ok', 'skip'.
   function slotState(who, date, time, at) {
     const meds = medsAt(who, date, time);
@@ -154,7 +155,7 @@
     const n = at || nowParts();
     if (date > n.date || (date === n.date && hm(time) > n.min)) return 'future';
     const late = (D.diff(date, n.date) * 1440) + n.min - hm(time); // minutes since the pill time
-    if (late >= 1440 + 180) return 'gone';
+    if (late >= GONE_AFTER) return 'gone'; // too long ago to ask about (no "yesterday morning" questions the next day)
     return late >= MISS_AFTER ? 'miss' : 'now';
   }
   const minutesLate = (date, time) => { const n = nowParts(); return D.diff(date, n.date) * 1440 + n.min - hm(time); };
