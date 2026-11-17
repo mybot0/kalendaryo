@@ -11,10 +11,11 @@
   const path = location.pathname;
   const mc = path.match(/^\/c\/([A-Za-z0-9_-]{10,100})\/?$/);
   const mj = path.match(/^\/join\/([A-Za-z0-9_-]{10,100})\/?$/);
+  const mb = path.match(/^\/care\/(cb[A-Za-z0-9_-]{20,98})\/?$/); // a Care board link (client/care)
   const demo = /^\/demo\/?$/.test(path); // the demo home: made-up data, kept only in this tab (demo.js)
   const listeners = {};
   const KAL = (window.KAL = {
-    token: mc ? mc[1] : null, joinCode: mj ? mj[1] : null, demo, me: null, family: null, ai: { enabled: false, left: 0 }, people: [], invalid: null,
+    token: mc ? mc[1] : mb ? mb[1] : null, care: !!mb, joinCode: mj ? mj[1] : null, demo, me: null, family: null, ai: { enabled: false, left: 0 }, people: [], invalid: null,
     on(ev, fn) { (listeners[ev] = listeners[ev] || []).push(fn); },
     emit(ev, x) { (listeners[ev] || []).forEach((fn) => { try { fn(x); } catch (e) { console.error(e); } }); }
   });
@@ -167,7 +168,7 @@
   async function refreshMe() {
     const r = await api('GET', '/api/me');
     KAL.me = r.me; KAL.family = r.family; KAL.ai = r.ai || { enabled: false, left: 0 };
-    if (!r.me.viewing) KAL.recent.remember(KAL.token, r.family.name, r.me.name); // the owner viewing leaves no trace on this device's list
+    if (!r.me.viewing && !r.me.care) KAL.recent.remember(KAL.token, r.family.name, r.me.name); // the owner viewing (or a Care board) leaves no trace on this device's list
     KAL.emit('me', r.me);
     return r;
   }
@@ -176,7 +177,7 @@
     KAL.me = { id: 'demo-me', name: 'Maya', role: 'owner', viewing: false, memberId: 'dm-maya', demo: true };
     KAL.family = { id: 'demo', name: 'The Santos family' };
   }
-  KAL.ready = KAL.token ? refreshMe().catch((e) => { KAL.invalid = e; if (e.status === 401) KAL.recent.forget(KAL.token); }) : Promise.resolve();
+  KAL.ready = KAL.token ? refreshMe().catch((e) => { KAL.invalid = e; if (e.status === 401 && !KAL.care) KAL.recent.forget(KAL.token); }) : Promise.resolve();
 
   window.claude = {
     use: async (name) => {
@@ -185,7 +186,7 @@
       const canEdit = KAL.me.role !== 'viewer';
       if (name === 'db') return db;
       if (name === 'user') return { id: async () => KAL.me.id, isOwner: () => KAL.me.role === 'owner', canEdit: () => canEdit };
-      if (name === 'sample') return KAL.ai.enabled && canEdit && !demo ? sample : null; // no AI in the demo
+      if (name === 'sample') return KAL.ai.enabled && canEdit && !demo && !KAL.care ? sample : null; // no AI in the demo
       if (name === 'assets') return demo ? demoAssets : canEdit ? assets : null;
       if (name === 'downloads') return downloads;
       return null;

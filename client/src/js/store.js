@@ -8,6 +8,7 @@
  *   PL.store.*          the only functions that write family data
  *
  * Database layout:  members/{id}   events/{id}   chores/{id}   completions/{id}   settings/main
+ *   Care (client/care):  meds/{id}   doses/{med~date~time}   carelog/{id}
  * Per-device preferences (layout, text size, hidden people) are NOT in the database.
  */
 (function () {
@@ -15,8 +16,8 @@
   const C = PL.config;
 
   // Extra collections that are loaded, cached and written the same way.
-  const COLLS = ['chores', 'completions', 'routines', 'rlogs', 'rewards', 'redemptions', 'lists', 'listitems', 'recipes', 'meals', 'countdowns', 'photos', 'holidays', 'notes'];
-  const MODEL = { chores: 'chore', completions: 'completion', routines: 'routine', rlogs: 'rlog', rewards: 'reward', redemptions: 'redemption', lists: 'list', listitems: 'listitem', recipes: 'recipe', meals: 'meal', countdowns: 'countdown', photos: 'photo', holidays: 'holiday', notes: 'note' };
+  const COLLS = ['chores', 'completions', 'routines', 'rlogs', 'rewards', 'redemptions', 'lists', 'listitems', 'recipes', 'meals', 'countdowns', 'photos', 'holidays', 'notes', 'meds', 'doses', 'carelog'];
+  const MODEL = { chores: 'chore', completions: 'completion', routines: 'routine', rlogs: 'rlog', rewards: 'reward', redemptions: 'redemption', lists: 'list', listitems: 'listitem', recipes: 'recipe', meals: 'meal', countdowns: 'countdown', photos: 'photo', holidays: 'holiday', notes: 'note', meds: 'med', doses: 'dose', carelog: 'carelog' };
 
   const state = (PL.state = {
     ready: false,        // first render can happen
@@ -28,7 +29,7 @@
     uid: null,
     members: [],
     events: [],
-    chores: [], completions: [], routines: [], rlogs: [], rewards: [], redemptions: [], lists: [], listitems: [], recipes: [], meals: [], countdowns: [], photos: [], holidays: [], notes: [],
+    chores: [], completions: [], routines: [], rlogs: [], rewards: [], redemptions: [], lists: [], listitems: [], recipes: [], meals: [], countdowns: [], photos: [], holidays: [], notes: [], meds: [], doses: [], carelog: [],
     settings: Object.assign({}, C.householdDefaults),
     device: {}
   });

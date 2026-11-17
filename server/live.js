@@ -1,9 +1,10 @@
 // live.js — sends changes to everyone in a family who has the page open (Server-Sent Events).
 const rooms = new Map(); // familyId -> Set<{res, accessId}>
 
-function join(familyId, accessId, res) {
+// filter (optional): (event, data) => true to send. A Care board only gets its own person's things.
+function join(familyId, accessId, res, filter) {
   if (!rooms.has(familyId)) rooms.set(familyId, new Set());
-  const client = { res, accessId };
+  const client = { res, accessId, filter };
   rooms.get(familyId).add(client);
   return () => { const r = rooms.get(familyId); if (r) { r.delete(client); if (!r.size) rooms.delete(familyId); } };
 }
@@ -11,7 +12,11 @@ function send(familyId, event, data, onlyAccessId) {
   const r = rooms.get(familyId);
   if (!r) return;
   const msg = 'event: ' + event + '\ndata: ' + JSON.stringify(data) + '\n\n';
-  for (const c of r) if (!onlyAccessId || c.accessId === onlyAccessId) { try { c.res.write(msg); } catch (e) { /* closed */ } }
+  for (const c of r) {
+    if (onlyAccessId && c.accessId !== onlyAccessId) continue;
+    if (c.filter && !c.filter(event, data)) continue;
+    try { c.res.write(msg); } catch (e) { /* closed */ }
+  }
 }
 function kick(familyId, accessId) {
   const r = rooms.get(familyId);
@@ -34,4 +39,12 @@ function online() {
   return out;
 }
 
-module.exports = { join, send, kick, closeFamily, online };
+// Is this link open on a screen right now? (Care board "online")
+function has(familyId, accessId) {
+  const r = rooms.get(familyId);
+  if (!r) return false;
+  for (const c of r) if (c.accessId === accessId) return true;
+  return false;
+}
+
+module.exports = { join, send, kick, closeFamily, online, has };

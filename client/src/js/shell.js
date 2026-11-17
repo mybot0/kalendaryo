@@ -38,7 +38,7 @@
     banner = h('div', { class: 'status-banner', role: 'status', hidden: true });
     main = h('main', { class: 'main', id: 'main', tabindex: '-1' });
     nav = h('nav', { class: 'nav', 'aria-label': 'Main' }, PL.config.screens.filter((s) => !s.hidden).map((s) => {
-      const b = h('button', { type: 'button', class: 'nav-btn' + (s.ready ? '' : ' soon'), onclick: () => go(s.id) },
+      const b = h('button', { type: 'button', class: 'nav-btn' + (s.ready ? '' : ' soon'), dataset: { screen: s.id }, onclick: () => go(s.id) },
         icon(s.icon), h('span', { class: 'nav-label' }, s.label));
       navButtons[s.id] = b;
       return b;

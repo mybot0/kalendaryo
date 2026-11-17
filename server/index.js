@@ -30,7 +30,7 @@ const hexId = () => crypto.randomBytes(12).toString('hex');
 const hash = (s) => crypto.createHash('sha256').update(String(s)).digest('hex');
 const ROLES = ['viewer', 'editor', 'owner'];
 const RANK = { viewer: 0, editor: 1, owner: 2 };
-const COLLS = new Set(['settings', 'members', 'events', 'chores', 'completions', 'routines', 'rlogs', 'rewards', 'redemptions', 'lists', 'listitems', 'recipes', 'meals', 'countdowns', 'photos', 'holidays', 'notes']);
+const COLLS = new Set(['settings', 'members', 'events', 'chores', 'completions', 'routines', 'rlogs', 'rewards', 'redemptions', 'lists', 'listitems', 'recipes', 'meals', 'countdowns', 'photos', 'holidays', 'notes', 'meds', 'doses', 'carelog']);
 const ID_RE = /^[A-Za-z0-9_~.\-]{1,120}$/;
 const clean = (s, max) => String(s == null ? '' : s).replace(/[\u0000-\u001f]/g, ' ').trim().slice(0, max);
 const INVITE_DAYS = () => Math.min(90, Math.max(1, parseInt(process.env.INVITE_DAYS || '7', 10) || 7));
@@ -82,6 +82,11 @@ async function auth(req) {
   const token = h.startsWith('Bearer ') ? h.slice(7) : (req.query.t || '');
   const viewing = token && token.startsWith('ov') ? await owner.viewer(token, req) : null; // the site owner viewing, read-only
   if (viewing) { req.me = viewing; return; }
+  if (care.isCareToken(token)) { // a Care board link: only its own person's Care board (server/care.js)
+    req.me = await care.who(token);
+    if (!care.allowed(req)) fail(403, 'read_only', 'The Care board cannot do that.');
+    return;
+  }
   if (!token || token.length > 100) fail(401, 'no_access', 'This link is not valid.');
   const r = await db.q('SELECT a.id, a.family_id, a.name, a.role, a.last_seen, a.member_id, a.theme, f.name AS family_name FROM access a JOIN families f ON f.id = a.family_id WHERE a.token_hash = $1', [hash(token)]);
   if (!r.rowCount) fail(401, 'no_access', 'This link is not valid anymore. Ask an owner of the family for a new invite.');
@@ -89,11 +94,14 @@ async function auth(req) {
   owner.noteUse(req, 'home', req.me.family_id);
   if (!req.me.last_seen || Date.now() - new Date(req.me.last_seen).getTime() > 3600000) db.q('UPDATE access SET last_seen = now() WHERE id=$1', [req.me.id]).catch(() => {});
 }
-const need = (role) => async (req) => {
-  if (RANK[req.me.role] < RANK[role]) fail(403, 'read_only', role === 'owner' ? 'Only an owner of this family can do that.' : 'You can only view this family. Ask an owner to make you an Editor.');
+// careOk: a Care board link may also use this route (its own rules are checked in save/delete).
+const need = (role, careOk) => async (req) => {
+  if (req.me.care) { if (careOk) return; fail(403, 'read_only', 'The Care board cannot do that.'); }
+  if (!(RANK[req.me.role] >= RANK[role])) fail(403, 'read_only', role === 'owner' ? 'Only an owner of this family can do that.' : 'You can only view this family. Ask an owner to make you an Editor.');
 };
 const json = jsonBody(200 * 1024);
 const r = router();
+const care = require('./care')({ db, live, fail, send, json, clean, auth, need, hexId });
 
 /* ---------- create a family ---------- */
 // The home's time zone, from the browser of the person who starts it (they can change it in Settings).
@@ -158,6 +166,7 @@ r.post('/api/join', json, async (req, res) => {
 
 /* ---------- everything below needs a personal link ---------- */
 r.get('/api/me', auth, async (req, res) => {
+  if (req.me.care) return send(res, 200, { me: { id: req.me.id, name: req.me.name, role: 'care', care: true, viewing: false, memberId: req.me.member_id }, family: { id: req.me.family_id, name: req.me.family_name }, ai: { enabled: false, left: 0 } });
   send(res, 200, { me: { id: req.me.id, name: req.me.name, role: req.me.role, viewing: !!req.me.viewing, memberId: req.me.member_id || null, theme: req.me.theme || null }, family: { id: req.me.family_id, name: req.me.family_name },
     ai: { enabled: ai.enabled(), left: await ai.left(req.me.family_id) } });
 });
@@ -299,7 +308,7 @@ r.get('/api/state', auth, async (req, res) => {
   const q = await db.q('SELECT col, id, data FROM docs WHERE family_id=$1', [req.me.family_id]);
   const docs = {};
   for (const row of q.rows) (docs[row.col] = docs[row.col] || []).push({ id: row.id, data: row.data });
-  send(res, 200, { docs });
+  send(res, 200, { docs: req.me.care ? care.filterState(req.me, docs) : docs });
 });
 function checkDoc(req) {
   if (!COLLS.has(req.params.col)) fail(400, 'bad_request', 'Unknown kind of item.');
@@ -315,18 +324,20 @@ async function withinQuota(familyId) {
 }
 async function save(req, res, id) {
   checkDoc(req);
-  const data = req.body && req.body.data;
+  let data = req.body && req.body.data;
   if (!data || typeof data !== 'object' || Array.isArray(data)) fail(400, 'bad_request', 'Nothing to save.');
+  if (req.me.care) data = await care.checkWrite(req, id, data);
   if (!(await withinQuota(req.me.family_id))) fail(400, 'quota_exceeded', 'This family has too many items saved. Delete some old items and try again.');
   await db.q(`INSERT INTO docs (family_id, col, id, data, updated_at) VALUES ($1,$2,$3,$4, now())
               ON CONFLICT (family_id, col, id) DO UPDATE SET data = EXCLUDED.data, updated_at = now()`, [req.me.family_id, req.params.col, id, JSON.stringify(data)]);
   live.send(req.me.family_id, 'doc', { col: req.params.col, id, data });
   send(res, 200, { id });
 }
-r.post('/api/docs/:col', auth, json, need('editor'), (req, res) => save(req, res, hexId()));
-r.put('/api/docs/:col/:id', auth, json, need('editor'), (req, res) => save(req, res, req.params.id));
-r.delete('/api/docs/:col/:id', auth, need('editor'), async (req, res) => {
+r.post('/api/docs/:col', auth, json, need('editor', true), (req, res) => save(req, res, hexId()));
+r.put('/api/docs/:col/:id', auth, json, need('editor', true), (req, res) => save(req, res, req.params.id));
+r.delete('/api/docs/:col/:id', auth, need('editor', true), async (req, res) => {
   checkDoc(req);
+  if (req.me.care) await care.checkDelete(req);
   await db.q('DELETE FROM docs WHERE family_id=$1 AND col=$2 AND id=$3', [req.me.family_id, req.params.col, req.params.id]);
   live.send(req.me.family_id, 'doc', { col: req.params.col, id: req.params.id, data: null });
   send(res, 200, { ok: true });
@@ -337,7 +348,7 @@ r.get('/api/stream', auth, async (req, res) => {
   res.writeHead(200, { 'Content-Type': 'text/event-stream', 'Cache-Control': 'no-cache, no-transform', 'X-Accel-Buffering': 'no', Connection: 'keep-alive' });
   res._kalStream = true;
   res.write('retry: 3000\nevent: hello\ndata: {}\n\n');
-  const leave = live.join(req.me.family_id, req.me.id, res);
+  const leave = live.join(req.me.family_id, req.me.id, res, req.me.care ? care.streamFilter(req.me.member_id) : undefined);
   req.on('close', leave);
 });
 
@@ -443,13 +454,23 @@ r.get('/owner', async (req, res) => {
   res.end(req.method === 'HEAD' ? undefined : fs.readFileSync(OWNER_PAGE));
 });
 
+/* ---------- Care (server/care.js) ---------- */
+care.routes(r);
+
 /* ---------- pages ---------- */
 r.get('/healthz', async (req, res) => send(res, 200, { ok: true }));
+// The Care board's home-screen icons (public/care-icon-180.png, -192, -512).
+r.get('/care-icons/:size', async (req, res) => {
+  const m = /^(180|192|512)\.png$/.exec(req.params.size);
+  if (!m) { res.writeHead(404); return res.end(); }
+  res.writeHead(200, { 'Content-Type': 'image/png', 'Cache-Control': 'public, max-age=604800' });
+  res.end(req.method === 'HEAD' ? undefined : fs.readFileSync(path.join(__dirname, '..', 'public', 'care-icon-' + m[1] + '.png')));
+});
 const INDEX = path.join(__dirname, '..', 'public', 'index.html');
 let indexHtml = null;
 const page = async (req, res) => {
   owner.cookie(req, res);
-  owner.countPage(req, req.path.startsWith('/c/') ? 'home' : req.path.startsWith('/join/') ? 'invite' : req.path.startsWith('/demo') ? 'demo' : 'start');
+  owner.countPage(req, req.path.startsWith('/c/') || req.path.startsWith('/care/') ? 'home' : req.path.startsWith('/join/') ? 'invite' : req.path.startsWith('/demo') ? 'demo' : 'start');
   if (!indexHtml || process.env.NODE_ENV !== 'production') {
     indexHtml = fs.readFileSync(INDEX);
     // TOUCH POINT A (server, part 2): lets the start page show the home/trip choice. Nothing is added when Triply is off.
@@ -457,10 +478,21 @@ const page = async (req, res) => {
     // Owner view: tells the server a real person is here, and where they came from (server/owner.js, HI_JS).
     indexHtml = Buffer.from(indexHtml.toString('utf8').replace('</head>', '<script src="/hi.js" defer></script></head>'));
   }
+  let html = indexHtml;
+  // A Care board link: its own name and home-screen icon ("Care board"), so it feels like its own app.
+  if (req.params && req.params.board) {
+    if (!care.isCareToken(req.params.board)) { res.writeHead(302, { Location: '/' }); return res.end(); }
+    html = Buffer.from(html.toString('utf8').replace('<title>Kalendaryo</title>', care.headFor(req.params.board)));
+  }
   res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-cache' });
-  res.end(req.method === 'HEAD' ? undefined : indexHtml);
+  res.end(req.method === 'HEAD' ? undefined : html);
 };
 r.get('/', page); r.get('/c/:token', page); r.get('/join/:code', page); r.get('/demo', page);
+r.get('/care/:board/app.webmanifest', async (req, res) => {
+  if (!care.isCareToken(req.params.board)) { res.writeHead(404); return res.end(); }
+  care.manifest(req, res, req.params.board);
+});
+r.get('/care/:board', page);
 
 const server = http.createServer(async (req, res) => {
   owner.touch(req);

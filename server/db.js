@@ -101,6 +101,18 @@ ALTER TABLE visit_log ADD COLUMN IF NOT EXISTS real BOOLEAN NOT NULL DEFAULT tru
 ALTER TABLE visit_log ADD COLUMN IF NOT EXISTS src TEXT;
 -- the owner's own browsers: never counted
 CREATE TABLE IF NOT EXISTS owner_devices (vid TEXT PRIMARY KEY, added_at TIMESTAMPTZ NOT NULL DEFAULT now());
+-- Care: one link per person who gets care. It opens only their Care board (no menus, no other pages).
+-- token is kept so the family can show the QR code again; "Make a new link" replaces the row.
+CREATE TABLE IF NOT EXISTS care_links (
+  id TEXT PRIMARY KEY,
+  family_id TEXT NOT NULL REFERENCES families(id) ON DELETE CASCADE,
+  member_id TEXT NOT NULL,
+  token TEXT NOT NULL,
+  token_hash TEXT NOT NULL UNIQUE,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  last_seen TIMESTAMPTZ
+);
+CREATE INDEX IF NOT EXISTS care_links_family ON care_links(family_id);
 CREATE TABLE IF NOT EXISTS ai_spend (
   day DATE PRIMARY KEY,
   micro BIGINT NOT NULL DEFAULT 0,

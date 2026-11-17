@@ -983,12 +983,21 @@
       if (e.key !== 'Escape' || document.querySelector('.sheet-wrap')) return;
       if (arranging) finishArrange(); else if (kid.isOpen()) kid.close(); else close();
     }
+    // Leaving full screen (swipe down on an iPad, Esc, the browser's own button) closes Wall mode and goes Home,
+    // but only if Wall mode was really in full screen (phones that can't go full screen are not affected).
+    let wasFull = false;
+    function onFull() {
+      const fs = document.fullscreenElement || document.webkitFullscreenElement;
+      if (fs === root) { wasFull = true; return; }
+      if (!fs && wasFull && root.isConnected) { wasFull = false; close(); if (PL.nav) PL.nav.go('home'); }
+    }
     const soon = () => { clearTimeout(renderT); renderT = setTimeout(() => { if (root.querySelector('.dragging, .resizing')) return soon(); paint(); nextPhotoIfBlank(); }, 250); };
     function close() {
       timers.forEach((t) => (t && t.stop ? t.stop() : clearInterval(t))); clearTimeout(idleT); clearTimeout(renderT); kid.close();
       document.removeEventListener('keydown', onKey); removeEventListener('resize', soon);
+      document.removeEventListener('fullscreenchange', onFull); document.removeEventListener('webkitfullscreenchange', onFull);
       try { if (lock) lock.release(); } catch (e) { /* ignore */ }
-      try { if (document.fullscreenElement) document.exitFullscreen(); } catch (e) { /* ignore */ }
+      try { if (document.fullscreenElement) document.exitFullscreen(); else if (document.webkitFullscreenElement && document.webkitExitFullscreen) document.webkitExitFullscreen(); } catch (e) { /* ignore */ }
       root.remove(); unsub(); PL.theme.setWall(false);
     }
     const unsub = PL.store.subscribe(soon);
@@ -996,10 +1005,14 @@
     PL.theme.setWall(true);
     root.addEventListener('pointerdown', wake); root.addEventListener('mousemove', wake);
     document.addEventListener('keydown', onKey); addEventListener('resize', soon);
+    document.addEventListener('fullscreenchange', onFull); document.addEventListener('webkitfullscreenchange', onFull);
     paint(); nextPhoto(); wake(); closeBtn.focus();
     const stopClock = PL.clock.start(tick); // every second, and right away when the screen wakes up
     timers.push({ stop: stopClock }, setInterval(() => { if (!kid.isOpen() && !arranging) paint(); }, 60000), setInterval(nextPhoto, 12000));
-    try { if (root.requestFullscreen) { const p = root.requestFullscreen(); if (p && p.catch) p.catch(() => {}); } } catch (e) { /* ignore */ }
+    try {
+      if (root.requestFullscreen) { const p = root.requestFullscreen(); if (p && p.catch) p.catch(() => {}); }
+      else if (root.webkitRequestFullscreen) root.webkitRequestFullscreen();
+    } catch (e) { /* ignore */ }
     try { if (navigator.wakeLock) navigator.wakeLock.request('screen').then((l) => { lock = l; }).catch(() => {}); } catch (e) { /* ignore */ }
     return { close, openKid: kid.show, arrange: startArrange };
   }

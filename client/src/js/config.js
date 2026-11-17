@@ -110,7 +110,8 @@
       { id: 'notes',    label: 'Notes',    icon: 'note',     ready: true },
       { id: 'photos',   label: 'Photos',   icon: 'image',    ready: true },
       { id: 'family',   label: 'People',   icon: 'users',    ready: true },
-      { id: 'settings', label: 'Settings', icon: 'settings', ready: true }
+      { id: 'settings', label: 'Settings', icon: 'settings', ready: true },
+      { id: 'care',     label: 'Care',     icon: 'pill',     ready: true } // last; a home can hide it (Settings → Care)
     ]
   };
   // Lists that use `id` also get `value`, so they can feed selectors directly.

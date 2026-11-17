@@ -94,7 +94,7 @@
 
   let waiting = false;
   function start() {
-    if (!KAL.token) return;
+    if (!KAL.token || KAL.care) return;
     KAL.ready.then(() => {
       if (KAL.invalid || !KAL.me) return;
       if (check()) return;

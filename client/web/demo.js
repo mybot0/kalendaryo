@@ -116,7 +116,26 @@
       weatherPlace: { name: 'Vancouver', lat: 49.28, lon: -123.12 },
       holidaySets: [{ key: 'CA-BC', name: 'British Columbia', full: 'Canada · British Columbia', flag: '🇨🇦', years: [y, y + 1], auto: true }] };
     [y, y + 1].forEach((yy) => bcHolidays(yy).forEach(([date, title]) => put('holidays', 'holiday', 'CA-BC~' + date + '~1', { date, title, set: 'CA-BC' })));
+    settings.care = { on: true, people: ['dm-nana'] };
     out.settings = [{ id: 'main', data: settings }];
+
+    // Care: Nana Rosa's medicines (client/care). Pills taken the last few days; Amlodipine is running low.
+    // An ISO moment for "day key, HH:MM" on the home's clock (the demo home is in Vancouver).
+    const hp = {}; new Intl.DateTimeFormat('en-US', { timeZone: settings.timeZone, hourCycle: 'h23', year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric' }).formatToParts(new Date()).forEach((x) => { hp[x.type] = +x.value; });
+    const homeToday = hp.year + '-' + D.pad(hp.month) + '-' + D.pad(hp.day), homeNow = hp.hour * 60 + hp.minute, ht = (n) => D.addDays(homeToday, n);
+    const iso = (key, time) => { const [hh, mm] = time.split(':').map(Number); return new Date(Date.now() + (D.diff(homeToday, key) * 1440 + hh * 60 + mm - homeNow) * 60000).toISOString(); };
+    const nowMin = homeNow;
+    const meds = [['dmm1', { name: 'Amlodipine', kind: 'bp', times: ['08:00'], each: 1, count: 6, box: 30, helper: 'dm-maya', remind: 3, food: 'after' }],
+      ['dmm2', { name: 'Vitamin D', kind: 'vit', times: ['08:00'], each: 1, count: 33, box: 60 }],
+      ['dmm3', { name: 'Atorvastatin', kind: 'chol', times: ['20:00'], each: 1, count: 25, box: 30 }]];
+    meds.forEach(([id, m]) => put('meds', 'med', id, Object.assign({ who: 'dm-nana', start: ht(-40), countAt: iso(ht(-4), '06:00'), added: iso(ht(-40), '06:00'), checked: true }, m)));
+    for (let k = -4; k <= 0; k++) meds.forEach(([id, m]) => m.times.forEach((time) => {
+      const [hh, mm] = time.split(':').map(Number);
+      if (k === 0 && nowMin < hh * 60 + mm + 200) return; // today: only times long past (so the demo can show "time for your pills")
+      if (k === -2 && time === '20:00') return; // one missed night, for the history (older than a day: no alert)
+      const by = k === -3 && time === '08:00' ? 'dm-maya' : 'board';
+      put('doses', 'dose', id + '~' + ht(k) + '~' + time.replace(':', ''), { who: 'dm-nana', med: id, date: ht(k), time, status: 'taken', at: iso(ht(k), D.pad(hh) + ':' + D.pad(mm + 6)), by });
+    }));
 
     // Chores, with ticks over the last two weeks
     const daily = { freq: 'daily', interval: 1, end: { type: 'never' } };

@@ -12,7 +12,7 @@
   ];
   PL.help = HelpUI.create({
     app: 'Kalendaryo',
-    ready: () => !!(KAL.demo || (KAL.token && KAL.me && !KAL.me.viewing)),
+    ready: () => !!(KAL.demo || (KAL.token && KAL.me && !KAL.me.viewing && !KAL.me.care)),
     demo: KAL.demo ? DEMO : null,
     get: () => KAL.api('GET', '/api/help'),
     unread: () => KAL.api('GET', '/api/help/unread'),

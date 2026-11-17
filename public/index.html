@@ -997,6 +997,255 @@ html.has-sheet .toast { bottom: calc(110px + env(safe-area-inset-bottom)); }
 :root[data-theme="dark"] .wn { background: #E9D98F; }
 :root[data-theme="dark"] .sky .sky-path text { fill: #D9BE8C; }
 
+/* care/care.css — Care: the Care board (senior size), the family's Care page, and the Care settings.
+   Only the app's own tokens and pieces (theme.css). Care board rule: buttons ≥ 60px, text ≥ 18px. */
+
+/* ---------- Care board: the person's own screen (built on the Wall mode frame) ---------- */
+.care-board { z-index: 72; }
+.care-board .wall-top-left { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; }
+.care-board .wall-greet { font-size: clamp(1.15rem, min(2vw, 2.8vh), 1.7rem); }
+.care-help { position: relative; z-index: 2; min-height: 60px; font-size: 1.2rem; padding: 0 22px; background: var(--surface); box-shadow: var(--shadow); color: var(--ink); border-radius: 999px; gap: 10px; }
+.care-help span:first-child { font-size: 1.5rem; }
+.care-main { position: relative; z-index: 1; flex: 1; min-height: 0; display: flex; flex-direction: column; gap: clamp(8px, 1.4vh, 18px); padding: 4px clamp(16px, 2.6vw, 40px) clamp(12px, 2.4vh, 32px); }
+.care-strip { flex: none; }
+.care-strip .wall-panel-body { display: flex; flex-direction: row; flex-wrap: wrap; align-items: center; gap: 14px 22px; padding: 10px 12px; min-height: 104px; overflow: visible; }
+.care-say { font: 800 clamp(1.6rem, min(3.4vw, 4.6vh), 2.4rem)/1.12 var(--font-head); color: var(--ink); letter-spacing: -.01em; }
+.care-sub { color: var(--ink-2); font-weight: 600; font-size: 1.25rem; margin-top: 4px; }
+.s-txt { flex: 1; min-width: 240px; }
+.s-chips { flex-basis: 100%; display: flex; flex-wrap: wrap; gap: 10px; }
+.cs-art { font-size: 3.2rem; line-height: 1; }
+.s-tap { flex: none; border: 0; min-height: 60px; font: 800 1.35rem var(--font-head); color: #6B4E00; background: #FFF3C4; padding: 10px 24px; border-radius: 999px; box-shadow: inset 0 0 0 3px #FFD666; cursor: pointer; }
+.s-tap.red { color: var(--danger); background: var(--danger-soft); box-shadow: inset 0 0 0 3px var(--danger); }
+.care-tick { width: 96px; height: 96px; border-radius: 50%; background: var(--primary); color: var(--primary-ink); display: grid; place-items: center; flex: none; }
+.care-tick .ic { width: 50px; height: 50px; }
+.care-tick.sm { width: 72px; height: 72px; }
+.care-tick.sm .ic { width: 38px; height: 38px; }
+.care-chip { display: inline-flex; align-items: center; gap: 8px; padding: 8px 16px; border-radius: 999px; background: var(--primary-soft); color: var(--primary); font-weight: 700; font-size: 1.15rem; }
+.care-chip.plan { background: var(--surface-2); color: var(--ink); box-shadow: inset 0 0 0 1px var(--line); }
+
+/* the pill box: a real weekly pill organizer, see-through lids with the pills inside */
+.care-box2 { flex: 1; min-height: 0; }
+.care-box2 > h2 { display: flex; align-items: baseline; gap: 14px; font-size: 1.5rem; color: var(--ink); }
+.pb2-hint { font: 600 1.15rem var(--font); color: var(--ink-3); margin-left: auto; }
+.care-box2 .wall-panel-body { display: flex; flex-direction: column; gap: 12px; height: 100%; overflow: visible; }
+.pb2 { flex: 1; min-height: 0; display: grid; gap: 12px 10px; padding: 14px; border-radius: 22px; background: var(--surface-2); box-shadow: inset 0 0 0 1px var(--line), inset 0 6px 14px rgba(0,0,0,.05); }
+.pb2-dh { display: flex; align-items: flex-end; justify-content: center; font: 800 1.15rem var(--font); letter-spacing: .04em; text-transform: uppercase; color: var(--ink-3); }
+.pb2-dh.t { color: var(--primary); }
+.pb2-rl { display: flex; flex-direction: column; justify-content: center; font: 800 1.35rem/1.1 var(--font-head); color: var(--ink); }
+.pb2-rl small { font: 600 1.15rem var(--font); color: var(--ink-3); }
+.cell { position: relative; border: 0; padding: 0; background: none; border-radius: 18px; min-height: 64px; cursor: pointer; font: inherit; color: inherit; }
+.cell.none { cursor: default; border-radius: 18px; box-shadow: inset 0 0 0 2px var(--line); opacity: .35; }
+.well { position: absolute; inset: 0; border-radius: 18px; background: var(--surface); box-shadow: inset 0 4px 10px rgba(0,0,0,.14), inset 0 0 0 2px color-mix(in srgb, var(--c) 70%, #fff); display: grid; place-items: center; }
+.lid2 { position: absolute; inset: 0; border-radius: 18px; background: color-mix(in srgb, var(--c) 42%, transparent); box-shadow: inset 0 2px 0 rgba(255,255,255,.6), inset 0 -5px 0 rgba(0,0,0,.08), 0 3px 6px rgba(0,0,0,.08); display: flex; justify-content: center; padding-top: 6px; pointer-events: none; }
+.lid2 b { font: 800 1.3rem var(--font-head); color: rgba(31,42,37,.7); }
+.cb-pills { display: flex; gap: 6px; align-items: center; margin-top: 16px; flex-wrap: wrap; justify-content: center; }
+.cb-tb, .cb-tb2 { display: inline-block; width: 26px; height: 26px; border-radius: 50%; background: #F1DC8B; box-shadow: inset 0 -3px 0 rgba(0,0,0,.12), 0 0 0 1px rgba(0,0,0,.06); }
+.cb-tb2 { background: #FFFFFF; }
+.cb-cp, .cb-cp2 { display: inline-block; width: 42px; height: 20px; border-radius: 999px; background: linear-gradient(90deg, #F4A59A 50%, #fff 50%); box-shadow: inset 0 -3px 0 rgba(0,0,0,.08), 0 0 0 1px rgba(0,0,0,.08); }
+.cb-cp2 { background: linear-gradient(90deg, #A8CDEA 50%, #fff 50%); }
+/* opened = lid flipped up (a thin strip at the top), empty well with a check */
+.cell.open .lid2 { inset: -8px 4px auto 4px; height: 16px; padding: 0; border-radius: 10px 10px 4px 4px; background: var(--c); box-shadow: 0 -2px 6px rgba(0,0,0,.12); }
+.cell.open .well { background: var(--surface-2); }
+.tick2 { color: var(--ink-3); opacity: .75; font: 800 1.6rem var(--font); }
+.tick2 .ic { width: 30px; height: 30px; }
+.cell.open.today .tick2 { color: var(--primary); opacity: 1; }
+.cell.open.today .tick2 .ic { width: 40px; height: 40px; }
+.cell.open.today .well { box-shadow: inset 0 0 0 4px var(--primary); }
+.cell.gone .well { background: transparent; box-shadow: inset 0 0 0 2px var(--line); }
+.cell.gone .lid2 { background: transparent; box-shadow: none; }
+.cell.empty .well { background: transparent; box-shadow: none; border: 3px dashed var(--ink-3); }
+.cell.empty .lid2 { background: transparent; box-shadow: none; }
+.cell.now { box-shadow: 0 0 0 6px #FFD666, 0 0 30px 12px rgba(255,214,102,.95); animation: careGlow 1.6s ease-in-out infinite; }
+.cell.now .lid2 { background: color-mix(in srgb, #FFD666 55%, transparent); }
+.cell.now.snoozed { animation: none; box-shadow: 0 0 0 5px #FFE7A0; }
+.cell.miss { box-shadow: 0 0 0 6px var(--danger), 0 0 28px 10px rgba(179,64,47,.45); animation: careGlowRed 1.6s ease-in-out infinite; }
+.cell em { position: absolute; top: -12px; right: -10px; width: 34px; height: 34px; border-radius: 50%; background: var(--danger); color: #fff; display: grid; place-items: center; font: 800 1.2rem var(--font); font-style: normal; z-index: 2; }
+@keyframes careGlow { 50% { box-shadow: 0 0 0 6px #FFE7A0, 0 0 8px 2px rgba(255,214,102,.35); } }
+@keyframes careGlowRed { 50% { box-shadow: 0 0 0 6px var(--danger), 0 0 6px 2px rgba(179,64,47,.2); } }
+.reduce-motion .cell.now, .reduce-motion .cell.miss { animation: none; }
+@media (prefers-reduced-motion: reduce) { .cell.now, .cell.miss { animation: none; } }
+.pb-foot { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+.pb-foot:empty { display: none; }
+.care-warn { flex: 1; display: flex; align-items: center; gap: 10px; padding: 12px 16px; border-radius: var(--radius-sm); background: #FBF1C9; color: #6B4E00; font-weight: 700; font-size: 1.15rem; }
+.btn.care-big { min-height: 64px; font-size: 1.3rem; padding: 0 26px; }
+.btn.care-big .ic { width: 26px; height: 26px; }
+.foot-btn.add { margin-left: auto; }
+.empty-box { padding: 20px 6px; }
+.care-preview-close { position: absolute; top: 12px; left: 50%; transform: translateX(-50%); z-index: 4; min-height: 48px; }
+.care-board.preview .wall-top { padding-top: clamp(56px, 7vh, 72px); }
+
+/* board's own link: "Start" and "This link was changed" */
+.care-start { position: fixed; inset: 0; z-index: 90; display: grid; place-items: center; background: rgba(244,243,238,.92); padding: 20px; }
+.care-start-card { background: var(--surface); border-radius: var(--radius); box-shadow: var(--shadow); padding: 32px 28px; max-width: 520px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 14px; }
+.care-start-card h1 { font: 800 2.2rem var(--font-head); }
+.care-start-card p { font-size: 1.3rem; color: var(--ink-2); line-height: 1.4; }
+.care-start-card .btn { min-width: 220px; }
+.help-art { font-size: 4rem; line-height: 1; }
+.care-mode body, html.care-mode { background: var(--bg); }
+html.care-mode .toast, html.care-open .toast { font-size: 1.3rem; padding: 16px 26px; bottom: 28px; }
+html.care-mode .toast .toast-act, html.care-open .toast .toast-act { min-height: 52px; font-size: 1.2rem; padding: 0 22px; }
+
+/* ---------- big sheets on the board (senior size) ---------- */
+.care-sheet .sheet-head h2 { font-family: var(--font-head); }
+.care-sheet.senior .sheet-head h2 { font-size: 1.7rem; }
+.care-sheet.senior.big { max-width: 900px; }
+.care-sheet.senior.big .sheet-head h2 { font-size: 1.9rem; }
+.care-sheet.senior .sheet-body { padding-top: 10px; padding-bottom: 20px; }
+.care-sheet.senior .sheet-close { width: 60px; height: 60px; }
+.care-sheet.senior .sheet-close .ic { width: 28px; height: 28px; }
+.care-sheet.senior .sheet-foot .btn { min-height: 64px; font-size: 1.3rem; padding: 0 26px; }
+.care-sheet.senior .hint, .care-sheet.senior .care-safe { font-size: 1.15rem; }
+.care-sheet.senior .hint.center, .care-safe { text-align: center; }
+.care-stepn { font-weight: 800; color: var(--ink-3); letter-spacing: .04em; text-transform: uppercase; font-size: 1.15rem; margin: -4px 0 10px; }
+.care-stepn.small { font-size: .82rem; margin-bottom: 4px; }
+.care-tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.care-tiles.t4 { grid-template-columns: repeat(4, 1fr); }
+.list-card.care-tile { min-height: 132px; padding: 14px 10px; box-shadow: inset 0 0 0 2px var(--line); cursor: pointer; }
+.list-card.care-tile .em { font-size: 2.4rem; line-height: 1; }
+.list-card.care-tile strong { font-size: 1.3rem; }
+.list-card.care-tile .tile-sub { color: var(--ink-2); font-weight: 600; font-size: 1.15rem; }
+.list-card.care-tile.on { background: var(--primary-soft); box-shadow: inset 0 0 0 3px var(--primary); }
+.care-center { display: flex; flex-direction: column; align-items: center; gap: 16px; text-align: center; }
+.care-center .chip-row { justify-content: center; }
+.person-pick.big-chip { min-height: 60px; font-size: 1.25rem; padding: 4px 22px; }
+.other-num { margin: 14px auto 0; display: flex; }
+.care-stepper { display: flex; align-items: center; justify-content: center; gap: 22px; }
+.care-stepper .icon-btn { box-shadow: inset 0 0 0 2px var(--line); background: var(--surface); }
+.care-stepper.big .icon-btn { width: 76px; height: 76px; }
+.care-stepper .icon-btn .ic { width: 28px; height: 28px; }
+.care-stepper .num { min-width: 150px; text-align: center; font: 800 4rem/1 var(--font-head); color: var(--ink); }
+.care-stepper.small { justify-content: flex-start; gap: 12px; flex-wrap: wrap; }
+.care-stepper.small .num { min-width: 64px; font-size: 1.8rem; }
+.care-stepper.small .icon-btn { width: 44px; height: 44px; }
+.care-stepper .days { font-weight: 700; color: var(--primary); }
+.ask-pills { display: flex; justify-content: center; flex-wrap: wrap; gap: 32px; padding: 8px 0 6px; }
+.care-pw { display: flex; flex-direction: column; align-items: center; gap: 8px; font-weight: 800; color: var(--ink); font-size: 1.3rem; }
+.care-pill { width: 96px; height: 96px; border-radius: var(--radius); background: var(--surface-2); box-shadow: inset 0 0 0 1px var(--line); display: grid; place-items: center; }
+.care-pill .cb-tb, .care-pill .cb-tb2 { width: 52px; height: 52px; }
+.care-pill .cb-cp, .care-pill .cb-cp2 { width: 72px; height: 32px; }
+.care-safe { color: var(--ink-2); font-weight: 600; margin-top: 8px; }
+.care-who { display: flex; flex-direction: column; gap: 8px; }
+.care-whorow { display: flex; align-items: center; gap: 14px; padding: 10px 12px; border-radius: var(--radius-sm); background: var(--surface-2); }
+.care-whorow .em { width: 52px; height: 52px; border-radius: 50%; background: var(--surface); box-shadow: inset 0 0 0 1px var(--line); display: grid; place-items: center; font-size: 1.5rem; font-weight: 800; color: var(--primary); flex: none; }
+.care-whorow .tt { flex: 1; }
+.care-whorow .tt b { display: block; font-size: 1.3rem; }
+.care-whorow .tt span { color: var(--ink-2); font-size: 1.15rem; }
+.care-input { width: 100%; font-size: 1.3rem; min-height: 60px; }
+
+/* time rows with glowing − and + (30 minutes a tap) */
+.trows { margin-top: 14px; display: flex; flex-direction: column; gap: 12px; }
+.trow { display: flex; align-items: center; gap: 16px; background: var(--surface-2); border-radius: 20px; padding: 10px 16px; box-shadow: inset 0 0 0 1px var(--line); }
+.trow .tl { flex: 1; font: 800 1.4rem var(--font-head); color: var(--ink); }
+.trow .tv { position: relative; min-width: 170px; text-align: center; font: 800 2rem var(--font-head); color: var(--ink); }
+.tbtn { width: 68px; height: 68px; border-radius: 50%; border: 0; background: var(--surface); color: var(--primary); font: 800 2.4rem/1 var(--font-head); display: grid; place-items: center; cursor: pointer; box-shadow: 0 0 0 3px #FFD666, 0 0 18px 6px rgba(255,214,102,.85); }
+.thint { text-align: center; font-size: 1.15rem; color: var(--ink-2); margin: 2px 0 0; }
+.trows.fam { margin-top: 10px; gap: 8px; }
+.trow.sm { padding: 6px 12px; border-radius: 14px; gap: 10px; }
+.trow.sm .tl { font-size: 1rem; }
+.trow.sm .tv { font-size: 1.25rem; min-width: 110px; cursor: pointer; text-decoration: underline dotted; text-underline-offset: 5px; }
+.trow.sm .tbtn { width: 44px; height: 44px; font-size: 1.6rem; box-shadow: 0 0 0 2px #FFD666, 0 0 12px 4px rgba(255,214,102,.8); }
+.tv-input { position: absolute; inset: 0; opacity: 0; width: 100%; cursor: pointer; }
+.trow-wrap { display: flex; align-items: center; gap: 6px; }
+.trow-wrap .trow { flex: 1; }
+
+/* phones and small tablets (an old phone can be a Care board too) */
+@media (max-width: 640px) {
+  .care-board { overflow-y: auto; -webkit-overflow-scrolling: touch; }
+  .care-board .care-main { flex: none; }
+  .care-board .care-box2 { flex: none; }
+  .care-board .pb2 { grid-auto-rows: minmax(96px, auto); }
+  .care-board .cell { min-height: 96px; }
+  .care-help { white-space: nowrap; }
+  .care-tick.sm { width: 56px; height: 56px; }
+  .care-board .wall-top { flex-wrap: wrap; }
+  .care-board .wall-top .sky { display: none; }
+  .care-strip .wall-panel-body { flex-direction: column; align-items: stretch; text-align: center; }
+  .s-tap { width: 100%; }
+  .pb2-hint { display: none; }
+  .care-tiles, .care-tiles.t4 { grid-template-columns: repeat(2, 1fr) !important; }
+  .trow { gap: 8px; padding: 8px 10px; }
+  .trow .tl { font-size: 1.15rem; }
+  .trow .tv { min-width: 0; font-size: 1.5rem; }
+  .tbtn { width: 60px; height: 60px; }
+  .foot-btn.add { margin-left: 0; }
+  .pb-foot .btn { width: 100%; }
+}
+@media (max-height: 700px) and (min-width: 641px) { .care-strip .wall-panel-body { min-height: 0; padding: 6px 10px; } .care-say { font-size: 1.6rem; } }
+
+/* ---------- the family's Care page ---------- */
+.care-page .care-list { display: flex; flex-direction: column; gap: 18px; max-width: 900px; }
+.care-card { display: flex; flex-direction: column; gap: 6px; }
+.care-head { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; padding: 2px 4px 6px; }
+.care-head .nm { font: 700 1.25rem var(--font-head); }
+.care-todayline { display: flex; flex-wrap: wrap; gap: 6px; margin-left: auto; }
+.ct-chip { padding: 4px 12px; border-radius: 999px; font-weight: 700; font-size: .88rem; background: var(--surface-2); color: var(--ink-2); box-shadow: inset 0 0 0 1px var(--line); }
+.ct-chip.ok { background: var(--primary-soft); color: var(--primary); box-shadow: none; }
+.ct-chip.now { background: #FFF3C4; color: #6B4E00; box-shadow: none; }
+.ct-chip.miss { background: var(--danger-soft); color: var(--danger); box-shadow: none; }
+.care-sec { font-size: .78rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); margin: 14px 0 6px; }
+.care-rows { display: flex; flex-direction: column; gap: 2px; }
+.care-row { display: flex; align-items: center; gap: 12px; min-height: 60px; padding: 6px; border: 0; background: none; border-radius: var(--radius-sm); text-align: left; font: inherit; color: inherit; cursor: pointer; width: 100%; }
+.care-row:hover { background: var(--surface-2); }
+.care-row.new { background: var(--primary-soft); }
+.care-row .em { width: 46px; height: 46px; border-radius: 50%; background: var(--surface-2); box-shadow: inset 0 0 0 1px var(--line); display: grid; place-items: center; font-size: 1.3rem; flex: none; }
+.care-row .tt { flex: 1; min-width: 0; }
+.care-row .tt b { display: block; font-weight: 700; }
+.care-row .tt span { color: var(--ink-2); font-size: .9rem; }
+.care-left { display: inline-flex; align-items: center; padding: 2px 10px; border-radius: 999px; background: var(--primary-soft); color: var(--primary); font-weight: 800; font-size: .85rem; flex: none; }
+.care-left.low { background: #FBF1C9; color: #6B4E00; }
+.care-alerts { display: flex; flex-direction: column; gap: 8px; margin: 4px 0; }
+.care-alert { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; padding: 10px 12px; border-radius: var(--radius-sm); background: var(--surface-2); font-weight: 600; }
+.care-alert.lvl3 { background: #FDE3DC; color: #7A2E20; }
+.care-alert.lvl2 { background: #FFF3C4; color: #6B4E00; }
+.ca-em { font-size: 1.3rem; }
+.ca-tx { flex: 1; min-width: 180px; }
+.ca-btns { display: flex; flex-wrap: wrap; gap: 6px; }
+.care-boardcard { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-top: 14px; padding: 12px; border-radius: var(--radius-sm); background: var(--surface-2); }
+.care-boardcard .cb-ic { width: 42px; height: 42px; border-radius: 12px; background: var(--primary-soft); display: grid; place-items: center; font-size: 1.3rem; flex: none; }
+.care-boardcard .nm { flex: 1; min-width: 200px; font-weight: 700; }
+.care-boardcard .nm small { display: block; font: 600 .86rem var(--font); color: var(--ink-2); margin-top: 2px; }
+.care-boardcard .btn-row { margin: 0; }
+.care-recent { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 4px; color: var(--ink-2); font-size: .92rem; }
+.care-recent b { color: var(--ink); font-weight: 700; }
+.care-intro { max-width: 760px; display: flex; flex-direction: column; gap: 12px; }
+.care-intro h2 { font: 800 1.5rem var(--font-head); }
+.ci-art { font-size: 3rem; line-height: 1; }
+.ci-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px; font-weight: 600; }
+.care-add .care-types { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.avatar-opt.care-type { height: 80px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; font-size: .82rem; font-weight: 700; color: var(--ink); line-height: 1.15; }
+.avatar-opt.care-type .em { font-size: 1.5rem; line-height: 1; }
+.person-pick.name-pick { padding: 4px 16px; }
+.person-pick.alt { border-style: dashed; }
+.person-pick.care-time { flex-direction: column; align-items: flex-start; gap: 0; padding: 6px 18px; border-radius: var(--radius-sm); line-height: 1.15; }
+.person-pick.care-time small { color: var(--ink-3); font-weight: 600; }
+.care-add .care-input { font-size: 1rem; min-height: 48px; margin-top: 8px; }
+.care-row-inline { margin-top: 10px; }
+.cb-setup { display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-start; }
+.cb-qr { padding: 10px; background: #fff; border-radius: var(--radius-sm); box-shadow: inset 0 0 0 1px var(--line); flex: none; line-height: 0; }
+.cb-steps { flex: 1; min-width: 240px; }
+.cb-steps ol { margin: 6px 0 10px 18px; padding: 0; color: var(--ink-2); line-height: 1.5; }
+.care-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 16px; }
+.cb-new { margin-top: 16px; padding-top: 12px; border-top: 1px solid var(--line); }
+@media (max-width: 640px) { .care-2 { grid-template-columns: 1fr; } .care-add .care-types { grid-template-columns: repeat(3, 1fr); } .care-todayline { margin-left: 0; } }
+
+/* alerts at the top of every page, and the dot on Care in the menu */
+.care-banner { display: flex; flex-direction: column; gap: 6px; padding: 8px max(12px, env(safe-area-inset-left)); }
+.care-banner[hidden] { display: none; }
+.care-banner-row { display: flex; align-items: center; gap: 8px; max-width: 1280px; width: 100%; margin: 0 auto; }
+.care-banner-row .care-alert { flex: 1; }
+.nav-btn { position: relative; }
+.nav-btn.has-alert::after { content: ''; position: absolute; top: 8px; right: calc(50% - 18px); width: 10px; height: 10px; border-radius: 50%; background: var(--danger); box-shadow: 0 0 0 2px var(--surface); }
+@media (min-width: 900px) { .nav-btn.has-alert::after { top: 50%; right: 12px; transform: translateY(-50%); } }
+
+/* Settings → Care */
+.care-set .switch { margin: 2px 0; }
+.care-set .field { margin-top: 6px; }
+.nav-btn[hidden] { display: none; }
+@media (max-width: 640px) { .care-board .wall-date { font-size: 1.15rem; } }
+/* dark (at night): keep the board's messages readable */
+:root[data-theme="dark"] .care-start { background: color-mix(in srgb, var(--bg) 92%, transparent); }
+:root[data-theme="dark"].care-mode .toast, :root[data-theme="dark"].care-open .toast { background: #F4F3EE; color: #1F2A25; }
+
 /* web.css — web version only: start page, join page, people with access. */
 .land { max-width: 640px; margin: 0 auto; padding: 40px 16px 60px; display: flex; flex-direction: column; gap: 18px; }
 .land-head { display: flex; flex-direction: column; gap: 10px; }
@@ -1304,10 +1553,11 @@ body:has(> .tour-switch) .main { padding-top: 62px; }
   const path = location.pathname;
   const mc = path.match(/^\/c\/([A-Za-z0-9_-]{10,100})\/?$/);
   const mj = path.match(/^\/join\/([A-Za-z0-9_-]{10,100})\/?$/);
+  const mb = path.match(/^\/care\/(cb[A-Za-z0-9_-]{20,98})\/?$/); // a Care board link (client/care)
   const demo = /^\/demo\/?$/.test(path); // the demo home: made-up data, kept only in this tab (demo.js)
   const listeners = {};
   const KAL = (window.KAL = {
-    token: mc ? mc[1] : null, joinCode: mj ? mj[1] : null, demo, me: null, family: null, ai: { enabled: false, left: 0 }, people: [], invalid: null,
+    token: mc ? mc[1] : mb ? mb[1] : null, care: !!mb, joinCode: mj ? mj[1] : null, demo, me: null, family: null, ai: { enabled: false, left: 0 }, people: [], invalid: null,
     on(ev, fn) { (listeners[ev] = listeners[ev] || []).push(fn); },
     emit(ev, x) { (listeners[ev] || []).forEach((fn) => { try { fn(x); } catch (e) { console.error(e); } }); }
   });
@@ -1460,7 +1710,7 @@ body:has(> .tour-switch) .main { padding-top: 62px; }
   async function refreshMe() {
     const r = await api('GET', '/api/me');
     KAL.me = r.me; KAL.family = r.family; KAL.ai = r.ai || { enabled: false, left: 0 };
-    if (!r.me.viewing) KAL.recent.remember(KAL.token, r.family.name, r.me.name); // the owner viewing leaves no trace on this device's list
+    if (!r.me.viewing && !r.me.care) KAL.recent.remember(KAL.token, r.family.name, r.me.name); // the owner viewing (or a Care board) leaves no trace on this device's list
     KAL.emit('me', r.me);
     return r;
   }
@@ -1469,7 +1719,7 @@ body:has(> .tour-switch) .main { padding-top: 62px; }
     KAL.me = { id: 'demo-me', name: 'Maya', role: 'owner', viewing: false, memberId: 'dm-maya', demo: true };
     KAL.family = { id: 'demo', name: 'The Santos family' };
   }
-  KAL.ready = KAL.token ? refreshMe().catch((e) => { KAL.invalid = e; if (e.status === 401) KAL.recent.forget(KAL.token); }) : Promise.resolve();
+  KAL.ready = KAL.token ? refreshMe().catch((e) => { KAL.invalid = e; if (e.status === 401 && !KAL.care) KAL.recent.forget(KAL.token); }) : Promise.resolve();
 
   window.claude = {
     use: async (name) => {
@@ -1478,7 +1728,7 @@ body:has(> .tour-switch) .main { padding-top: 62px; }
       const canEdit = KAL.me.role !== 'viewer';
       if (name === 'db') return db;
       if (name === 'user') return { id: async () => KAL.me.id, isOwner: () => KAL.me.role === 'owner', canEdit: () => canEdit };
-      if (name === 'sample') return KAL.ai.enabled && canEdit && !demo ? sample : null; // no AI in the demo
+      if (name === 'sample') return KAL.ai.enabled && canEdit && !demo && !KAL.care ? sample : null; // no AI in the demo
       if (name === 'assets') return demo ? demoAssets : canEdit ? assets : null;
       if (name === 'downloads') return downloads;
       return null;
@@ -1607,7 +1857,8 @@ body:has(> .tour-switch) .main { padding-top: 62px; }
       { id: 'notes',    label: 'Notes',    icon: 'note',     ready: true },
       { id: 'photos',   label: 'Photos',   icon: 'image',    ready: true },
       { id: 'family',   label: 'People',   icon: 'users',    ready: true },
-      { id: 'settings', label: 'Settings', icon: 'settings', ready: true }
+      { id: 'settings', label: 'Settings', icon: 'settings', ready: true },
+      { id: 'care',     label: 'Care',     icon: 'pill',     ready: true } // last; a home can hide it (Settings → Care)
     ]
   };
   // Lists that use `id` also get `value`, so they can feed selectors directly.
@@ -1685,7 +1936,11 @@ body:has(> .tour-switch) .main { padding-top: 62px; }
     wifioff: 'M4 4l16 16M5 10.500a11 11 0 015.500-2.800M9 14.500a6 6 0 013.500-1.200M12 18.500h.01',
     sparkle: 'M12 4l1.800 4.700L18.500 10.500l-4.700 1.800L12 17l-1.800-4.700L5.500 10.500l4.700-1.800zM18.500 4v3M20 5.500h-3',
     search: 'M11 5a6 6 0 100 12 6 6 0 000-12zM20 20l-4.500-4.500',
-    table: 'M4 5h16v14H4zM4 10h16M4 15h16M10 5v14M15 5v14'
+    table: 'M4 5h16v14H4zM4 10h16M4 15h16M10 5v14M15 5v14',
+    pill: 'M10.6 19.4a4.5 4.5 0 01-6.4-6.4l8.4-8.4a4.5 4.5 0 016.4 6.4zM8.4 8.8l6.8 6.8',
+    heart: 'M12 20s-7-4.400-7-10a4 4 0 017-2.600A4 4 0 0119 10c0 5.600-7 10-7 10z',
+    minus: 'M5 12h14',
+    help: 'M12 21a9 9 0 100-18 9 9 0 000 18zM9.500 9.500a2.500 2.500 0 114 2c-1 .6-1.500 1.100-1.500 2.200M12 17h.01'
   };
   function icon(name, extraClass) {
     const NS = 'http://www.w3.org/2000/svg';
@@ -2222,6 +2477,7 @@ body:has(> .tour-switch) .main { padding-top: 62px; }
  *   PL.store.*          the only functions that write family data
  *
  * Database layout:  members/{id}   events/{id}   chores/{id}   completions/{id}   settings/main
+ *   Care (client/care):  meds/{id}   doses/{med~date~time}   carelog/{id}
  * Per-device preferences (layout, text size, hidden people) are NOT in the database.
  */
 (function () {
@@ -2229,8 +2485,8 @@ body:has(> .tour-switch) .main { padding-top: 62px; }
   const C = PL.config;
 
   // Extra collections that are loaded, cached and written the same way.
-  const COLLS = ['chores', 'completions', 'routines', 'rlogs', 'rewards', 'redemptions', 'lists', 'listitems', 'recipes', 'meals', 'countdowns', 'photos', 'holidays', 'notes'];
-  const MODEL = { chores: 'chore', completions: 'completion', routines: 'routine', rlogs: 'rlog', rewards: 'reward', redemptions: 'redemption', lists: 'list', listitems: 'listitem', recipes: 'recipe', meals: 'meal', countdowns: 'countdown', photos: 'photo', holidays: 'holiday', notes: 'note' };
+  const COLLS = ['chores', 'completions', 'routines', 'rlogs', 'rewards', 'redemptions', 'lists', 'listitems', 'recipes', 'meals', 'countdowns', 'photos', 'holidays', 'notes', 'meds', 'doses', 'carelog'];
+  const MODEL = { chores: 'chore', completions: 'completion', routines: 'routine', rlogs: 'rlog', rewards: 'reward', redemptions: 'redemption', lists: 'list', listitems: 'listitem', recipes: 'recipe', meals: 'meal', countdowns: 'countdown', photos: 'photo', holidays: 'holiday', notes: 'note', meds: 'med', doses: 'dose', carelog: 'carelog' };
 
   const state = (PL.state = {
     ready: false,        // first render can happen
@@ -2242,7 +2498,7 @@ body:has(> .tour-switch) .main { padding-top: 62px; }
     uid: null,
     members: [],
     events: [],
-    chores: [], completions: [], routines: [], rlogs: [], rewards: [], redemptions: [], lists: [], listitems: [], recipes: [], meals: [], countdowns: [], photos: [], holidays: [], notes: [],
+    chores: [], completions: [], routines: [], rlogs: [], rewards: [], redemptions: [], lists: [], listitems: [], recipes: [], meals: [], countdowns: [], photos: [], holidays: [], notes: [], meds: [], doses: [], carelog: [],
     settings: Object.assign({}, C.householdDefaults),
     device: {}
   });
@@ -2939,7 +3195,8 @@ body:has(> .tour-switch) .main { padding-top: 62px; }
       meals: PL.state.meals,
       countdowns: PL.state.countdowns,
       holidays: PL.state.holidays,
-      notes: PL.state.notes
+      notes: PL.state.notes,
+      meds: PL.state.meds, doses: PL.state.doses, carelog: PL.state.carelog // Care (client/care)
     };
   }
   async function saveBackup() {
@@ -2988,7 +3245,7 @@ body:has(> .tour-switch) .main { padding-top: 62px; }
     for (const c of obj.completions || []) {
       if (safeId(c.id)) { if (!(await PL.store.setDoc('completions/' + c.id, PL.models.completion(c)))) return false; }
     }
-    for (const [col, kind] of [['routines', 'routine'], ['rlogs', 'rlog'], ['rewards', 'reward'], ['redemptions', 'redemption'], ['lists', 'list'], ['listitems', 'listitem'], ['recipes', 'recipe'], ['meals', 'meal'], ['countdowns', 'countdown'], ['holidays', 'holiday'], ['notes', 'note']]) {
+    for (const [col, kind] of [['routines', 'routine'], ['rlogs', 'rlog'], ['rewards', 'reward'], ['redemptions', 'redemption'], ['lists', 'list'], ['listitems', 'listitem'], ['recipes', 'recipe'], ['meals', 'meal'], ['countdowns', 'countdown'], ['holidays', 'holiday'], ['notes', 'note'], ['meds', 'med'], ['doses', 'dose'], ['carelog', 'carelog']]) {
       for (const x of obj[col] || []) {
         const doc = PL.models[kind](x);
         if (safeId(x.id)) { if (!(await PL.store.setDoc(col + '/' + x.id, doc))) return false; }
@@ -4270,12 +4527,12 @@ body:has(> .tour-switch) .main { padding-top: 62px; }
     KAL.recent.forget(KAL.token);
     PL.landing.mount({ note: msg || 'This link does not work anymore. You may have been removed from the family, or the family was deleted. Ask an owner for a new invite.' });
   }
-  KAL.on('people', loadPeople);
-  KAL.on('me', () => { showRole(); loadPeople(); });
-  KAL.on('removed', () => removedScreen());
+  KAL.on('people', () => { if (!KAL.care) loadPeople(); });
+  KAL.on('me', () => { if (KAL.care) return; showRole(); loadPeople(); });
+  KAL.on('removed', () => (KAL.care ? PL.careBoard.gone() : removedScreen()));
 
   function start() {
-    if (!KAL.token) return;
+    if (!KAL.token || KAL.care) return; // a Care board link has its own screen (client/care)
     KAL.ready.then(() => {
       if (KAL.invalid) { if (KAL.invalid.status === 401) removedScreen(); return; }
       showRole(); loadPeople();
@@ -4383,7 +4640,7 @@ body:has(> .tour-switch) .main { padding-top: 62px; }
 
   let waiting = false;
   function start() {
-    if (!KAL.token) return;
+    if (!KAL.token || KAL.care) return;
     KAL.ready.then(() => {
       if (KAL.invalid || !KAL.me) return;
       if (check()) return;
@@ -4517,7 +4774,26 @@ body:has(> .tour-switch) .main { padding-top: 62px; }
       weatherPlace: { name: 'Vancouver', lat: 49.28, lon: -123.12 },
       holidaySets: [{ key: 'CA-BC', name: 'British Columbia', full: 'Canada · British Columbia', flag: '🇨🇦', years: [y, y + 1], auto: true }] };
     [y, y + 1].forEach((yy) => bcHolidays(yy).forEach(([date, title]) => put('holidays', 'holiday', 'CA-BC~' + date + '~1', { date, title, set: 'CA-BC' })));
+    settings.care = { on: true, people: ['dm-nana'] };
     out.settings = [{ id: 'main', data: settings }];
+
+    // Care: Nana Rosa's medicines (client/care). Pills taken the last few days; Amlodipine is running low.
+    // An ISO moment for "day key, HH:MM" on the home's clock (the demo home is in Vancouver).
+    const hp = {}; new Intl.DateTimeFormat('en-US', { timeZone: settings.timeZone, hourCycle: 'h23', year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric' }).formatToParts(new Date()).forEach((x) => { hp[x.type] = +x.value; });
+    const homeToday = hp.year + '-' + D.pad(hp.month) + '-' + D.pad(hp.day), homeNow = hp.hour * 60 + hp.minute, ht = (n) => D.addDays(homeToday, n);
+    const iso = (key, time) => { const [hh, mm] = time.split(':').map(Number); return new Date(Date.now() + (D.diff(homeToday, key) * 1440 + hh * 60 + mm - homeNow) * 60000).toISOString(); };
+    const nowMin = homeNow;
+    const meds = [['dmm1', { name: 'Amlodipine', kind: 'bp', times: ['08:00'], each: 1, count: 6, box: 30, helper: 'dm-maya', remind: 3, food: 'after' }],
+      ['dmm2', { name: 'Vitamin D', kind: 'vit', times: ['08:00'], each: 1, count: 33, box: 60 }],
+      ['dmm3', { name: 'Atorvastatin', kind: 'chol', times: ['20:00'], each: 1, count: 25, box: 30 }]];
+    meds.forEach(([id, m]) => put('meds', 'med', id, Object.assign({ who: 'dm-nana', start: ht(-40), countAt: iso(ht(-4), '06:00'), added: iso(ht(-40), '06:00'), checked: true }, m)));
+    for (let k = -4; k <= 0; k++) meds.forEach(([id, m]) => m.times.forEach((time) => {
+      const [hh, mm] = time.split(':').map(Number);
+      if (k === 0 && nowMin < hh * 60 + mm + 200) return; // today: only times long past (so the demo can show "time for your pills")
+      if (k === -2 && time === '20:00') return; // one missed night, for the history (older than a day: no alert)
+      const by = k === -3 && time === '08:00' ? 'dm-maya' : 'board';
+      put('doses', 'dose', id + '~' + ht(k) + '~' + time.replace(':', ''), { who: 'dm-nana', med: id, date: ht(k), time, status: 'taken', at: iso(ht(k), D.pad(hh) + ':' + D.pad(mm + 6)), by });
+    }));
 
     // Chores, with ticks over the last two weeks
     const daily = { freq: 'daily', interval: 1, end: { type: 'never' } };
@@ -4756,7 +5032,7 @@ body:has(> .tour-switch) .main { padding-top: 62px; }
     function show(n) {
       i = Math.max(0, Math.min(steps.length - 1, n));
       const s = steps[i];
-      target = s.target ? [...document.querySelectorAll(s.target)] : null;
+      target = s.target ? [...document.querySelectorAll(s.target)].filter((x) => !x.closest('[hidden]')) : null; // hidden parts (like Care when it is off) are skipped
       if (target && !target.length) target = null;
       if (s.target && !target) return show(i + 1 < steps.length ? i + 1 : i);
       const dots = h('div', { class: 'g-dots', 'aria-hidden': 'true' }, steps.map((_, k) => h('i', { class: k === i ? 'on' : k < i ? 'done' : '' })));
@@ -4866,9 +5142,20 @@ body:has(> .tour-switch) .main { padding-top: 62px; }
       { id: 'h-wall', target: '.quick .btn:not(.primary)', side: 'below', pad: 8, icon: icon('expand'), title: 'Wall mode',
         body: [h('p', {}, 'Turn a tablet or old screen into a ', h('b', {}, 'family board'), ' with a big clock, today and chores.')] },
       { id: 'h-nav', target: '.nav', side: 'right', icon: icon('list'), title: 'Your pages',
-        body: [h('p', {}, 'Go to ', h('b', {}, 'Calendar, Chores, Meals, Lists, Photos and People'), ' here. Each page has its own short tour.')] },
+        body: [h('p', {}, 'Go to ', h('b', {}, 'Calendar, Chores, Meals, Lists, Photos, People and Care'), ' here. Each page has its own short tour.')] },
+      { id: 'h-care', target: '.nav .nav-btn[data-screen="care"]', side: 'right', icon: icon('pill'), title: 'Care',
+        body: [h('p', {}, 'Help someone at home take their ', h('b', {}, 'medicines on time'), ': a grandparent, a parent, or a child who is sick.'),
+          h('p', {}, 'Their own tablet shows a big, simple pill box. Not for you? Hide it in ', h('b', {}, 'Settings → Care'), '.')] },
       { id: 'h-switch', target: '.tour-switch', side: 'below', pad: 6, icon: svg(COMPASS), title: 'Turn tours on or off',
         body: [h('p', {}, 'Tap ', h('b', {}, 'Guided tour'), ' to stop these tours. Turn it back on any time to see them again.')], next: 'Got it' }
+    ],
+    care: () => [
+      { id: 'c-welcome', center: true, icon: icon('pill'), tone: 'sun', title: 'This is Care', sub: 'Medicines on time, for someone at home.',
+        body: [h('p', {}, 'Add their medicines here. You see what they took and when, and what is running low.')] },
+      { id: 'c-add', target: '.care-page .page-head .btn.primary, .care-intro .btn.primary', side: 'below', pad: 8, icon: icon('plus'), title: 'Add a medicine',
+        body: [h('p', {}, 'Four short steps: what it is for, the name, when to take it, and how many pills you have.')] },
+      { id: 'c-board', target: '.care-boardcard', side: 'above', icon: icon('home'), title: 'Their own Care board',
+        body: [h('p', {}, 'Tap ', h('b', {}, 'Set up on a tablet'), ' and scan the code with their tablet. It shows only the pill box and an “I need help” button.')], next: 'Got it' }
     ]
   };
   function pageTour(id) {
@@ -5131,7 +5418,7 @@ body:has(> .tour-switch) .main { padding-top: 62px; }
   ];
   PL.help = HelpUI.create({
     app: 'Kalendaryo',
-    ready: () => !!(KAL.demo || (KAL.token && KAL.me && !KAL.me.viewing)),
+    ready: () => !!(KAL.demo || (KAL.token && KAL.me && !KAL.me.viewing && !KAL.me.care)),
     demo: KAL.demo ? DEMO : null,
     get: () => KAL.api('GET', '/api/help'),
     unread: () => KAL.api('GET', '/api/help/unread'),
@@ -6729,12 +7016,21 @@ body:has(> .tour-switch) .main { padding-top: 62px; }
       if (e.key !== 'Escape' || document.querySelector('.sheet-wrap')) return;
       if (arranging) finishArrange(); else if (kid.isOpen()) kid.close(); else close();
     }
+    // Leaving full screen (swipe down on an iPad, Esc, the browser's own button) closes Wall mode and goes Home,
+    // but only if Wall mode was really in full screen (phones that can't go full screen are not affected).
+    let wasFull = false;
+    function onFull() {
+      const fs = document.fullscreenElement || document.webkitFullscreenElement;
+      if (fs === root) { wasFull = true; return; }
+      if (!fs && wasFull && root.isConnected) { wasFull = false; close(); if (PL.nav) PL.nav.go('home'); }
+    }
     const soon = () => { clearTimeout(renderT); renderT = setTimeout(() => { if (root.querySelector('.dragging, .resizing')) return soon(); paint(); nextPhotoIfBlank(); }, 250); };
     function close() {
       timers.forEach((t) => (t && t.stop ? t.stop() : clearInterval(t))); clearTimeout(idleT); clearTimeout(renderT); kid.close();
       document.removeEventListener('keydown', onKey); removeEventListener('resize', soon);
+      document.removeEventListener('fullscreenchange', onFull); document.removeEventListener('webkitfullscreenchange', onFull);
       try { if (lock) lock.release(); } catch (e) { /* ignore */ }
-      try { if (document.fullscreenElement) document.exitFullscreen(); } catch (e) { /* ignore */ }
+      try { if (document.fullscreenElement) document.exitFullscreen(); else if (document.webkitFullscreenElement && document.webkitExitFullscreen) document.webkitExitFullscreen(); } catch (e) { /* ignore */ }
       root.remove(); unsub(); PL.theme.setWall(false);
     }
     const unsub = PL.store.subscribe(soon);
@@ -6742,10 +7038,14 @@ body:has(> .tour-switch) .main { padding-top: 62px; }
     PL.theme.setWall(true);
     root.addEventListener('pointerdown', wake); root.addEventListener('mousemove', wake);
     document.addEventListener('keydown', onKey); addEventListener('resize', soon);
+    document.addEventListener('fullscreenchange', onFull); document.addEventListener('webkitfullscreenchange', onFull);
     paint(); nextPhoto(); wake(); closeBtn.focus();
     const stopClock = PL.clock.start(tick); // every second, and right away when the screen wakes up
     timers.push({ stop: stopClock }, setInterval(() => { if (!kid.isOpen() && !arranging) paint(); }, 60000), setInterval(nextPhoto, 12000));
-    try { if (root.requestFullscreen) { const p = root.requestFullscreen(); if (p && p.catch) p.catch(() => {}); } } catch (e) { /* ignore */ }
+    try {
+      if (root.requestFullscreen) { const p = root.requestFullscreen(); if (p && p.catch) p.catch(() => {}); }
+      else if (root.webkitRequestFullscreen) root.webkitRequestFullscreen();
+    } catch (e) { /* ignore */ }
     try { if (navigator.wakeLock) navigator.wakeLock.request('screen').then((l) => { lock = l; }).catch(() => {}); } catch (e) { /* ignore */ }
     return { close, openKid: kid.show, arrange: startArrange };
   }
@@ -6903,7 +7203,7 @@ body:has(> .tour-switch) .main { padding-top: 62px; }
       function render() {
         const members = PL.state.members;
         el.replaceChildren(
-          h('header', { class: 'page-head' }, h('h1', {}, 'People'), ui.button('Add person', { variant: 'primary', big: true, icon: 'plus', onClick: () => openForm() })),
+          h('header', { class: 'page-head' }, h('h1', {}, 'Family'), ui.button('Add person', { variant: 'primary', big: true, icon: 'plus', onClick: () => openForm() })),
           members.length
             ? h('div', { class: 'family-grid' }, members.map((m) => h('button', { type: 'button', class: 'family-card', style: '--c:' + m.color, onclick: () => openMember(m.id) },
                 ui.avatar(m, 64), h('strong', {}, m.name), h('span', { class: 'sub' }, roleLabel(m.role)))))
@@ -6992,7 +7292,7 @@ body:has(> .tour-switch) .main { padding-top: 62px; }
       ui.field('Name', title),
       h('div', { class: 'field' }, h('span', { class: 'field-label' }, 'When'), when.el),
       h('div', { class: 'field' }, h('span', { class: 'field-label' }, 'Who does it?'),
-        members.length ? peopleBox : h('p', { class: 'hint' }, 'Add people in the People section to give routines to people.'),
+        members.length ? peopleBox : h('p', { class: 'hint' }, 'Add family members in the Family section to give routines to people.'),
         h('p', { class: 'hint' }, members.length ? 'Leave empty for anyone. Pick several and each person gets their own checklist.' : '')),
       h('div', { class: 'field' }, h('span', { class: 'field-label' }, 'Days'), dayBox),
       ui.field('Steps', steps, 'One step per line, in order.'),
@@ -7289,7 +7589,7 @@ body:has(> .tour-switch) .main { padding-top: 62px; }
     const body = h('form', { class: 'event-form', onsubmit: (e) => { e.preventDefault(); save(); } },
       ui.field('What needs doing?', title),
       h('div', { class: 'field' }, h('span', { class: 'field-label' }, 'Who does it?'),
-        members.length ? peopleBox : h('p', { class: 'hint' }, 'Add people in the People section to give chores to people.'),
+        members.length ? peopleBox : h('p', { class: 'hint' }, 'Add family members in the Family section to give chores to people.'),
         h('p', { class: 'hint' }, members.length ? 'Leave empty for anyone. Pick several and each person gets their own tick.' : '')),
       dateField,
       h('div', { class: 'field' }, ui.field('Repeat', repSel), wdBox),
@@ -8980,7 +9280,9 @@ body:has(> .tour-switch) .main { padding-top: 62px; }
         // balanced columns (each card goes under the shortest column), so there are no big gaps.
         // Help & ideas (web version): a way to reach the team, mostly for phones where the side menu is a bottom bar.
         const helpCard = PL.help ? section('Help & ideas', 'Ask for help, report a problem, or share an idea with the Kalendaryo team.', PL.help.button('btn help-open')) : null;
-        const cards = [appearance, helpCard, household, pinCard, wxCard, device, layout, PL.wall.card(), data, about];
+        // Care (client/care): two cards near the bottom, "Care" and "Tell the family".
+        const careCards = PL.careUi ? PL.careUi.settingsCards() : [];
+        const cards = [appearance, helpCard, household, pinCard, wxCard, device, layout, PL.wall.card(), ...careCards, data, about];
         el.replaceChildren(h('header', { class: 'page-head' }, h('h1', {}, 'Settings')), masonry.wrap);
         masonry.set(cards.filter(Boolean));
       }
@@ -8990,6 +9292,1257 @@ body:has(> .tour-switch) .main { padding-top: 62px; }
   };
 })();
 
+
+</script>
+<script>
+/*
+ * care/care-data.js — Care: medicines for someone at home. The data and the rules, no screens.
+ *
+ *   meds/{id}     { who, name, kind, times:['08:00','20:00'], each, count, countAt, box, start, days, food, helper, remind, addedBy, checked, stopped }
+ *                 count = pills left at the moment countAt. Pills taken after that are counted from doses.
+ *   doses/{id}    { who, med, date, time, status: taken|late|skipped, at, by }   id = med~date~0800 (one per pill time)
+ *   carelog/{id}  { who, kind, med, name, text, at, by }   help, added, bought, taken, late, skipped, snooze, remind, reply, gave
+ *
+ * Kalendaryo is a reminder helper, not a medical device: doses and times always come from the family.
+ * Care lives in its own folder (client/care), so it can become its own app later.
+ */
+(function () {
+  const PL = (window.PL = window.PL || {});
+  const D = PL.D;
+  const text = (v, n) => String(v == null ? '' : v).replace(/[\u0000-\u001f]/g, ' ').trim().slice(0, n);
+  const isKey = (v) => typeof v === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(v);
+  const isTime = (v) => typeof v === 'string' && /^([01]\d|2[0-3]):[0-5]\d$/.test(v);
+  const num = (v, lo, hi, d) => { const n = Number(v); return Number.isFinite(n) ? Math.min(hi, Math.max(lo, n)) : d; };
+
+  /* ---------- what the medicine is for, and common names (generic names, most used first) ---------- */
+  const KINDS = [
+    { id: 'bp', emoji: '❤️', label: 'Blood pressure', names: ['Amlodipine', 'Losartan', 'Lisinopril', 'Metoprolol', 'Telmisartan', 'Valsartan', 'Hydrochlorothiazide', 'Ramipril'] },
+    { id: 'sugar', emoji: '🩸', label: 'Sugar', names: ['Metformin', 'Gliclazide', 'Glimepiride', 'Sitagliptin', 'Empagliflozin', 'Dapagliflozin', 'Linagliptin', 'Insulin'] },
+    { id: 'chol', emoji: '🧈', label: 'Cholesterol', names: ['Atorvastatin', 'Rosuvastatin', 'Simvastatin', 'Pravastatin', 'Ezetimibe'] },
+    { id: 'heart', emoji: '💓', label: 'Heart', names: ['Bisoprolol', 'Carvedilol', 'Digoxin', 'Isosorbide', 'Amiodarone', 'Nitroglycerin'] },
+    { id: 'thin', emoji: '🩹', label: 'Blood thinner', names: ['Aspirin', 'Clopidogrel', 'Apixaban', 'Rivaroxaban', 'Warfarin', 'Dabigatran'] },
+    { id: 'thyroid', emoji: '🦋', label: 'Thyroid', names: ['Levothyroxine', 'Methimazole'] },
+    { id: 'stomach', emoji: '🫃', label: 'Stomach', names: ['Omeprazole', 'Pantoprazole', 'Esomeprazole', 'Famotidine', 'Lansoprazole'] },
+    { id: 'water', emoji: '💧', label: 'Water pill', names: ['Furosemide', 'Hydrochlorothiazide', 'Spironolactone', 'Indapamide', 'Torsemide'] },
+    { id: 'bones', emoji: '🦴', label: 'Bones & joints', names: ['Calcium', 'Vitamin D', 'Alendronate', 'Allopurinol', 'Colchicine', 'Glucosamine'] },
+    { id: 'mind', emoji: '🧠', label: 'Memory & mood', names: ['Donepezil', 'Memantine', 'Sertraline', 'Escitalopram', 'Citalopram', 'Mirtazapine'] },
+    { id: 'breath', emoji: '🫁', label: 'Breathing', names: ['Salbutamol inhaler', 'Tiotropium inhaler', 'Budesonide inhaler', 'Fluticasone inhaler', 'Montelukast'] },
+    { id: 'bladder', emoji: '🚻', label: 'Bladder', names: ['Tamsulosin', 'Finasteride', 'Oxybutynin', 'Mirabegron', 'Solifenacin'] },
+    { id: 'eyes', emoji: '👁️', label: 'Eye drops', names: ['Latanoprost', 'Timolol', 'Artificial tears', 'Brimonidine', 'Dorzolamide'] },
+    { id: 'pain', emoji: '😴', label: 'Sleep & pain', names: ['Acetaminophen', 'Gabapentin', 'Pregabalin', 'Melatonin', 'Celecoxib', 'Tramadol'] },
+    { id: 'vit', emoji: '🌿', label: 'Vitamins', names: ['Vitamin D', 'Vitamin B12', 'Calcium', 'Multivitamin', 'Fish oil', 'Iron', 'Folic acid', 'Magnesium'] },
+    { id: 'other', emoji: '💊', label: 'Other', names: [] }
+  ];
+  const kind = (id) => KINDS.find((k) => k.id === id) || KINDS[KINDS.length - 1];
+
+  /* ---------- data shapes (cleaned before saving, like the rest of the app) ---------- */
+  const models = {
+    med(d) {
+      const times = [...new Set((Array.isArray(d.times) ? d.times : []).filter(isTime))].sort();
+      return {
+        who: text(d.who, 120),
+        name: text(d.name, 60) || kind(d.kind).label + ' pill',
+        kind: kind(d.kind).id,
+        times: times.length ? times : ['08:00'],
+        each: num(d.each, 0.25, 10, 1),
+        count: Math.round(num(d.count, 0, 9999, 0) * 100) / 100,
+        countAt: typeof d.countAt === 'string' && d.countAt ? d.countAt.slice(0, 30) : new Date().toISOString(),
+        box: Math.round(num(d.box, 1, 1000, 30)),
+        start: isKey(d.start) ? d.start : D.today(),
+        days: d.days ? Math.round(num(d.days, 1, 365, 7)) : null,
+        food: ['with', 'before', 'after'].includes(d.food) ? d.food : '',
+        helper: text(d.helper, 120),
+        remind: Math.round(num(d.remind, 0, 14, 2)),
+        addedBy: d.addedBy === 'board' ? 'board' : '',
+        added: typeof d.added === 'string' && d.added ? d.added.slice(0, 30) : new Date().toISOString(),
+        checked: !!d.checked,
+        stopped: !!d.stopped
+      };
+    },
+    dose(d) {
+      return { who: text(d.who, 120), med: text(d.med, 120), date: isKey(d.date) ? d.date : D.today(), time: isTime(d.time) ? d.time : '08:00',
+        status: ['taken', 'late', 'skipped'].includes(d.status) ? d.status : 'taken', at: typeof d.at === 'string' ? d.at.slice(0, 30) : new Date().toISOString(), by: text(d.by, 120) || 'board' };
+    },
+    carelog(d) {
+      const out = { who: text(d.who, 120), kind: text(d.kind, 20), at: typeof d.at === 'string' ? d.at.slice(0, 30) : new Date().toISOString(), by: text(d.by, 120) || 'board' };
+      if (d.med) out.med = text(d.med, 120);
+      if (d.name) out.name = text(d.name, 60);
+      if (d.text) out.text = text(d.text, 200);
+      if (d.time) out.time = isTime(d.time) ? d.time : '';
+      if (d.date) out.date = isKey(d.date) ? d.date : '';
+      return out;
+    }
+  };
+  PL.models = PL.models || {};
+  Object.assign(PL.models, models);
+
+  /* ---------- settings (settings/main → care) ---------- */
+  const ALERTS = { late: true, low: true, help: true, offline: true, added: true, quiet: false };
+  const BOARD = { sound: true, ring: true, awake: true, letAdd: true };
+  function settings() {
+    const c = (PL.state.settings && PL.state.settings.care) || {};
+    return { on: c.on !== false, people: Array.isArray(c.people) ? c.people : [], show: c.show === 'adults' ? 'adults' : 'all',
+      alerts: Object.assign({}, ALERTS, c.alerts || {}), boards: c.boards || {} };
+  }
+  const boardSettings = (who) => Object.assign({}, BOARD, settings().boards[who] || {});
+  function saveCare(patch) {
+    const c = Object.assign({}, (PL.state.settings && PL.state.settings.care) || {}, patch);
+    return PL.store.saveSettings({ care: c });
+  }
+  function saveBoard(who, patch) {
+    const boards = Object.assign({}, settings().boards);
+    boards[who] = Object.assign({}, boardSettings(who), patch);
+    return saveCare({ boards });
+  }
+  // People who get care: chosen in Settings, plus anyone with a medicine.
+  function people() {
+    const ids = new Set(settings().people);
+    PL.state.meds.forEach((m) => { if (!m.stopped) ids.add(m.who); });
+    return PL.state.members.filter((m) => ids.has(m.id));
+  }
+  // Can the person using this device see Care? (Settings → Care → Who can see it)
+  function canSee() {
+    const s = settings();
+    if (!s.on) return false;
+    if (s.show === 'adults' && window.KAL && KAL.me && KAL.me.memberId) {
+      const m = PL.store.member(KAL.me.memberId);
+      if (m && m.role === 'child') return false;
+    }
+    return true;
+  }
+
+  /* ---------- pills and times ---------- */
+  const hm = (t) => { const [a, b] = t.split(':').map(Number); return a * 60 + b; };
+  const timeId = (t) => t.replace(':', '');
+  const doseId = (medId, date, time) => medId + '~' + date + '~' + timeId(time);
+  function activeOn(m, date) {
+    if (m.stopped || date < m.start) return false;
+    if (m.days && date >= D.addDays(m.start, m.days)) return false;
+    return true;
+  }
+  const medsOf = (who) => PL.state.meds.filter((m) => m.who === who);
+  // An ISO time as the home's clock: { date, min, hm } (the home's time zone, Settings).
+  function local(iso) { const d = PL.now(Date.parse(iso)); return { date: D.key(d), min: d.getHours() * 60 + d.getMinutes(), hm: D.pad(d.getHours()) + ':' + D.pad(d.getMinutes()) }; }
+  // A medicine added today only counts from the time it was added (no "late" for 8 AM when it was added at noon).
+  const counts = (m, date, time) => { if (!m.added || date !== m.start) return true; const a = local(m.added); return a.date !== date || hm(time) >= a.min - 1; };
+  const medsAt = (who, date, time) => medsOf(who).filter((m) => activeOn(m, date) && m.times.includes(time) && counts(m, date, time));
+  // The pill times (rows of the pill box) for a person: every time used by a medicine they take now.
+  function times(who) {
+    const today = D.today(), set = new Set();
+    medsOf(who).forEach((m) => { if (!m.stopped && (activeOn(m, today) || m.start > today)) m.times.forEach((t) => set.add(t)); });
+    return [...set].sort();
+  }
+  function slotName(t) { const h = hm(t) / 60; return h < 11 ? 'morning' : h < 15 ? 'midday' : h < 18 ? 'afternoon' : 'night'; }
+  function rowLabel(t) { const h = hm(t) / 60; return h < 11 ? 'AM' : h < 15 ? 'Noon' : h < 18 ? 'PM' : 'PM'; }
+  const clock = (t) => { const [a, b] = t.split(':').map(Number); const h12 = PL.state.settings.hour12 !== false; if (!h12) return t; return (a % 12 || 12) + (b ? ':' + D.pad(b) : '') + (a < 12 ? ' AM' : ' PM'); };
+  const clockFull = (t) => { const [a, b] = t.split(':').map(Number); const h12 = PL.state.settings.hour12 !== false; if (!h12) return t; return (a % 12 || 12) + ':' + D.pad(b) + (a < 12 ? ' AM' : ' PM'); };
+  const nowParts = () => { const n = PL.now(); return { date: D.key(n), min: n.getHours() * 60 + n.getMinutes() }; };
+  const dosesOf = (who) => PL.state.doses.filter((d) => d.who === who);
+  const doseFor = (medId, date, time) => PL.state.doses.find((d) => d.med === medId && d.date === date && d.time === time) || null;
+
+  const MISS_AFTER = 180;  // minutes: after 3 hours a pill time is "missed" and the board asks about it
+  const LATE_ALERT = 30;   // minutes: the family is told after 30 minutes
+  // State of one pill time on one day: null (nothing), 'future', 'now', 'miss', 'gone' (old and never marked), 'ok', 'skip'.
+  function slotState(who, date, time, at) {
+    const meds = medsAt(who, date, time);
+    if (!meds.length) return null;
+    const marks = meds.map((m) => doseFor(m.id, date, time));
+    if (marks.every(Boolean)) return marks.every((d) => d.status === 'skipped') ? 'skip' : 'ok';
+    const n = at || nowParts();
+    if (date > n.date || (date === n.date && hm(time) > n.min)) return 'future';
+    const late = (D.diff(date, n.date) * 1440) + n.min - hm(time); // minutes since the pill time
+    if (late >= 1440 + 180) return 'gone';
+    return late >= MISS_AFTER ? 'miss' : 'now';
+  }
+  const minutesLate = (date, time) => { const n = nowParts(); return D.diff(date, n.date) * 1440 + n.min - hm(time); };
+  // What the board should show first: a missed pill time (ask about it), then the one due now.
+  function focus(who) {
+    const n = nowParts(), list = [];
+    [D.addDays(n.date, -1), n.date].forEach((date) => times(who).forEach((t) => {
+      const st = slotState(who, date, t, n);
+      if (st === 'miss' || st === 'now') list.push({ date, time: t, state: st, meds: medsAt(who, date, t) });
+    }));
+    return list.find((x) => x.state === 'miss') || list.find((x) => x.state === 'now') || null;
+  }
+  function next(who) {
+    const n = nowParts();
+    for (let k = 0; k < 8; k++) {
+      const date = D.addDays(n.date, k);
+      for (const t of times(who)) if (slotState(who, date, t, n) === 'future') return { date, time: t, meds: medsAt(who, date, t) };
+    }
+    return null;
+  }
+
+  /* ---------- how many pills are left ---------- */
+  function left(m) {
+    const since = m.countAt || '';
+    const used = PL.state.doses.filter((d) => d.med === m.id && d.status !== 'skipped' && d.at > since).length * m.each;
+    return Math.max(0, Math.round((m.count - used) * 100) / 100);
+  }
+  const perDay = (m) => m.each * m.times.length;
+  function daysLeft(m) { const p = perDay(m); return p ? Math.floor(left(m) / p) : 99; }
+  // Short-term medicines: "Day 3 of 7"
+  function course(m, date) {
+    if (!m.days) return null;
+    const day = D.diff(m.start, date || D.today()) + 1;
+    return { day, of: m.days, last: D.addDays(m.start, m.days - 1) };
+  }
+  // Running low: the pills end within "remind" days (and it is not a short-term medicine ending anyway).
+  function low(m) {
+    if (m.stopped) return false;
+    const dl = daysLeft(m);
+    if (m.days) { const c = course(m); if (c && D.addDays(D.today(), dl) >= c.last) return false; }
+    return dl <= Math.max(1, m.remind || 2);
+  }
+  const runsOut = (m) => D.addDays(D.today(), daysLeft(m));
+
+  /* ---------- writing ---------- */
+  const by = () => (window.KAL && KAL.me && KAL.me.care ? 'board' : (window.KAL && KAL.me && KAL.me.memberId) || 'family');
+  async function mark(who, date, time, status, byWho) {
+    const meds = medsAt(who, date, time), at = new Date().toISOString(), b = byWho || by();
+    let ok = true;
+    for (const m of meds) {
+      if (doseFor(m.id, date, time)) continue;
+      ok = (await PL.store.setDoc('doses/' + doseId(m.id, date, time), models.dose({ who, med: m.id, date, time, status, at, by: b }))) && ok;
+    }
+    return ok;
+  }
+  async function unmark(who, date, time) {
+    let ok = true;
+    for (const m of medsAt(who, date, time)) if (doseFor(m.id, date, time)) ok = (await PL.store.deleteDoc('doses/' + doseId(m.id, date, time))) && ok;
+    return ok;
+  }
+  function log(who, k, extra) {
+    return PL.store.add('carelog', Object.assign({ who, kind: k, at: new Date().toISOString(), by: by() }, extra || {}));
+  }
+  // "I bought more": add pills, and start counting again from now.
+  async function bought(m, pills) {
+    const ok = await PL.store.set('meds', m.id, Object.assign({}, m, { count: left(m) + pills, countAt: new Date().toISOString() }));
+    if (ok) { log(m.who, 'bought', { med: m.id, name: m.name, text: String(pills) }); refillDone(m); }
+    return ok;
+  }
+
+  /* ---------- refill task in Chores (for the person who picks up refills) ---------- */
+  const refillId = (m) => 'refill-' + m.id;
+  function refillDone(m) {
+    if (window.KAL && KAL.me && KAL.me.care) return; // the board cannot touch chores; the family app cleans up
+    if (PL.state.chores.find((c) => c.id === refillId(m))) PL.store.deleteDoc('chores/' + refillId(m));
+  }
+  // Run by the family app: add "Pick up Amlodipine for Nana Rosa" to the helper's chores when it runs low,
+  // and remove it again when pills were bought. Safe to run on every phone (same id every time).
+  function syncRefills() {
+    if (!PL.state.live || (window.KAL && KAL.me && (KAL.me.care || KAL.me.viewing || KAL.me.role === 'viewer'))) return;
+    if (!settings().on) return;
+    PL.state.meds.forEach((m) => {
+      const has = PL.state.chores.find((c) => c.id === refillId(m));
+      if (m.helper && low(m) && !has && PL.store.member(m.helper)) {
+        const p = PL.store.member(m.who);
+        PL.store.setDoc('chores/' + refillId(m), PL.models.chore({ title: 'Pick up ' + m.name + (p ? ' for ' + p.name : ''), stars: 0, memberIds: [m.helper], date: D.today(), repeat: null }));
+      } else if (has && (!low(m) || m.stopped)) PL.store.deleteDoc('chores/' + refillId(m));
+    });
+  }
+
+  PL.care = Object.assign(PL.care || {}, {
+    KINDS, kind, settings, boardSettings, saveCare, saveBoard, people, canSee,
+    hm, local, doseId, activeOn, medsOf, medsAt, times, slotName, rowLabel, clock, clockFull, nowParts, dosesOf, doseFor,
+    slotState, minutesLate, focus, next, left, perDay, daysLeft, course, low, runsOut, MISS_AFTER, LATE_ALERT,
+    mark, unmark, log, bought, syncRefills, refillId
+  });
+})();
+
+</script>
+<script>
+/*
+ * care/qr.js — a small QR code maker (byte mode, error correction M, versions 1–10), so the family can
+ * scan the Care board link with the tablet's camera. No outside library and no network.
+ *   PL.qr.svg(text, size) -> <svg> element
+ * Based on the QR Code standard (ISO/IEC 18004): Reed–Solomon blocks, 8 masks, the lowest-penalty mask wins.
+ */
+(function () {
+  const PL = (window.PL = window.PL || {});
+
+  // Error correction M, versions 1–10: [ecc codewords per block, blocks in group 1, data cw per block g1, blocks g2, data cw per block g2]
+  const EC_M = [null, [10, 1, 16, 0, 0], [16, 1, 28, 0, 0], [26, 1, 44, 0, 0], [18, 2, 32, 0, 0], [24, 2, 43, 0, 0],
+    [16, 4, 27, 0, 0], [18, 4, 31, 0, 0], [22, 2, 38, 2, 39], [22, 3, 36, 2, 37], [26, 4, 43, 1, 44]];
+  const ALIGN = [null, [], [6, 18], [6, 22], [6, 26], [6, 30], [6, 34], [6, 22, 38], [6, 24, 42], [6, 26, 46], [6, 28, 50]];
+
+  // Galois field GF(256) with the QR polynomial 0x11d.
+  const EXP = new Array(512), LOG = new Array(256);
+  (function () { let x = 1; for (let i = 0; i < 255; i++) { EXP[i] = x; LOG[x] = i; x <<= 1; if (x & 256) x ^= 0x11d; } for (let i = 255; i < 512; i++) EXP[i] = EXP[i - 255]; })();
+  const mul = (a, b) => (a && b ? EXP[LOG[a] + LOG[b]] : 0);
+  function rsGen(n) { let g = [1]; for (let i = 0; i < n; i++) { const ng = new Array(g.length + 1).fill(0); for (let j = 0; j < g.length; j++) { ng[j] ^= g[j]; ng[j + 1] ^= mul(g[j], EXP[i]); } g = ng; } return g; }
+  function rsRem(data, n) {
+    const g = rsGen(n), r = new Array(n).fill(0);
+    for (const b of data) { const f = b ^ r[0]; r.shift(); r.push(0); for (let i = 0; i < n; i++) r[i] ^= mul(g[i + 1], f); }
+    return r;
+  }
+
+  function encode(text) {
+    const bytes = Array.from(new TextEncoder().encode(text));
+    let ver = 0;
+    for (let v = 1; v <= 10; v++) { const e = EC_M[v], cap = e[1] * e[2] + e[3] * e[4]; if (4 + (v < 10 ? 8 : 16) + bytes.length * 8 <= cap * 8) { ver = v; break; } }
+    if (!ver) throw new Error('Text is too long for a QR code.');
+    const e = EC_M[ver], capBytes = e[1] * e[2] + e[3] * e[4];
+    // data bits: mode 0100 (byte), length, bytes, terminator, pad
+    const bits = [];
+    const put = (v, n) => { for (let i = n - 1; i >= 0; i--) bits.push((v >>> i) & 1); };
+    put(4, 4); put(bytes.length, ver < 10 ? 8 : 16); bytes.forEach((b) => put(b, 8));
+    put(0, Math.min(4, capBytes * 8 - bits.length));
+    while (bits.length % 8) bits.push(0);
+    const data = [];
+    for (let i = 0; i < bits.length; i += 8) data.push(parseInt(bits.slice(i, i + 8).join(''), 2));
+    for (let p = 0; data.length < capBytes; p++) data.push(p % 2 ? 0x11 : 0xec);
+    // split into blocks, add error correction, interleave
+    const blocks = [];
+    let k = 0;
+    for (let i = 0; i < e[1]; i++) { blocks.push(data.slice(k, k + e[2])); k += e[2]; }
+    for (let i = 0; i < e[3]; i++) { blocks.push(data.slice(k, k + e[4])); k += e[4]; }
+    const ecc = blocks.map((b) => rsRem(b, e[0]));
+    const out = [];
+    const maxD = Math.max(e[2], e[4]);
+    for (let i = 0; i < maxD; i++) blocks.forEach((b) => { if (i < b.length) out.push(b[i]); });
+    for (let i = 0; i < e[0]; i++) ecc.forEach((b) => out.push(b[i]));
+    return { ver, codewords: out };
+  }
+
+  function matrix(text) {
+    const { ver, codewords } = encode(text);
+    const n = ver * 4 + 17;
+    const m = Array.from({ length: n }, () => new Array(n).fill(null)); // null = free, 0/1 = set
+    const fn = Array.from({ length: n }, () => new Array(n).fill(false)); // function patterns (no mask)
+    const set = (r, c, v) => { m[r][c] = v ? 1 : 0; fn[r][c] = true; };
+    // finder patterns + separators
+    [[0, 0], [0, n - 7], [n - 7, 0]].forEach(([r0, c0]) => {
+      for (let r = -1; r <= 7; r++) for (let c = -1; c <= 7; c++) {
+        const rr = r0 + r, cc = c0 + c;
+        if (rr < 0 || cc < 0 || rr >= n || cc >= n) continue;
+        const on = r >= 0 && r <= 6 && c >= 0 && c <= 6 && (r === 0 || r === 6 || c === 0 || c === 6 || (r >= 2 && r <= 4 && c >= 2 && c <= 4));
+        set(rr, cc, on);
+      }
+    });
+    // timing patterns
+    for (let i = 8; i < n - 8; i++) { set(6, i, i % 2 === 0); set(i, 6, i % 2 === 0); }
+    // alignment patterns
+    const al = ALIGN[ver];
+    const last = al.length - 1;
+    al.forEach((r, i) => al.forEach((c, j) => {
+      if ((i === 0 && j === 0) || (i === 0 && j === last) || (i === last && j === 0)) return; // those corners hold finder patterns
+      for (let dr = -2; dr <= 2; dr++) for (let dc = -2; dc <= 2; dc++) set(r + dr, c + dc, Math.max(Math.abs(dr), Math.abs(dc)) !== 1);
+    }));
+    // dark module + reserve format areas
+    set(n - 8, 8, 1);
+    for (let i = 0; i < 9; i++) { if (!fn[8][i]) set(8, i, 0); if (!fn[i][8]) set(i, 8, 0); }
+    for (let i = 0; i < 8; i++) { if (!fn[8][n - 1 - i]) set(8, n - 1 - i, 0); if (!fn[n - 1 - i][8]) set(n - 1 - i, 8, 0); }
+    // version info (version 7+)
+    if (ver >= 7) {
+      let rem = ver; for (let i = 0; i < 12; i++) rem = (rem << 1) ^ ((rem >>> 11) * 0x1f25);
+      const vbits = (ver << 12) | rem;
+      for (let i = 0; i < 18; i++) { const b = (vbits >>> i) & 1, a = n - 11 + (i % 3), c = Math.floor(i / 3); set(a, c, b); set(c, a, b); }
+    }
+    // place data bits (zigzag from the bottom right)
+    const allBits = [];
+    codewords.forEach((cw) => { for (let i = 7; i >= 0; i--) allBits.push((cw >>> i) & 1); });
+    let bi = 0;
+    for (let right = n - 1; right >= 1; right -= 2) {
+      if (right === 6) right = 5;
+      for (let vert = 0; vert < n; vert++) for (let j = 0; j < 2; j++) {
+        const c = right - j, upward = ((right + 1) & 2) === 0, r = upward ? n - 1 - vert : vert;
+        if (fn[r][c]) continue;
+        m[r][c] = bi < allBits.length ? allBits[bi++] : 0;
+      }
+    }
+    // try the 8 masks, keep the one with the lowest penalty
+    const MASKS = [(r, c) => (r + c) % 2 === 0, (r) => r % 2 === 0, (r, c) => c % 3 === 0, (r, c) => (r + c) % 3 === 0,
+      (r, c) => (Math.floor(r / 2) + Math.floor(c / 3)) % 2 === 0, (r, c) => ((r * c) % 2) + ((r * c) % 3) === 0,
+      (r, c) => (((r * c) % 2) + ((r * c) % 3)) % 2 === 0, (r, c) => (((r + c) % 2) + ((r * c) % 3)) % 2 === 0];
+    let best = null, bestScore = Infinity;
+    for (let mk = 0; mk < 8; mk++) {
+      const g = m.map((row, r) => row.map((v, c) => (fn[r][c] ? v : v ^ (MASKS[mk](r, c) ? 1 : 0))));
+      format(g, n, mk);
+      const sc = penalty(g, n);
+      if (sc < bestScore) { bestScore = sc; best = g; }
+    }
+    return best;
+  }
+  function format(g, n, mask) {
+    const data = (0 << 3) | mask; // error correction M = 00
+    let rem = data; for (let i = 0; i < 10; i++) rem = (rem << 1) ^ ((rem >>> 9) * 0x537);
+    const bits = ((data << 10) | rem) ^ 0x5412;
+    const b = (i) => (bits >>> i) & 1;
+    // g[row][col]; first copy around the top-left finder, second copy split under/right of the others
+    for (let i = 0; i <= 5; i++) g[i][8] = b(i);
+    g[7][8] = b(6); g[8][8] = b(7); g[8][7] = b(8);
+    for (let i = 9; i < 15; i++) g[8][14 - i] = b(i);
+    for (let i = 0; i < 8; i++) g[8][n - 1 - i] = b(i);
+    for (let i = 8; i < 15; i++) g[n - 15 + i][8] = b(i);
+    g[n - 8][8] = 1;
+  }
+  function penalty(g, n) {
+    let s = 0;
+    const lines = (get) => {
+      for (let a = 0; a < n; a++) {
+        let run = 1;
+        for (let b = 1; b < n; b++) { if (get(a, b) === get(a, b - 1)) { run++; if (run === 5) s += 3; else if (run > 5) s++; } else run = 1; }
+        for (let b = 0; b + 10 < n; b++) {
+          const p = [1, 0, 1, 1, 1, 0, 1, 0, 0, 0, 0], q = p.slice().reverse();
+          if (p.every((v, i) => get(a, b + i) === v) || q.every((v, i) => get(a, b + i) === v)) s += 40;
+        }
+      }
+    };
+    lines((a, b) => g[a][b]); lines((a, b) => g[b][a]);
+    for (let r = 0; r < n - 1; r++) for (let c = 0; c < n - 1; c++) { const v = g[r][c]; if (v === g[r][c + 1] && v === g[r + 1][c] && v === g[r + 1][c + 1]) s += 3; }
+    let dark = 0; g.forEach((row) => row.forEach((v) => { dark += v; }));
+    s += Math.floor(Math.abs(dark * 20 - n * n * 10) / (n * n)) * 10;
+    return s;
+  }
+
+  function svg(text, size) {
+    const g = matrix(text), n = g.length, q = 4, total = n + q * 2;
+    let d = '';
+    g.forEach((row, r) => row.forEach((v, c) => { if (v) d += 'M' + (c + q) + ' ' + (r + q) + 'h1v1h-1z'; }));
+    const el = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    el.setAttribute('viewBox', '0 0 ' + total + ' ' + total);
+    el.setAttribute('width', String(size || 180)); el.setAttribute('height', String(size || 180));
+    el.setAttribute('shape-rendering', 'crispEdges'); el.setAttribute('role', 'img'); el.setAttribute('aria-label', 'QR code for the Care board link');
+    el.innerHTML = '<rect width="100%" height="100%" fill="#fff"/><path fill="#1F2A25" d="' + d + '"/>';
+    return el;
+  }
+
+  PL.qr = { svg, matrix };
+})();
+
+</script>
+<script>
+/*
+ * care/care-board.js — the Care board: the screen of the person who gets care (big, simple, no menus).
+ *
+ *   PL.careBoard.open(memberId)   the family's preview (from the Care page), on top of the app
+ *   PL.careBoard.own()            the board's own link (/care/<token>): the whole page is the board
+ *
+ * Fewest taps: today's box glows → tap it → "Yes, I took them" (2 taps). I need help: 2 taps.
+ * Every button is at least 60px and every text at least 18px (care.css).
+ */
+(function () {
+  const PL = (window.PL = window.PL || {});
+  const h = PL.h, D = PL.D, ui = PL.ui, icon = PL.icon, C = () => PL.care;
+
+  const SNOOZE_MIN = 15;
+  const sayList = (names) => names.length <= 1 ? names.join('') : names.slice(0, -1).join(', ') + ' and ' + names[names.length - 1];
+  const nameOf = (id) => { const m = PL.store.member(id); return m ? m.name : ''; };
+  const first = (s) => String(s || '').split(' ')[0];
+  const store = (k, v) => { try { if (v === undefined) return JSON.parse(localStorage.getItem('care.' + k) || 'null'); localStorage.setItem('care.' + k, JSON.stringify(v)); } catch (e) { return null; } };
+
+  // Pills drawn in the box: a round tablet or a two-color capsule, one per medicine.
+  const SHAPES = ['tb', 'cp', 'tb2', 'cp2'];
+  const pillsArt = (n, big) => h('span', { class: 'cb-pills' + (big ? ' big' : '') }, Array.from({ length: Math.min(4, Math.max(1, n)) }, (_, i) => h('i', { class: 'cb-' + SHAPES[i % 4] })));
+
+  // A soft chime (no sound file needed).
+  let audio = null;
+  function chime() {
+    try {
+      audio = audio || new (window.AudioContext || window.webkitAudioContext)();
+      if (audio.state === 'suspended') audio.resume();
+      const t0 = audio.currentTime + 0.02;
+      [[784, 0], [988, 0.28], [1319, 0.56]].forEach(([f, d]) => {
+        const o = audio.createOscillator(), g = audio.createGain();
+        o.type = 'sine'; o.frequency.value = f;
+        g.gain.setValueAtTime(0.0001, t0 + d); g.gain.exponentialRampToValueAtTime(0.35, t0 + d + 0.03); g.gain.exponentialRampToValueAtTime(0.0001, t0 + d + 1.2);
+        o.connect(g); g.connect(audio.destination); o.start(t0 + d); o.stop(t0 + d + 1.3);
+      });
+    } catch (e) { /* no sound on this device */ }
+  }
+  const unlockSound = () => { try { audio = audio || new (window.AudioContext || window.webkitAudioContext)(); if (audio.state === 'suspended') audio.resume(); } catch (e) { /* fine */ } };
+
+  /* ---------- big sheets (the app's own sheet, sized for seniors) ---------- */
+  function bigSheet(o) {
+    const s = ui.sheet(o);
+    s.panel.classList.add('wide', 'care-sheet', 'senior');
+    if (o.big) s.panel.classList.add('big');
+    return s;
+  }
+  const tile = (emoji, label, onClick, o) => h('button', { type: 'button', class: 'list-card care-tile' + (o && o.on ? ' on' : ''), onclick: onClick },
+    h('span', { class: 'em' }, emoji), h('strong', {}, label), o && o.sub ? h('span', { class: 'tile-sub' }, o.sub) : null);
+  const tiles = (list, cols) => h('div', { class: 'care-tiles', style: 'grid-template-columns:repeat(' + (cols || 3) + ',1fr)' }, list);
+  const stepHead = (n, of) => h('p', { class: 'care-stepn' }, 'Step ' + n + ' of ' + of);
+
+  /* ---------- the board ---------- */
+  function create(who, opts) {
+    const o = opts || {};
+    const timeEl = h('div', { class: 'wall-time' }), dateEl = h('div', { class: 'wall-date' }), greetEl = h('div', { class: 'wall-greet' });
+    const helpBtn = h('button', { type: 'button', class: 'btn care-help', onclick: () => askHelp() }, h('span', { 'aria-hidden': 'true' }, '🙋'), h('span', {}, 'I need help'));
+    const top = h('header', { class: 'wall-top' }, h('div', { class: 'wall-top-left' }, greetEl, helpBtn), PL.sky ? PL.sky.el() : null, h('div', { class: 'wall-clock' }, timeEl, dateEl));
+    const strip = h('section', { class: 'wall-panel care-strip', 'aria-live': 'polite' });
+    const box = h('section', { class: 'wall-panel care-box2' });
+    const main = h('div', { class: 'care-main' }, strip, box);
+    const closeBtn = o.preview ? ui.button('Close preview', { icon: 'x', onClick: () => api.close() }) : null;
+    if (closeBtn) closeBtn.classList.add('care-preview-close');
+    const root = h('div', { class: 'wall board care-board' + (o.preview ? ' preview' : ''), role: o.preview ? 'dialog' : 'main', 'aria-label': 'Care board', tabindex: '-1' }, closeBtn, top, main);
+    const api = { el: root };
+    let timers = [], stopClock = null, unsub = null, lastRing = 0, ringSlot = '', seenRemind = store('seenRemind.' + who) || '', lock = null;
+
+    const person = () => PL.store.member(who);
+    const bs = () => C().boardSettings(who);
+    const snoozeKey = (f) => f.date + '|' + f.time;
+    const snoozedUntil = (f) => { const s = store('snooze.' + who) || {}; return s[snoozeKey(f)] || 0; };
+
+    function tick() {
+      const now = PL.now();
+      PL.clock.fill(timeEl, now, PL.state.settings.hour12);
+      dateEl.textContent = D.fmt(D.key(now), { weekday: 'long', month: 'long', day: 'numeric' });
+      const hr = now.getHours(), p = person();
+      greetEl.textContent = (hr < 12 ? 'Good morning' : hr < 18 ? 'Good afternoon' : 'Good evening') + (p ? ', ' + p.name : '');
+    }
+
+    /* ----- the message at the top ----- */
+    const whenWord = (f) => {
+      const n = C().slotName(f.time), today = D.today();
+      if (f.date === today) return n === 'night' ? 'tonight’s' : 'this ' + n + '’s';
+      return n === 'night' ? 'last night’s' : 'yesterday ' + n + '’s';
+    };
+    const pillWord = (f) => (f.meds.length === 1 ? 'pill' : 'pills');
+    function recentHelp() {
+      const since = new Date(Date.now() - 30 * 60000).toISOString();
+      const helps = PL.state.carelog.filter((l) => l.who === who && l.kind === 'help' && l.at > since).sort((a, b) => (a.at < b.at ? 1 : -1));
+      if (!helps.length) return null;
+      const replies = PL.state.carelog.filter((l) => l.who === who && l.kind === 'reply' && l.at > helps[0].at).sort((a, b) => (a.at < b.at ? -1 : 1));
+      return { at: helps[0].at, replies };
+    }
+    function plansToday() {
+      const today = D.today(), nowT = D.nowTime();
+      return PL.cal.instances(today, today).filter((i) => (i.memberIds || []).includes(who) && (i.allDay || (i.end || i.start) >= nowT))
+        .sort((a, b) => (a.allDay ? '' : a.start || '').localeCompare(b.allDay ? '' : b.start || ''));
+    }
+    function paintStrip(f) {
+      const kids = [];
+      const help = recentHelp();
+      if (help) {
+        const last = help.replies[help.replies.length - 1];
+        kids.push(h('div', { class: 'cs-art', 'aria-hidden': 'true' }, '💛'),
+          h('div', { class: 's-txt' }, h('div', { class: 'care-say' }, 'Your family was told'),
+            h('div', { class: 'care-sub' }, last ? first(nameOf(last.by)) + ': “' + last.text + '”' : 'Someone will answer soon. For an emergency, call 911.')));
+      } else if (f) {
+        const snz = snoozedUntil(f);
+        const say = f.state === 'miss' ? 'Did you take ' + whenWord(f) + ' ' + pillWord(f) + '?' : snz > Date.now()
+          ? 'Okay, I’ll remind you at ' + C().clockFull(C().local(new Date(snz).toISOString()).hm)
+          : 'Time for your ' + (C().slotName(f.time) === 'night' ? 'night' : C().slotName(f.time)) + ' ' + pillWord(f);
+        kids.push(h('div', { class: 's-txt' }, h('div', { class: 'care-say' }, say), foodLine(f.meds) ? h('div', { class: 'care-sub' }, foodLine(f.meds)) : null),
+          h('button', { type: 'button', class: 's-tap' + (f.state === 'miss' ? ' red' : ''), onclick: () => askAbout(f) }, f.state === 'miss' ? 'Tap the red box' : 'Tap the glowing box'));
+      } else if (!C().medsOf(who).filter((m) => !m.stopped).length) {
+        kids.push(h('div', { class: 's-txt' }, h('div', { class: 'care-say' }, 'No medicines yet'),
+          h('div', { class: 'care-sub' }, bs().letAdd ? 'Tap “Add a medicine”, or ask your family to add them.' : 'Your family adds them in the Kalendaryo app.')));
+      } else {
+        const nx = C().next(who), today = D.today();
+        const doneToday = C().times(who).some((t) => C().slotState(who, today, t) === 'ok');
+        const nextTxt = nx ? 'Next ' + pillWord(nx) + ' ' + (nx.date === today ? (C().slotName(nx.time) === 'night' ? 'tonight' : 'today') : nx.date === D.addDays(today, 1) ? 'tomorrow' : D.fmt(nx.date, { weekday: 'long' })) + ' at ' + C().clock(nx.time) : '';
+        kids.push(h('div', { class: 'care-tick sm', 'aria-hidden': 'true' }, icon('check')),
+          h('div', { class: 's-txt' }, h('div', { class: 'care-say' }, doneToday ? 'All done' : 'No pills right now'), nextTxt ? h('div', { class: 'care-sub' }, nextTxt) : null));
+      }
+      // Today's plans (calendar events that include this person) and short courses, as small chips.
+      const chips = [];
+      plansToday().slice(0, 2).forEach((i) => {
+        const others = (i.memberIds || []).filter((x) => x !== who).map(nameOf).filter(Boolean).map(first);
+        chips.push(h('span', { class: 'care-chip plan' }, '📅 ' + (i.allDay ? 'Today' : C().clock(i.start)) + ' · ' + i.title + (others.length ? ' · with ' + sayList(others) : '')));
+      });
+      C().medsOf(who).forEach((m) => { const c = C().course(m); if (c && C().activeOn(m, D.today())) chips.push(h('span', { class: 'care-chip' }, '💊 ' + m.name + ' · day ' + c.day + ' of ' + c.of)); });
+      if (chips.length && !help) kids.push(h('div', { class: 's-chips' }, chips.slice(0, 2)));
+      strip.replaceChildren(h('div', { class: 'wall-panel-body' }, kids));
+    }
+    function foodLine(meds) {
+      const f = meds.map((m) => m.food).find(Boolean);
+      return f === 'with' ? 'With food' : f === 'before' ? 'Before eating' : f === 'after' ? 'After eating' : '';
+    }
+
+    /* ----- the pill box ----- */
+    function days() {
+      const today = D.today();
+      if (root.clientWidth && root.clientWidth < 640) return [D.addDays(today, -1), today, D.addDays(today, 1)];
+      const s = D.startOfWeek(today, PL.state.settings.weekStart || 0);
+      return Array.from({ length: 7 }, (_, i) => D.addDays(s, i));
+    }
+    const PAL = () => PL.config.palette.map((p) => p.hex);
+    function paintBox(f) {
+      const times = C().times(who), dd = days(), today = D.today(), n = C().nowParts();
+      const p = person();
+      const head = h('h2', {}, '💊 ' + (p ? p.name + '’s pill box' : 'Pill box'), h('span', { class: 'pb2-hint' }, 'Tap a box to see who gave it'));
+      const narrow = dd.length < 7; // phones: 3 days, the page scrolls instead of squeezing the boxes
+      const grid = h('div', { class: 'pb2', style: 'grid-template-columns:clamp(64px,7vw,90px) repeat(' + dd.length + ',1fr);grid-template-rows:auto' + (narrow ? ' minmax(96px,auto)' : ' 1fr').repeat(Math.max(1, times.length)) });
+      grid.append(h('div'));
+      dd.forEach((d) => grid.append(h('div', { class: 'pb2-dh' + (d === today ? ' t' : '') }, d === today ? 'Today' : D.fmt(d, { weekday: 'short' }))));
+      times.forEach((t) => {
+        grid.append(h('div', { class: 'pb2-rl' }, C().rowLabel(t), h('small', {}, C().clock(t))));
+        dd.forEach((d) => {
+          const st = C().slotState(who, d, t, n);
+          const color = PAL()[Number(D.dow(d)) % PAL().length];
+          if (!st) { grid.append(h('div', { class: 'cell none' })); return; }
+          const meds = C().medsAt(who, d, t);
+          const empty = st === 'future' && meds.some((m) => C().runsOut(m) < d);
+          const isFocus = f && f.date === d && f.time === t;
+          let cls = 'cell ' + (st === 'ok' || st === 'skip' ? 'open ' + st : st === 'gone' ? 'gone' : empty ? 'empty' : st);
+          if (st === 'ok' && d === today) cls += ' today';
+          if (isFocus && snoozedUntil(f) > Date.now()) cls += ' snoozed';
+          const inside = st === 'ok' ? h('div', { class: 'tick2' }, icon('check')) : st === 'skip' ? h('div', { class: 'tick2 dash' }, '–') : st === 'gone' ? null : pillsArt(meds.length);
+          const lid = st === 'ok' || st === 'skip' ? h('div', { class: 'lid2' }) : h('div', { class: 'lid2' }, h('b', {}, D.fmt(d, { weekday: 'narrow' })));
+          const label = D.fmt(d, { weekday: 'long' }) + ' ' + C().clock(t) + ': ' + ({ ok: 'taken', skip: 'skipped', now: 'time to take', miss: 'missed', future: 'not yet', gone: 'no answer' }[st] || st);
+          grid.append(h('button', { type: 'button', class: cls, style: '--c:' + color, 'aria-label': label, onclick: () => tapCell(d, t, st) },
+            h('div', { class: 'well' }, inside), lid, st === 'miss' ? h('em', { 'aria-hidden': 'true' }, '!') : null));
+        });
+      });
+      const foot = h('div', { class: 'pb-foot' });
+      const lows = C().medsOf(who).filter((m) => C().low(m));
+      if (lows.length) {
+        const m = lows[0], hp = m.helper && nameOf(m.helper);
+        foot.append(h('div', { class: 'care-warn' }, '💊 ' + (lows.length > 1 ? sayList(lows.map((x) => x.name)) + ' are running low' : m.name + ' runs out ' + runsOutWord(m) + (hp ? ' · ' + first(hp) + ' will pick it up' : ''))),
+          h('button', { type: 'button', class: 'btn big care-big foot-btn', onclick: () => boughtFlow(lows) }, icon('plus'), h('span', {}, lows.length > 1 ? 'I bought medicine' : 'I bought ' + m.name)));
+      }
+      if (bs().letAdd) foot.append(h('button', { type: 'button', class: 'btn big care-big foot-btn add', onclick: () => addFlow() }, icon('plus'), h('span', {}, 'Add a medicine')));
+      box.replaceChildren(head, h('div', { class: 'wall-panel-body' }, times.length ? grid : h('p', { class: 'care-sub empty-box' }, 'The pill box fills in when a medicine is added.'), foot));
+    }
+    function runsOutWord(m) {
+      const d = C().runsOut(m), today = D.today();
+      return d <= today ? 'today' : d === D.addDays(today, 1) ? 'tomorrow' : D.fmt(d, { weekday: 'long' });
+    }
+
+    function paint() {
+      if (!root.isConnected && !o.preview) return;
+      const f = C().focus(who);
+      root.classList.toggle('has-now', !!(f && f.state === 'now'));
+      paintStrip(f); paintBox(f);
+      ring(f);
+      checkRemind();
+    }
+
+    /* ----- sound: soft chime when it is time, again every 5 minutes until tapped ----- */
+    function ring(f) {
+      if (o.preview || !f || f.state !== 'now' || !bs().sound) return;
+      if (snoozedUntil(f) > Date.now()) return;
+      const k = snoozeKey(f), every = 5 * 60000;
+      if (ringSlot !== k) { ringSlot = k; lastRing = 0; }
+      if (!lastRing || (bs().ring && Date.now() - lastRing >= every)) { lastRing = Date.now(); chime(); }
+    }
+    // The family tapped "Remind her" on their phone: ring now.
+    function checkRemind() {
+      if (o.preview) return;
+      const r = PL.state.carelog.filter((l) => l.who === who && l.kind === 'remind' && l.at > new Date(Date.now() - 10 * 60000).toISOString()).sort((a, b) => (a.at < b.at ? 1 : -1))[0];
+      if (r && r.at !== seenRemind) { seenRemind = r.at; store('seenRemind.' + who, r.at); if (bs().sound) chime(); ui.toast('🔔 ' + (first(nameOf(r.by)) || 'Your family') + ' says: time for your pills'); }
+    }
+
+    /* ----- tapping a box ----- */
+    function tapCell(d, t, st) {
+      const f = { date: d, time: t, state: st, meds: C().medsAt(who, d, t) };
+      if (st === 'now' || st === 'miss') return askAbout(f);
+      if (st === 'ok' || st === 'skip') return whoAndWhen(f);
+      if (st === 'future') return ui.toast(D.fmt(d, { weekday: 'long' }) + ' · ' + C().clock(t) + ' · not yet');
+      ui.toast('No answer for that time.');
+    }
+    const pillRow = (meds) => h('div', { class: 'ask-pills' }, meds.map((m, i) => h('div', { class: 'care-pw' }, h('div', { class: 'care-pill' }, h('i', { class: 'cb-' + SHAPES[i % 4] })), m.name)));
+    function askAbout(f) {
+      unlockSound();
+      const meds = f.meds, n = meds.length;
+      const course = meds.map((m) => C().course(m, f.date)).find(Boolean);
+      let s;
+      if (f.state === 'miss') {
+        s = bigSheet({ title: 'Did you take ' + whenWord(f) + ' ' + pillWord(f) + '?',
+          body: h('div', {}, pillRow(meds), h('p', { class: 'care-safe' }, 'Not sure? Call the pharmacist before taking extra.')),
+          footer: [h('button', { type: 'button', class: 'btn big care-big', onclick: () => done('skipped') }, n === 1 ? 'I skipped it' : 'I skipped them'),
+            h('button', { type: 'button', class: 'btn primary big care-big', onclick: () => done('late') }, icon('check'), h('span', {}, n === 1 ? 'I took it late' : 'I took them late'))] });
+      } else {
+        s = bigSheet({ title: 'Did you take your ' + (n === 1 ? 'pill' : n + ' ' + C().slotName(f.time) + ' pills') + '?',
+          body: h('div', {}, pillRow(meds), foodLine(meds) || course ? h('p', { class: 'care-safe' }, [foodLine(meds), course ? 'Day ' + course.day + ' of ' + course.of : ''].filter(Boolean).join(' · ')) : null),
+          footer: [h('button', { type: 'button', class: 'btn big care-big', onclick: () => snooze(f, s) }, '⏰ Remind me in ' + SNOOZE_MIN + ' min'),
+            h('button', { type: 'button', class: 'btn primary big care-big', onclick: () => done('taken') }, icon('check'), h('span', {}, n === 1 ? 'Yes, I took it' : 'Yes, I took them'))] });
+      }
+      async function done(status) {
+        s.close();
+        if (await C().mark(who, f.date, f.time, status)) {
+          ui.toast(status === 'skipped' ? 'Marked as skipped.' : status === 'late' ? 'Marked as taken late.' : 'Marked as taken. Well done!', { action: 'Undo', onAction: () => C().unmark(who, f.date, f.time) });
+        }
+      }
+    }
+    function snooze(f, s) {
+      s.close();
+      const until = Date.now() + SNOOZE_MIN * 60000, all = store('snooze.' + who) || {};
+      all[snoozeKey(f)] = until; store('snooze.' + who, all);
+      C().log(who, 'snooze', { date: f.date, time: f.time });
+      lastRing = until - 5 * 60000; // ring again when the 15 minutes are over
+      setTimeout(() => { lastRing = 0; paint(); }, SNOOZE_MIN * 60000 + 500);
+      paint();
+    }
+    function whoAndWhen(f) {
+      const rows = f.meds.map((m) => {
+        const d = C().doseFor(m.id, f.date, f.time);
+        if (!d) return null;
+        const t = C().clockFull(C().local(d.at).hm);
+        const byName = d.by === 'board' ? (person() ? person().name : 'On this board') : nameOf(d.by) || 'Family';
+        return h('div', { class: 'care-whorow' }, h('div', { class: 'em' }, d.status === 'skipped' ? '–' : '✓'),
+          h('div', { class: 'tt' }, h('b', {}, m.name), h('span', {}, (d.status === 'skipped' ? 'Skipped' : d.status === 'late' ? 'Taken late' : 'Taken') + ' at ' + t + ' · ' + byName)));
+      }).filter(Boolean);
+      const today = f.date === D.today();
+      const s = bigSheet({ title: D.fmt(f.date, { weekday: 'long' }) + ' · ' + C().clock(f.time), body: h('div', { class: 'care-who' }, rows),
+        footer: today ? [h('button', { type: 'button', class: 'btn big care-big', onclick: async () => { s.close(); if (await C().unmark(who, f.date, f.time)) ui.toast('Changed back to not taken.'); } }, 'That was a mistake'),
+          h('button', { type: 'button', class: 'btn primary big care-big', onclick: () => s.close() }, 'OK')] : [h('button', { type: 'button', class: 'btn primary big care-big', onclick: () => s.close() }, 'OK')] });
+      const auto = setTimeout(() => s.close(), 12000);
+      s.panel.addEventListener('pointerdown', () => clearTimeout(auto), { once: true });
+    }
+
+    /* ----- I need help (2 taps) ----- */
+    function askHelp() {
+      unlockSound();
+      const s = bigSheet({ title: 'Tell your family you need help?',
+        body: h('div', { class: 'care-center' }, h('div', { class: 'help-art', 'aria-hidden': 'true' }, '🙋'), h('p', { class: 'care-sub' }, 'Your family gets a message right away.'), h('p', { class: 'care-safe' }, 'For an emergency, call 911.')),
+        footer: [h('button', { type: 'button', class: 'btn big care-big', onclick: () => s.close() }, 'Cancel'),
+          h('button', { type: 'button', class: 'btn primary big care-big', onclick: async () => { s.close(); if (await C().log(who, 'help')) ui.toast('Your family was told.'); } }, 'Yes, tell them')] });
+    }
+
+    /* ----- I bought medicine (2 taps; 3 when two are low) ----- */
+    function boughtFlow(lows) {
+      if (lows.length === 1) return boxes(lows[0]);
+      const s = bigSheet({ title: 'Which one did you buy?', body: tiles(lows.map((m) => tile(C().kind(m.kind).emoji, m.name, () => { s.close(); boxes(m); })), Math.min(3, lows.length)),
+        footer: [h('button', { type: 'button', class: 'btn big care-big', onclick: () => s.close() }, 'Cancel')] });
+    }
+    function boxes(m) {
+      const s = bigSheet({ title: 'How many boxes of ' + m.name + '?', body: h('div', {}, tiles([1, 2, 3].map((n) => tile('📦'.repeat(n), n + (n > 1 ? ' boxes' : ' box'), () => save(n * m.box), { sub: n * m.box + ' pills' }))),
+        h('button', { type: 'button', class: 'btn ghost big care-big other-num', onclick: () => { s.close(); number('How many pills did you buy?', m.box, (v) => C().bought(m, v).then((ok) => ok && ui.toast('Thank you! ' + m.name + ' was added.'))); } }, 'A different number')),
+        footer: [h('button', { type: 'button', class: 'btn big care-big', onclick: () => s.close() }, 'Cancel')] });
+      async function save(pills) { s.close(); if (await C().bought(m, pills)) ui.toast('Thank you! ' + m.name + ' was added.'); }
+    }
+    function number(title, start, onDone, onBack) {
+      let v = start || 30;
+      const numEl = h('div', { class: 'num' }, String(v));
+      const step = (d) => { v = Math.max(1, Math.min(999, v + d)); numEl.textContent = String(v); };
+      const s = bigSheet({ title, body: h('div', { class: 'care-center' }, h('div', { class: 'care-stepper big' },
+        h('button', { type: 'button', class: 'icon-btn tbtn', 'aria-label': 'Less', onclick: () => step(-1) }, icon('minus')), numEl,
+        h('button', { type: 'button', class: 'icon-btn tbtn', 'aria-label': 'More', onclick: () => step(1) }, icon('plus'))),
+        h('div', { class: 'chip-row' }, [10, 30].map((n) => h('button', { type: 'button', class: 'person-pick big-chip', onclick: () => step(n) }, '+' + n)))),
+        footer: [h('button', { type: 'button', class: 'btn big care-big', onclick: () => { s.close(); onBack && onBack(); } }, onBack ? 'Back' : 'Cancel'),
+          h('button', { type: 'button', class: 'btn primary big care-big', onclick: () => { s.close(); onDone(v); } }, 'Done')] });
+    }
+
+    /* ----- She adds her own medicine: about 5 big taps, no typing needed ----- */
+    function addFlow() {
+      const d = { who, each: 1, addedBy: 'board' };
+      const QUICK = ['bp', 'sugar', 'chol', 'heart', 'vit'];
+      const close = (s) => s.close();
+      function s1() {
+        const s = bigSheet({ big: true, title: 'What is it for?', body: h('div', {}, stepHead(1, 4), tiles(QUICK.map((k) => C().kind(k)).map((k) => tile(k.emoji, k.label, () => { close(s); d.kind = k.id; s2(); }))
+          .concat(tile('＋', 'Something else', () => { close(s); d.kind = 'other'; typeName(s1); })))),
+          footer: [h('button', { type: 'button', class: 'btn big care-big', onclick: () => close(s) }, 'Cancel')] });
+      }
+      function s2() {
+        const k = C().kind(d.kind);
+        const s = bigSheet({ big: true, title: 'Which one?', body: h('div', {}, stepHead(2, 4), tiles(k.names.slice(0, 4).map((n) => tile(k.emoji, n, () => { close(s); d.name = n; s3(); }))
+          .concat(tile('🤷', 'I don’t know the name', () => { close(s); d.name = k.label + ' pill'; s3(); }), tile('⌨️', 'Type it', () => { close(s); typeName(s2); })))),
+          footer: [h('button', { type: 'button', class: 'btn big care-big', onclick: () => { close(s); s1(); } }, 'Back')] });
+      }
+      function typeName(back) {
+        const input = h('input', { type: 'text', class: 'care-input', maxlength: '60', placeholder: 'For example: Vitamin K', autocomplete: 'off', autocapitalize: 'words', autofocus: true });
+        const s = bigSheet({ big: true, title: 'What is it called?', body: h('div', { class: 'event-form' }, stepHead(2, 4), input, h('p', { class: 'hint' }, 'Write it the way it is printed on the box.')),
+          footer: [h('button', { type: 'button', class: 'btn big care-big', onclick: () => { close(s); back(); } }, 'Back'),
+            h('button', { type: 'button', class: 'btn primary big care-big', onclick: () => { const v = input.value.trim(); if (!v) { ui.toast('Please type the name.'); input.focus(); return; } close(s); d.name = v; s3(); } }, 'Next')] });
+      }
+      function s3() {
+        const CHOICES = [['☀️', 'Morning', ['08:00']], ['🌙', 'Night', ['20:00']], ['☀️🌙', 'Morning and night', ['08:00', '20:00']], ['🕒', '3 times a day', ['08:00', '12:00', '20:00']]];
+        let pick = -1, times = [];
+        const rows = h('div', { class: 'trows' });
+        const nextBtn = h('button', { type: 'button', class: 'btn primary big care-big', hidden: true, onclick: () => { close(s); d.times = times.slice(); s4(); } }, 'Next');
+        const grid = h('div', { class: 'care-tiles t4' });
+        function paintS3() {
+          grid.replaceChildren(...CHOICES.map(([e, l, t], i) => tile(e, l, () => { pick = i; times = t.slice(); paintS3(); }, { on: pick === i })));
+          rows.replaceChildren(...times.map((t, i) => timeRow(t, (v) => { times[i] = v; paintS3(); }, i, times.length)));
+          if (times.length) rows.append(h('p', { class: 'thint' }, 'Tap − or + to change the time'));
+          nextBtn.hidden = !times.length;
+        }
+        const s = bigSheet({ big: true, title: 'When do you take it?', body: h('div', {}, stepHead(3, 4), grid, rows),
+          footer: [h('button', { type: 'button', class: 'btn big care-big', onclick: () => { close(s); s2(); } }, 'Back'), nextBtn] });
+        paintS3();
+      }
+      function s4() {
+        const s = bigSheet({ big: true, title: 'How many pills did you buy?', body: h('div', {}, stepHead(4, 4), tiles([30, 60, 90].map((n) => tile('💊', n + ' pills', () => { close(s); save(n); }))
+          .concat(tile('🔢', 'Other number', () => { close(s); number('How many pills did you buy?', 30, save, s4); })), 4),
+          h('p', { class: 'hint center' }, '1 pill each time. Your family can change this.')),
+          footer: [h('button', { type: 'button', class: 'btn big care-big', onclick: () => { close(s); s3(); } }, 'Back')] });
+      }
+      async function save(count) {
+        const data = Object.assign({}, d, { count, box: count, countAt: new Date().toISOString(), start: D.today() });
+        const id = await PL.store.add('meds', data);
+        if (id) { C().log(who, 'added', { med: id, name: d.name }); ui.toast(d.name + ' added. Your family was told.'); }
+      }
+      s1();
+    }
+
+    /* ----- start ----- */
+    const onResize = () => paint();
+    api.close = () => {
+      timers.forEach(clearInterval); timers = [];
+      if (stopClock) stopClock();
+      removeEventListener('resize', onResize);
+      if (unsub) unsub();
+      try { if (lock) lock.release(); } catch (e) { /* fine */ }
+      root.remove();
+      if (o.preview) PL.theme.setWall(false);
+      document.documentElement.classList.remove('care-open');
+      if (o.onClose) o.onClose();
+    };
+    api.start = () => {
+      document.documentElement.classList.add('care-open');
+      unsub = PL.store.subscribe(() => paint());
+      tick(); paint();
+      stopClock = PL.clock.start(tick);
+      timers.push(setInterval(paint, 20000));
+      if (!o.preview && bs().awake) keepAwake();
+      addEventListener('resize', onResize);
+    };
+    function keepAwake() {
+      const req = () => { try { if (navigator.wakeLock && document.visibilityState === 'visible') navigator.wakeLock.request('screen').then((l) => { lock = l; }).catch(() => {}); } catch (e) { /* fine */ } };
+      req(); document.addEventListener('visibilitychange', req);
+    }
+    return api;
+  }
+
+  /* ---------- time row with glowing − and + (30 minutes a tap) ---------- */
+  function timeRow(t, onChange, idx, count, label) {
+    const n = PL.care.slotName(t);
+    const names = { morning: '☀️ Morning', midday: '🍲 Midday', afternoon: '🌤️ Afternoon', night: '🌙 Night' };
+    const shift = (d) => { let m = PL.care.hm(t) + d; m = (m + 1440) % 1440; onChange(D.pad(Math.floor(m / 60)) + ':' + D.pad(m % 60)); };
+    return h('div', { class: 'trow' },
+      h('span', { class: 'tl' }, label || names[n]),
+      h('button', { type: 'button', class: 'tbtn', 'aria-label': 'Earlier', onclick: () => shift(-30) }, '−'),
+      h('span', { class: 'tv' }, PL.care.clockFull(t)),
+      h('button', { type: 'button', class: 'tbtn', 'aria-label': 'Later', onclick: () => shift(30) }, '+'));
+  }
+
+  /* ---------- the family's preview, on top of the app ---------- */
+  let open1 = null;
+  function open(who) {
+    if (open1) open1.close();
+    open1 = create(who, { preview: true, onClose: () => { open1 = null; } });
+    document.body.append(open1.el);
+    PL.theme.setWall(true);
+    open1.start();
+    try { open1.el.focus({ preventScroll: true }); } catch (e) { /* fine */ }
+    return open1;
+  }
+
+  /* ---------- the board's own link: the whole page ---------- */
+  function own(rootEl) {
+    const who = window.KAL && KAL.me && KAL.me.memberId;
+    document.documentElement.classList.add('care-mode');
+    const b = create(who, {});
+    rootEl.replaceChildren(b.el);
+    PL.theme.setWall(true);
+    b.start();
+    // One tap to start: turns on the sound (tablets only allow sound after a tap).
+    if (!sessionStorage.getItem('care.started')) {
+      const go = h('div', { class: 'care-start' }, h('div', { class: 'care-start-card' }, h('div', { class: 'help-art', 'aria-hidden': 'true' }, '💊'),
+        h('h1', {}, 'Care board'), h('p', {}, 'Tap the button to start. The board will ring softly when it is time for your pills.'),
+        h('button', { type: 'button', class: 'btn primary big care-big', onclick: () => { unlockSound(); try { sessionStorage.setItem('care.started', '1'); } catch (e) { /* fine */ } go.remove(); } }, 'Start')));
+      b.el.append(go);
+    }
+    return b;
+  }
+  // The link was replaced ("Make a new link") or removed.
+  function gone(rootEl) {
+    document.documentElement.classList.add('care-mode');
+    (rootEl || document.getElementById('porchlight-root')).replaceChildren(h('div', { class: 'care-start' }, h('div', { class: 'care-start-card' },
+      h('div', { class: 'help-art', 'aria-hidden': 'true' }, '🔗'), h('h1', {}, 'This link was changed'),
+      h('p', {}, 'Your family made a new link for this Care board. Ask them to open the new link on this tablet.'))));
+  }
+
+  PL.careBoard = { open, own, gone, timeRow, bigSheet, tile, tiles, stepHead, pillsArt };
+})();
+
+</script>
+<script>
+/*
+ * care/care-page.js — the family side of Care, inside the normal app:
+ *   PL.screens.care          the Care page (medicines, today, alerts, the Care board link)
+ *   PL.careUi.addMedicine()  "Add a medicine" (4 short steps)
+ *   PL.careUi.settingsCards() the Care and Tell the family cards in Settings
+ *   alerts                   "Nana Rosa asked for help", "not taken after 30 minutes" … on every page
+ */
+(function () {
+  const PL = (window.PL = window.PL || {});
+  PL.screens = PL.screens || {};
+  const h = PL.h, D = PL.D, ui = PL.ui, icon = PL.icon, C = () => PL.care;
+  const isDemo = () => !!(window.KAL && KAL.demo);
+  const canEdit = () => !(window.KAL && KAL.me && (KAL.me.role === 'viewer' || KAL.me.viewing));
+  const nameOf = (id) => { const m = PL.store.member(id); return m ? m.name : ''; };
+  const first = (s) => String(s || '').split(' ')[0];
+  const myId = () => (window.KAL && KAL.me && KAL.me.memberId) || '';
+  const timeOfIso = (iso) => C().clockFull(C().local(iso).hm);
+  const dayWord = (key) => { const t = D.today(); return key === t ? 'Today' : key === D.addDays(t, -1) ? 'Yesterday' : D.fmt(key, { weekday: 'long', month: 'short', day: 'numeric' }); };
+  const whenText = (m) => {
+    const t = m.times.map(C().clock).join(' + ');
+    const each = m.each === 0.5 ? '½ pill' : m.each === 1 ? '1 pill' : m.each + ' pills';
+    const food = m.food === 'with' ? ' · with food' : m.food === 'before' ? ' · before eating' : m.food === 'after' ? ' · after eating' : '';
+    return t + ' · ' + each + food;
+  };
+
+  /* ---------- Add a medicine (family): 4 short steps ---------- */
+  function addMedicine(forWho) {
+    if (!canEdit()) { ui.toast('You can only view Care. Ask an owner to make you an Editor.'); return; }
+    const d = { who: forWho || (C().people()[0] && C().people()[0].id) || '', kind: '', name: '', times: ['08:00'], each: 1, count: 30, box: 30, food: '', days: null, helper: '', remind: 2 };
+    let step = 1;
+    const body = h('div', { class: 'event-form care-add' });
+    const back = ui.button('Cancel', { variant: 'ghost', big: true, onClick: () => (step === 1 ? s.close() : go(step - 1)) });
+    const nextBtn = ui.button('Next', { variant: 'primary', big: true, onClick: () => next() });
+    const s = ui.sheet({ title: 'Add a medicine', body, footer: [back, nextBtn] });
+    s.panel.classList.add('wide', 'care-sheet');
+    const label = (t) => h('span', { class: 'field-label' }, t);
+    function go(n) { step = n; paint(); }
+    function next() {
+      if (step === 1) { if (!d.who) return ui.toast('Pick who the medicine is for.'); if (!d.kind) return ui.toast('Pick what it is for.'); return go(2); }
+      if (step === 2) { if (!d.name.trim()) return ui.toast('Pick or type the name.'); return go(3); }
+      if (step === 3) { if (!d.times.length) return ui.toast('Pick when to take it.'); return go(4); }
+      save();
+    }
+    function paint() {
+      back.querySelector('span').textContent = step === 1 ? 'Cancel' : 'Back';
+      nextBtn.querySelector('span').textContent = step === 4 ? 'Add medicine' : 'Next';
+      s.panel.querySelector('.sheet-head h2').textContent = step === 1 ? 'Add a medicine' : (C().kind(d.kind).emoji + ' ' + (d.name || C().kind(d.kind).label));
+      const kids = [h('p', { class: 'care-stepn small' }, 'Step ' + step + ' of 4')];
+      if (step === 1) {
+        const ppl = PL.state.members.filter((m) => m.role !== 'child' || C().people().some((p) => p.id === m.id));
+        kids.push(h('div', { class: 'field' }, label('Who is it for?'), h('div', { class: 'chip-row' }, ppl.map((m) => personPick(m, d.who === m.id, () => { d.who = m.id; paint(); })))));
+        kids.push(h('div', { class: 'field' }, label('What is it for?'), h('div', { class: 'care-types' }, C().KINDS.map((k) => h('button', { type: 'button', class: 'avatar-opt care-type' + (d.kind === k.id ? ' on' : ''), 'aria-pressed': String(d.kind === k.id), onclick: () => { if (d.kind !== k.id) d.name = ''; d.kind = k.id; paint(); } },
+          h('span', { class: 'em' }, k.emoji), k.label)))));
+      } else if (step === 2) {
+        const k = C().kind(d.kind), typed = d.name && !k.names.includes(d.name) && d.name !== k.label + ' pill';
+        const input = h('input', { type: 'text', class: 'care-input', maxlength: '60', placeholder: 'For example: Vitamin K', autocomplete: 'off', value: typed ? d.name : '' });
+        input.addEventListener('input', () => { d.name = input.value; });
+        if (k.names.length) kids.push(h('div', { class: 'field' }, label('Which one?'), h('div', { class: 'chip-row' }, k.names.map((n) => h('button', { type: 'button', class: 'person-pick name-pick', 'aria-pressed': String(d.name === n), onclick: () => { d.name = n; paint(); } }, n)))));
+        kids.push(h('div', { class: 'field' }, label(k.names.length ? 'Not sure, or not in the list?' : 'What is it called?'),
+          h('div', { class: 'chip-row' }, h('button', { type: 'button', class: 'person-pick name-pick alt', 'aria-pressed': String(d.name === k.label + ' pill'), onclick: () => { d.name = k.label + ' pill'; paint(); } }, '🤷 I don’t know the name')),
+          input, h('p', { class: 'hint' }, 'Type it the way it is printed on the box. “I don’t know the name” saves it as “' + k.label + ' pill”.')));
+      } else if (step === 3) {
+        const slots = [['AM', '08:00'], ['Noon', '12:00'], ['PM', '20:00']];
+        const has = (def) => d.times.some((t) => C().rowLabel(t) === C().rowLabel(def));
+        kids.push(h('div', { class: 'field' }, label('When?'), h('div', { class: 'chip-row' }, slots.map(([lb, def]) => h('button', { type: 'button', class: 'person-pick care-time', 'aria-pressed': String(has(def)),
+          onclick: () => { d.times = has(def) ? d.times.filter((t) => C().rowLabel(t) !== C().rowLabel(def)) : d.times.concat(def).sort(); paint(); } }, lb, h('small', {}, C().clock(def))))),
+          h('div', { class: 'trows fam' }, d.times.map((t, i) => famTimeRow(t, (v) => { d.times[i] = v; d.times.sort(); paint(); }))),
+          d.times.length ? h('p', { class: 'hint' }, 'Tap − or + to move the time by 30 minutes, or tap the time to set an exact time.') : null));
+        const each = ui.segmented([{ value: 0.5, label: '½ pill' }, { value: 1, label: '1 pill' }, { value: 2, label: '2 pills' }], d.each, (v) => { d.each = Number(v); paint(); }, 'Pills each time');
+        kids.push(h('div', { class: 'field' }, label('Pills each time'), each.el || each));
+        const per = d.each * Math.max(1, d.times.length);
+        kids.push(h('div', { class: 'field' }, label('How many pills do you have?'), stepper(d.count, (v) => { d.count = v; d.box = v; paint(); }, 5, h('span', { class: 'days' }, '= ' + Math.floor(d.count / per) + ' days')),
+          h('p', { class: 'hint' }, 'Use what the doctor or pharmacist said.')));
+        const food = ui.segmented([{ value: '', label: 'Any time' }, { value: 'with', label: 'With food' }, { value: 'before', label: 'Before eating' }], d.food, (v) => { d.food = v; }, 'Food');
+        kids.push(h('div', { class: 'field' }, label('Food'), food.el || food));
+      } else {
+        const how = ui.segmented([{ value: 'always', label: 'Every day' }, { value: 'short', label: 'For a few days' }], d.days ? 'short' : 'always', (v) => { d.days = v === 'short' ? 7 : null; paint(); }, 'How long');
+        kids.push(h('div', { class: 'field' }, label('How long?'), how.el || how,
+          d.days ? h('div', { class: 'care-row-inline' }, stepper(d.days, (v) => { d.days = v; paint(); }, 1, h('span', { class: 'days' }, 'days · last day ' + D.fmt(D.addDays(D.today(), d.days - 1), { weekday: 'long', month: 'short', day: 'numeric' })))) : null));
+        const helpers = PL.state.members.filter((m) => m.role !== 'child' && m.id !== d.who);
+        kids.push(h('div', { class: 'field' }, label('Who picks up refills?'), h('div', { class: 'chip-row' },
+          personPick(null, !d.helper, () => { d.helper = ''; paint(); }, 'Nobody'), helpers.map((m) => personPick(m, d.helper === m.id, () => { d.helper = m.id; paint(); }))),
+          h('p', { class: 'hint' }, 'They get a “Pick up ' + (d.name || 'it') + '” task in Chores before it runs out.')));
+        kids.push(h('div', { class: 'field' }, label('Remind them'), stepper(d.remind, (v) => { d.remind = v; paint(); }, 1, h('span', { class: 'days' }, d.remind === 1 ? 'day before it runs out' : 'days before it runs out'), 1, 14)));
+      }
+      body.replaceChildren(...kids);
+    }
+    async function save() {
+      const id = await PL.store.add('meds', Object.assign({}, d, { start: D.today(), countAt: new Date().toISOString(), checked: true }));
+      if (!id) return;
+      const ppl = new Set(C().settings().people); ppl.add(d.who);
+      if (!C().settings().people.includes(d.who)) C().saveCare({ people: [...ppl] });
+      s.close();
+      ui.toast(d.name + ' added for ' + (nameOf(d.who) || 'them') + '.');
+    }
+    paint();
+  }
+  function personPick(m, on, onClick, text) {
+    return h('button', { type: 'button', class: 'person-pick', 'aria-pressed': String(!!on), onclick: onClick }, m ? ui.avatar(m, 28) : null, h('span', {}, text || m.name));
+  }
+  function stepper(v, onChange, by, after, min, max) {
+    const lo = min == null ? 1 : min, hi = max || 999;
+    return h('div', { class: 'care-stepper small' },
+      h('button', { type: 'button', class: 'icon-btn', 'aria-label': 'Less', onclick: () => onChange(Math.max(lo, v - by)) }, icon('minus')),
+      h('div', { class: 'num' }, String(v)),
+      h('button', { type: 'button', class: 'icon-btn', 'aria-label': 'More', onclick: () => onChange(Math.min(hi, v + by)) }, icon('plus')), after || null);
+  }
+  // Time with glowing − and + (30 minutes a tap). Tapping the time itself sets an exact time.
+  function famTimeRow(t, onChange) {
+    const exact = h('input', { type: 'time', class: 'tv-input', value: t, 'aria-label': 'Exact time' });
+    exact.addEventListener('change', () => { if (/^\d\d:\d\d$/.test(exact.value)) onChange(exact.value); });
+    const shift = (dm) => { const m = (C().hm(t) + dm + 1440) % 1440; onChange(D.pad(Math.floor(m / 60)) + ':' + D.pad(m % 60)); };
+    const names = { morning: '☀️ Morning', midday: '🍲 Midday', afternoon: '🌤️ Afternoon', night: '🌙 Night' };
+    return h('div', { class: 'trow sm' }, h('span', { class: 'tl' }, names[C().slotName(t)]),
+      h('button', { type: 'button', class: 'tbtn', 'aria-label': 'Earlier', onclick: () => shift(-30) }, '−'),
+      h('label', { class: 'tv' }, h('span', {}, C().clockFull(t)), exact),
+      h('button', { type: 'button', class: 'tbtn', 'aria-label': 'Later', onclick: () => shift(30) }, '+'));
+  }
+
+  /* ---------- change a medicine ---------- */
+  function editMedicine(m) {
+    const d = JSON.parse(JSON.stringify(m)); const startLeft = C().left(m); let leftV = startLeft;
+    const body = h('div', { class: 'event-form care-add' });
+    const nameIn = h('input', { type: 'text', class: 'care-input', maxlength: '60', value: d.name });
+    nameIn.addEventListener('input', () => { d.name = nameIn.value; });
+    const ro = !canEdit();
+    function paint() {
+      const helpers = PL.state.members.filter((x) => x.role !== 'child' && x.id !== d.who);
+      const each = ui.segmented([{ value: 0.5, label: '½ pill' }, { value: 1, label: '1 pill' }, { value: 2, label: '2 pills' }], d.each, (v) => { d.each = Number(v); }, 'Pills each time');
+      const food = ui.segmented([{ value: '', label: 'Any time' }, { value: 'with', label: 'With food' }, { value: 'before', label: 'Before eating' }], d.food, (v) => { d.food = v; }, 'Food');
+      body.replaceChildren(...[
+        m.addedBy === 'board' && !m.checked ? h('div', { class: 'care-warn' }, '👀 ' + first(nameOf(m.who)) + ' added this on the Care board. Check the name, times and pills, then Save.') : null,
+        ui.field('Name', nameIn),
+        h('div', { class: 'field' }, h('span', { class: 'field-label' }, 'Times'), h('div', { class: 'trows fam' }, d.times.map((t, i) => h('div', { class: 'trow-wrap' }, famTimeRow(t, (v) => { d.times[i] = v; d.times.sort(); paint(); }),
+          d.times.length > 1 ? ui.iconButton('trash', 'Remove this time', () => { d.times.splice(i, 1); paint(); }, 'trow-del') : null))),
+          d.times.length < 4 ? ui.button('Add a time', { icon: 'plus', onClick: () => { d.times.push(d.times.length ? '20:00' : '08:00'); d.times = [...new Set(d.times)].sort(); paint(); } }) : null),
+        h('div', { class: 'field' }, h('span', { class: 'field-label' }, 'Pills each time'), each.el || each),
+        h('div', { class: 'field' }, h('span', { class: 'field-label' }, 'Pills left now'), stepper(leftV, (v) => { leftV = v; paint(); }, 1, h('span', { class: 'days' }, '= ' + Math.floor(leftV / Math.max(0.25, d.each * d.times.length)) + ' days'), 0),
+          h('p', { class: 'hint' }, 'Count the pills if the number is wrong.')),
+        h('div', { class: 'field' }, h('span', { class: 'field-label' }, 'Pills in one box'), stepper(d.box, (v) => { d.box = v; paint(); }, 5)),
+        h('div', { class: 'field' }, h('span', { class: 'field-label' }, 'Food'), food.el || food),
+        h('div', { class: 'field' }, h('span', { class: 'field-label' }, 'Who picks up refills?'), h('div', { class: 'chip-row' }, personPick(null, !d.helper, () => { d.helper = ''; paint(); }, 'Nobody'), helpers.map((x) => personPick(x, d.helper === x.id, () => { d.helper = x.id; paint(); })))),
+        h('div', { class: 'field' }, h('span', { class: 'field-label' }, 'Remind them'), stepper(d.remind, (v) => { d.remind = v; paint(); }, 1, h('span', { class: 'days' }, 'days before it runs out'), 1, 14)),
+        d.days ? h('p', { class: 'hint' }, 'Short-term medicine: ' + d.days + ' days, from ' + D.fmt(d.start, { month: 'short', day: 'numeric' }) + '.') : null].filter(Boolean));
+      if (ro) body.querySelectorAll('button,input').forEach((x) => { x.disabled = true; });
+    }
+    async function save() {
+      if (!d.name.trim()) { ui.toast('Please type the name.'); return; }
+      const out = Object.assign({}, d, { checked: true });
+      if (leftV !== startLeft) { out.count = leftV; out.countAt = new Date().toISOString(); }
+      if (await PL.store.set('meds', m.id, out)) { s.close(); ui.toast('Saved.'); }
+    }
+    const footer = ro ? [ui.button('Close', { variant: 'primary', big: true, onClick: () => s.close() })] : [
+      ui.button('Stop', { variant: 'danger', onClick: async () => {
+        if (await ui.confirm({ title: 'Stop ' + m.name + '?', message: 'It leaves ' + first(nameOf(m.who)) + '’s pill box. Its history stays.', confirmLabel: 'Stop it', danger: true }) && await PL.store.set('meds', m.id, Object.assign({}, m, { stopped: true }))) { s.close(); ui.toast(m.name + ' stopped.'); }
+      } }),
+      ui.button('Cancel', { variant: 'ghost', big: true, onClick: () => s.close() }), ui.button('Save', { variant: 'primary', big: true, onClick: save })];
+    const s = ui.sheet({ title: C().kind(m.kind).emoji + ' ' + m.name, body, footer });
+    s.panel.classList.add('wide', 'care-sheet');
+    paint();
+  }
+
+  /* ---------- the Care board link (QR code, settings, make a new link) ---------- */
+  let links = null, linksAt = 0;
+  async function loadLinks(force) {
+    if (isDemo() || !canEdit() || !window.KAL || !KAL.token) return [];
+    if (!force && links && Date.now() - linksAt < 30000) return links;
+    try { const r = await KAL.api('GET', '/api/care/links'); links = r.links || []; linksAt = Date.now(); } catch (e) { links = links || []; }
+    return links;
+  }
+  const linkOf = (who) => (links || []).find((l) => l.memberId === who) || null;
+  function boardStatus(who) {
+    if (isDemo()) return 'Demo: the board is not on a real tablet';
+    const l = linkOf(who);
+    if (!l) return 'Not set up yet';
+    if (l.online) return '🟢 On now';
+    if (!l.lastSeen) return 'Link made · not opened yet';
+    const min = Math.round((Date.now() - new Date(l.lastSeen).getTime()) / 60000);
+    return '⚪ Last on ' + (min < 60 ? min + ' min ago' : min < 1440 ? Math.round(min / 60) + ' h ago' : D.fmt(new Date(l.lastSeen).toISOString().slice(0, 10), { month: 'short', day: 'numeric' }));
+  }
+  async function setupBoard(who) {
+    const p = PL.store.member(who);
+    const body = h('div', { class: 'care-setup' }, h('p', { class: 'sub' }, 'Loading the link…'));
+    const s = ui.sheet({ title: 'Set up ' + (p ? first(p.name) + '’s' : 'the') + ' Care board', body, footer: [ui.button('Preview the board', { icon: 'eye', onClick: () => { s.close(); PL.careBoard.open(who); } }), ui.button('Done', { variant: 'primary', big: true, onClick: () => s.close() })] });
+    s.panel.classList.add('wide', 'care-sheet');
+    let link = null;
+    if (isDemo()) link = { url: location.origin + '/care/cb-demo-link-only-works-in-your-own-home', demo: true };
+    else {
+      try { const r = await KAL.api('POST', '/api/care/links', { memberId: who }); link = r.link; await loadLinks(true); }
+      catch (e) { body.replaceChildren(h('p', { class: 'care-warn' }, e.userMessage || 'Could not make the link. Check your connection and try again.')); return; }
+    }
+    function paint() {
+      const b = C().boardSettings(who);
+      const tg = (txt, key) => ui.toggle(txt, b[key], (v) => C().saveBoard(who, { [key]: v })).el;
+      body.replaceChildren(...[
+        h('div', { class: 'cb-setup' }, h('div', { class: 'cb-qr' }, PL.qr.svg(link.url, 168)),
+          h('div', { class: 'cb-steps' }, h('b', {}, 'On ' + (p ? first(p.name) + '’s' : 'the') + ' tablet:'),
+            h('ol', {}, h('li', {}, 'Scan this code with the camera, or open the link.'), h('li', {}, 'Tap Share → “Add to Home Screen”. It is called “Care board”.'), h('li', {}, 'Open “Care board” from the home screen, tap Start, and keep the tablet plugged in.')),
+            h('div', { class: 'btn-row' }, ui.button('Copy link', { icon: 'copy', onClick: () => copy(link.url) }), navigator.share ? ui.button('Send link', { icon: 'upload', onClick: () => navigator.share({ title: 'Care board', url: link.url }).catch(() => {}) }) : null),
+            link.demo ? h('p', { class: 'hint' }, 'This is the demo: in your own home the link opens the real board.') : h('p', { class: 'hint' }, 'The link opens only the Care board: no menus, no other pages. ' + boardStatus(who) + '.'))),
+        h('div', { class: 'care-2' }, tg('Soft sound when it is time', 'sound'), tg('Ring again every 5 minutes', 'ring'), tg('Keep the screen awake', 'awake'), tg('Let ' + (p ? first(p.name) : 'them') + ' add medicines', 'letAdd')),
+        isDemo() ? null : h('div', { class: 'cb-new' }, h('p', { class: 'hint' }, 'Tablet lost, or link shared by mistake? Make a new link. The old one stops working right away.'),
+          ui.button('Make a new link', { variant: 'danger', icon: 'repeat', onClick: async () => {
+            if (!(await ui.confirm({ title: 'Make a new link?', message: 'The old link stops working right away. You then open the new link on the tablet.', confirmLabel: 'Make a new link', danger: true }))) return;
+            try { const r = await KAL.api('POST', '/api/care/links', { memberId: who, renew: true }); link = r.link; await loadLinks(true); paint(); ui.toast('New link made. Open it on the tablet.'); }
+            catch (e) { ui.toast(e.userMessage || 'Could not make a new link.'); }
+          } }))].filter(Boolean));
+    }
+    paint();
+    const off = PL.store.subscribe(() => { if (body.isConnected) paint(); else off(); });
+  }
+  async function copy(t) {
+    try { await navigator.clipboard.writeText(t); ui.toast('Link copied.'); }
+    catch (e) { ui.toast('Could not copy. Press and hold the link to copy it.'); }
+  }
+
+  /* ---------- alerts: what the family should know now ---------- */
+  function alertsFor(who) {
+    const out = [], A = C().settings().alerts, today = D.today(), p = PL.store.member(who), nm = p ? first(p.name) : 'They';
+    const helpSince = new Date(Date.now() - 2 * 3600000).toISOString();
+    if (A.help) PL.state.carelog.filter((l) => l.who === who && l.kind === 'help' && l.at > helpSince).forEach((l) => {
+      const replied = PL.state.carelog.some((r) => r.who === who && r.kind === 'reply' && r.at > l.at);
+      out.push({ key: 'help|' + l.at, level: replied ? 1 : 3, emoji: '🙋', text: nm + ' asked for help · ' + timeOfIso(l.at), help: l, replied });
+    });
+    if (A.late) [D.addDays(today, -1), today].forEach((date) => C().times(who).forEach((t) => {
+      const st = C().slotState(who, date, t);
+      const late = C().minutesLate(date, t);
+      if ((st === 'now' || st === 'miss') && late >= C().LATE_ALERT) out.push({ key: 'late|' + who + '|' + date + '|' + t, level: 2, emoji: '⏰', who, date, time: t,
+        text: nm + ' has not taken ' + (date === today ? 'the ' : 'yesterday’s ') + C().clock(t) + ' pills' + (late < 600 ? ' (' + (late < 60 ? late + ' min' : Math.floor(late / 60) + ' h') + ' late)' : ''), late: true });
+    }));
+    PL.state.doses.filter((d) => d.who === who && d.date >= D.addDays(today, -1) && d.status === 'skipped').forEach((d) => {
+      const k = 'skip|' + d.date + '|' + d.time;
+      if (!out.some((x) => x.key === k)) out.push({ key: k, level: 1, emoji: '–', text: nm + ' skipped the ' + C().clock(d.time) + ' pills · ' + dayWord(d.date).toLowerCase() });
+    });
+    if (A.added) C().medsOf(who).filter((m) => m.addedBy === 'board' && !m.checked && !m.stopped).forEach((m) => out.push({ key: 'added|' + m.id, level: 1, emoji: '👀', text: nm + ' added ' + m.name + ' on the Care board', med: m }));
+    if (A.low) C().medsOf(who).filter((m) => C().low(m)).forEach((m) => out.push({ key: 'low|' + m.id + '|' + m.countAt, level: 1, emoji: '💊', text: m.name + ' runs out ' + (C().runsOut(m) <= today ? 'today' : D.fmt(C().runsOut(m), { weekday: 'long' })) + (m.helper ? ' · ' + first(nameOf(m.helper)) + ' will pick it up' : ''), med: m, low: true }));
+    if (A.offline && !isDemo()) { const l = linkOf(who); if (l && !l.online && l.lastSeen && Date.now() - new Date(l.lastSeen).getTime() > 30 * 60000 && Date.now() - new Date(l.lastSeen).getTime() < 7 * 86400000) out.push({ key: 'off|' + who + '|' + l.lastSeen.slice(0, 13), level: 1, emoji: '📴', text: nm + '’s Care board is off · ' + boardStatus(who).replace('⚪ ', '') }); }
+    if (A.quiet) {
+      const n = PL.now(); const any = PL.state.doses.some((d) => d.who === who && d.date === today) || PL.state.carelog.some((l) => l.who === who && l.at.slice(0, 10) === today);
+      if (n.getHours() >= 11 && !any) out.push({ key: 'quiet|' + who + '|' + today, level: 1, emoji: '🤔', text: 'No taps on ' + nm + '’s board yet today' });
+    }
+    return out.sort((a, b) => b.level - a.level);
+  }
+  function alertRow(a, who, compact) {
+    const btns = [];
+    if (canEdit()) {
+      if (a.help && !a.replied) ['On my way 🚗', 'I’ll call you 📞', 'Coming soon 💛'].forEach((t) => btns.push(ui.button(t, { onClick: () => reply(who, t) })));
+      if (a.late) { btns.push(ui.button('I gave it', { variant: 'primary', icon: 'check', onClick: async () => { if (await C().mark(a.who, a.date, a.time, 'taken', myId() || 'family')) ui.toast('Marked as given by you.'); } }));
+        if (!compact) btns.push(ui.button('Remind ' + first(nameOf(who)), { icon: 'bell', onClick: async () => { if (await C().log(who, 'remind', { date: a.date, time: a.time })) ui.toast('The Care board will ring now.'); } })); }
+      if (a.med && !a.low && !compact) btns.push(ui.button('Check it', { variant: 'primary', onClick: () => editMedicine(a.med) }));
+      if (a.low && !compact) btns.push(ui.button('I bought more', { icon: 'plus', onClick: () => boughtSheet(a.med) }));
+    }
+    return h('div', { class: 'care-alert lvl' + a.level }, h('span', { class: 'ca-em', 'aria-hidden': 'true' }, a.emoji), h('span', { class: 'ca-tx' }, a.text), btns.length ? h('span', { class: 'ca-btns' }, btns) : null);
+  }
+  const reply = (who, t) => C().log(who, 'reply', { text: t }).then((ok) => ok && ui.toast('Sent to the Care board.'));
+  function boughtSheet(m) {
+    let pills = m.box;
+    const body = h('div', { class: 'event-form' });
+    const paint = () => body.replaceChildren(h('div', { class: 'field' }, h('span', { class: 'field-label' }, 'How many pills did you buy?'), stepper(pills, (v) => { pills = v; paint(); }, 5),
+      h('div', { class: 'chip-row' }, [1, 2, 3].map((n) => h('button', { type: 'button', class: 'person-pick', 'aria-pressed': String(pills === n * m.box), onclick: () => { pills = n * m.box; paint(); } }, n + (n > 1 ? ' boxes' : ' box') + ' · ' + n * m.box)))));
+    const s = ui.sheet({ title: 'I bought ' + m.name, body, footer: [ui.button('Cancel', { variant: 'ghost', big: true, onClick: () => s.close() }), ui.button('Add pills', { variant: 'primary', big: true, onClick: async () => { if (await C().bought(m, pills)) { s.close(); ui.toast(pills + ' pills added.'); } } })] });
+    paint();
+  }
+
+  /* ---------- alerts on every page (banner) + a pop-up notification while the app is open ---------- */
+  let bannerEl = null, notified = new Set(PL.storage ? PL.storage.get('careNotified', []) : []), dismissed = new Set(PL.storage ? PL.storage.get('careDismissed', []) : []);
+  function paintBanner() {
+    if (!PL.state.ready || (window.KAL && KAL.me && KAL.me.care)) return;
+    const content = document.querySelector('.app .content');
+    if (!content) return;
+    if (!bannerEl) { bannerEl = h('div', { class: 'care-banner', role: 'status' }); content.prepend(bannerEl); }
+    const onCare = PL.nav && PL.nav.current() === 'care';
+    const urgent = !C().canSee() || onCare ? [] : C().people().flatMap((p) => alertsFor(p.id).filter((a) => a.level >= 2).map((a) => ({ a, who: p.id }))).filter((x) => !dismissed.has(x.a.key));
+    bannerEl.hidden = !urgent.length;
+    bannerEl.replaceChildren(...urgent.slice(0, 2).map(({ a, who }) => h('div', { class: 'care-banner-row' }, alertRow(a, who, true),
+      ui.button('Open Care', { onClick: () => PL.nav.go('care') }), ui.iconButton('x', 'Hide', () => { dismissed.add(a.key); PL.storage.set('careDismissed', [...dismissed].slice(-100)); paintBanner(); }, 'care-banner-x'))));
+    const dot = document.querySelector('.nav-btn[data-screen="care"]');
+    if (dot) dot.classList.toggle('has-alert', C().canSee() && C().people().some((p) => alertsFor(p.id).some((a) => a.level >= 2)));
+    // pop-up notifications (only while Kalendaryo is open; the same as calendar reminders)
+    if (PL.notify && PL.notify.canPopup() && PL.state.device.notify && C().canSee()) C().people().forEach((p) => alertsFor(p.id).filter((a) => a.level >= 2).forEach((a) => {
+      if (notified.has(a.key)) return;
+      notified.add(a.key); PL.storage.set('careNotified', [...notified].slice(-200));
+      try { new Notification(a.help ? 'Help needed' : 'Medicine', { body: a.text, tag: a.key }); } catch (e) { /* ignore */ }
+    }));
+  }
+  let refillT = null;
+  function startAlerts() {
+    if (window.KAL && KAL.me && KAL.me.care) return;
+    PL.store.subscribe(() => { paintBanner(); clearTimeout(refillT); refillT = setTimeout(() => C().syncRefills(), 1500); paintNav(); });
+    setInterval(() => { paintBanner(); C().syncRefills(); }, 30000);
+    setInterval(() => loadLinks(true).then(paintBanner), 120000);
+    setTimeout(() => loadLinks(true).then(paintBanner), 3000);
+  }
+  // Care in the menu: last, on by default, hidden when the home turns it off.
+  function paintNav() {
+    const b = document.querySelector('.nav-btn[data-screen="care"]');
+    if (b) b.hidden = !C().canSee();
+  }
+
+  /* ---------- the Care page ---------- */
+  function intro() {
+    return h('section', { class: 'card care-intro' },
+      h('div', { class: 'ci-art', 'aria-hidden': 'true' }, '💊'),
+      h('h2', {}, 'Help someone at home take their medicines on time'),
+      h('p', {}, 'For a grandparent, a parent, a child who is sick, or anyone getting better. Add their medicines here. Their own tablet shows a big, simple pill box that glows and rings softly when it is time, and you see on your phone when they took them.'),
+      h('ul', { class: 'ci-list' }, h('li', {}, '✅ One tap to say “I took them” — no more “did she take it?”'),
+        h('li', {}, '💊 Know when pills run out, with a pick-up task in Chores'),
+        h('li', {}, '🙋 A big “I need help” button that tells the family right away')),
+      h('p', { class: 'hint' }, 'Kalendaryo is a reminder helper, not a medical device. Always follow the doctor or pharmacist.'),
+      canEdit() ? h('div', { class: 'btn-row' }, ui.button('Add a medicine', { variant: 'primary', big: true, icon: 'plus', onClick: () => addMedicine() }),
+        ui.button('Not for us. Hide Care', { variant: 'ghost', onClick: async () => { if (await ui.confirm({ title: 'Hide Care?', message: 'Care leaves the menu for everyone. Turn it back on any time in Settings → Care.', confirmLabel: 'Hide Care' }) && await C().saveCare({ on: false })) { ui.toast('Care is hidden. Turn it on again in Settings.'); PL.nav.go('home'); } } })) : null);
+  }
+  function todayLine(who) {
+    const today = D.today();
+    return h('div', { class: 'care-todayline' }, C().times(who).map((t) => {
+      const st = C().slotState(who, today, t);
+      if (!st) return null;
+      const meds = C().medsAt(who, today, t);
+      const dose = meds.map((m) => C().doseFor(m.id, today, t)).find(Boolean);
+      const txt = st === 'ok' ? '✓ ' + C().clock(t) + ' · ' + timeOfIso(dose.at) + (dose.by && dose.by !== 'board' ? ' by ' + first(nameOf(dose.by)) : '') : st === 'skip' ? '– ' + C().clock(t) + ' skipped' : st === 'future' ? C().clock(t) + ' · later' : st === 'now' ? '⏰ ' + C().clock(t) + ' · now' : '! ' + C().clock(t) + ' · not taken';
+      return h('span', { class: 'ct-chip ' + st }, txt);
+    }));
+  }
+  function personCard(p) {
+    const meds = C().medsOf(p.id).filter((m) => !m.stopped).sort((a, b) => a.times[0].localeCompare(b.times[0]));
+    const al = alertsFor(p.id);
+    const rows = meds.map((m) => {
+      const c = C().course(m), dl = C().daysLeft(m), low = C().low(m);
+      const chip = c ? (D.today() > c.last ? 'Finished' : 'Day ' + Math.max(1, c.day) + ' of ' + c.of) : dl >= 99 ? '' : dl + (dl === 1 ? ' day' : ' days') + ' left';
+      return h('button', { type: 'button', class: 'care-row' + (m.addedBy === 'board' && !m.checked ? ' new' : ''), onclick: () => editMedicine(m) },
+        h('span', { class: 'em', 'aria-hidden': 'true' }, C().kind(m.kind).emoji),
+        h('span', { class: 'tt' }, h('b', {}, m.name), h('span', {}, whenText(m))),
+        chip ? h('span', { class: 'care-left' + (low ? ' low' : '') }, chip) : null);
+    });
+    const recent = PL.state.doses.filter((d) => d.who === p.id).sort((a, b) => (a.at < b.at ? 1 : -1)).slice(0, 6);
+    return h('section', { class: 'card care-card' },
+      h('div', { class: 'care-head' }, ui.avatar(p, 44), h('span', { class: 'nm' }, p.name), todayLine(p.id)),
+      al.length ? h('div', { class: 'care-alerts' }, al.map((a) => alertRow(a, p.id))) : null,
+      h('div', { class: 'care-sec' }, 'Medicines'),
+      rows.length ? h('div', { class: 'care-rows' }, rows) : h('p', { class: 'sub' }, 'No medicines yet.'),
+      canEdit() ? h('div', { class: 'btn-row' }, ui.button('Add a medicine for ' + first(p.name), { icon: 'plus', onClick: () => addMedicine(p.id) })) : null,
+      h('div', { class: 'care-boardcard' }, h('span', { class: 'cb-ic', 'aria-hidden': 'true' }, '📱'),
+        h('span', { class: 'nm' }, first(p.name) + '’s Care board', h('small', {}, 'Their own simple screen on a tablet or old phone · ' + boardStatus(p.id))),
+        h('span', { class: 'btn-row' }, canEdit() ? ui.button('Set up on a tablet', { variant: 'primary', onClick: () => setupBoard(p.id) }) : null, ui.button('Preview', { icon: 'eye', onClick: () => PL.careBoard.open(p.id) }))),
+      recent.length ? h('div', { class: 'care-sec' }, 'Lately') : null,
+      recent.length ? h('ul', { class: 'care-recent' }, recent.map((d) => { const m = PL.state.meds.find((x) => x.id === d.med);
+        return h('li', {}, h('b', {}, dayWord(d.date) + ' · ' + C().clock(d.time)), ' ' + (m ? m.name : 'Medicine') + ' · ' + (d.status === 'skipped' ? 'skipped' : (d.status === 'late' ? 'taken late ' : 'taken ') + timeOfIso(d.at) + (d.by && d.by !== 'board' ? ' · given by ' + first(nameOf(d.by)) : ''))); })) : null);
+  }
+
+  PL.screens.care = {
+    mount(root) {
+      const el = h('div', { class: 'screen-page care-page' });
+      root.append(el);
+      function render() {
+        const ppl = C().people();
+        const head = h('header', { class: 'page-head' }, h('h1', {}, 'Care'), canEdit() && ppl.length ? ui.button('Add a medicine', { variant: 'primary', big: true, icon: 'plus', onClick: () => addMedicine() }) : null);
+        if (!C().settings().on) {
+          el.replaceChildren(head, ui.emptyState({ icon: 'pill', title: 'Care is turned off', text: 'Turn it on in Settings → Care.', action: canEdit() ? ui.button('Turn Care on', { variant: 'primary', onClick: () => C().saveCare({ on: true }) }) : null }));
+          return;
+        }
+        el.replaceChildren(head, ppl.length ? h('div', { class: 'care-list' }, ppl.map(personCard)) : intro());
+      }
+      render();
+      setTimeout(paintBanner, 0); // the alerts are on this page already, so the banner at the top hides
+      loadLinks().then(() => { if (el.isConnected) render(); });
+      const t = setInterval(() => { if (!document.querySelector('.sheet')) render(); }, 30000);
+      return { update: () => { if (!el.querySelector('input:focus')) render(); }, destroy() { clearInterval(t); setTimeout(paintBanner, 0); } };
+    }
+  };
+
+  /* ---------- Settings: Care + Tell the family ---------- */
+  function settingsCards() {
+    const s = C().settings(), ro = !canEdit();
+    const section = (title, intro, ...kids) => h('section', { class: 'card settings-card care-set' }, h('h2', {}, title), intro ? h('p', { class: 'sub' }, intro) : null, ...kids);
+    const onT = ui.toggle('Show Care in the menu', s.on, (v) => C().saveCare({ on: v }));
+    const careCard = section('Care', 'Help someone at home take their medicines on time. Their own tablet shows a simple Care board.', onT.el,
+      h('div', { class: 'field' }, h('span', { class: 'field-label' }, 'Who gets care'), h('div', { class: 'chip-row' }, PL.state.members.map((m) => personPick(m, s.people.includes(m.id) || PL.state.meds.some((x) => x.who === m.id && !x.stopped), () => {
+        const set = new Set(s.people); set.has(m.id) ? set.delete(m.id) : set.add(m.id); C().saveCare({ people: [...set] });
+      }))), h('p', { class: 'hint' }, 'Medicines and the Care board are set up on the Care page.')),
+      h('div', { class: 'field' }, h('span', { class: 'field-label' }, 'Who can see Care'), (function () { const sg = ui.segmented([{ value: 'all', label: 'Everyone' }, { value: 'adults', label: 'Grown-ups only' }], s.show, (v) => C().saveCare({ show: v }), 'Who can see Care'); return sg.el || sg; })()));
+    const A = s.alerts;
+    const tg = (t, k) => ui.toggle(t, A[k], (v) => C().saveCare({ alerts: Object.assign({}, A, { [k]: v }) })).el;
+    const tell = section('Tell the family', 'What shows on the Care page and at the top of the app (and as a pop-up while Kalendaryo is open, if reminders are on for this device).',
+      tg('Pills not taken after 30 minutes', 'late'), tg('Medicine running low', 'low'), tg('“I need help”', 'help'), tg('The Care board is off', 'offline'),
+      tg('A medicine was added on the Care board', 'added'), tg('No taps on the board by 11 AM', 'quiet'));
+    if (ro) [careCard, tell].forEach((c) => c.querySelectorAll('input,button').forEach((x) => { x.disabled = true; }));
+    return s.on || !ro ? [careCard, tell] : [careCard];
+  }
+
+  PL.careUi = { addMedicine, editMedicine, setupBoard, settingsCards, alertsFor, startAlerts, paintNav, paintBanner };
+})();
 
 </script>
 <script>
@@ -9033,7 +10586,7 @@ body:has(> .tour-switch) .main { padding-top: 62px; }
     banner = h('div', { class: 'status-banner', role: 'status', hidden: true });
     main = h('main', { class: 'main', id: 'main', tabindex: '-1' });
     nav = h('nav', { class: 'nav', 'aria-label': 'Main' }, PL.config.screens.filter((s) => !s.hidden).map((s) => {
-      const b = h('button', { type: 'button', class: 'nav-btn' + (s.ready ? '' : ' soon'), onclick: () => go(s.id) },
+      const b = h('button', { type: 'button', class: 'nav-btn' + (s.ready ? '' : ' soon'), dataset: { screen: s.id }, onclick: () => go(s.id) },
         icon(s.icon), h('span', { class: 'nav-label' }, s.label));
       navButtons[s.id] = b;
       return b;
@@ -9056,13 +10609,22 @@ body:has(> .tour-switch) .main { padding-top: 62px; }
   function boot() {
     if (PL.beforeBoot && PL.beforeBoot() === false) return; // the web version shows its start page instead
     const root = document.getElementById('porchlight-root');
+    if (window.KAL && KAL.care) return bootCare(root); // a Care board link: only the Care board (client/care)
     const started = PL.store.init(); // loads device settings and the saved copy right away
     PL.shell.build(root);
     const saved = PL.storage.get('lastScreen', 'home');
     PL.nav.go(PL.screens[saved] ? saved : 'home');
     PL.shell.status();
     PL.notify.start();
+    if (PL.careUi) { PL.careUi.paintNav(); PL.careUi.startAlerts(); }
     started.then(() => PL.shell.status());
+  }
+  function bootCare(root) {
+    KAL.ready.then(() => {
+      if (KAL.invalid || !KAL.me) return PL.careBoard.gone(root);
+      PL.store.init();
+      PL.careBoard.own(root);
+    });
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();
 })();

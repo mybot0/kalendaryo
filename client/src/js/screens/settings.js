@@ -176,7 +176,9 @@
         // balanced columns (each card goes under the shortest column), so there are no big gaps.
         // Help & ideas (web version): a way to reach the team, mostly for phones where the side menu is a bottom bar.
         const helpCard = PL.help ? section('Help & ideas', 'Ask for help, report a problem, or share an idea with the Kalendaryo team.', PL.help.button('btn help-open')) : null;
-        const cards = [appearance, helpCard, household, pinCard, wxCard, device, layout, PL.wall.card(), data, about];
+        // Care (client/care): two cards near the bottom, "Care" and "Tell the family".
+        const careCards = PL.careUi ? PL.careUi.settingsCards() : [];
+        const cards = [appearance, helpCard, household, pinCard, wxCard, device, layout, PL.wall.card(), ...careCards, data, about];
         el.replaceChildren(h('header', { class: 'page-head' }, h('h1', {}, 'Settings')), masonry.wrap);
         masonry.set(cards.filter(Boolean));
       }

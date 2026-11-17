@@ -182,12 +182,12 @@
     KAL.recent.forget(KAL.token);
     PL.landing.mount({ note: msg || 'This link does not work anymore. You may have been removed from the family, or the family was deleted. Ask an owner for a new invite.' });
   }
-  KAL.on('people', loadPeople);
-  KAL.on('me', () => { showRole(); loadPeople(); });
-  KAL.on('removed', () => removedScreen());
+  KAL.on('people', () => { if (!KAL.care) loadPeople(); });
+  KAL.on('me', () => { if (KAL.care) return; showRole(); loadPeople(); });
+  KAL.on('removed', () => (KAL.care ? PL.careBoard.gone() : removedScreen()));
 
   function start() {
-    if (!KAL.token) return;
+    if (!KAL.token || KAL.care) return; // a Care board link has its own screen (client/care)
     KAL.ready.then(() => {
       if (KAL.invalid) { if (KAL.invalid.status === 401) removedScreen(); return; }
       showRole(); loadPeople();

@@ -103,7 +103,7 @@
     function show(n) {
       i = Math.max(0, Math.min(steps.length - 1, n));
       const s = steps[i];
-      target = s.target ? [...document.querySelectorAll(s.target)] : null;
+      target = s.target ? [...document.querySelectorAll(s.target)].filter((x) => !x.closest('[hidden]')) : null; // hidden parts (like Care when it is off) are skipped
       if (target && !target.length) target = null;
       if (s.target && !target) return show(i + 1 < steps.length ? i + 1 : i);
       const dots = h('div', { class: 'g-dots', 'aria-hidden': 'true' }, steps.map((_, k) => h('i', { class: k === i ? 'on' : k < i ? 'done' : '' })));
@@ -213,9 +213,20 @@
       { id: 'h-wall', target: '.quick .btn:not(.primary)', side: 'below', pad: 8, icon: icon('expand'), title: 'Wall mode',
         body: [h('p', {}, 'Turn a tablet or old screen into a ', h('b', {}, 'family board'), ' with a big clock, today and chores.')] },
       { id: 'h-nav', target: '.nav', side: 'right', icon: icon('list'), title: 'Your pages',
-        body: [h('p', {}, 'Go to ', h('b', {}, 'Calendar, Chores, Meals, Lists, Photos and People'), ' here. Each page has its own short tour.')] },
+        body: [h('p', {}, 'Go to ', h('b', {}, 'Calendar, Chores, Meals, Lists, Photos, People and Care'), ' here. Each page has its own short tour.')] },
+      { id: 'h-care', target: '.nav .nav-btn[data-screen="care"]', side: 'right', icon: icon('pill'), title: 'Care',
+        body: [h('p', {}, 'Help someone at home take their ', h('b', {}, 'medicines on time'), ': a grandparent, a parent, or a child who is sick.'),
+          h('p', {}, 'Their own tablet shows a big, simple pill box. Not for you? Hide it in ', h('b', {}, 'Settings → Care'), '.')] },
       { id: 'h-switch', target: '.tour-switch', side: 'below', pad: 6, icon: svg(COMPASS), title: 'Turn tours on or off',
         body: [h('p', {}, 'Tap ', h('b', {}, 'Guided tour'), ' to stop these tours. Turn it back on any time to see them again.')], next: 'Got it' }
+    ],
+    care: () => [
+      { id: 'c-welcome', center: true, icon: icon('pill'), tone: 'sun', title: 'This is Care', sub: 'Medicines on time, for someone at home.',
+        body: [h('p', {}, 'Add their medicines here. You see what they took and when, and what is running low.')] },
+      { id: 'c-add', target: '.care-page .page-head .btn.primary, .care-intro .btn.primary', side: 'below', pad: 8, icon: icon('plus'), title: 'Add a medicine',
+        body: [h('p', {}, 'Four short steps: what it is for, the name, when to take it, and how many pills you have.')] },
+      { id: 'c-board', target: '.care-boardcard', side: 'above', icon: icon('home'), title: 'Their own Care board',
+        body: [h('p', {}, 'Tap ', h('b', {}, 'Set up on a tablet'), ' and scan the code with their tablet. It shows only the pill box and an “I need help” button.')], next: 'Got it' }
     ]
   };
   function pageTour(id) {
