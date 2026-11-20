@@ -1255,7 +1255,7 @@ html.care-mode .toast .toast-act, html.care-open .toast .toast-act { min-height:
 }
 html.care-mode .toast, html.care-open .toast { border-radius: 22px; width: max-content; max-width: calc(100vw - 32px); }
 
-/* games.css — Games (from Keybop): Memory Match and Snack Snake.
+/* games.css — Games (from Keybop): Pares-Pares and Gutom na Ahas.
    Everything is inside .kg so it never changes Kalendaryo's own buttons and cards.
    The look is Keybop's (thick outlines, hard shadows, bright colors) on Kalendaryo's background. */
 .kg {
@@ -1319,7 +1319,7 @@ html.care-mode .toast, html.care-open .toast { border-radius: 22px; width: max-c
 .kg-pcard h3 { font: 400 34px/1 var(--kg-display); margin: 0; color: var(--kg-ink); }
 .kg-pcard p { margin: 0; color: var(--kg-ink-soft); font-weight: 700; }
 
-/* Memory Match: square cards that fill the play area (sizes are set by games.js) */
+/* Pares-Pares: square cards that fill the play area (sizes are set by games.js) */
 .kg-mem { height: 100%; display: flex; align-items: center; justify-content: center; padding: 4px 16px 20px; }
 .kg-mgrid { display: grid; }
 .kg .kg-mcard { position: relative; border: 0; background: none; padding: 0; perspective: 600px; border-radius: 16px; }
@@ -1330,7 +1330,7 @@ html.care-mode .toast, html.care-open .toast { border-radius: 22px; width: max-c
 .kg-mface.v { background: var(--kg-card); transform: rotateY(180deg); }
 .kg-mcard.done .kg-mface.v { background: #c9f5dc; }
 
-/* Snack Snake: the board fills the screen; big arrows always at the bottom */
+/* Gutom na Ahas: the board fills the screen; big arrows always at the bottom */
 .kg-snake { height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; padding: 4px 16px 16px; }
 .kg-snake canvas { border: 3px solid var(--kg-ink); border-radius: 14px; touch-action: none; display: block; }
 .kg-dpad { display: none; grid-template-columns: repeat(3, 80px); grid-template-rows: repeat(2, 80px); gap: 10px; }
@@ -1348,6 +1348,10 @@ html.care-mode .toast, html.care-open .toast { border-radius: 22px; width: max-c
 .kg-fx .bit { position: absolute; top: 0; left: 0; will-change: transform; }
 
 @media (prefers-reduced-motion: reduce) { .kg *, .kg-fx * { animation-duration: .01ms !important; transition-duration: .01ms !important; } }
+
+.kg-title { display: flex; align-items: center; gap: .3em; }
+.kg-title-ic { width: 1.1em; height: 1.1em; flex: none; }
+.kg-ico svg { display: block; }
 
 /* web.css — web version only: start page, join page, people with access. */
 .land { max-width: 640px; margin: 0 auto; padding: 40px 16px 60px; display: flex; flex-direction: column; gap: 18px; }
@@ -5252,7 +5256,7 @@ body:has(> .tour-switch) .main { padding-top: 62px; }
         body: [h('p', {}, 'Help someone at home take their ', h('b', {}, 'medicines on time'), ': a grandparent, a parent, or a child who is sick.'),
           h('p', {}, 'Their own tablet shows a big, simple pill box. Not for you? Hide it in ', h('b', {}, 'Settings → Care'), '.')] },
       { id: 'h-games', target: '.nav .nav-btn[data-screen="games"]', side: 'right', icon: icon('game'), title: 'Games',
-        body: [h('p', {}, h('b', {}, 'Memory Match'), ' and ', h('b', {}, 'Snack Snake'), '. Have fun! Also in Wall mode, with the ', h('b', {}, 'Games'), ' button.')] },
+        body: [h('p', {}, h('b', {}, 'Pares-Pares'), ' (a memory game) and ', h('b', {}, 'Gutom na Ahas'), '. Have fun! Also in Wall mode, with the ', h('b', {}, 'Games'), ' button.')] },
       { id: 'h-switch', target: '.tour-switch', side: 'below', pad: 6, icon: svg(COMPASS), title: 'Turn tours on or off',
         body: [h('p', {}, 'Tap ', h('b', {}, 'Guided tour'), ' to stop these tours. Turn it back on any time to see them again.')], next: 'Got it' }
     ],
@@ -10656,8 +10660,8 @@ body:has(> .tour-switch) .main { padding-top: 62px; }
 </script>
 <script>
 /*
- * games.js — Kalendaryo Games (from Keybop): Memory Match and Snack Snake.
- *   Side menu → Games (a page with the game tiles), and Wall mode → 🎮 Games (the same list, full screen).
+ * games.js — Kalendaryo Games (from Keybop): Pares-Pares and Gutom na Ahas.
+ *   Side menu → Games (a page with the game tiles), and Wall mode → Games (the same list, full screen).
  *   A game always opens full screen, with "← Games" to go back.
  *   Nothing is sent anywhere: best scores and the sound setting stay on this device (localStorage, "kal.games:").
  */
@@ -10733,7 +10737,7 @@ body:has(> .tour-switch) .main { padding-top: 62px; }
   }
   function rr(ctx, x, y, w, hh, r) { ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + hh, r); ctx.arcTo(x + w, y + hh, x, y + hh, r); ctx.arcTo(x, y + hh, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath(); }
 
-  /* ================= Memory Match ================= */
+  /* ================= Pares-Pares (memory) ================= */
   // Card counts per level, chosen so every row is full and the cards fill the screen.
   // Phones stop at 32 cards (about 80px each); tablets at 54 cards (about 110px each).
   const PHONE_PAIRS = [6, 9, 14, 16];
@@ -10799,12 +10803,12 @@ body:has(> .tour-switch) .main { padding-top: 62px; }
     return { destroy() { timers.forEach(clearTimeout); ro.disconnect(); } };
   }
 
-  /* ================= Snack Snake ================= */
+  /* ================= Gutom na Ahas (snake) ================= */
   function makeSnake(root, api) {
     const N = 16; // squares on the short side; the long side gets more, so the board fills the screen
     let NX = N, NY = N;
     const wrap = el('div', 'kg-snake'), cv = el('canvas'), pad = el('div', 'kg-dpad' + (coarse() ? ' on' : ''));
-    cv.setAttribute('aria-label', 'Snack Snake board');
+    cv.setAttribute('aria-label', 'Gutom na Ahas board');
     pad.innerHTML = '<button class="u" type="button" aria-label="Up">▲</button><button class="l" type="button" aria-label="Left">◀</button><button class="d" type="button" aria-label="Down">▼</button><button class="r" type="button" aria-label="Right">▶</button>';
     wrap.append(cv, pad); root.append(wrap);
     const ctx = cv.getContext('2d');
@@ -10913,9 +10917,13 @@ body:has(> .tour-switch) .main { padding-top: 62px; }
   }
 
   /* ---------- the list of games ---------- */
+  // Our own drawings (no emoji) for the tiles and the title.
+  const ICO_PARES = '<svg viewBox="0 0 64 64" width="60" height="60"><g stroke="#1b1a3a" stroke-width="3" stroke-linejoin="round"><rect x="6" y="12" width="28" height="38" rx="5" fill="#fff" transform="rotate(-12 20 31)"/><g transform="rotate(-12 20 31)"><rect x="11" y="17" width="18" height="28" rx="3" fill="#ffc531" stroke-width="2"/><path d="M20 23l5 8-5 8-5-8z" fill="#fff" stroke-width="2"/></g><rect x="28" y="12" width="28" height="38" rx="5" fill="#fff" transform="rotate(10 42 31)"/><path d="M42 41s-9-5-9-11a4.6 4.6 0 019-1.6A4.6 4.6 0 0151 30c0 6-9 11-9 11z" fill="#ff5b4d" stroke-width="2.5" transform="rotate(10 42 31)"/></g></svg>';
+  const ICO_AHAS = '<svg viewBox="0 0 64 64" width="60" height="60"><g stroke="#1b1a3a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M10 52c0-8 8-10 16-10s14-4 14-10" fill="none" stroke="#1b1a3a" stroke-width="13"/><path d="M10 52c0-8 8-10 16-10s14-4 14-10" fill="none" stroke="#26bf72" stroke-width="7"/><circle cx="40" cy="24" r="13" fill="#26bf72"/><path d="M44 27c3 0 6 1 8 3-2 2-5 3-8 3z" fill="#ff7eb6" stroke-width="2.5"/><circle cx="35" cy="20" r="4.5" fill="#fff" stroke-width="2.5"/><circle cx="44" cy="17" r="4.5" fill="#fff" stroke-width="2.5"/><circle cx="36" cy="21" r="1.6" fill="#1b1a3a" stroke="none"/><circle cx="45" cy="18" r="1.6" fill="#1b1a3a" stroke="none"/><circle cx="56" cy="44" r="6" fill="#ff5b4d" stroke-width="2.5"/><path d="M56 38c0-2 1-3 3-4" fill="none" stroke-width="2.5"/></g></svg>';
+  const TITLE_HTML = '<svg class="kg-title-ic" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 8h10a5 5 0 015 5v.5a4.5 4.5 0 01-8.1 2.7L13 15h-2l-.9 1.2A4.5 4.5 0 012 13.5V13a5 5 0 015-5zM7 11v3M5.5 12.5h3M16 11.5h.01M18 13.5h.01"/></svg><span>Games</span>';
   const GAMES = [
-    { id: 'memory', title: 'Memory Match', ico: '🃏', c: COL.grape, age: 'Ages 3–8', blurb: 'Flip two cards at a time and find every pair.', make: makeMemory },
-    { id: 'snake', title: 'Snack Snake', ico: '🐍', c: COL.tomato, age: 'Ages 6+', blurb: 'Steer the snake to the apples. Walls wrap around, so nobody crashes.', make: makeSnake }
+    { id: 'memory', title: 'Pares-Pares', ico: ICO_PARES, c: COL.grape, age: 'Ages 3–8', blurb: 'A memory game: flip two cards and find every pair.', make: makeMemory },
+    { id: 'snake', title: 'Gutom na Ahas', ico: ICO_AHAS, c: COL.tomato, age: 'Ages 6+', blurb: 'Feed the hungry snake! Walls wrap around, so nobody crashes.', make: makeSnake }
   ];
   function tiles() {
     const box = el('div', 'kg-tiles');
@@ -10988,7 +10996,7 @@ body:has(> .tour-switch) .main { padding-top: 62px; }
   function openPicker() {
     const back = el('button', 'kg-back'); back.type = 'button'; back.textContent = '← Back to Wall';
     const top = el('div', 'kg-top'); top.append(back, soundChip());
-    const t = el('h2', 'kg-title'); t.textContent = '🎮 Games';
+    const t = el('h2', 'kg-title'); t.innerHTML = TITLE_HTML;
     const inner = el('div', 'kg-pick-in'); inner.append(top, t, tiles());
     const pickEl = el('div', 'kg-pick'); pickEl.append(inner);
     const entry = openLayer(pickEl);
@@ -11000,7 +11008,7 @@ body:has(> .tour-switch) .main { padding-top: 62px; }
   function mountStandalone(root) {
     const brand = el('a', 'kg-brand'); brand.href = '/'; brand.innerHTML = '<span class="kg-brand-pill">Kalendaryo</span>';
     const top = el('div', 'kg-top'); top.append(brand, soundChip());
-    const t = el('h1', 'kg-title'); t.textContent = '🎮 Games';
+    const t = el('h1', 'kg-title'); t.innerHTML = TITLE_HTML;
     const sub = el('p', 'kg-sub'); sub.textContent = 'Have fun! Free, no sign-up, no ads. Scores stay on this device.';
     const foot = el('p', 'kg-foot');
     foot.innerHTML = 'Made by <a href="/">Kalendaryo</a>, a free calendar and family board for your home. <a href="/">Try it →</a>';

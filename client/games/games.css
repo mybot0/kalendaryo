@@ -1,4 +1,4 @@
-/* games.css — Games (from Keybop): Memory Match and Snack Snake.
+/* games.css — Games (from Keybop): Pares-Pares and Gutom na Ahas.
    Everything is inside .kg so it never changes Kalendaryo's own buttons and cards.
    The look is Keybop's (thick outlines, hard shadows, bright colors) on Kalendaryo's background. */
 .kg {
@@ -62,7 +62,7 @@
 .kg-pcard h3 { font: 400 34px/1 var(--kg-display); margin: 0; color: var(--kg-ink); }
 .kg-pcard p { margin: 0; color: var(--kg-ink-soft); font-weight: 700; }
 
-/* Memory Match: square cards that fill the play area (sizes are set by games.js) */
+/* Pares-Pares: square cards that fill the play area (sizes are set by games.js) */
 .kg-mem { height: 100%; display: flex; align-items: center; justify-content: center; padding: 4px 16px 20px; }
 .kg-mgrid { display: grid; }
 .kg .kg-mcard { position: relative; border: 0; background: none; padding: 0; perspective: 600px; border-radius: 16px; }
@@ -73,7 +73,7 @@
 .kg-mface.v { background: var(--kg-card); transform: rotateY(180deg); }
 .kg-mcard.done .kg-mface.v { background: #c9f5dc; }
 
-/* Snack Snake: the board fills the screen; big arrows always at the bottom */
+/* Gutom na Ahas: the board fills the screen; big arrows always at the bottom */
 .kg-snake { height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; padding: 4px 16px 16px; }
 .kg-snake canvas { border: 3px solid var(--kg-ink); border-radius: 14px; touch-action: none; display: block; }
 .kg-dpad { display: none; grid-template-columns: repeat(3, 80px); grid-template-rows: repeat(2, 80px); gap: 10px; }
@@ -91,3 +91,7 @@
 .kg-fx .bit { position: absolute; top: 0; left: 0; will-change: transform; }
 
 @media (prefers-reduced-motion: reduce) { .kg *, .kg-fx * { animation-duration: .01ms !important; transition-duration: .01ms !important; } }
+
+.kg-title { display: flex; align-items: center; gap: .3em; }
+.kg-title-ic { width: 1.1em; height: 1.1em; flex: none; }
+.kg-ico svg { display: block; }

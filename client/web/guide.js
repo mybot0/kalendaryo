@@ -218,7 +218,7 @@
         body: [h('p', {}, 'Help someone at home take their ', h('b', {}, 'medicines on time'), ': a grandparent, a parent, or a child who is sick.'),
           h('p', {}, 'Their own tablet shows a big, simple pill box. Not for you? Hide it in ', h('b', {}, 'Settings → Care'), '.')] },
       { id: 'h-games', target: '.nav .nav-btn[data-screen="games"]', side: 'right', icon: icon('game'), title: 'Games',
-        body: [h('p', {}, h('b', {}, 'Memory Match'), ' and ', h('b', {}, 'Snack Snake'), '. Have fun! Also in Wall mode, with the ', h('b', {}, 'Games'), ' button.')] },
+        body: [h('p', {}, h('b', {}, 'Pares-Pares'), ' (a memory game) and ', h('b', {}, 'Gutom na Ahas'), '. Have fun! Also in Wall mode, with the ', h('b', {}, 'Games'), ' button.')] },
       { id: 'h-switch', target: '.tour-switch', side: 'below', pad: 6, icon: svg(COMPASS), title: 'Turn tours on or off',
         body: [h('p', {}, 'Tap ', h('b', {}, 'Guided tour'), ' to stop these tours. Turn it back on any time to see them again.')], next: 'Got it' }
     ],

@@ -61,8 +61,8 @@ if (web) {
     ["(function(){ PL.games.mountStandalone(document.getElementById('games-root')); })();"]);
   const g = ['<!doctype html>', '<html lang="en">', '<head>', '<meta charset="utf-8">', '<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">',
     '<meta name="robots" content="noindex">', '<meta name="theme-color" content="#F4F3EE">', '<title>Kalendaryo Games</title>',
-    '<meta name="description" content="Have fun! Memory Match and Snack Snake. Free, no sign-up, no ads.">',
-    '<meta property="og:title" content="Kalendaryo Games">', '<meta property="og:description" content="Have fun! Memory Match and Snack Snake. Free, no sign-up, no ads.">',
+    '<meta name="description" content="Have fun! Pares-Pares and Gutom na Ahas. Free, no sign-up, no ads.">',
+    '<meta property="og:title" content="Kalendaryo Games">', '<meta property="og:description" content="Have fun! Pares-Pares and Gutom na Ahas. Free, no sign-up, no ads.">',
     "<script>try{var t=localStorage.getItem('kal.theme')||'light';if(t==='dark'||(t==='auto'&&matchMedia('(prefers-color-scheme: dark)').matches))document.documentElement.dataset.theme='dark'}catch(e){}</script>",
     '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;600;700;800&family=Outfit:wght@600;700;800&family=Lilita+One&family=Nunito:wght@600;800&display=swap">',
     '<style>', ...gstyles, '</style>', '</head>', '<body>', '<div id="games-root"></div>']

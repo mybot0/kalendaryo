@@ -1,6 +1,6 @@
 /*
- * games.js — Kalendaryo Games (from Keybop): Memory Match and Snack Snake.
- *   Side menu → Games (a page with the game tiles), and Wall mode → 🎮 Games (the same list, full screen).
+ * games.js — Kalendaryo Games (from Keybop): Pares-Pares and Gutom na Ahas.
+ *   Side menu → Games (a page with the game tiles), and Wall mode → Games (the same list, full screen).
  *   A game always opens full screen, with "← Games" to go back.
  *   Nothing is sent anywhere: best scores and the sound setting stay on this device (localStorage, "kal.games:").
  */
@@ -76,7 +76,7 @@
   }
   function rr(ctx, x, y, w, hh, r) { ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + hh, r); ctx.arcTo(x + w, y + hh, x, y + hh, r); ctx.arcTo(x, y + hh, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath(); }
 
-  /* ================= Memory Match ================= */
+  /* ================= Pares-Pares (memory) ================= */
   // Card counts per level, chosen so every row is full and the cards fill the screen.
   // Phones stop at 32 cards (about 80px each); tablets at 54 cards (about 110px each).
   const PHONE_PAIRS = [6, 9, 14, 16];
@@ -142,12 +142,12 @@
     return { destroy() { timers.forEach(clearTimeout); ro.disconnect(); } };
   }
 
-  /* ================= Snack Snake ================= */
+  /* ================= Gutom na Ahas (snake) ================= */
   function makeSnake(root, api) {
     const N = 16; // squares on the short side; the long side gets more, so the board fills the screen
     let NX = N, NY = N;
     const wrap = el('div', 'kg-snake'), cv = el('canvas'), pad = el('div', 'kg-dpad' + (coarse() ? ' on' : ''));
-    cv.setAttribute('aria-label', 'Snack Snake board');
+    cv.setAttribute('aria-label', 'Gutom na Ahas board');
     pad.innerHTML = '<button class="u" type="button" aria-label="Up">▲</button><button class="l" type="button" aria-label="Left">◀</button><button class="d" type="button" aria-label="Down">▼</button><button class="r" type="button" aria-label="Right">▶</button>';
     wrap.append(cv, pad); root.append(wrap);
     const ctx = cv.getContext('2d');
@@ -256,9 +256,13 @@
   }
 
   /* ---------- the list of games ---------- */
+  // Our own drawings (no emoji) for the tiles and the title.
+  const ICO_PARES = '<svg viewBox="0 0 64 64" width="72" height="72"><g stroke="#1b1a3a" stroke-width="3" stroke-linejoin="round"><g transform="rotate(-14 21 33)"><rect x="5" y="13" width="31" height="42" rx="6" fill="#fff"/><rect x="10" y="18" width="21" height="32" rx="3" fill="#ffc531" stroke-width="2.5"/><path d="M20.5 25l6 9-6 9-6-9z" fill="#fff" stroke-width="2.5"/></g><g transform="rotate(12 43 33)"><rect x="27" y="11" width="31" height="42" rx="6" fill="#fff"/><path d="M42.5 43s-10-5.5-10-12.5a5 5 0 0110-1.8 5 5 0 0110 1.8c0 7-10 12.5-10 12.5z" fill="#ff5b4d" stroke-width="2.5"/></g></g></svg>';
+  const ICO_AHAS = '<svg viewBox="0 0 64 64" width="72" height="72"><g stroke="#1b1a3a" stroke-linecap="round" stroke-linejoin="round"><path d="M8 54c2-9 10-9 17-9s13-3 13-11" fill="none" stroke-width="14"/><path d="M8 54c2-9 10-9 17-9s13-3 13-11" fill="none" stroke="#26bf72" stroke-width="8"/><circle cx="36" cy="24" r="15" fill="#26bf72" stroke-width="3"/><path d="M41 29q5 4 10 1" fill="none" stroke-width="3"/><circle cx="30" cy="20" r="5.5" fill="#fff" stroke-width="2.5"/><circle cx="41" cy="17" r="5.5" fill="#fff" stroke-width="2.5"/><circle cx="31" cy="21" r="2.2" fill="#1b1a3a" stroke="none"/><circle cx="42" cy="18" r="2.2" fill="#1b1a3a" stroke="none"/><path d="M51 44c-3-2.5-9-1.5-9 5 0 5 4 9.5 6.5 9.5 1 0 1.5-.6 2.5-.6s1.5.6 2.5.6c2.5 0 6.5-4.5 6.5-9.5 0-6.5-6-7.5-9-5z" fill="#c9182b" stroke-width="2.5"/><path d="M51 44c0-2.5 1-4.5 3-5.5" fill="none" stroke-width="2.5"/><path d="M53 41.5c2-2.5 5-2.5 6.5-1.5-1.5 2.5-4 3-6.5 1.5z" fill="#26bf72" stroke-width="2"/><path d="M46 48.5q.5-2 2.5-2.5" fill="none" stroke="#fff" stroke-width="2"/></g></svg>';
+  const TITLE_HTML = '<svg class="kg-title-ic" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 8h10a5 5 0 015 5v.5a4.5 4.5 0 01-8.1 2.7L13 15h-2l-.9 1.2A4.5 4.5 0 012 13.5V13a5 5 0 015-5zM7 11v3M5.5 12.5h3M16 11.5h.01M18 13.5h.01"/></svg><span>Games</span>';
   const GAMES = [
-    { id: 'memory', title: 'Memory Match', ico: '🃏', c: COL.grape, age: 'Ages 3–8', blurb: 'Flip two cards at a time and find every pair.', make: makeMemory },
-    { id: 'snake', title: 'Snack Snake', ico: '🐍', c: COL.tomato, age: 'Ages 6+', blurb: 'Steer the snake to the apples. Walls wrap around, so nobody crashes.', make: makeSnake }
+    { id: 'memory', title: 'Pares-Pares', ico: ICO_PARES, c: COL.grape, age: 'Ages 3–8', blurb: 'A memory game: flip two cards and find every pair.', make: makeMemory },
+    { id: 'snake', title: 'Gutom na Ahas', ico: ICO_AHAS, c: COL.tomato, age: 'Ages 6+', blurb: 'Feed the hungry snake! Walls wrap around, so nobody crashes.', make: makeSnake }
   ];
   function tiles() {
     const box = el('div', 'kg-tiles');
@@ -331,7 +335,7 @@
   function openPicker() {
     const back = el('button', 'kg-back'); back.type = 'button'; back.textContent = '← Back to Wall';
     const top = el('div', 'kg-top'); top.append(back, soundChip());
-    const t = el('h2', 'kg-title'); t.textContent = '🎮 Games';
+    const t = el('h2', 'kg-title'); t.innerHTML = TITLE_HTML;
     const inner = el('div', 'kg-pick-in'); inner.append(top, t, tiles());
     const pickEl = el('div', 'kg-pick'); pickEl.append(inner);
     const entry = openLayer(pickEl);
@@ -343,7 +347,7 @@
   function mountStandalone(root) {
     const brand = el('a', 'kg-brand'); brand.href = '/'; brand.innerHTML = '<span class="kg-brand-pill">Kalendaryo</span>';
     const top = el('div', 'kg-top'); top.append(brand, soundChip());
-    const t = el('h1', 'kg-title'); t.textContent = '🎮 Games';
+    const t = el('h1', 'kg-title'); t.innerHTML = TITLE_HTML;
     const sub = el('p', 'kg-sub'); sub.textContent = 'Have fun! Free, no sign-up, no ads. Scores stay on this device.';
     const foot = el('p', 'kg-foot');
     foot.innerHTML = 'Made by <a href="/">Kalendaryo</a>, a free calendar and family board for your home. <a href="/">Try it →</a>';
