@@ -1,5 +1,5 @@
 /*
- * games.js — Kalendaryo Games (from Keybop): Pares-Pares and Gutom na Ahas.
+ * games.js — Kalendaryo Games (from Keybop): Pares-Pares and Hangry Snake.
  *   Side menu → Games (a page with the game tiles), and Wall mode → Games (the same list, full screen).
  *   A game always opens full screen, with "← Games" to go back.
  *   Nothing is sent anywhere: best scores and the sound setting stay on this device (localStorage, "kal.games:").
@@ -142,21 +142,38 @@
     return { destroy() { timers.forEach(clearTimeout); ro.disconnect(); } };
   }
 
-  /* ================= Gutom na Ahas (snake) ================= */
+  /* ================= Hangry Snake (snake) ================= */
   function makeSnake(root, api) {
     const N = 16; // squares on the short side; the long side gets more, so the board fills the screen
     let NX = N, NY = N;
-    const wrap = el('div', 'kg-snake'), cv = el('canvas'), pad = el('div', 'kg-dpad' + (coarse() ? ' on' : ''));
-    cv.setAttribute('aria-label', 'Gutom na Ahas board');
+    const wrap = el('div', 'kg-snake'), cv = el('canvas'), spd = el('div', 'kg-speed'), mod = el('div', 'kg-speed'), opts = el('div', 'kg-opts'), hint = el('p', 'kg-hint'), pad = el('div', 'kg-dpad' + (coarse() ? ' on' : ''));
+    cv.setAttribute('aria-label', 'Hangry Snake board');
     pad.innerHTML = '<button class="u" type="button" aria-label="Up">▲</button><button class="l" type="button" aria-label="Left">◀</button><button class="d" type="button" aria-label="Down">▼</button><button class="r" type="button" aria-label="Right">▶</button>';
-    wrap.append(cv, pad); root.append(wrap);
+    // Speed: 1 = slow (half of 2, the default), 2 = normal, 3 = fast. The last choice is remembered on this device.
+    const SPEED = { 1: 2, 2: 1, 3: 0.65 };
+    let speed = SPEED[store.get('speed:snake', 1)] ? store.get('speed:snake', 1) : 1;
+    spd.innerHTML = '<span>Speed</span>' + [1, 2, 3].map((n) => '<button type="button" data-s="' + n + '" aria-label="Speed ' + n + '">' + n + '</button>').join('');
+    const paintSpd = () => spd.querySelectorAll('button').forEach((b) => b.setAttribute('aria-pressed', String(+b.dataset.s === speed)));
+    spd.addEventListener('click', (e) => { const b = e.target.closest('button'); if (!b) return; speed = +b.dataset.s; store.set('speed:snake', speed); paintSpd(); b.blur(); });
+    paintSpd();
+    // Mode: 1 = one apple (the default), 2 = lots of fruit, 3 = lots of fruit that blinks and then disappears.
+    const MODES = { 1: 'One apple', 2: 'Lots of fruit', 3: 'Fruit disappears! Be quick.' };
+    let mode = MODES[store.get('mode:snake', 1)] ? store.get('mode:snake', 1) : 1;
+    mod.innerHTML = '<span>Mode</span>' + [1, 2, 3].map((n) => '<button type="button" data-m="' + n + '" aria-label="Mode ' + n + ': ' + MODES[n] + '">' + n + '</button>').join('');
+    const paintMod = () => { mod.querySelectorAll('button').forEach((b) => b.setAttribute('aria-pressed', String(+b.dataset.m === mode))); hint.textContent = 'Mode ' + mode + ': ' + MODES[mode]; };
+    mod.addEventListener('click', (e) => { const b = e.target.closest('button'); if (!b) return; const m = +b.dataset.m; b.blur(); if (m === mode) return; mode = m; store.set('mode:snake', mode); paintMod(); reset(); });
+    paintMod();
+    opts.append(spd, mod);
+    wrap.append(opts, hint, cv, pad); root.append(wrap);
     const ctx = cv.getContext('2d');
     let cell = 20, sized = false;
-    let snake, dir, moved, apple, eaten, ms, acc, last, raf, started = false, flash, best = store.get('best:snake', 0);
+    let snake, dir, moved, fruits = [], eaten, ms, acc, last, raf, started = false, flash, clock = 0, best = 0;
+    const FRUIT = ['🍎', '🍌', '🍇', '🍓', '🍊', '🥭', '🍉', '🍒', '🍐', '🍑'];
+    const bestKey = () => (mode === 1 ? 'best:snake' : 'best:snake:m' + mode);
     function size() {
       if (!root.clientWidth) return;
       const dpr = Math.min(2, devicePixelRatio || 1);
-      const padH = pad.classList.contains('on') ? (pad.offsetHeight || 180) + 34 : 40;
+      const padH = (pad.classList.contains('on') ? (pad.offsetHeight || 180) + 34 : 40) + (opts.offsetHeight || 44) + (hint.offsetHeight || 20) + 28;
       const aw = root.clientWidth - 32, ah = root.clientHeight - padH;
       if (!sized || !started) { // before the first move the board may change shape (full screen, turning the iPad)
         cell = Math.max(12, Math.floor(Math.min(aw, ah) / N)); const nx = Math.max(N, Math.floor(aw / cell)), ny = Math.max(N, Math.floor(ah / cell));
@@ -170,16 +187,21 @@
     }
     size();
     const ro = new ResizeObserver(size); ro.observe(root);
-    const label = () => api.score('🍎 ' + eaten + ' · best ' + best);
-    function placeApple() {
-      let p;
-      do { p = { x: Math.floor(Math.random() * NX), y: Math.floor(Math.random() * NY) }; } while (snake.some((s) => s.x === p.x && s.y === p.y));
-      apple = p;
+    const label = () => api.score((mode === 1 ? '🍎 ' : '🍓 ') + eaten + ' · best ' + best);
+    function addFruit() {
+      let p, tries = 0;
+      do { p = { x: Math.floor(Math.random() * NX), y: Math.floor(Math.random() * NY) }; tries++; }
+      while (tries < 500 && (snake.some((q) => q.x === p.x && q.y === p.y) || fruits.some((f) => f.x === p.x && f.y === p.y)));
+      p.e = mode === 1 ? '🍎' : FRUIT[Math.floor(Math.random() * FRUIT.length)];
+      p.end = mode === 3 ? clock + 4000 + Math.random() * 5000 : Infinity; // mode 3: gone after 4 to 9 seconds
+      fruits.push(p);
     }
+    const fruitCount = () => (mode === 1 ? 1 : 5);
+    function fillFruit() { while (fruits.length < fruitCount()) addFruit(); }
     function reset() {
       const cx = Math.floor(NX / 2), cy = Math.floor(NY / 2);
       snake = [{ x: cx, y: cy }, { x: cx - 1, y: cy }, { x: cx - 2, y: cy }]; dir = { x: 1, y: 0 }; moved = { x: 0, y: 0 };
-      eaten = 0; ms = 150; acc = 0; last = 0; started = false; flash = 0; placeApple(); label();
+      eaten = 0; ms = 150; acc = 0; last = 0; clock = 0; started = false; flash = 0; best = store.get(bestKey(), 0); fruits = []; fillFruit(); label();
     }
     function setDir(dx, dy) {
       if (!started) {
@@ -193,7 +215,7 @@
     function step() {
       moved = dir;
       const hx = (snake[0].x + dir.x + NX) % NX, hy = (snake[0].y + dir.y + NY) % NY;
-      const grow = hx === apple.x && hy === apple.y;
+      const fi = fruits.findIndex((f) => f.x === hx && f.y === hy), grow = fi >= 0;
       const bodyCells = grow ? snake : snake.slice(0, -1);
       const idx = bodyCells.findIndex((s) => s.x === hx && s.y === hy);
       if (idx >= 0) { snake = bodyCells.slice(0, Math.max(3, idx)); flash = 1; api.beep(180, .25, 'sawtooth', .08); }
@@ -201,8 +223,8 @@
       snake.unshift({ x: hx, y: hy });
       if (grow) {
         eaten++; ms = Math.max(85, 150 - eaten * 4);
-        if (eaten > best) { best = eaten; store.set('best:snake', best); }
-        label(); api.note(eaten); api.confetti(5); placeApple();
+        if (eaten > best) { best = eaten; store.set(bestKey(), best); }
+        label(); api.note(eaten); api.confetti(5); fruits.splice(fi, 1); fillFruit();
       }
     }
     function draw() {
@@ -210,7 +232,11 @@
       for (let y = 0; y < NY; y++) for (let x = 0; x < NX; x++) { ctx.fillStyle = (x + y) % 2 ? '#cdeed6' : '#dff5e3'; ctx.fillRect(x * cell, y * cell, cell, cell); }
       ctx.font = Math.floor(cell * .8) + 'px "Segoe UI Emoji","Apple Color Emoji","Noto Color Emoji",sans-serif';
       ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-      ctx.fillText('🍎', apple.x * cell + cell / 2, apple.y * cell + cell / 2 + 1);
+      fruits.forEach((f) => {
+        const left = f.end - clock;
+        if (left < 1500 && Math.floor(left / 180) % 2) return; // blink before it disappears
+        ctx.fillText(f.e, f.x * cell + cell / 2, f.y * cell + cell / 2 + 1);
+      });
       snake.forEach((s, i) => {
         const p = i === 0 ? 1 : 3;
         ctx.fillStyle = COL.leaf; rr(ctx, s.x * cell + p, s.y * cell + p, cell - p * 2, cell - p * 2, cell * .32); ctx.fill();
@@ -233,7 +259,10 @@
     function frame(ts) {
       raf = requestAnimationFrame(frame);
       const dt = Math.min(100, last ? ts - last : 0); last = ts;
-      if (started) { acc += dt; while (acc >= ms) { acc -= ms; step(); } }
+      if (started) {
+        acc += dt; clock += dt; const t = ms * SPEED[speed]; while (acc >= t) { acc -= t; step(); }
+        if (mode === 3) { const n = fruits.length; fruits = fruits.filter((f) => f.end > clock); if (fruits.length < n) fillFruit(); }
+      }
       flash = Math.max(0, flash - dt / 900);
       draw();
     }
@@ -258,17 +287,17 @@
   /* ---------- the list of games ---------- */
   // Our own drawings (no emoji) for the tiles and the title.
   const ICO_PARES = '<svg viewBox="0 0 64 64" width="72" height="72"><g stroke="#1b1a3a" stroke-width="3" stroke-linejoin="round"><g transform="rotate(-14 21 33)"><rect x="5" y="13" width="31" height="42" rx="6" fill="#fff"/><rect x="10" y="18" width="21" height="32" rx="3" fill="#ffc531" stroke-width="2.5"/><path d="M20.5 25l6 9-6 9-6-9z" fill="#fff" stroke-width="2.5"/></g><g transform="rotate(12 43 33)"><rect x="27" y="11" width="31" height="42" rx="6" fill="#fff"/><path d="M42.5 43s-10-5.5-10-12.5a5 5 0 0110-1.8 5 5 0 0110 1.8c0 7-10 12.5-10 12.5z" fill="#ff5b4d" stroke-width="2.5"/></g></g></svg>';
-  const ICO_AHAS = '<svg viewBox="0 0 64 64" width="72" height="72"><g stroke="#1b1a3a" stroke-linecap="round" stroke-linejoin="round"><path d="M8 54c2-9 10-9 17-9s13-3 13-11" fill="none" stroke-width="14"/><path d="M8 54c2-9 10-9 17-9s13-3 13-11" fill="none" stroke="#26bf72" stroke-width="8"/><circle cx="36" cy="24" r="15" fill="#26bf72" stroke-width="3"/><path d="M41 29q5 4 10 1" fill="none" stroke-width="3"/><circle cx="30" cy="20" r="5.5" fill="#fff" stroke-width="2.5"/><circle cx="41" cy="17" r="5.5" fill="#fff" stroke-width="2.5"/><circle cx="31" cy="21" r="2.2" fill="#1b1a3a" stroke="none"/><circle cx="42" cy="18" r="2.2" fill="#1b1a3a" stroke="none"/><path d="M51 44c-3-2.5-9-1.5-9 5 0 5 4 9.5 6.5 9.5 1 0 1.5-.6 2.5-.6s1.5.6 2.5.6c2.5 0 6.5-4.5 6.5-9.5 0-6.5-6-7.5-9-5z" fill="#c9182b" stroke-width="2.5"/><path d="M51 44c0-2.5 1-4.5 3-5.5" fill="none" stroke-width="2.5"/><path d="M53 41.5c2-2.5 5-2.5 6.5-1.5-1.5 2.5-4 3-6.5 1.5z" fill="#26bf72" stroke-width="2"/><path d="M46 48.5q.5-2 2.5-2.5" fill="none" stroke="#fff" stroke-width="2"/></g></svg>';
+  const ICO_HANGRY = '<svg viewBox="0 0 64 64" width="72" height="72"><g stroke="#1b1a3a" stroke-linecap="round" stroke-linejoin="round"><path d="M8 54c2-9 10-9 17-9s13-3 13-11" fill="none" stroke-width="14"/><path d="M8 54c2-9 10-9 17-9s13-3 13-11" fill="none" stroke="#26bf72" stroke-width="8"/><circle cx="36" cy="25" r="15" fill="#26bf72" stroke-width="3"/><circle cx="27" cy="29" r="3" fill="#ff7eb6" stroke="none" opacity=".9"/><circle cx="47" cy="27" r="3" fill="#ff7eb6" stroke="none" opacity=".9"/><circle cx="31" cy="22" r="5" fill="#fff" stroke-width="2.5"/><circle cx="42" cy="20" r="5" fill="#fff" stroke-width="2.5"/><circle cx="32.5" cy="23" r="2.2" fill="#1b1a3a" stroke="none"/><circle cx="40.5" cy="21" r="2.2" fill="#1b1a3a" stroke="none"/><path d="M25 14l9 5M48 11l-8 6" fill="none" stroke-width="3.5"/><path d="M33 33q4-3 8-1" fill="none" stroke-width="3"/><path d="M17 12c-3 0-4-3-2-4 0-3 4-3 5-1 2-1 4 1 3 3 1 2-1 3-3 2-1 1-3 1-3 0z" fill="#fff" stroke-width="2"/><path d="M53 6c-2.5 0-3.5-2.5-1.5-3.5 0-2.5 3.5-2.5 4-1 1.8-1 3.5 1 2.5 2.5 1 1.8-1 2.8-2.5 1.8-1 1-2.5 1-2.5.2z" fill="#fff" stroke-width="2"/><path d="M51 44c-3-2.5-9-1.5-9 5 0 5 4 9.5 6.5 9.5 1 0 1.5-.6 2.5-.6s1.5.6 2.5.6c2.5 0 6.5-4.5 6.5-9.5 0-6.5-6-7.5-9-5z" fill="#c9182b" stroke-width="2.5"/><path d="M51 44c0-2.5 1-4.5 3-5.5" fill="none" stroke-width="2.5"/><path d="M53 41.5c2-2.5 5-2.5 6.5-1.5-1.5 2.5-4 3-6.5 1.5z" fill="#26bf72" stroke-width="2"/><path d="M46 48.5q.5-2 2.5-2.5" fill="none" stroke="#fff" stroke-width="2"/></g></svg>';
   const TITLE_HTML = '<svg class="kg-title-ic" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 8h10a5 5 0 015 5v.5a4.5 4.5 0 01-8.1 2.7L13 15h-2l-.9 1.2A4.5 4.5 0 012 13.5V13a5 5 0 015-5zM7 11v3M5.5 12.5h3M16 11.5h.01M18 13.5h.01"/></svg><span>Games</span>';
   const GAMES = [
-    { id: 'memory', title: 'Pares-Pares', ico: ICO_PARES, c: COL.grape, age: 'Ages 3–8', blurb: 'A memory game: flip two cards and find every pair.', make: makeMemory },
-    { id: 'snake', title: 'Gutom na Ahas', ico: ICO_AHAS, c: COL.tomato, age: 'Ages 6+', blurb: 'Feed the hungry snake! Walls wrap around, so nobody crashes.', make: makeSnake }
+    { id: 'memory', title: 'Pares-Pares', ico: ICO_PARES, c: COL.grape, blurb: '<b>A memory game!</b> Flip two cards and find every pair.', make: makeMemory },
+    { id: 'snake', title: 'Hangry Snake', titleHtml: 'H<span class="kg-angry">ANGRY</span> Snake', ico: ICO_HANGRY, c: COL.tomato, blurb: '<b>So hungry, it’s ANGRY!</b> A snake game: eat the fruit and grow longer. Walls wrap around, so nobody crashes.', make: makeSnake }
   ];
   function tiles() {
     const box = el('div', 'kg-tiles');
     GAMES.forEach((g) => {
       const b = el('button', 'kg-tile'); b.type = 'button'; b.dataset.game = g.id; b.style.setProperty('--c', g.c);
-      b.innerHTML = '<span class="kg-tilehead"><span class="kg-ico" aria-hidden="true">' + g.ico + '</span><span class="kg-age">' + g.age + '</span></span><h3>' + g.title + '</h3><p>' + g.blurb + '</p>';
+      b.innerHTML = '<span class="kg-tilehead"><span class="kg-ico" aria-hidden="true">' + g.ico + '</span></span><h3>' + (g.titleHtml || g.title) + '</h3><p>' + g.blurb + '</p>';
       b.addEventListener('click', () => openGame(g));
       box.append(b);
     });
@@ -306,7 +335,7 @@
   }
   function openGame(def) {
     const back = el('button', 'kg-back'); back.type = 'button'; back.textContent = '← Games';
-    const title = el('h2'); title.textContent = def.title;
+    const title = el('h2'); title.innerHTML = def.titleHtml || def.title;
     const score = el('div', 'kg-score'); score.setAttribute('aria-live', 'polite');
     const bar = el('div', 'kg-bar'); bar.append(back, title, score);
     const main = el('div', 'kg-main');

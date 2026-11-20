@@ -1,4 +1,4 @@
-/* games.css — Games (from Keybop): Pares-Pares and Gutom na Ahas.
+/* games.css — Games (from Keybop): Pares-Pares and Hangry Snake.
    Everything is inside .kg so it never changes Kalendaryo's own buttons and cards.
    The look is Keybop's (thick outlines, hard shadows, bright colors) on Kalendaryo's background. */
 .kg {
@@ -38,6 +38,7 @@
 .kg-ico { width: 84px; height: 84px; border-radius: 18px; display: grid; place-items: center; font-size: 48px; background: var(--c); border: 3px solid var(--kg-ink); }
 .kg-age { font-weight: 800; font-size: 12px; letter-spacing: .06em; text-transform: uppercase; background: var(--kg-ink); color: #fff; padding: 4px 10px; border-radius: 99px; white-space: nowrap; }
 .kg .kg-tile h3 { font: 400 32px/1.1 var(--kg-display); margin: 4px 0 0; color: var(--kg-ink); }
+.kg .kg-tile p b { color: var(--kg-ink); font-weight: 900; }
 .kg .kg-tile p { margin: 0; color: var(--kg-ink-soft); font-size: 15px; font-weight: 700; }
 /* the Games page inside the app (from the side menu) */
 .games-page .kg-tiles { margin-top: 6px; }
@@ -73,8 +74,15 @@
 .kg-mface.v { background: var(--kg-card); transform: rotateY(180deg); }
 .kg-mcard.done .kg-mface.v { background: #c9f5dc; }
 
-/* Gutom na Ahas: the board fills the screen; big arrows always at the bottom */
+/* Hangry Snake: the board fills the screen; big arrows always at the bottom */
 .kg-snake { height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; padding: 4px 16px 16px; }
+.kg-opts { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px 22px; }
+.kg-hint { margin: -6px 0 0; font-weight: 800; font-size: 14px; color: var(--kg-ink-soft); }
+.kg-angry { color: #e8322a; font-size: 1.1em; }
+.kg-speed { display: flex; align-items: center; gap: 8px; font-weight: 800; color: var(--kg-ink); }
+.kg-speed span { margin-right: 4px; }
+.kg .kg-speed button { width: 44px; height: 44px; border: 3px solid var(--kg-ink); border-radius: 12px; background: var(--kg-card); color: var(--kg-ink); font: 400 22px/1 var(--kg-display); box-shadow: 0 4px 0 var(--kg-ink); padding: 0; }
+.kg .kg-speed button[aria-pressed="true"] { background: var(--kg-leaf); color: #fff; }
 .kg-snake canvas { border: 3px solid var(--kg-ink); border-radius: 14px; touch-action: none; display: block; }
 .kg-dpad { display: none; grid-template-columns: repeat(3, 80px); grid-template-rows: repeat(2, 80px); gap: 10px; }
 .kg-dpad.on { display: grid; }
