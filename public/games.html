@@ -617,7 +617,8 @@ p { margin: 0; }
   const COL = { tomato: '#ff5b4d', sun: '#ffc531', leaf: '#26bf72', sky: '#3d8bff', grape: '#8b5cf6', pink: '#ff7eb6', ink: '#1b1a3a' };
   const COLS = [COL.tomato, COL.sun, COL.leaf, COL.sky, COL.grape, COL.pink];
   // A full-screen layer goes inside whatever is full screen (Wall mode), otherwise on the page.
-  const host = () => document.fullscreenElement || document.webkitFullscreenElement || document.body;
+  const fsEl = () => document.fullscreenElement || document.webkitFullscreenElement || null;
+  const host = () => fsEl() || document.body;
 
   /* ---------- sound ---------- */
   let sound = store.get('sound', true), ac = null;
@@ -746,12 +747,17 @@ p { margin: 0; }
     wrap.append(cv, pad); root.append(wrap);
     const ctx = cv.getContext('2d');
     let cell = 20, sized = false;
+    let snake, dir, moved, apple, eaten, ms, acc, last, raf, started = false, flash, best = store.get('best:snake', 0);
     function size() {
       if (!root.clientWidth) return;
       const dpr = Math.min(2, devicePixelRatio || 1);
       const padH = pad.classList.contains('on') ? (pad.offsetHeight || 180) + 34 : 40;
       const aw = root.clientWidth - 32, ah = root.clientHeight - padH;
-      if (!sized) { cell = Math.max(12, Math.floor(Math.min(aw, ah) / N)); NX = Math.max(N, Math.floor(aw / cell)); NY = Math.max(N, Math.floor(ah / cell)); sized = true; }
+      if (!sized || !started) { // before the first move the board may change shape (full screen, turning the iPad)
+        cell = Math.max(12, Math.floor(Math.min(aw, ah) / N)); const nx = Math.max(N, Math.floor(aw / cell)), ny = Math.max(N, Math.floor(ah / cell));
+        const changed = sized && (nx !== NX || ny !== NY); NX = nx; NY = ny; sized = true;
+        if (changed && snake) reset();
+      }
       cell = Math.max(10, Math.floor(Math.min(aw / NX, ah / NY)));
       const BW = cell * NX, BH = cell * NY;
       cv.width = BW * dpr; cv.height = BH * dpr; cv.style.width = BW + 'px'; cv.style.height = BH + 'px';
@@ -759,7 +765,6 @@ p { margin: 0; }
     }
     size();
     const ro = new ResizeObserver(size); ro.observe(root);
-    let snake, dir, moved, apple, eaten, ms, acc, last, raf, started, flash, best = store.get('best:snake', 0);
     const label = () => api.score('🍎 ' + eaten + ' · best ' + best);
     function placeApple() {
       let p;
@@ -899,8 +904,19 @@ p { margin: 0; }
     const box = el('div'); box.style.cssText = 'display:flex;flex-direction:column;height:100%';
     box.append(bar, main);
     let game = null;
-    const entry = openLayer(box, () => { if (game && game.destroy) game.destroy(); });
+    const entry = openLayer(box, () => {
+      if (game && game.destroy) game.destroy();
+      // Leave full screen only if this game turned it on (Wall mode keeps its own full screen).
+      if (entry.ownFs && fsEl() === entry.layer) { try { const p = (document.exitFullscreen || document.webkitExitFullscreen).call(document); if (p && p.catch) p.catch(() => {}); } catch (e) { /* ignore */ } }
+    });
     back.addEventListener('click', entry.close);
+    // Full screen right away, like Wall mode. Not on iPhone (Safari does not allow it for web pages),
+    // and not when something is already full screen (Wall mode), so Wall mode is never closed by mistake.
+    // Swiping out of full screen just keeps playing in the normal window.
+    if (!fsEl()) {
+      const L = entry.layer, req = L.requestFullscreen || L.webkitRequestFullscreen;
+      if (req) { try { const p = req.call(L); entry.ownFs = true; if (p && p.catch) p.catch(() => { entry.ownFs = false; }); } catch (e) { entry.ownFs = false; } }
+    }
     const api = { score: (t) => { score.textContent = t; }, confetti, voice, note, beep };
     game = def.make(main, api);
     entry.game = game;
