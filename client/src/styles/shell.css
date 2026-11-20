@@ -22,3 +22,5 @@
 }
 @media (min-width: 1700px) { html { font-size: calc(112.5% * var(--text-scale)); } .main { max-width: 1700px; } }
 @media (max-width: 520px) { .nav { padding: 4px 0; } .nav-btn { padding: 8px 0; font-size: .62rem; letter-spacing: -.01em; } .nav-btn .ic { width: 21px; height: 21px; } }
+/* Narrow phones: 11 menu items, so the labels get a little smaller to fit ("Calendar", "Settings") */
+@media (max-width: 440px) { .nav-btn { flex: 1 1 auto; font-size: .56rem; letter-spacing: -.02em; } }

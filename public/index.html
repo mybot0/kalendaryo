@@ -7,7 +7,7 @@
 <meta name="theme-color" content="#F4F3EE">
 <title>Kalendaryo</title>
 <script>try{var t=localStorage.getItem('kal.theme')||'light';if(t==='dark'||(t==='auto'&&matchMedia('(prefers-color-scheme: dark)').matches))document.documentElement.dataset.theme='dark'}catch(e){}</script>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;600;700;800&family=Outfit:wght@600;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;600;700;800&family=Outfit:wght@600;700;800&family=Lilita+One&family=Nunito:wght@600;800&display=swap">
 <style>
 /* theme.css — colors, fonts, sizes. Light only (by choice). Change the look here. */
 :root {
@@ -228,6 +228,8 @@ html.has-sheet .toast { bottom: calc(110px + env(safe-area-inset-bottom)); }
 }
 @media (min-width: 1700px) { html { font-size: calc(112.5% * var(--text-scale)); } .main { max-width: 1700px; } }
 @media (max-width: 520px) { .nav { padding: 4px 0; } .nav-btn { padding: 8px 0; font-size: .62rem; letter-spacing: -.01em; } .nav-btn .ic { width: 21px; height: 21px; } }
+/* Narrow phones: 11 menu items, so the labels get a little smaller to fit ("Calendar", "Settings") */
+@media (max-width: 440px) { .nav-btn { flex: 1 1 auto; font-size: .56rem; letter-spacing: -.02em; } }
 
 /* screens.css — Home, Calendar, Family, Settings. */
 /* Home */
@@ -1253,6 +1255,92 @@ html.care-mode .toast .toast-act, html.care-open .toast .toast-act { min-height:
 }
 html.care-mode .toast, html.care-open .toast { border-radius: 22px; width: max-content; max-width: calc(100vw - 32px); }
 
+/* games.css — Games (from Keybop): Memory Match and Snack Snake.
+   Everything is inside .kg so it never changes Kalendaryo's own buttons and cards.
+   The look is Keybop's (thick outlines, hard shadows, bright colors) on Kalendaryo's background. */
+.kg {
+  --kg-ink: #1b1a3a; --kg-ink-soft: #4a4870; --kg-card: #ffffff;
+  --kg-tomato: #ff5b4d; --kg-sun: #ffc531; --kg-leaf: #26bf72; --kg-sky: #3d8bff; --kg-grape: #8b5cf6; --kg-pink: #ff7eb6;
+  --kg-display: 'Lilita One', 'Arial Rounded MT Bold', 'Trebuchet MS', system-ui, sans-serif;
+  --kg-body: 'Nunito', 'Trebuchet MS', system-ui, sans-serif;
+  font-family: var(--kg-body); font-weight: 600; color: var(--kg-ink);
+}
+.kg *, .kg *::before, .kg *::after { box-sizing: border-box; }
+.kg button { font: inherit; color: inherit; cursor: pointer; }
+.kg :focus-visible { outline: 4px solid var(--kg-grape); outline-offset: 3px; }
+
+/* full-screen layers (the games list from Wall mode, and every game) */
+.kg-layer { position: fixed; inset: 0; z-index: 120; display: flex; flex-direction: column; overflow: hidden;
+  background-color: var(--bg); background-image: var(--page-art); background-size: var(--page-art-size); background-repeat: var(--page-art-repeat);
+  padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
+
+/* chips and big buttons */
+.kg .kg-chip { display: inline-block; border: 3px solid var(--kg-ink); background: var(--kg-card); color: var(--kg-ink); border-radius: 99px; padding: 6px 14px; font-weight: 800; font-size: 15px; line-height: 1.2; box-shadow: 0 4px 0 var(--kg-ink); }
+.kg button.kg-chip:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--kg-ink); }
+.kg .kg-big { display: inline-block; font: 400 24px/1 var(--kg-display); background: var(--kg-card); color: var(--kg-ink); border: 3px solid var(--kg-ink); border-radius: 16px; padding: 14px 22px; box-shadow: 0 6px 0 var(--kg-ink); transition: transform .08s, box-shadow .08s; }
+.kg .kg-big:active { transform: translateY(5px); box-shadow: 0 1px 0 var(--kg-ink); }
+.kg .kg-back { border: 3px solid var(--kg-ink); background: var(--kg-card); color: var(--kg-ink); border-radius: 14px; padding: 8px 14px; font-weight: 800; box-shadow: 0 4px 0 var(--kg-ink); white-space: nowrap; }
+.kg .kg-back:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--kg-ink); }
+
+/* games list */
+.kg-pick { flex: 1; min-height: 0; overflow: auto; padding: 16px 16px 40px; }
+.kg-pick-in { max-width: 1000px; margin: 0 auto; display: flex; flex-direction: column; gap: 22px; }
+.kg-top { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.kg-title { margin: 0; font: 400 clamp(34px, 6vw, 46px)/1 var(--kg-display); color: var(--ink); }
+.kg-tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); gap: 22px; }
+.kg .kg-tile { display: flex; flex-direction: column; gap: 8px; text-align: left; background: var(--kg-card); color: var(--kg-ink); border: 3px solid var(--kg-ink); border-radius: 22px; padding: 24px; box-shadow: 6px 6px 0 var(--kg-ink); transition: transform .1s, box-shadow .1s; min-width: 0; }
+.kg .kg-tile:hover { transform: translate(-2px, -2px); box-shadow: 8px 8px 0 var(--kg-ink); }
+.kg .kg-tile:active { transform: translate(4px, 4px); box-shadow: 2px 2px 0 var(--kg-ink); }
+.kg-tilehead { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+.kg-ico { width: 84px; height: 84px; border-radius: 18px; display: grid; place-items: center; font-size: 48px; background: var(--c); border: 3px solid var(--kg-ink); }
+.kg-age { font-weight: 800; font-size: 12px; letter-spacing: .06em; text-transform: uppercase; background: var(--kg-ink); color: #fff; padding: 4px 10px; border-radius: 99px; white-space: nowrap; }
+.kg .kg-tile h3 { font: 400 32px/1.1 var(--kg-display); margin: 4px 0 0; color: var(--kg-ink); }
+.kg .kg-tile p { margin: 0; color: var(--kg-ink-soft); font-size: 15px; font-weight: 700; }
+/* the Games page inside the app (from the side menu) */
+.games-page .kg-tiles { margin-top: 6px; }
+.games-page .page-head .kg-chip { font-size: 14px; }
+
+/* game bar */
+.kg-bar { display: flex; align-items: center; gap: 12px; padding: 12px 16px; }
+.kg-bar h2 { margin: 0; flex: 1; min-width: 0; font: 400 clamp(22px, 4vw, 30px)/1 var(--kg-display); text-align: center; color: var(--ink); }
+.kg-score { min-width: 84px; text-align: right; font: 400 20px/1.1 var(--kg-display); color: var(--ink); white-space: nowrap; }
+@media (max-width: 600px) { .kg-bar { flex-wrap: wrap; row-gap: 6px; } .kg-bar h2 { order: 3; flex-basis: 100%; font-size: 26px; } .kg-score { margin-left: auto; } }
+.kg-main { flex: 1; min-height: 0; position: relative; overflow: hidden; }
+.kg-panel { position: absolute; inset: 0; display: grid; place-items: center; background: color-mix(in srgb, var(--bg) 88%, transparent); padding: 16px; z-index: 5; }
+.kg-pcard { display: flex; flex-direction: column; align-items: center; gap: 14px; text-align: center; background: var(--kg-card); border: 3px solid var(--kg-ink); border-radius: 26px; box-shadow: 7px 7px 0 var(--kg-ink); padding: 24px; max-width: 360px; }
+.kg-pcard h3 { font: 400 34px/1 var(--kg-display); margin: 0; color: var(--kg-ink); }
+.kg-pcard p { margin: 0; color: var(--kg-ink-soft); font-weight: 700; }
+
+/* Memory Match: square cards that fill the play area (sizes are set by games.js) */
+.kg-mem { height: 100%; display: flex; align-items: center; justify-content: center; padding: 4px 16px 20px; }
+.kg-mgrid { display: grid; }
+.kg .kg-mcard { position: relative; border: 0; background: none; padding: 0; perspective: 600px; border-radius: 16px; }
+.kg-minner { position: absolute; inset: 0; transition: transform .35s; transform-style: preserve-3d; }
+.kg-mcard.up .kg-minner { transform: rotateY(180deg); }
+.kg-mface { position: absolute; inset: 0; display: grid; place-items: center; backface-visibility: hidden; -webkit-backface-visibility: hidden; border: 3px solid var(--kg-ink); border-radius: 16px; box-shadow: 0 4px 0 var(--kg-ink); }
+.kg-mface.q { background: var(--kg-sky); color: #fff; font-family: var(--kg-display); }
+.kg-mface.v { background: var(--kg-card); transform: rotateY(180deg); }
+.kg-mcard.done .kg-mface.v { background: #c9f5dc; }
+
+/* Snack Snake: the board fills the screen; big arrows always at the bottom */
+.kg-snake { height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; padding: 4px 16px 16px; }
+.kg-snake canvas { border: 3px solid var(--kg-ink); border-radius: 14px; touch-action: none; display: block; }
+.kg-dpad { display: none; grid-template-columns: repeat(3, 80px); grid-template-rows: repeat(2, 80px); gap: 10px; }
+.kg-dpad.on { display: grid; }
+.kg .kg-dpad button { border: 3px solid var(--kg-ink); background: var(--kg-card); color: var(--kg-ink); border-radius: 20px; font-size: 30px; box-shadow: 0 5px 0 var(--kg-ink); touch-action: none; padding: 0; }
+.kg .kg-dpad button:active { transform: translateY(4px); box-shadow: 0 1px 0 var(--kg-ink); }
+.kg-dpad .u { grid-column: 2; grid-row: 1; } .kg-dpad .l { grid-column: 1; grid-row: 2; } .kg-dpad .d { grid-column: 2; grid-row: 2; } .kg-dpad .r { grid-column: 3; grid-row: 2; }
+@media (min-width: 700px) and (min-height: 600px) {
+  .kg-dpad { grid-template-columns: repeat(3, 110px); grid-template-rows: repeat(2, 110px); gap: 14px; }
+  .kg .kg-dpad button { font-size: 42px; border-radius: 24px; box-shadow: 0 7px 0 var(--kg-ink); }
+}
+
+/* confetti */
+.kg-fx { position: fixed; inset: 0; z-index: 130; pointer-events: none; overflow: hidden; }
+.kg-fx .bit { position: absolute; top: 0; left: 0; will-change: transform; }
+
+@media (prefers-reduced-motion: reduce) { .kg *, .kg-fx * { animation-duration: .01ms !important; transition-duration: .01ms !important; } }
+
 /* web.css — web version only: start page, join page, people with access. */
 .land { max-width: 640px; margin: 0 auto; padding: 40px 16px 60px; display: flex; flex-direction: column; gap: 18px; }
 .land-head { display: flex; flex-direction: column; gap: 10px; }
@@ -1865,7 +1953,8 @@ body:has(> .tour-switch) .main { padding-top: 62px; }
       { id: 'photos',   label: 'Photos',   icon: 'image',    ready: true },
       { id: 'family',   label: 'People',   icon: 'users',    ready: true },
       { id: 'settings', label: 'Settings', icon: 'settings', ready: true },
-      { id: 'care',     label: 'Care',     icon: 'pill',     ready: true } // last; a home can hide it (Settings → Care)
+      { id: 'care',     label: 'Care',     icon: 'pill',     ready: true }, // a home can hide it (Settings → Care)
+      { id: 'games',    label: 'Games',    icon: 'game',     ready: true }  // kids' games (client/games)
     ]
   };
   // Lists that use `id` also get `value`, so they can feed selectors directly.
@@ -1944,6 +2033,7 @@ body:has(> .tour-switch) .main { padding-top: 62px; }
     sparkle: 'M12 4l1.800 4.700L18.500 10.500l-4.700 1.800L12 17l-1.800-4.700L5.500 10.500l4.700-1.800zM18.500 4v3M20 5.500h-3',
     search: 'M11 5a6 6 0 100 12 6 6 0 000-12zM20 20l-4.500-4.500',
     table: 'M4 5h16v14H4zM4 10h16M4 15h16M10 5v14M15 5v14',
+    game: 'M7 8h10a5 5 0 015 5v.5a4.5 4.5 0 01-8.1 2.7L13 15h-2l-.9 1.2A4.5 4.5 0 012 13.5V13a5 5 0 015-5zM7 11v3M5.5 12.5h3M16 11.5h.01M18 13.5h.01',
     pill: 'M10.6 19.4a4.5 4.5 0 01-6.4-6.4l8.4-8.4a4.5 4.5 0 016.4 6.4zM8.4 8.8l6.8 6.8',
     heart: 'M12 20s-7-4.400-7-10a4 4 0 017-2.600A4 4 0 0119 10c0 5.600-7 10-7 10z',
     minus: 'M5 12h14',
@@ -5149,10 +5239,12 @@ body:has(> .tour-switch) .main { padding-top: 62px; }
       { id: 'h-wall', target: '.quick .btn:not(.primary)', side: 'below', pad: 8, icon: icon('expand'), title: 'Wall mode',
         body: [h('p', {}, 'Turn a tablet or old screen into a ', h('b', {}, 'family board'), ' with a big clock, today and chores.')] },
       { id: 'h-nav', target: '.nav', side: 'right', icon: icon('list'), title: 'Your pages',
-        body: [h('p', {}, 'Go to ', h('b', {}, 'Calendar, Chores, Meals, Lists, Photos, People and Care'), ' here. Each page has its own short tour.')] },
+        body: [h('p', {}, 'Go to ', h('b', {}, 'Calendar, Chores, Meals, Lists, Photos, People and Care'), ' here, plus ', h('b', {}, 'Games'), ' for the kids. Each page has its own short tour.')] },
       { id: 'h-care', target: '.nav .nav-btn[data-screen="care"]', side: 'right', icon: icon('pill'), title: 'Care',
         body: [h('p', {}, 'Help someone at home take their ', h('b', {}, 'medicines on time'), ': a grandparent, a parent, or a child who is sick.'),
           h('p', {}, 'Their own tablet shows a big, simple pill box. Not for you? Hide it in ', h('b', {}, 'Settings → Care'), '.')] },
+      { id: 'h-games', target: '.nav .nav-btn[data-screen="games"]', side: 'right', icon: icon('game'), title: 'Games',
+        body: [h('p', {}, h('b', {}, 'Memory Match'), ' and ', h('b', {}, 'Snack Snake'), ' for the kids. Also in Wall mode, with the ', h('b', {}, 'Games'), ' button.')] },
       { id: 'h-switch', target: '.tour-switch', side: 'below', pad: 6, icon: svg(COMPASS), title: 'Turn tours on or off',
         body: [h('p', {}, 'Tap ', h('b', {}, 'Guided tour'), ' to stop these tours. Turn it back on any time to see them again.')], next: 'Got it' }
     ],
@@ -6579,7 +6671,8 @@ body:has(> .tour-switch) .main { padding-top: 62px; }
     const modeBtn = ui.button('Photos only', { icon: 'image', onClick: () => { curMode = curMode === 'wall' ? 'photos' : 'wall'; kid.close(); paint(); nextPhotoIfBlank(); } });
     const optBtn = ui.button('Choose what shows', { icon: 'settings', aria: 'Choose what shows', onClick: openOptions });
     const closeBtn = ui.button('Close', { icon: 'x', aria: 'Close', onClick: close });
-    const bar = h('div', { class: 'wall-bar' }, arrBtn, optBtn, modeBtn, PL.theme.button('btn theme-wall'), closeBtn);
+    const gamesBtn = ui.button('Games', { icon: 'game', aria: 'Games', onClick: () => { if (PL.games) PL.games.openPicker(); } });
+    const bar = h('div', { class: 'wall-bar' }, arrBtn, optBtn, modeBtn, PL.theme.button('btn theme-wall'), gamesBtn, closeBtn);
     const undoBtn = ui.button('Undo', { icon: 'left', onClick: () => undoArrange() });
     const arrBar = h('div', { class: 'wall-bar arr-bar' }, arrHint, undoBtn,
       ui.button('Reset to automatic', { icon: 'repeat', onClick: () => resetArrange() }),
@@ -10550,6 +10643,348 @@ body:has(> .tour-switch) .main { padding-top: 62px; }
   }
 
   PL.careUi = { addMedicine, editMedicine, setupBoard, settingsCards, alertsFor, startAlerts, paintNav, paintBanner };
+})();
+
+</script>
+<script>
+/*
+ * games.js — Games for the kids (from Keybop): Memory Match and Snack Snake.
+ *   Side menu → Games (a page with the game tiles), and Wall mode → 🎮 Games (the same list, full screen).
+ *   A game always opens full screen, with "← Games" to go back.
+ *   Nothing is sent anywhere: best scores and the sound setting stay on this device (localStorage, "kal.games:").
+ */
+(function () {
+  const PL = (window.PL = window.PL || {});
+  PL.screens = PL.screens || {};
+  const h = PL.h;
+
+  const rand = (a, b) => a + Math.random() * (b - a);
+  const pick = (a) => a[Math.floor(Math.random() * a.length)];
+  const shuffle = (a) => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+  function el(tag, cls, html) { const e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; }
+  const store = {
+    get(k, d) { try { const v = localStorage.getItem('kal.games:' + k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } },
+    set(k, v) { try { localStorage.setItem('kal.games:' + k, JSON.stringify(v)); } catch (e) { /* private mode */ } }
+  };
+  const reduce = () => !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const coarse = () => !!(window.matchMedia && matchMedia('(pointer: coarse)').matches);
+  const COL = { tomato: '#ff5b4d', sun: '#ffc531', leaf: '#26bf72', sky: '#3d8bff', grape: '#8b5cf6', pink: '#ff7eb6', ink: '#1b1a3a' };
+  const COLS = [COL.tomato, COL.sun, COL.leaf, COL.sky, COL.grape, COL.pink];
+  // A full-screen layer goes inside whatever is full screen (Wall mode), otherwise on the page.
+  const host = () => document.fullscreenElement || document.webkitFullscreenElement || document.body;
+
+  /* ---------- sound ---------- */
+  let sound = store.get('sound', true), ac = null;
+  function beep(freq, dur, type, vol) {
+    if (!sound) return;
+    try {
+      ac = ac || new (window.AudioContext || window.webkitAudioContext)();
+      if (ac.state === 'suspended') ac.resume();
+      const o = ac.createOscillator(), g = ac.createGain(), t = ac.currentTime;
+      o.type = type || 'triangle'; o.frequency.value = freq;
+      g.gain.setValueAtTime(vol || .12, t); g.gain.exponentialRampToValueAtTime(.0001, t + (dur || .16));
+      o.connect(g); g.connect(ac.destination); o.start(t); o.stop(t + (dur || .16) + .02);
+    } catch (e) { /* no audio */ }
+  }
+  const SCALE = [261.63, 293.66, 329.63, 392, 440, 523.25, 587.33, 659.25, 783.99, 880];
+  const note = (i) => beep(SCALE[Math.abs(i) % SCALE.length]);
+  function voice(t) {
+    if (!sound) return;
+    try { if (!('speechSynthesis' in window)) return; speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(t); u.rate = .85; u.pitch = 1.25; speechSynthesis.speak(u); } catch (e) { /* no voice */ }
+  }
+  function soundChip() {
+    const b = el('button', 'kg-chip'); b.type = 'button';
+    const paint = () => { b.textContent = sound ? 'Sound on' : 'Sound off'; b.setAttribute('aria-pressed', String(sound)); };
+    b.addEventListener('click', () => { sound = !sound; store.set('sound', sound); paint(); if (sound) note(4); else { try { speechSynthesis.cancel(); } catch (e) { /* ignore */ } } });
+    paint(); return b;
+  }
+
+  /* ---------- effects ---------- */
+  function confetti(n) {
+    if (reduce()) n = Math.min(n, 6);
+    let fx = host().querySelector(':scope > .kg-fx');
+    if (!fx) { fx = el('div', 'kg-fx'); fx.setAttribute('aria-hidden', 'true'); host().append(fx); }
+    for (let i = 0; i < n; i++) {
+      if (fx.childElementCount > 140) break;
+      const s = el('span', 'bit');
+      if (Math.random() < .4) { s.textContent = pick(['🎉', '⭐', '✨', '🎈']); s.style.fontSize = rand(20, 38) + 'px'; }
+      else { const w = rand(8, 14); Object.assign(s.style, { width: w + 'px', height: w * 1.5 + 'px', background: pick(COLS), border: '2px solid ' + COL.ink, borderRadius: '3px' }); }
+      s.style.left = rand(0, 100) + 'vw'; fx.appendChild(s);
+      const a = s.animate([{ transform: 'translate(0,-8vh) rotate(0deg)' }, { transform: 'translate(' + rand(-18, 18) + 'vw,108vh) rotate(' + rand(-720, 720) + 'deg)' }],
+        { duration: rand(1500, 2800), delay: rand(0, 350), easing: 'cubic-bezier(.3,.1,.6,1)', fill: 'both' });
+      a.onfinish = () => s.remove();
+    }
+  }
+  function panel(root, title, text, btns) {
+    const p = el('div', 'kg-panel'), c = el('div', 'kg-pcard'), hd = el('h3'), t = el('p');
+    hd.textContent = title; t.textContent = text; c.append(hd, t);
+    btns.forEach(([label, fn]) => { const b = el('button', 'kg-big'); b.type = 'button'; b.textContent = label; b.onclick = () => { p.remove(); fn(); }; c.append(b); });
+    p.append(c); root.append(p);
+    const f = c.querySelector('button'); if (f) f.focus();
+  }
+  function rr(ctx, x, y, w, hh, r) { ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + hh, r); ctx.arcTo(x + w, y + hh, x, y + hh, r); ctx.arcTo(x, y + hh, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath(); }
+
+  /* ================= Memory Match ================= */
+  // Card counts per level, chosen so every row is full and the cards fill the screen.
+  // Phones stop at 32 cards (about 80px each); tablets at 54 cards (about 110px each).
+  const PHONE_PAIRS = [6, 9, 14, 16];
+  const TABLET_PAIRS = [6, 10, 12, 20, 24, 27];
+  const POOL = ['🐶', '🐱', '🦊', '🐸', '🐼', '🦁', '🐙', '🦄', '🐢', '🦋', '🍓', '🍕', '🚀', '🚂', '⚽', '🎈', '🌈', '🍩', '🐝', '🐳',
+    '🦒', '🍉', '🚁', '🐨', '🧁', '🦀', '🍌', '🚲', '🐧', '🌵'];
+  function makeMemory(root, api) {
+    const isPhone = Math.min(innerWidth, innerHeight) < 600;
+    const LEVELS = isPhone ? PHONE_PAIRS : TABLET_PAIRS;
+    let lv = 0, pairs = LEVELS[0], flipped = [], matched = 0, moves = 0, lock = false;
+    const timers = [];
+    const wrap = el('div', 'kg-mem'); root.append(wrap);
+    const label = () => api.score('Level ' + (lv + 1) + ' · Moves ' + moves);
+    function deal() {
+      moves = 0; matched = 0; flipped = []; lock = false; label();
+      const set = shuffle(POOL).slice(0, pairs), grid = el('div', 'kg-mgrid');
+      shuffle([...set, ...set]).forEach((v) => {
+        const c = el('button', 'kg-mcard'); c.type = 'button'; c.dataset.v = v; c.setAttribute('aria-label', 'card');
+        c.innerHTML = '<span class="kg-minner"><span class="kg-mface q">?</span><span class="kg-mface v">' + v + '</span></span>';
+        c.addEventListener('click', () => flip(c)); grid.append(c);
+      });
+      wrap.replaceChildren(grid); fit();
+    }
+    // Square cards as big as the screen allows; among sizes within 8% of the biggest, use the most columns
+    // whose rows are all full (so the grid fills the width and no row is half empty).
+    function fit() {
+      const g = wrap.firstChild; if (!g || !wrap.clientWidth) return;
+      const n = pairs * 2, gap = 10, W = wrap.clientWidth - 32, H = wrap.clientHeight - 28, opts = [];
+      for (let c = 2; c <= 10; c++) { const r = Math.ceil(n / c); opts.push({ c, s: Math.floor(Math.min((W - gap * (c - 1)) / c, (H - gap * (r - 1)) / r)) }); }
+      const maxS = Math.max(...opts.map((o) => o.s)), near = opts.filter((o) => o.s >= maxS * .92), full = near.filter((o) => n % o.c === 0);
+      const best = (full.length ? full : near).pop();
+      Object.assign(g.style, { gap: gap + 'px', gridTemplateColumns: 'repeat(' + best.c + ',' + best.s + 'px)', gridAutoRows: best.s + 'px' });
+      g.querySelectorAll('.kg-mface').forEach((f) => { f.style.fontSize = Math.floor(best.s * .5) + 'px'; });
+    }
+    const ro = new ResizeObserver(fit); ro.observe(wrap);
+    function flip(c) {
+      if (lock || c.classList.contains('up')) return;
+      c.classList.add('up'); api.note(flipped.length + 2); flipped.push(c);
+      if (flipped.length < 2) return;
+      moves++; label();
+      const [a, b] = flipped;
+      if (a.dataset.v === b.dataset.v) {
+        a.classList.add('done'); b.classList.add('done'); flipped = []; matched++;
+        api.note(7); api.voice('Match!');
+        if (matched === pairs) win();
+      } else {
+        lock = true;
+        timers.push(setTimeout(() => { a.classList.remove('up'); b.classList.remove('up'); flipped = []; lock = false; }, 850));
+      }
+    }
+    function win() {
+      const key = 'best:memory:' + pairs, prev = store.get(key, 0);
+      if (!prev || moves < prev) store.set(key, moves);
+      const best = Math.min(prev || moves, moves), last = lv === LEVELS.length - 1;
+      api.confetti(70);
+      timers.push(setTimeout(() => {
+        panel(root, last ? 'You did every level!' : 'All matched!', 'Done in ' + moves + ' moves. Best for this level: ' + best + '.', [
+          [last ? 'Play again' : 'Next level', () => { if (!last) { lv++; pairs = LEVELS[lv]; } deal(); }]
+        ]);
+      }, 700));
+    }
+    deal();
+    return { destroy() { timers.forEach(clearTimeout); ro.disconnect(); } };
+  }
+
+  /* ================= Snack Snake ================= */
+  function makeSnake(root, api) {
+    const N = 16; // squares on the short side; the long side gets more, so the board fills the screen
+    let NX = N, NY = N;
+    const wrap = el('div', 'kg-snake'), cv = el('canvas'), pad = el('div', 'kg-dpad' + (coarse() ? ' on' : ''));
+    cv.setAttribute('aria-label', 'Snack Snake board');
+    pad.innerHTML = '<button class="u" type="button" aria-label="Up">▲</button><button class="l" type="button" aria-label="Left">◀</button><button class="d" type="button" aria-label="Down">▼</button><button class="r" type="button" aria-label="Right">▶</button>';
+    wrap.append(cv, pad); root.append(wrap);
+    const ctx = cv.getContext('2d');
+    let cell = 20, sized = false;
+    function size() {
+      if (!root.clientWidth) return;
+      const dpr = Math.min(2, devicePixelRatio || 1);
+      const padH = pad.classList.contains('on') ? (pad.offsetHeight || 180) + 34 : 40;
+      const aw = root.clientWidth - 32, ah = root.clientHeight - padH;
+      if (!sized) { cell = Math.max(12, Math.floor(Math.min(aw, ah) / N)); NX = Math.max(N, Math.floor(aw / cell)); NY = Math.max(N, Math.floor(ah / cell)); sized = true; }
+      cell = Math.max(10, Math.floor(Math.min(aw / NX, ah / NY)));
+      const BW = cell * NX, BH = cell * NY;
+      cv.width = BW * dpr; cv.height = BH * dpr; cv.style.width = BW + 'px'; cv.style.height = BH + 'px';
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    size();
+    const ro = new ResizeObserver(size); ro.observe(root);
+    let snake, dir, moved, apple, eaten, ms, acc, last, raf, started, flash, best = store.get('best:snake', 0);
+    const label = () => api.score('🍎 ' + eaten + ' · best ' + best);
+    function placeApple() {
+      let p;
+      do { p = { x: Math.floor(Math.random() * NX), y: Math.floor(Math.random() * NY) }; } while (snake.some((s) => s.x === p.x && s.y === p.y));
+      apple = p;
+    }
+    function reset() {
+      const cx = Math.floor(NX / 2), cy = Math.floor(NY / 2);
+      snake = [{ x: cx, y: cy }, { x: cx - 1, y: cy }, { x: cx - 2, y: cy }]; dir = { x: 1, y: 0 }; moved = { x: 0, y: 0 };
+      eaten = 0; ms = 150; acc = 0; last = 0; started = false; flash = 0; placeApple(); label();
+    }
+    function setDir(dx, dy) {
+      if (!started) {
+        const hd = snake[0];
+        snake = [hd, { x: (hd.x - dx + NX) % NX, y: (hd.y - dy + NY) % NY }, { x: (hd.x - 2 * dx + NX + NX) % NX, y: (hd.y - 2 * dy + NY + NY) % NY }];
+        dir = { x: dx, y: dy }; started = true; return;
+      }
+      if (dx === -moved.x && dy === -moved.y) return;
+      dir = { x: dx, y: dy };
+    }
+    function step() {
+      moved = dir;
+      const hx = (snake[0].x + dir.x + NX) % NX, hy = (snake[0].y + dir.y + NY) % NY;
+      const grow = hx === apple.x && hy === apple.y;
+      const bodyCells = grow ? snake : snake.slice(0, -1);
+      const idx = bodyCells.findIndex((s) => s.x === hx && s.y === hy);
+      if (idx >= 0) { snake = bodyCells.slice(0, Math.max(3, idx)); flash = 1; api.beep(180, .25, 'sawtooth', .08); }
+      else snake = bodyCells;
+      snake.unshift({ x: hx, y: hy });
+      if (grow) {
+        eaten++; ms = Math.max(85, 150 - eaten * 4);
+        if (eaten > best) { best = eaten; store.set('best:snake', best); }
+        label(); api.note(eaten); api.confetti(5); placeApple();
+      }
+    }
+    function draw() {
+      const bw = cell * NX, bh = cell * NY;
+      for (let y = 0; y < NY; y++) for (let x = 0; x < NX; x++) { ctx.fillStyle = (x + y) % 2 ? '#cdeed6' : '#dff5e3'; ctx.fillRect(x * cell, y * cell, cell, cell); }
+      ctx.font = Math.floor(cell * .8) + 'px "Segoe UI Emoji","Apple Color Emoji","Noto Color Emoji",sans-serif';
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText('🍎', apple.x * cell + cell / 2, apple.y * cell + cell / 2 + 1);
+      snake.forEach((s, i) => {
+        const p = i === 0 ? 1 : 3;
+        ctx.fillStyle = COL.leaf; rr(ctx, s.x * cell + p, s.y * cell + p, cell - p * 2, cell - p * 2, cell * .32); ctx.fill();
+        ctx.lineWidth = 2; ctx.strokeStyle = COL.ink; ctx.stroke();
+      });
+      const hd = snake[0], ex = hd.x * cell + cell / 2 + dir.x * cell * .12, ey = hd.y * cell + cell / 2 + dir.y * cell * .12;
+      const ox = dir.y !== 0 ? cell * .2 : 0, oy = dir.y !== 0 ? 0 : cell * .2;
+      [[-1, -1], [1, 1]].forEach(([a, b]) => {
+        const px = ex + (dir.y !== 0 ? a * ox : 0), py = ey + (dir.y !== 0 ? 0 : b * oy);
+        ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(px, py, cell * .13, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = COL.ink; ctx.beginPath(); ctx.arc(px + dir.x * cell * .03, py + dir.y * cell * .03, cell * .07, 0, Math.PI * 2); ctx.fill();
+      });
+      if (flash > 0) { ctx.fillStyle = 'rgba(255,91,77,' + (flash * .3).toFixed(2) + ')'; ctx.fillRect(0, 0, bw, bh); }
+      if (!started) {
+        ctx.fillStyle = 'rgba(27,26,58,.55)'; ctx.fillRect(0, bh / 2 - cell * 1.4, bw, cell * 2.8);
+        ctx.fillStyle = '#fff'; ctx.font = '400 ' + Math.floor(cell * 1.05) + 'px "Lilita One","Trebuchet MS",sans-serif';
+        ctx.fillText(coarse() ? 'Swipe or tap arrows' : 'Press an arrow key', bw / 2, bh / 2);
+      }
+    }
+    function frame(ts) {
+      raf = requestAnimationFrame(frame);
+      const dt = Math.min(100, last ? ts - last : 0); last = ts;
+      if (started) { acc += dt; while (acc >= ms) { acc -= ms; step(); } }
+      flash = Math.max(0, flash - dt / 900);
+      draw();
+    }
+    let sx = 0, sy = 0;
+    cv.addEventListener('pointerdown', (e) => { sx = e.clientX; sy = e.clientY; });
+    cv.addEventListener('pointerup', (e) => {
+      const dx = e.clientX - sx, dy = e.clientY - sy;
+      if (Math.max(Math.abs(dx), Math.abs(dy)) < 18) return;
+      if (Math.abs(dx) > Math.abs(dy)) setDir(dx > 0 ? 1 : -1, 0); else setDir(0, dy > 0 ? 1 : -1);
+    });
+    [['.u', 0, -1], ['.l', -1, 0], ['.d', 0, 1], ['.r', 1, 0]].forEach(([s, dx, dy]) => {
+      pad.querySelector(s).addEventListener('pointerdown', (e) => { e.preventDefault(); setDir(dx, dy); });
+    });
+    reset(); raf = requestAnimationFrame(frame);
+    const KEYS = { ArrowUp: [0, -1], w: [0, -1], W: [0, -1], ArrowLeft: [-1, 0], a: [-1, 0], A: [-1, 0], ArrowDown: [0, 1], s: [0, 1], S: [0, 1], ArrowRight: [1, 0], d: [1, 0], D: [1, 0] };
+    return {
+      key(e) { const k = KEYS[e.key]; if (k) { e.preventDefault(); setDir(k[0], k[1]); } },
+      destroy() { cancelAnimationFrame(raf); ro.disconnect(); }
+    };
+  }
+
+  /* ---------- the list of games ---------- */
+  const GAMES = [
+    { id: 'memory', title: 'Memory Match', ico: '🃏', c: COL.grape, age: 'Ages 3–8', blurb: 'Flip two cards at a time and find every pair.', make: makeMemory },
+    { id: 'snake', title: 'Snack Snake', ico: '🐍', c: COL.tomato, age: 'Ages 6+', blurb: 'Steer the snake to the apples. Walls wrap around, so nobody crashes.', make: makeSnake }
+  ];
+  function tiles() {
+    const box = el('div', 'kg-tiles');
+    GAMES.forEach((g) => {
+      const b = el('button', 'kg-tile'); b.type = 'button'; b.dataset.game = g.id; b.style.setProperty('--c', g.c);
+      b.innerHTML = '<span class="kg-tilehead"><span class="kg-ico" aria-hidden="true">' + g.ico + '</span><span class="kg-age">' + g.age + '</span></span><h3>' + g.title + '</h3><p>' + g.blurb + '</p>';
+      b.addEventListener('click', () => openGame(g));
+      box.append(b);
+    });
+    return box;
+  }
+
+  /* ---------- full-screen layers (keys, closing, cleanup) ---------- */
+  const layers = []; // top of the list = the one on screen
+  function openLayer(node, onClose) {
+    const layer = el('div', 'kg kg-layer');
+    layer.setAttribute('role', 'dialog'); layer.setAttribute('aria-modal', 'true');
+    layer.append(node);
+    const entry = { layer, onClose, closed: false };
+    entry.close = () => {
+      if (entry.closed) return; entry.closed = true;
+      clearInterval(entry.watch);
+      try { onClose && onClose(); } catch (e) { /* ignore */ }
+      layer.remove();
+      const i = layers.indexOf(entry); if (i >= 0) layers.splice(i, 1);
+      if (!layers.length) { document.documentElement.style.overflow = ''; window.removeEventListener('keydown', onKey, true); try { speechSynthesis.cancel(); } catch (e) { /* ignore */ } }
+    };
+    // If Wall mode closes underneath (it removes everything inside it), stop the game too.
+    entry.watch = setInterval(() => { if (!layer.isConnected) entry.close(); }, 500);
+    host().append(layer);
+    if (!layers.length) { document.documentElement.style.overflow = 'hidden'; window.addEventListener('keydown', onKey, true); }
+    layers.push(entry);
+    try { document.activeElement && document.activeElement.blur(); } catch (e) { /* ignore */ }
+    return entry;
+  }
+  // Keys go to the top layer only: Esc closes it (and never closes Wall mode underneath).
+  function onKey(e) {
+    const top = layers[layers.length - 1]; if (!top) return;
+    if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); top.close(); return; }
+    if (top.game && top.game.key) { top.game.key(e); e.stopPropagation(); }
+  }
+  function openGame(def) {
+    const back = el('button', 'kg-back'); back.type = 'button'; back.textContent = '← Games';
+    const title = el('h2'); title.textContent = def.title;
+    const score = el('div', 'kg-score'); score.setAttribute('aria-live', 'polite');
+    const bar = el('div', 'kg-bar'); bar.append(back, title, score);
+    const main = el('div', 'kg-main');
+    const box = el('div'); box.style.cssText = 'display:flex;flex-direction:column;height:100%';
+    box.append(bar, main);
+    let game = null;
+    const entry = openLayer(box, () => { if (game && game.destroy) game.destroy(); });
+    back.addEventListener('click', entry.close);
+    const api = { score: (t) => { score.textContent = t; }, confetti, voice, note, beep };
+    game = def.make(main, api);
+    entry.game = game;
+    return entry;
+  }
+  // From Wall mode: the games list, full screen, with "← Back to Wall".
+  function openPicker() {
+    const back = el('button', 'kg-back'); back.type = 'button'; back.textContent = '← Back to Wall';
+    const top = el('div', 'kg-top'); top.append(back, soundChip());
+    const t = el('h2', 'kg-title'); t.textContent = '🎮 Games';
+    const inner = el('div', 'kg-pick-in'); inner.append(top, t, tiles());
+    const pickEl = el('div', 'kg-pick'); pickEl.append(inner);
+    const entry = openLayer(pickEl);
+    back.addEventListener('click', entry.close);
+    return entry;
+  }
+
+  PL.games = { openPicker, openGame: (id) => openGame(GAMES.find((g) => g.id === id)), list: GAMES };
+
+  /* ---------- the Games page (side menu) ---------- */
+  PL.screens.games = {
+    mount(root) {
+      const page = h('div', { class: 'screen-page games-page' },
+        h('header', { class: 'page-head' }, h('h1', {}, 'Games'), h('span', { class: 'kg' }, soundChip())),
+        h('p', { class: 'sub' }, 'For the kids. Scores stay on this device.'),
+        h('div', { class: 'kg' }, tiles()));
+      root.append(page);
+      return { destroy() { while (layers.length) layers[layers.length - 1].close(); } };
+    }
+  };
 })();
 
 </script>

@@ -111,7 +111,8 @@
       { id: 'photos',   label: 'Photos',   icon: 'image',    ready: true },
       { id: 'family',   label: 'People',   icon: 'users',    ready: true },
       { id: 'settings', label: 'Settings', icon: 'settings', ready: true },
-      { id: 'care',     label: 'Care',     icon: 'pill',     ready: true } // last; a home can hide it (Settings → Care)
+      { id: 'care',     label: 'Care',     icon: 'pill',     ready: true }, // a home can hide it (Settings → Care)
+      { id: 'games',    label: 'Games',    icon: 'game',     ready: true }  // kids' games (client/games)
     ]
   };
   // Lists that use `id` also get `value`, so they can feed selectors directly.

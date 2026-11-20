@@ -213,10 +213,12 @@
       { id: 'h-wall', target: '.quick .btn:not(.primary)', side: 'below', pad: 8, icon: icon('expand'), title: 'Wall mode',
         body: [h('p', {}, 'Turn a tablet or old screen into a ', h('b', {}, 'family board'), ' with a big clock, today and chores.')] },
       { id: 'h-nav', target: '.nav', side: 'right', icon: icon('list'), title: 'Your pages',
-        body: [h('p', {}, 'Go to ', h('b', {}, 'Calendar, Chores, Meals, Lists, Photos, People and Care'), ' here. Each page has its own short tour.')] },
+        body: [h('p', {}, 'Go to ', h('b', {}, 'Calendar, Chores, Meals, Lists, Photos, People and Care'), ' here, plus ', h('b', {}, 'Games'), ' for the kids. Each page has its own short tour.')] },
       { id: 'h-care', target: '.nav .nav-btn[data-screen="care"]', side: 'right', icon: icon('pill'), title: 'Care',
         body: [h('p', {}, 'Help someone at home take their ', h('b', {}, 'medicines on time'), ': a grandparent, a parent, or a child who is sick.'),
           h('p', {}, 'Their own tablet shows a big, simple pill box. Not for you? Hide it in ', h('b', {}, 'Settings → Care'), '.')] },
+      { id: 'h-games', target: '.nav .nav-btn[data-screen="games"]', side: 'right', icon: icon('game'), title: 'Games',
+        body: [h('p', {}, h('b', {}, 'Memory Match'), ' and ', h('b', {}, 'Snack Snake'), ' for the kids. Also in Wall mode, with the ', h('b', {}, 'Games'), ' button.')] },
       { id: 'h-switch', target: '.tour-switch', side: 'below', pad: 6, icon: svg(COMPASS), title: 'Turn tours on or off',
         body: [h('p', {}, 'Tap ', h('b', {}, 'Guided tour'), ' to stop these tours. Turn it back on any time to see them again.')], next: 'Got it' }
     ],

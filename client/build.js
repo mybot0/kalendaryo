@@ -15,18 +15,21 @@ const css = ['theme', 'base', 'components', 'shell', 'screens', 'chores', 'lists
 // Care has its own folder (client/care), so it can become its own app later.
 const careCss = ['care'];
 const careJs = ['care-data', 'qr', 'care-board', 'care-page'];
+// Games (from Keybop) also have their own folder (client/games).
+const gamesCss = ['games'];
+const gamesJs = ['games'];
 const js = ['config', 'util', 'theme', 'models', 'recurrence', 'store', 'calendar-data', 'chores-data', 'routines-data', 'rewards-data', 'event-actions', 'data-tools', 'ics',
   'ui-kit', 'look', 'pin', 'event-ui', 'holidays', 'weather', 'sky', 'photos', 'wall', 'notify', 'screens/family', 'screens/routines', 'screens/rewards', 'screens/tasks', 'screens/lists', 'screens/notes', 'screens/photos', 'screens/meals', 'screens/countdowns', 'screens/dashboard', 'screens/calendar', 'screens/settings',
   'shell', 'main'];
 
 const web = target === 'web';
-const styles = css.map((c) => rd('src/styles/' + c + '.css')).concat(careCss.map((c) => rd('care/' + c + '.css')));
+const styles = css.map((c) => rd('src/styles/' + c + '.css')).concat(careCss.map((c) => rd('care/' + c + '.css'))).concat(gamesCss.map((c) => rd('games/' + c + '.css')));
 if (web) styles.push(rd('web/web.css'), rd('web/guide.css'), rd('web/help.css'));
 const scripts = [];
 if (web) scripts.push(rd('web/shim.js'));
 for (const j of js) {
   scripts.push(rd('src/js/' + j + '.js'));
-  if (j === 'screens/settings') careJs.forEach((c) => scripts.push(rd('care/' + c + '.js')));
+  if (j === 'screens/settings') { careJs.forEach((c) => scripts.push(rd('care/' + c + '.js'))); gamesJs.forEach((c) => scripts.push(rd('games/' + c + '.js'))); }
   if (web && j === 'event-ui') scripts.push(rd('web/examples.js'), rd('web/landing.js'), rd('web/access.js'), rd('web/me.js'), rd('web/demo.js'), rd('web/guide.js'), rd('web/help.js'), rd('web/help-kal.js'), rd('web/theme-sync.js'));
 }
 for (const s of scripts) if (/<\/script/i.test(s)) throw new Error('a script contains </script');
@@ -37,7 +40,7 @@ const head = web
   : ['<title>Kalendaryo</title>', '<meta name="claude:viewport-fit-sides" content="cover">'];
 const out = head.concat(
   ["<script>try{var t=localStorage.getItem('kal.theme')||'light';if(t==='dark'||(t==='auto'&&matchMedia('(prefers-color-scheme: dark)').matches))document.documentElement.dataset.theme='dark'}catch(e){}</script>",
-   '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;600;700;800&family=Outfit:wght@600;700;800&display=swap">',
+   '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;600;700;800&family=Outfit:wght@600;700;800&family=Lilita+One&family=Nunito:wght@600;800&display=swap">',
    '<style>', ...styles, '</style>'],
   web ? ['</head>', '<body>'] : [],
   ['<div id="porchlight-root"></div>'],

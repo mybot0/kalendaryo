@@ -539,7 +539,8 @@
     const modeBtn = ui.button('Photos only', { icon: 'image', onClick: () => { curMode = curMode === 'wall' ? 'photos' : 'wall'; kid.close(); paint(); nextPhotoIfBlank(); } });
     const optBtn = ui.button('Choose what shows', { icon: 'settings', aria: 'Choose what shows', onClick: openOptions });
     const closeBtn = ui.button('Close', { icon: 'x', aria: 'Close', onClick: close });
-    const bar = h('div', { class: 'wall-bar' }, arrBtn, optBtn, modeBtn, PL.theme.button('btn theme-wall'), closeBtn);
+    const gamesBtn = ui.button('Games', { icon: 'game', aria: 'Games', onClick: () => { if (PL.games) PL.games.openPicker(); } });
+    const bar = h('div', { class: 'wall-bar' }, arrBtn, optBtn, modeBtn, PL.theme.button('btn theme-wall'), gamesBtn, closeBtn);
     const undoBtn = ui.button('Undo', { icon: 'left', onClick: () => undoArrange() });
     const arrBar = h('div', { class: 'wall-bar arr-bar' }, arrHint, undoBtn,
       ui.button('Reset to automatic', { icon: 'repeat', onClick: () => resetArrange() }),
