@@ -146,7 +146,7 @@
   function makeSnake(root, api) {
     const N = 16; // squares on the short side; the long side gets more, so the board fills the screen
     let NX = N, NY = N;
-    const wrap = el('div', 'kg-snake'), cv = el('canvas'), spd = el('div', 'kg-speed'), mod = el('div', 'kg-speed'), opts = el('div', 'kg-opts'), hint = el('p', 'kg-hint'), pad = el('div', 'kg-dpad' + (coarse() ? ' on' : ''));
+    const wrap = el('div', 'kg-snake'), cv = el('canvas'), spd = el('div', 'kg-speed'), mod = el('div', 'kg-speed'), opts = el('div', 'kg-opts'), pad = el('div', 'kg-dpad' + (coarse() ? ' on' : ''));
     cv.setAttribute('aria-label', 'Hangry Snake board');
     pad.innerHTML = '<button class="u" type="button" aria-label="Up">▲</button><button class="l" type="button" aria-label="Left">◀</button><button class="d" type="button" aria-label="Down">▼</button><button class="r" type="button" aria-label="Right">▶</button>';
     // Speed: 1 = slow (half of 2, the default), 2 = normal, 3 = fast. The last choice is remembered on this device.
@@ -160,11 +160,11 @@
     const MODES = { 1: 'One apple', 2: 'Lots of fruit', 3: 'Fruit disappears! Be quick.' };
     let mode = MODES[store.get('mode:snake', 1)] ? store.get('mode:snake', 1) : 1;
     mod.innerHTML = '<span>Mode</span>' + [1, 2, 3].map((n) => '<button type="button" data-m="' + n + '" aria-label="Mode ' + n + ': ' + MODES[n] + '">' + n + '</button>').join('');
-    const paintMod = () => { mod.querySelectorAll('button').forEach((b) => b.setAttribute('aria-pressed', String(+b.dataset.m === mode))); hint.textContent = 'Mode ' + mode + ': ' + MODES[mode]; };
+    const paintMod = () => { mod.querySelectorAll('button').forEach((b) => b.setAttribute('aria-pressed', String(+b.dataset.m === mode))); mod.title = 'Mode ' + mode + ': ' + MODES[mode]; };
     mod.addEventListener('click', (e) => { const b = e.target.closest('button'); if (!b) return; const m = +b.dataset.m; b.blur(); if (m === mode) return; mode = m; store.set('mode:snake', mode); paintMod(); reset(); });
     paintMod();
     opts.append(spd, mod);
-    wrap.append(opts, hint, cv, pad); root.append(wrap);
+    wrap.append(opts, cv, pad); root.append(wrap);
     const ctx = cv.getContext('2d');
     let cell = 20, sized = false;
     let snake, dir, moved, fruits = [], eaten, ms, acc, last, raf, started = false, flash, clock = 0, best = 0;
@@ -173,7 +173,7 @@
     function size() {
       if (!root.clientWidth) return;
       const dpr = Math.min(2, devicePixelRatio || 1);
-      const padH = (pad.classList.contains('on') ? (pad.offsetHeight || 180) + 34 : 40) + (opts.offsetHeight || 44) + (hint.offsetHeight || 20) + 28;
+      const padH = (pad.classList.contains('on') ? (pad.offsetHeight || 180) + 34 : 40) + (opts.offsetHeight || 44) + 14;
       const aw = root.clientWidth - 32, ah = root.clientHeight - padH;
       if (!sized || !started) { // before the first move the board may change shape (full screen, turning the iPad)
         cell = Math.max(12, Math.floor(Math.min(aw, ah) / N)); const nx = Math.max(N, Math.floor(aw / cell)), ny = Math.max(N, Math.floor(ah / cell));
@@ -291,7 +291,7 @@
   const TITLE_HTML = '<svg class="kg-title-ic" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 8h10a5 5 0 015 5v.5a4.5 4.5 0 01-8.1 2.7L13 15h-2l-.9 1.2A4.5 4.5 0 012 13.5V13a5 5 0 015-5zM7 11v3M5.5 12.5h3M16 11.5h.01M18 13.5h.01"/></svg><span>Games</span>';
   const GAMES = [
     { id: 'memory', title: 'Pares-Pares', ico: ICO_PARES, c: COL.grape, blurb: '<b>A memory game!</b> Flip two cards and find every pair.', make: makeMemory },
-    { id: 'snake', title: 'Hangry Snake', titleHtml: 'H<span class="kg-angry">ANGRY</span> Snake', ico: ICO_HANGRY, c: COL.tomato, blurb: '<b>So hungry, it’s ANGRY!</b> A snake game: eat the fruit and grow longer. Walls wrap around, so nobody crashes.', make: makeSnake }
+    { id: 'snake', title: 'Hangry Snake', logoHtml: '<span class="kg-logo" role="img" aria-label="Hangry Snake">' + ICO_HANGRY + '<span class="kg-logo-t" aria-hidden="true"><span>H<span class="a">ANGRY</span></span><span class="s">SNAKE</span></span></span>', titleHtml: 'H<span class="kg-angry">ANGRY</span> Snake', ico: ICO_HANGRY, c: COL.tomato, blurb: '<b>So hungry, it’s ANGRY!</b> A snake game: eat the fruit and grow longer. Walls wrap around, so nobody crashes.', make: makeSnake }
   ];
   function tiles() {
     const box = el('div', 'kg-tiles');
@@ -335,7 +335,7 @@
   }
   function openGame(def) {
     const back = el('button', 'kg-back'); back.type = 'button'; back.textContent = '← Games';
-    const title = el('h2'); title.innerHTML = def.titleHtml || def.title;
+    const title = el('h2'); title.innerHTML = def.logoHtml || def.titleHtml || def.title;
     const score = el('div', 'kg-score'); score.setAttribute('aria-live', 'polite');
     const bar = el('div', 'kg-bar'); bar.append(back, title, score);
     const main = el('div', 'kg-main');
