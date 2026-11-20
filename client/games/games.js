@@ -1,5 +1,5 @@
 /*
- * games.js — Games for the kids (from Keybop): Memory Match and Snack Snake.
+ * games.js — Kalendaryo Games (from Keybop): Memory Match and Snack Snake.
  *   Side menu → Games (a page with the game tiles), and Wall mode → 🎮 Games (the same list, full screen).
  *   A game always opens full screen, with "← Games" to go back.
  *   Nothing is sent anywhere: best scores and the sound setting stay on this device (localStorage, "kal.games:").
@@ -344,7 +344,7 @@
     const brand = el('a', 'kg-brand'); brand.href = '/'; brand.innerHTML = '<span class="kg-brand-pill">Kalendaryo</span>';
     const top = el('div', 'kg-top'); top.append(brand, soundChip());
     const t = el('h1', 'kg-title'); t.textContent = '🎮 Games';
-    const sub = el('p', 'kg-sub'); sub.textContent = 'Free games for kids. No sign-up, no ads. Scores stay on this device.';
+    const sub = el('p', 'kg-sub'); sub.textContent = 'Have fun! Free, no sign-up, no ads. Scores stay on this device.';
     const foot = el('p', 'kg-foot');
     foot.innerHTML = 'Made by <a href="/">Kalendaryo</a>, a free calendar and family board for your home. <a href="/">Try it →</a>';
     const inner = el('div', 'kg-pick-in'); inner.append(top, t, sub, tiles(), foot);
@@ -359,7 +359,7 @@
     mount(root) {
       const page = h('div', { class: 'screen-page games-page' },
         h('header', { class: 'page-head' }, h('h1', {}, 'Games'), h('span', { class: 'kg' }, soundChip())),
-        h('p', { class: 'sub' }, 'For the kids. Scores stay on this device.'),
+        h('p', { class: 'sub' }, 'Have fun! Scores stay on this device.'),
         h('div', { class: 'kg' }, tiles()));
       root.append(page);
       return { destroy() { while (layers.length) layers[layers.length - 1].close(); } };

@@ -5,10 +5,10 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="robots" content="noindex">
 <meta name="theme-color" content="#F4F3EE">
-<title>Games · Kalendaryo</title>
-<meta name="description" content="Free games for kids: Memory Match and Snack Snake. No sign-up, no ads.">
-<meta property="og:title" content="Games for kids · Kalendaryo">
-<meta property="og:description" content="Memory Match and Snack Snake. Free, no sign-up, no ads.">
+<title>Kalendaryo Games</title>
+<meta name="description" content="Have fun! Memory Match and Snack Snake. Free, no sign-up, no ads.">
+<meta property="og:title" content="Kalendaryo Games">
+<meta property="og:description" content="Have fun! Memory Match and Snack Snake. Free, no sign-up, no ads.">
 <script>try{var t=localStorage.getItem('kal.theme')||'light';if(t==='dark'||(t==='auto'&&matchMedia('(prefers-color-scheme: dark)').matches))document.documentElement.dataset.theme='dark'}catch(e){}</script>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;600;700;800&family=Outfit:wght@600;700;800&family=Lilita+One&family=Nunito:wght@600;800&display=swap">
 <style>
@@ -594,7 +594,7 @@ p { margin: 0; }
 </script>
 <script>
 /*
- * games.js — Games for the kids (from Keybop): Memory Match and Snack Snake.
+ * games.js — Kalendaryo Games (from Keybop): Memory Match and Snack Snake.
  *   Side menu → Games (a page with the game tiles), and Wall mode → 🎮 Games (the same list, full screen).
  *   A game always opens full screen, with "← Games" to go back.
  *   Nothing is sent anywhere: best scores and the sound setting stay on this device (localStorage, "kal.games:").
@@ -939,7 +939,7 @@ p { margin: 0; }
     const brand = el('a', 'kg-brand'); brand.href = '/'; brand.innerHTML = '<span class="kg-brand-pill">Kalendaryo</span>';
     const top = el('div', 'kg-top'); top.append(brand, soundChip());
     const t = el('h1', 'kg-title'); t.textContent = '🎮 Games';
-    const sub = el('p', 'kg-sub'); sub.textContent = 'Free games for kids. No sign-up, no ads. Scores stay on this device.';
+    const sub = el('p', 'kg-sub'); sub.textContent = 'Have fun! Free, no sign-up, no ads. Scores stay on this device.';
     const foot = el('p', 'kg-foot');
     foot.innerHTML = 'Made by <a href="/">Kalendaryo</a>, a free calendar and family board for your home. <a href="/">Try it →</a>';
     const inner = el('div', 'kg-pick-in'); inner.append(top, t, sub, tiles(), foot);
@@ -954,7 +954,7 @@ p { margin: 0; }
     mount(root) {
       const page = h('div', { class: 'screen-page games-page' },
         h('header', { class: 'page-head' }, h('h1', {}, 'Games'), h('span', { class: 'kg' }, soundChip())),
-        h('p', { class: 'sub' }, 'For the kids. Scores stay on this device.'),
+        h('p', { class: 'sub' }, 'Have fun! Scores stay on this device.'),
         h('div', { class: 'kg' }, tiles()));
       root.append(page);
       return { destroy() { while (layers.length) layers[layers.length - 1].close(); } };

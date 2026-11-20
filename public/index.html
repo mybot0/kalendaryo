@@ -5247,12 +5247,12 @@ body:has(> .tour-switch) .main { padding-top: 62px; }
       { id: 'h-wall', target: '.quick .btn:not(.primary)', side: 'below', pad: 8, icon: icon('expand'), title: 'Wall mode',
         body: [h('p', {}, 'Turn a tablet or old screen into a ', h('b', {}, 'family board'), ' with a big clock, today and chores.')] },
       { id: 'h-nav', target: '.nav', side: 'right', icon: icon('list'), title: 'Your pages',
-        body: [h('p', {}, 'Go to ', h('b', {}, 'Calendar, Chores, Meals, Lists, Photos, People and Care'), ' here, plus ', h('b', {}, 'Games'), ' for the kids. Each page has its own short tour.')] },
+        body: [h('p', {}, 'Go to ', h('b', {}, 'Calendar, Chores, Meals, Lists, Photos, People and Care'), ' here, plus ', h('b', {}, 'Games'), '. Each page has its own short tour.')] },
       { id: 'h-care', target: '.nav .nav-btn[data-screen="care"]', side: 'right', icon: icon('pill'), title: 'Care',
         body: [h('p', {}, 'Help someone at home take their ', h('b', {}, 'medicines on time'), ': a grandparent, a parent, or a child who is sick.'),
           h('p', {}, 'Their own tablet shows a big, simple pill box. Not for you? Hide it in ', h('b', {}, 'Settings → Care'), '.')] },
       { id: 'h-games', target: '.nav .nav-btn[data-screen="games"]', side: 'right', icon: icon('game'), title: 'Games',
-        body: [h('p', {}, h('b', {}, 'Memory Match'), ' and ', h('b', {}, 'Snack Snake'), ' for the kids. Also in Wall mode, with the ', h('b', {}, 'Games'), ' button.')] },
+        body: [h('p', {}, h('b', {}, 'Memory Match'), ' and ', h('b', {}, 'Snack Snake'), '. Have fun! Also in Wall mode, with the ', h('b', {}, 'Games'), ' button.')] },
       { id: 'h-switch', target: '.tour-switch', side: 'below', pad: 6, icon: svg(COMPASS), title: 'Turn tours on or off',
         body: [h('p', {}, 'Tap ', h('b', {}, 'Guided tour'), ' to stop these tours. Turn it back on any time to see them again.')], next: 'Got it' }
     ],
@@ -10656,7 +10656,7 @@ body:has(> .tour-switch) .main { padding-top: 62px; }
 </script>
 <script>
 /*
- * games.js — Games for the kids (from Keybop): Memory Match and Snack Snake.
+ * games.js — Kalendaryo Games (from Keybop): Memory Match and Snack Snake.
  *   Side menu → Games (a page with the game tiles), and Wall mode → 🎮 Games (the same list, full screen).
  *   A game always opens full screen, with "← Games" to go back.
  *   Nothing is sent anywhere: best scores and the sound setting stay on this device (localStorage, "kal.games:").
@@ -11001,7 +11001,7 @@ body:has(> .tour-switch) .main { padding-top: 62px; }
     const brand = el('a', 'kg-brand'); brand.href = '/'; brand.innerHTML = '<span class="kg-brand-pill">Kalendaryo</span>';
     const top = el('div', 'kg-top'); top.append(brand, soundChip());
     const t = el('h1', 'kg-title'); t.textContent = '🎮 Games';
-    const sub = el('p', 'kg-sub'); sub.textContent = 'Free games for kids. No sign-up, no ads. Scores stay on this device.';
+    const sub = el('p', 'kg-sub'); sub.textContent = 'Have fun! Free, no sign-up, no ads. Scores stay on this device.';
     const foot = el('p', 'kg-foot');
     foot.innerHTML = 'Made by <a href="/">Kalendaryo</a>, a free calendar and family board for your home. <a href="/">Try it →</a>';
     const inner = el('div', 'kg-pick-in'); inner.append(top, t, sub, tiles(), foot);
@@ -11016,7 +11016,7 @@ body:has(> .tour-switch) .main { padding-top: 62px; }
     mount(root) {
       const page = h('div', { class: 'screen-page games-page' },
         h('header', { class: 'page-head' }, h('h1', {}, 'Games'), h('span', { class: 'kg' }, soundChip())),
-        h('p', { class: 'sub' }, 'For the kids. Scores stay on this device.'),
+        h('p', { class: 'sub' }, 'Have fun! Scores stay on this device.'),
         h('div', { class: 'kg' }, tiles()));
       root.append(page);
       return { destroy() { while (layers.length) layers[layers.length - 1].close(); } };
