@@ -41,7 +41,7 @@ if(!s){if(/FBAN|FBAV|FB_IAB|FBIOS/.test(ua))s='fb';else if(/Instagram/.test(ua))
 else if(r&&r!==location.hostname.replace(/^www\\./,''))s=/(^|\\.)(facebook\\.com|fb\\.me|fb\\.com)$/.test(r)?'fb':/instagram\\.com$/.test(r)?'ig':/(^|\\.)google\\./.test(r)?'google':/bing\\.com$|duckduckgo\\.com$|yahoo\\./.test(r)?'search':/^(t\\.co|x\\.com|twitter\\.com)$/.test(r)?'x':'site:'+r.slice(0,40);
 else s='direct';}
 if(q.has('s')){q.delete('s');var qs=q.toString();history.replaceState(history.state,'',location.pathname+(qs?'?'+qs:'')+location.hash);}
-var p=location.pathname,page=/^\\/triply/.test(p)?'trip':/^\\/c\\//.test(p)?'home':/^\\/join\\//.test(p)?'invite':/^\\/demo/.test(p)?'demo':'start';
+var p=location.pathname,page=/^\\/triply/.test(p)?'trip':/^\\/c\\//.test(p)?'home':/^\\/join\\//.test(p)?'invite':/^\\/demo/.test(p)?'demo':/^\\/games/.test(p)?'games':'start';
 var sent=false;function go(){if(sent||document.hidden)return;sent=true;try{fetch('/api/hi',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({page:page,src:s}),keepalive:true,credentials:'same-origin'})}catch(e){}}
 setTimeout(go,3000);['pointerdown','scroll','keydown','touchstart'].forEach(function(e){addEventListener(e,go,{once:true,passive:true})});
 }catch(e){}})();`;
@@ -180,7 +180,7 @@ function createOwner({ db, live, ipOf, fail, triplySchema }) {
     if (m) noteUse(req, 'trip', m[1].toLowerCase());
   }
   // The page proved a person is there (see HI_JS): make today's visit real and remember where they came from.
-  const PAGES = new Set(['start', 'home', 'invite', 'demo', 'trip']);
+  const PAGES = new Set(['start', 'home', 'invite', 'demo', 'trip', 'games']);
   function hi(req) {
     if (isBot(req) || viewingToken(req)) return;
     const b = req.body || {}, page = String(b.page || ''), src = String(b.src || 'direct').toLowerCase().slice(0, 48);

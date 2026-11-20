@@ -53,3 +53,21 @@ const file = web ? webOut : path.join(root, 'dist', 'porchlight.html');
 fs.mkdirSync(path.dirname(file), { recursive: true });
 fs.writeFileSync(file, out.join('\n'));
 console.log(file, fs.statSync(file).size, 'bytes');
+
+// kalendaryo.co/games: the games on their own small page (same game code as inside the app).
+if (web) {
+  const gstyles = ['theme', 'base', 'dark'].map((c) => rd('src/styles/' + c + '.css')).concat(gamesCss.map((c) => rd('games/' + c + '.css')));
+  const gscripts = ['src/js/config.js', 'src/js/util.js'].map(rd).concat(gamesJs.map((c) => rd('games/' + c + '.js')),
+    ["(function(){ PL.games.mountStandalone(document.getElementById('games-root')); })();"]);
+  const g = ['<!doctype html>', '<html lang="en">', '<head>', '<meta charset="utf-8">', '<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">',
+    '<meta name="robots" content="noindex">', '<meta name="theme-color" content="#F4F3EE">', '<title>Games · Kalendaryo</title>',
+    '<meta name="description" content="Free games for kids: Memory Match and Snack Snake. No sign-up, no ads.">',
+    '<meta property="og:title" content="Games for kids · Kalendaryo">', '<meta property="og:description" content="Memory Match and Snack Snake. Free, no sign-up, no ads.">',
+    "<script>try{var t=localStorage.getItem('kal.theme')||'light';if(t==='dark'||(t==='auto'&&matchMedia('(prefers-color-scheme: dark)').matches))document.documentElement.dataset.theme='dark'}catch(e){}</script>",
+    '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;600;700;800&family=Outfit:wght@600;700;800&family=Lilita+One&family=Nunito:wght@600;800&display=swap">',
+    '<style>', ...gstyles, '</style>', '</head>', '<body>', '<div id="games-root"></div>']
+    .concat(gscripts.map((s) => '<script>\n' + s + '\n</script>'), ['</body>', '</html>']);
+  const gfile = path.join(path.dirname(file), 'games.html');
+  fs.writeFileSync(gfile, g.join('\n'));
+  console.log(gfile, fs.statSync(gfile).size, 'bytes');
+}

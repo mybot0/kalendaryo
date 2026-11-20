@@ -1,0 +1,954 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#F4F3EE">
+<title>Games · Kalendaryo</title>
+<meta name="description" content="Free games for kids: Memory Match and Snack Snake. No sign-up, no ads.">
+<meta property="og:title" content="Games for kids · Kalendaryo">
+<meta property="og:description" content="Memory Match and Snack Snake. Free, no sign-up, no ads.">
+<script>try{var t=localStorage.getItem('kal.theme')||'light';if(t==='dark'||(t==='auto'&&matchMedia('(prefers-color-scheme: dark)').matches))document.documentElement.dataset.theme='dark'}catch(e){}</script>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;600;700;800&family=Outfit:wght@600;700;800&family=Lilita+One&family=Nunito:wght@600;800&display=swap">
+<style>
+/* theme.css — colors, fonts, sizes. Light only (by choice). Change the look here. */
+:root {
+  color-scheme: light;
+  --bg: #F4F3EE;
+  --surface: #FFFFFF;
+  --surface-2: #F8F7F3;
+  --line: #E4E2DA;
+  --ink: #26302B;
+  --ink-2: #5C675F;
+  --ink-3: #8A948C;
+  --primary: #3F7360;
+  --primary-ink: #FFFFFF;
+  --primary-soft: #E4EFE9;
+  --danger: #B3402F;
+  --danger-soft: #FBE9E5;
+  --focus: #2F6B8F;
+  --radius: 18px;
+  --radius-sm: 12px;
+  --shadow: 0 1px 2px rgba(38,48,43,.06), 0 4px 14px rgba(38,48,43,.06);
+  --font: 'Figtree', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-head: 'Outfit', 'Figtree', system-ui, sans-serif;
+  --text-scale: 1;
+  --tap: 48px;
+}
+
+/* base.css — reset and everyday text/layout helpers. */
+*, *::before, *::after { box-sizing: border-box; }
+html { font-size: calc(100% * var(--text-scale)); -webkit-text-size-adjust: 100%; }
+html.has-sheet body { overflow: hidden; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 1rem/1.45 var(--font); min-height: 100vh; }
+/* App background: soft pastel glow plus faded household doodles (original line drawings), behind every page. */
+/* The art is kept in variables so full-screen layers (photo viewer, …) can use the same background. */
+:root {
+  --page-art:
+    radial-gradient(700px 500px at 5% 0%, var(--glow1, rgba(244,224,220,.75)), transparent 70%),
+    radial-gradient(640px 520px at 100% 25%, var(--glow2, rgba(233,227,246,.8)), transparent 70%),
+    radial-gradient(700px 520px at 40% 100%, var(--glow3, rgba(251,244,217,.8)), transparent 70%),
+    url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%22680%22%20height%3D%22680%22%20viewBox%3D%220%200%20680%20680%22%3E%3Cg%20fill%3D%22none%22%20stroke%3D%22%233F7360%22%20stroke-opacity%3D%220.13%22%20stroke-width%3D%221.5%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cg%20transform%3D%22translate%2845%2016%29%20rotate%28-3%2024%2024%29%20scale%282.46%29%22%3E%3Cpath%20d%3D%22M5%2010l1-6%204%203h4l4-3%201%206v3a7%207%200%200%201-14%200z%22/%3E%3Ccircle%20cx%3D%229.5%22%20cy%3D%2212%22%20r%3D%22.6%22/%3E%3Ccircle%20cx%3D%2214.5%22%20cy%3D%2212%22%20r%3D%22.6%22/%3E%3Cpath%20d%3D%22M11%2015l1%201%201-1%22/%3E%3C/g%3E%3Cg%20transform%3D%22translate%28246%2020%29%20rotate%285%2024%2024%29%20scale%282.56%29%22%3E%3Ccircle%20cx%3D%2210%22%20cy%3D%2212%22%20r%3D%226%22/%3E%3Cpath%20d%3D%22M16%2012h6%22/%3E%3Cpath%20d%3D%22M8%2011c1-1%202-1%203%200%22/%3E%3C/g%3E%3Cg%20transform%3D%22translate%28426%2056%29%20rotate%2817%2024%2024%29%20scale%282.68%29%22%3E%3Cpath%20d%3D%22M6%2016V11a6%206%200%200%201%2012%200v5l2%202H4z%22/%3E%3Cpath%20d%3D%22M10%2020a2%202%200%200%200%204%200%22/%3E%3C/g%3E%3Cg%20transform%3D%22translate%28524%2079%29%20rotate%28-13%2024%2024%29%20scale%282.60%29%22%3E%3Cpath%20d%3D%22M4%2010h16l-2%209H6z%22/%3E%3Cpath%20d%3D%22M8%2010l3-6M16%2010l-3-6M9%2013v3M12%2013v3M15%2013v3%22/%3E%3C/g%3E%3Cg%20transform%3D%22translate%2819%20205%29%20rotate%28-11%2024%2024%29%20scale%282.97%29%22%3E%3Ccircle%20cx%3D%228%22%20cy%3D%2212%22%20r%3D%224%22/%3E%3Cpath%20d%3D%22M12%2012h9M18%2012v3M21%2012v2%22/%3E%3C/g%3E%3Cg%20transform%3D%22translate%28227%20231%29%20rotate%282%2024%2024%29%20scale%282.66%29%22%3E%3Cpath%20d%3D%22M12%2020s-7-4.5-7-10a4%204%200%200%201%207-2.5A4%204%200%200%201%2019%2010c0%205.5-7%2010-7%2010z%22/%3E%3C/g%3E%3Cg%20transform%3D%22translate%28355%20185%29%20rotate%286%2024%2024%29%20scale%282.54%29%22%3E%3Ccircle%20cx%3D%2212%22%20cy%3D%2215%22%20r%3D%223.5%22/%3E%3Ccircle%20cx%3D%227%22%20cy%3D%2210%22%20r%3D%221.6%22/%3E%3Ccircle%20cx%3D%2210.5%22%20cy%3D%226.5%22%20r%3D%221.6%22/%3E%3Ccircle%20cx%3D%2214.5%22%20cy%3D%226.5%22%20r%3D%221.6%22/%3E%3Ccircle%20cx%3D%2218%22%20cy%3D%2210%22%20r%3D%221.6%22/%3E%3C/g%3E%3Cg%20transform%3D%22translate%28554%20205%29%20rotate%28-2%2024%2024%29%20scale%282.81%29%22%3E%3Cpath%20d%3D%22M12%204l2.4%205%205.4.6-4%203.7%201.1%205.4L12%2016l-4.9%202.7%201.1-5.4-4-3.7%205.4-.6z%22/%3E%3C/g%3E%3Cg%20transform%3D%22translate%2834%20414%29%20rotate%28-9%2024%2024%29%20scale%282.89%29%22%3E%3Cpath%20d%3D%22M5%209h10v7a4%204%200%200%201-4%204H9a4%204%200%200%201-4-4z%22/%3E%3Cpath%20d%3D%22M15%2011h2a2%202%200%200%201%200%204h-2%22/%3E%3Cpath%20d%3D%22M8%203c0%201.5%201%201.5%201%203M12%203c0%201.5%201%201.5%201%203%22/%3E%3C/g%3E%3Cg%20transform%3D%22translate%28226%20392%29%20rotate%288%2024%2024%29%20scale%283.01%29%22%3E%3Cpath%20d%3D%22M4%2011l8-7%208%207v9H4z%22/%3E%3Cpath%20d%3D%22M10%2020v-5h4v5%22/%3E%3C/g%3E%3Cg%20transform%3D%22translate%28373%20428%29%20rotate%28-3%2024%2024%29%20scale%282.48%29%22%3E%3Cpath%20d%3D%22M8%204L4%207l2%203%202-1v11h8V9l2%201%202-3-4-3c-1%201.5-2.5%202-4%202S9%205.5%208%204z%22/%3E%3C/g%3E%3Cg%20transform%3D%22translate%28581%20362%29%20rotate%28-17%2024%2024%29%20scale%282.74%29%22%3E%3Cpath%20d%3D%22M5%206h14v13H5zM5%2010h14M9%204v4M15%204v4%22/%3E%3C/g%3E%3Cg%20transform%3D%22translate%2863%20581%29%20rotate%2814%2024%2024%29%20scale%282.80%29%22%3E%3Cpath%20d%3D%22M7%2014h10l-1.5%207h-7z%22/%3E%3Cpath%20d%3D%22M12%2014V9%22/%3E%3Cpath%20d%3D%22M12%209c-3%200-5-2-5-5%203%200%205%202%205%205zM12%2010c3%200%205-2%205-5-3%200-5%202-5%205z%22/%3E%3C/g%3E%3Cg%20transform%3D%22translate%28205%20576%29%20rotate%283%2024%2024%29%20scale%282.82%29%22%3E%3Ccircle%20cx%3D%2212%22%20cy%3D%2212%22%20r%3D%224%22/%3E%3Cpath%20d%3D%22M12%202v3M12%2019v3M2%2012h3M19%2012h3M4.9%204.9l2.1%202.1M17%2017l2.1%202.1M4.9%2019.1L7%2017M17%207l2.1-2.1%22/%3E%3C/g%3E%3Cg%20transform%3D%22translate%28386%20587%29%20rotate%28-1%2024%2024%29%20scale%283.06%29%22%3E%3Cpath%20d%3D%22M5%2010l1-6%204%203h4l4-3%201%206v3a7%207%200%200%201-14%200z%22/%3E%3Ccircle%20cx%3D%229.5%22%20cy%3D%2212%22%20r%3D%22.6%22/%3E%3Ccircle%20cx%3D%2214.5%22%20cy%3D%2212%22%20r%3D%22.6%22/%3E%3Cpath%20d%3D%22M11%2015l1%201%201-1%22/%3E%3C/g%3E%3Cg%20transform%3D%22translate%28573%20525%29%20rotate%285%2024%2024%29%20scale%282.89%29%22%3E%3Ccircle%20cx%3D%2210%22%20cy%3D%2212%22%20r%3D%226%22/%3E%3Cpath%20d%3D%22M16%2012h6%22/%3E%3Cpath%20d%3D%22M8%2011c1-1%202-1%203%200%22/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  --page-art-size: auto, auto, auto, 680px 680px;
+  --page-art-repeat: no-repeat, no-repeat, no-repeat, repeat;
+}
+body {
+  background-color: var(--bg);
+  background-image: var(--page-art);
+  background-size: var(--page-art-size);
+  background-repeat: var(--page-art-repeat);
+  background-attachment: fixed;
+}
+
+[hidden] { display: none !important; }
+button, input, select, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; }
+h1, h2, h3 { font-family: var(--font-head); margin: 0; line-height: 1.2; letter-spacing: -.01em; }
+h1 { font-size: 1.7rem; } h2 { font-size: 1.2rem; } h3 { font-size: 1.05rem; }
+p { margin: 0; }
+:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; border-radius: 6px; }
+.reduce-motion *, .reduce-motion *::before, .reduce-motion *::after { transition: none !important; animation: none !important; }
+
+.stack { display: flex; flex-direction: column; gap: 12px; }
+.card { background: var(--surface); border-radius: var(--radius); box-shadow: var(--shadow); padding: 20px; }
+.card-list { display: flex; flex-direction: column; gap: 8px; }
+.sub { color: var(--ink-2); font-size: .9rem; }
+.spacer { flex: 1; }
+.pre { white-space: pre-wrap; }
+.mini-h { font-size: .8rem; text-transform: uppercase; letter-spacing: .06em; color: var(--ink-3); margin: 8px 0 4px; font-family: var(--font); font-weight: 700; }
+.link-btn { background: none; border: 0; color: var(--primary); font-weight: 700; display: inline-flex; align-items: center; gap: 2px; min-height: 36px; padding: 0 6px; border-radius: 8px; }
+.link-btn:hover { background: var(--primary-soft); }
+.link-btn .ic { width: 18px; height: 18px; }
+.btn-row { display: flex; flex-wrap: wrap; gap: 10px; }
+.page-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 18px; }
+.plain-list { margin: 0; padding-left: 1.2em; color: var(--ink-2); }
+.form-error { color: var(--danger); font-weight: 600; }
+.ic { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+
+/*
+ * dark.css — dark mode colors for Kalendaryo. Switched on by <html data-theme="dark"> (theme.js).
+ * Same idea as cozy.css: everything for dark mode is in this one file.
+ * Pastel things (event chips, person colors, yellow buttons) stay pastel with dark text, so they stay readable.
+ */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #171C1A;
+  --surface: #222A26;
+  --surface-2: #2A332E;
+  --line: #37423C;
+  --ink: #ECEFEA;
+  --ink-2: #B9C3BC;
+  --ink-3: #8C968F;
+  --primary: #72B597;
+  --primary-ink: #0F1F18;
+  --primary-soft: #2B4037;
+  --danger: #E88A78;
+  --danger-soft: #3D2622;
+  --focus: #8FC4EA;
+  --shadow: 0 1px 2px rgba(0,0,0,.35), 0 6px 18px rgba(0,0,0,.25);
+  --ink-on-color: #26302B; /* text on pastel backgrounds */
+  /* page glow (base.css) */
+  --glow1: rgba(120,70,60,.20); --glow2: rgba(80,70,120,.20); --glow3: rgba(120,100,40,.14);
+}
+
+
+
+/* Pastel backgrounds keep dark text */
+:root[data-theme="dark"] :is(.reminder, .mv-ev, .wk-item, .btn.gold, .toast-act, .hol-bar, .hol-pill, .star-chip, .kid-back, .kid-card, .wall-room, .gc-also, .li-also, .find-box, .status-banner, .land-demo) { color: var(--ink-on-color); }
+:root[data-theme="dark"] .btn.gold .ic { color: var(--ink-on-color); }
+
+/* Grey text on pastel cards */
+:root[data-theme="dark"] .land-demo .sub { color: #5C675F; }
+
+/* Text on the main color uses the dark ink (white on light green is hard to read) */
+:root[data-theme="dark"] :is(.seg-btn.on, .tour-state, .g-next:not(.trip)) { color: var(--primary-ink); }
+
+/* Guided tour and its switch */
+:root[data-theme="dark"] :is(.g-box, .g-box::before, .tour-switch) { background: var(--surface); color: var(--ink); }
+:root[data-theme="dark"] .tour-switch.off .tour-state { background: var(--surface-2); color: var(--ink-2); }
+
+/* Person-colored tiles: a dark tint of the person's color instead of a bright pastel */
+:root[data-theme="dark"] :is(.star-tile, .member-tile, .family-card, .member-head) { background: color-mix(in srgb, var(--c) 24%, var(--surface)); }
+
+/* Wall mode */
+:root[data-theme="dark"] :is(.wall-panel, .arr-hint) { background: rgba(34,42,38,.93); color: var(--ink); }
+:root[data-theme="dark"] .wall.photos .wall-top { background: rgba(23,28,26,.8); }
+:root[data-theme="dark"] .wch-kid { background: color-mix(in srgb, var(--t) 22%, var(--surface)); color: var(--ink); }
+
+:root[data-theme="dark"] .wall-veil { background: rgba(23,28,26,.55); }
+
+/* Sky strip lines */
+:root[data-theme="dark"] .sky .sky-clouds path { fill: #E9EEF3; stroke: #A9BCCD; }
+:root[data-theme="dark"] .sky.sky-dark .sky-clouds path { fill: #9AA7B4; stroke: #C4CFDA; }
+:root[data-theme="dark"] .sky .sky-rain path { stroke: #6FB0F0; }
+
+/* Empty boxes: an even lighter fade in the dark */
+:root[data-theme="dark"] :is(.widget:has(.empty-state), .main .card:has(> .empty-state)) {
+  background: linear-gradient(180deg, var(--surface) 62%, color-mix(in srgb, var(--edge, #555) 6%, var(--surface)) 100%);
+}
+
+/* Drawings and photos: a little softer so they don't glow */
+:root[data-theme="dark"] :is(.empty-art svg, .photo-tile img, .wall-photo-img) { filter: brightness(.85) saturate(.92); }
+
+/* Forms */
+:root[data-theme="dark"] :is(input, select, textarea) { background: var(--surface-2); color: var(--ink); border-color: var(--line); }
+:root[data-theme="dark"] ::placeholder { color: var(--ink-3); }
+
+/* Menu: the Dark mode / Light mode line sits at the bottom on computers; on phones it lives in Settings. */
+.theme-btn { display: none; }
+@media (min-width: 900px) {
+  .rail { display: flex; flex-direction: column; }
+  .theme-btn { display: flex; margin-top: auto; }
+}
+
+/* wall Notes card: a dimmer sticky note at night */
+:root[data-theme="dark"] .wn { background: #E9D98F; }
+:root[data-theme="dark"] .sky .sky-path text { fill: #D9BE8C; }
+
+/* games.css — Games (from Keybop): Memory Match and Snack Snake.
+   Everything is inside .kg so it never changes Kalendaryo's own buttons and cards.
+   The look is Keybop's (thick outlines, hard shadows, bright colors) on Kalendaryo's background. */
+.kg {
+  --kg-ink: #1b1a3a; --kg-ink-soft: #4a4870; --kg-card: #ffffff;
+  --kg-tomato: #ff5b4d; --kg-sun: #ffc531; --kg-leaf: #26bf72; --kg-sky: #3d8bff; --kg-grape: #8b5cf6; --kg-pink: #ff7eb6;
+  --kg-display: 'Lilita One', 'Arial Rounded MT Bold', 'Trebuchet MS', system-ui, sans-serif;
+  --kg-body: 'Nunito', 'Trebuchet MS', system-ui, sans-serif;
+  font-family: var(--kg-body); font-weight: 600; color: var(--kg-ink);
+}
+.kg *, .kg *::before, .kg *::after { box-sizing: border-box; }
+.kg button { font: inherit; color: inherit; cursor: pointer; }
+.kg :focus-visible { outline: 4px solid var(--kg-grape); outline-offset: 3px; }
+
+/* full-screen layers (the games list from Wall mode, and every game) */
+.kg-layer { position: fixed; inset: 0; z-index: 120; display: flex; flex-direction: column; overflow: hidden;
+  background-color: var(--bg); background-image: var(--page-art); background-size: var(--page-art-size); background-repeat: var(--page-art-repeat);
+  padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
+
+/* chips and big buttons */
+.kg .kg-chip { display: inline-block; border: 3px solid var(--kg-ink); background: var(--kg-card); color: var(--kg-ink); border-radius: 99px; padding: 6px 14px; font-weight: 800; font-size: 15px; line-height: 1.2; box-shadow: 0 4px 0 var(--kg-ink); }
+.kg button.kg-chip:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--kg-ink); }
+.kg .kg-big { display: inline-block; font: 400 24px/1 var(--kg-display); background: var(--kg-card); color: var(--kg-ink); border: 3px solid var(--kg-ink); border-radius: 16px; padding: 14px 22px; box-shadow: 0 6px 0 var(--kg-ink); transition: transform .08s, box-shadow .08s; }
+.kg .kg-big:active { transform: translateY(5px); box-shadow: 0 1px 0 var(--kg-ink); }
+.kg .kg-back { border: 3px solid var(--kg-ink); background: var(--kg-card); color: var(--kg-ink); border-radius: 14px; padding: 8px 14px; font-weight: 800; box-shadow: 0 4px 0 var(--kg-ink); white-space: nowrap; }
+.kg .kg-back:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--kg-ink); }
+
+/* games list */
+.kg-pick { flex: 1; min-height: 0; overflow: auto; padding: 16px 16px 40px; }
+.kg-pick-in { max-width: 1000px; margin: 0 auto; display: flex; flex-direction: column; gap: 22px; }
+.kg-top { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.kg-title { margin: 0; font: 400 clamp(34px, 6vw, 46px)/1 var(--kg-display); color: var(--ink); }
+.kg-tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); gap: 22px; }
+.kg .kg-tile { display: flex; flex-direction: column; gap: 8px; text-align: left; background: var(--kg-card); color: var(--kg-ink); border: 3px solid var(--kg-ink); border-radius: 22px; padding: 24px; box-shadow: 6px 6px 0 var(--kg-ink); transition: transform .1s, box-shadow .1s; min-width: 0; }
+.kg .kg-tile:hover { transform: translate(-2px, -2px); box-shadow: 8px 8px 0 var(--kg-ink); }
+.kg .kg-tile:active { transform: translate(4px, 4px); box-shadow: 2px 2px 0 var(--kg-ink); }
+.kg-tilehead { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+.kg-ico { width: 84px; height: 84px; border-radius: 18px; display: grid; place-items: center; font-size: 48px; background: var(--c); border: 3px solid var(--kg-ink); }
+.kg-age { font-weight: 800; font-size: 12px; letter-spacing: .06em; text-transform: uppercase; background: var(--kg-ink); color: #fff; padding: 4px 10px; border-radius: 99px; white-space: nowrap; }
+.kg .kg-tile h3 { font: 400 32px/1.1 var(--kg-display); margin: 4px 0 0; color: var(--kg-ink); }
+.kg .kg-tile p { margin: 0; color: var(--kg-ink-soft); font-size: 15px; font-weight: 700; }
+/* the Games page inside the app (from the side menu) */
+.games-page .kg-tiles { margin-top: 6px; }
+.games-page .page-head .kg-chip { font-size: 14px; }
+
+/* kalendaryo.co/games (standalone page) */
+.kg-standalone { min-height: 100vh; min-height: 100dvh; padding-top: calc(16px + env(safe-area-inset-top, 0px)); }
+.kg-brand { text-decoration: none; }
+.kg-brand-pill { display: inline-block; background: var(--primary, #3F7360); color: #fff; font: 800 20px/1 'Outfit', 'Figtree', system-ui, sans-serif; padding: 9px 16px; border-radius: 14px; }
+.kg-sub { margin: -10px 0 0; color: var(--ink-2, #4a4870); font: 600 17px/1.4 'Figtree', system-ui, sans-serif; }
+.kg-foot { margin: 8px 0 0; text-align: center; color: var(--ink-2, #4a4870); font: 600 15px/1.5 'Figtree', system-ui, sans-serif; }
+.kg-foot a { color: var(--primary, #3F7360); font-weight: 800; }
+
+/* game bar */
+.kg-bar { display: flex; align-items: center; gap: 12px; padding: 12px 16px; }
+.kg-bar h2 { margin: 0; flex: 1; min-width: 0; font: 400 clamp(22px, 4vw, 30px)/1 var(--kg-display); text-align: center; color: var(--ink); }
+.kg-score { min-width: 84px; text-align: right; font: 400 20px/1.1 var(--kg-display); color: var(--ink); white-space: nowrap; }
+@media (max-width: 600px) { .kg-bar { flex-wrap: wrap; row-gap: 6px; } .kg-bar h2 { order: 3; flex-basis: 100%; font-size: 26px; } .kg-score { margin-left: auto; } }
+.kg-main { flex: 1; min-height: 0; position: relative; overflow: hidden; }
+.kg-panel { position: absolute; inset: 0; display: grid; place-items: center; background: color-mix(in srgb, var(--bg) 88%, transparent); padding: 16px; z-index: 5; }
+.kg-pcard { display: flex; flex-direction: column; align-items: center; gap: 14px; text-align: center; background: var(--kg-card); border: 3px solid var(--kg-ink); border-radius: 26px; box-shadow: 7px 7px 0 var(--kg-ink); padding: 24px; max-width: 360px; }
+.kg-pcard h3 { font: 400 34px/1 var(--kg-display); margin: 0; color: var(--kg-ink); }
+.kg-pcard p { margin: 0; color: var(--kg-ink-soft); font-weight: 700; }
+
+/* Memory Match: square cards that fill the play area (sizes are set by games.js) */
+.kg-mem { height: 100%; display: flex; align-items: center; justify-content: center; padding: 4px 16px 20px; }
+.kg-mgrid { display: grid; }
+.kg .kg-mcard { position: relative; border: 0; background: none; padding: 0; perspective: 600px; border-radius: 16px; }
+.kg-minner { position: absolute; inset: 0; transition: transform .35s; transform-style: preserve-3d; }
+.kg-mcard.up .kg-minner { transform: rotateY(180deg); }
+.kg-mface { position: absolute; inset: 0; display: grid; place-items: center; backface-visibility: hidden; -webkit-backface-visibility: hidden; border: 3px solid var(--kg-ink); border-radius: 16px; box-shadow: 0 4px 0 var(--kg-ink); }
+.kg-mface.q { background: var(--kg-sky); color: #fff; font-family: var(--kg-display); }
+.kg-mface.v { background: var(--kg-card); transform: rotateY(180deg); }
+.kg-mcard.done .kg-mface.v { background: #c9f5dc; }
+
+/* Snack Snake: the board fills the screen; big arrows always at the bottom */
+.kg-snake { height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; padding: 4px 16px 16px; }
+.kg-snake canvas { border: 3px solid var(--kg-ink); border-radius: 14px; touch-action: none; display: block; }
+.kg-dpad { display: none; grid-template-columns: repeat(3, 80px); grid-template-rows: repeat(2, 80px); gap: 10px; }
+.kg-dpad.on { display: grid; }
+.kg .kg-dpad button { border: 3px solid var(--kg-ink); background: var(--kg-card); color: var(--kg-ink); border-radius: 20px; font-size: 30px; box-shadow: 0 5px 0 var(--kg-ink); touch-action: none; padding: 0; }
+.kg .kg-dpad button:active { transform: translateY(4px); box-shadow: 0 1px 0 var(--kg-ink); }
+.kg-dpad .u { grid-column: 2; grid-row: 1; } .kg-dpad .l { grid-column: 1; grid-row: 2; } .kg-dpad .d { grid-column: 2; grid-row: 2; } .kg-dpad .r { grid-column: 3; grid-row: 2; }
+@media (min-width: 700px) and (min-height: 600px) {
+  .kg-dpad { grid-template-columns: repeat(3, 110px); grid-template-rows: repeat(2, 110px); gap: 14px; }
+  .kg .kg-dpad button { font-size: 42px; border-radius: 24px; box-shadow: 0 7px 0 var(--kg-ink); }
+}
+
+/* confetti */
+.kg-fx { position: fixed; inset: 0; z-index: 130; pointer-events: none; overflow: hidden; }
+.kg-fx .bit { position: absolute; top: 0; left: 0; will-change: transform; }
+
+@media (prefers-reduced-motion: reduce) { .kg *, .kg-fx * { animation-duration: .01ms !important; transition-duration: .01ms !important; } }
+
+</style>
+</head>
+<body>
+<div id="games-root"></div>
+<script>
+/*
+ * config.js — every adjustable default lives here.
+ * Change colors, roles, reminder choices or dashboard defaults in this one file.
+ * (Theme colors for the page itself are in styles/theme.css.)
+ */
+(function () {
+  const PL = (window.PL = window.PL || {});
+
+  PL.config = {
+    appName: 'Kalendaryo',
+    tagline: 'your home calendar',
+    version: '0.5 (round 3)',
+
+    // Pastel palette offered when choosing a person's or an event's color.
+    palette: [
+      { id: 'coral',    name: 'Coral',    hex: '#F4A59A' },
+      { id: 'apricot',  name: 'Apricot',  hex: '#F6C28E' },
+      { id: 'butter',   name: 'Butter',   hex: '#F1DC8B' },
+      { id: 'sage',     name: 'Sage',     hex: '#B4D9AA' },
+      { id: 'mint',     name: 'Mint',     hex: '#9ED8C6' },
+      { id: 'sky',      name: 'Sky',      hex: '#A8CDEA' },
+      { id: 'lavender', name: 'Lavender', hex: '#C7B7EA' },
+      { id: 'rose',     name: 'Rose',     hex: '#EFB2CB' }
+    ],
+    neutralColor: '#CBD0C6', // used when an event has no person and no color
+
+    // Emoji avatars a family member can pick from.
+    avatars: ['🦊', '🐼', '🦁', '🐯', '🐨', '🐸', '🐙', '🦄', '🐝', '🦋', '🐢', '🐬',
+              '🌻', '🌈', '⭐', '🚀', '⚽', '🎨', '🎸', '📚', '🧸', '🍓', '🐶', '🐱'],
+
+    roles: [
+      { id: 'parent', label: 'Parent' },
+      { id: 'child',  label: 'Child' },
+      { id: 'other',  label: 'Other' }
+    ],
+
+    calendarViews: [
+      { id: 'day',    label: 'Day' },
+      { id: 'week',   label: 'Week' },
+      { id: 'month',  label: 'Month' },
+      { id: 'agenda', label: 'Agenda' }
+    ],
+
+    // Minutes before an event. null means no reminder.
+    reminderOptions: [
+      { value: null, label: 'No reminder' },
+      { value: 0,    label: 'At the time' },
+      { value: 5,    label: '5 minutes before' },
+      { value: 15,   label: '15 minutes before' },
+      { value: 30,   label: '30 minutes before' },
+      { value: 60,   label: '1 hour before' },
+      { value: 1440, label: '1 day before' }
+    ],
+    allDayReminderHour: 8, // all-day events remind from 8 AM
+
+    // Household-wide settings (shared by every device). Saved in the database.
+    householdDefaults: {
+      householdName: 'Our home',
+      weekStart: 0,   // 0 = Sunday, 1 = Monday
+      hour12: true,
+      weatherPlace: null, // { name, lat, lon }
+      tempUnit: 'c',      // 'c' or 'f'
+      starsOn: true,    // stars for chores and routines, and rewards to spend them on
+      pinHash: ''       // optional parent PIN (hashed). A convenience, not security.
+    },
+
+    // Per-device settings (saved only on this device).
+    deviceDefaults: {
+      textScale: 1,          // 1, 1.15, 1.3
+      reduceMotion: false,
+      defaultView: 'month',
+      keepAwake: false,
+      notify: false,         // reminders on this device while the page is open
+      hiddenMembers: [],     // people switched off in the calendar filter
+      lastScreen: 'home',
+      widgets: [
+        { id: 'today',    visible: true, size: 'large' },
+        { id: 'chores',   visible: true, size: 'small' },
+        { id: 'family',   visible: true, size: 'small' },
+        { id: 'week',     visible: true, size: 'large' },
+        { id: 'upcoming', visible: true, size: 'small' },
+        { id: 'meals',    visible: true, size: 'small' },
+        { id: 'countdowns', visible: true, size: 'small' },
+        { id: 'photos',  visible: true, size: 'small' },
+        { id: 'weather', visible: true, size: 'small' }
+      ]
+    },
+
+    widgetSizes: [
+      { id: 'small',  label: 'Small' },
+      { id: 'medium', label: 'Medium' },
+      { id: 'large',  label: 'Large' },
+      { id: 'full',   label: 'Full width' }
+    ],
+
+    textScales: [
+      { value: 1,    label: 'Normal' },
+      { value: 1.15, label: 'Large' },
+      { value: 1.3,  label: 'Extra large' }
+    ],
+
+    // Screens shown in the navigation. `ready: false` shows a "Soon" tag.
+    screens: [
+      { id: 'home',     label: 'Home',     icon: 'home',     ready: true },
+      { id: 'calendar', label: 'Calendar', icon: 'calendar', ready: true },
+      { id: 'tasks',    label: 'Chores',   icon: 'check',    ready: true },
+      { id: 'meals',    label: 'Meals',    icon: 'meal',     ready: true },
+      { id: 'countdowns', label: 'Countdowns', icon: 'cake',  ready: true, hidden: true },
+      { id: 'lists',    label: 'Lists',    icon: 'list',     ready: true },
+      { id: 'notes',    label: 'Notes',    icon: 'note',     ready: true },
+      { id: 'photos',   label: 'Photos',   icon: 'image',    ready: true },
+      { id: 'family',   label: 'People',   icon: 'users',    ready: true },
+      { id: 'settings', label: 'Settings', icon: 'settings', ready: true },
+      { id: 'care',     label: 'Care',     icon: 'pill',     ready: true }, // a home can hide it (Settings → Care)
+      { id: 'games',    label: 'Games',    icon: 'game',     ready: true }  // kids' games (client/games)
+    ]
+  };
+  // Lists that use `id` also get `value`, so they can feed selectors directly.
+  ['roles','calendarViews','widgetSizes'].forEach(function (k) { PL.config[k].forEach(function (o) { o.value = o.id; }); });
+})();
+
+
+</script>
+<script>
+/*
+ * util.js — small helpers used everywhere:
+ *   PL.h      builds DOM elements        PL.icon  draws an icon
+ *   PL.D      date helpers (all dates are plain "YYYY-MM-DD" strings, times "HH:MM")
+ *   PL.storage  safe localStorage wrapper
+ */
+(function () {
+  const PL = (window.PL = window.PL || {});
+
+  /* ---------- DOM builder ---------- */
+  // h('div', {class:'x', onclick:fn}, child, [children]) -> element
+  function h(tag, props, ...kids) {
+    const el = document.createElement(tag);
+    for (const [k, v] of Object.entries(props || {})) {
+      if (v == null || v === false) continue;
+      if (k === 'class') el.className = v;
+      else if (k === 'dataset') Object.assign(el.dataset, v);
+      else if (k === 'style' && typeof v === 'object') Object.assign(el.style, v);
+      else if (k.slice(0, 2) === 'on' && typeof v === 'function') el.addEventListener(k.slice(2), v);
+      else if (v === true) el.setAttribute(k, '');
+      else el.setAttribute(k, v);
+    }
+    for (const c of kids.flat(3)) {
+      if (c == null || c === false) continue;
+      el.append(c.nodeType ? c : document.createTextNode(String(c)));
+    }
+    return el;
+  }
+  PL.h = h;
+
+  /* ---------- Icons (24x24 stroke paths, drawn for this app) ---------- */
+  const ICONS = {
+    home: 'M4 11l8-7 8 7M6 10v9h12v-9M10 19v-5h4v5',
+    calendar: 'M5 6h14v13H5zM5 10h14M9 4v4M15 4v4',
+    check: 'M5 12.5l4.2 4.2L19 7',
+    meal: 'M7 4v7a2 2 0 002 2v7M11 4v7a2 2 0 01-2 2M7 4v4M11 4v4M17 4c-2 1.5-2.5 4-2.5 7H17v9',
+    list: 'M9 7h10M9 12h10M9 17h10M5 7h.01M5 12h.01M5 17h.01',
+    users: 'M9 11a3 3 0 100-6 3 3 0 000 6zM3.5 19c.5-3 2.7-4.5 5.5-4.5s5 1.5 5.5 4.5M16 6.5a2.6 2.6 0 010 5M18 14.7c1.6.6 2.6 2 3 4.3',
+    settings: 'M12 15a3 3 0 100-6 3 3 0 000 6zM19 12l1.6-1-1.6-3-1.9.4a6.5 6.5 0 00-1.6-.9L15 5.5h-3.4l-.5 2a6.5 6.5 0 00-1.6.9L7.6 8 6 11l1.6 1a6.5 6.5 0 000 1.8L6 15l1.600 3 1.9-.5c.5.4 1 .7 1.600.9l.5 2H15l.5-2c.6-.2 1.100-.5 1.600-.9l1.900.5 1.600-3-1.600-1.200c.1-.6.1-1.200 0-1.800z',
+    plus: 'M12 5v14M5 12h14',
+    x: 'M6 6l12 12M18 6L6 18',
+    left: 'M14.5 6l-6 6 6 6',
+    right: 'M9.5 6l6 6-6 6',
+    repeat: 'M17 3l3 3-3 3M4 11V9.500A3.500 3.500 0 017.500 6H20M7 21l-3-3 3-3M20 13v1.500a3.500 3.500 0 01-3.500 3.500H4',
+    clock: 'M12 7v5l3 2M12 20a8 8 0 100-16 8 8 0 000 16z',
+    pin: 'M12 21s6-5.400 6-10.500a6 6 0 10-12 0C6 15.600 12 21 12 21zM12 12.500a2 2 0 100-4 2 2 0 000 4z',
+    note: 'M6 4h12v16H6zM9 9h6M9 13h6M9 17h3',
+    bell: 'M6 16V11a6 6 0 1112 0v5l1.500 2h-15zM10 20.500a2 2 0 004 0',
+    edit: 'M5 19l1-4L16.500 4.500a1.800 1.800 0 012.500 0l.5.5a1.800 1.800 0 010 2.500L9 18zM14.500 6.500l3 3',
+    copy: 'M9 9h10v11H9zM5 15V4h10',
+    move: 'M12 4v16M4 12h16M12 4l-2.500 2.500M12 4l2.500 2.500M12 20l-2.500-2.500M12 20l2.500-2.500M4 12l2.500-2.500M4 12l2.500 2.500M20 12l-2.500-2.500M20 12l-2.500 2.500',
+    trash: 'M5 7h14M10 7V4.500h4V7M7 7l1 13h8l1-13M10.500 11v5.500M13.500 11v5.500',
+    expand: 'M5 9V5h4M19 9V5h-4M5 15v4h4M19 15v4h-4',
+    cake: 'M5 20h14v-6H5zM5 14c1.500 0 1.500-1.500 3.500-1.500S10 14 12 14s2-1.500 3.500-1.500S17.500 14 19 14M12 12V8M12 8c-1-1 0-2.500 0-3.500 1 1 1 2.500 0 3.500z',
+    upload: 'M12 16V5M7.500 9.500L12 5l4.500 4.500M5 19h14',
+    download: 'M12 5v11M7.500 11.500L12 16l4.500-4.500M5 19h14',
+    eye: 'M3 12s3.500-6 9-6 9 6 9 6-3.500 6-9 6-9-6-9-6zM12 14.500a2.500 2.500 0 100-5 2.500 2.500 0 000 5z',
+    eyeoff: 'M4 4l16 16M9.500 6.300A8.700 8.700 0 0112 6c5.500 0 9 6 9 6a15 15 0 01-3 3.500M6.500 8.200A15 15 0 003 12s3.500 6 9 6c1.200 0 2.300-.3 3.300-.7',
+    up: 'M6 14l6-6 6 6',
+    down: 'M6 10l6 6 6-6',
+    star: 'M12 4l2.4 5 5.4.7-4 3.7 1 5.4-4.8-2.6-4.8 2.6 1-5.4-4-3.7 5.4-.7z',
+    cart: 'M4 5h2l2 10h9l2-7H7M10 19.500h.01M16 19.500h.01',
+    book: 'M5 5h6a2 2 0 012 2v12a2 2 0 00-2-2H5zM19 5h-6a2 2 0 00-2 2M19 5v12h-6',
+    sun: 'M12 16a4 4 0 100-8 4 4 0 000 8zM12 3v2M12 19v2M3 12h2M19 12h2M5.600 5.600L7 7M17 17l1.400 1.400M5.600 18.400L7 17M17 7l1.400-1.400',
+    image: 'M4 5h16v14H4zM4 16l4.500-4.500 4 4 3-3L20 16M9 9.500h.01',
+    wifioff: 'M4 4l16 16M5 10.500a11 11 0 015.500-2.800M9 14.500a6 6 0 013.500-1.200M12 18.500h.01',
+    sparkle: 'M12 4l1.800 4.700L18.500 10.500l-4.700 1.800L12 17l-1.800-4.700L5.500 10.500l4.700-1.800zM18.500 4v3M20 5.500h-3',
+    search: 'M11 5a6 6 0 100 12 6 6 0 000-12zM20 20l-4.500-4.500',
+    table: 'M4 5h16v14H4zM4 10h16M4 15h16M10 5v14M15 5v14',
+    game: 'M7 8h10a5 5 0 015 5v.5a4.5 4.5 0 01-8.1 2.7L13 15h-2l-.9 1.2A4.5 4.5 0 012 13.5V13a5 5 0 015-5zM7 11v3M5.5 12.5h3M16 11.5h.01M18 13.5h.01',
+    pill: 'M10.6 19.4a4.5 4.5 0 01-6.4-6.4l8.4-8.4a4.5 4.5 0 016.4 6.4zM8.4 8.8l6.8 6.8',
+    heart: 'M12 20s-7-4.400-7-10a4 4 0 017-2.600A4 4 0 0119 10c0 5.600-7 10-7 10z',
+    minus: 'M5 12h14',
+    help: 'M12 21a9 9 0 100-18 9 9 0 000 18zM9.500 9.500a2.500 2.500 0 114 2c-1 .6-1.500 1.100-1.500 2.200M12 17h.01'
+  };
+  function icon(name, extraClass) {
+    const NS = 'http://www.w3.org/2000/svg';
+    const svg = document.createElementNS(NS, 'svg');
+    svg.setAttribute('viewBox', '0 0 24 24');
+    svg.setAttribute('aria-hidden', 'true');
+    svg.setAttribute('class', 'ic' + (extraClass ? ' ' + extraClass : ''));
+    const p = document.createElementNS(NS, 'path');
+    p.setAttribute('d', ICONS[name] || ICONS.note);
+    svg.append(p);
+    return svg;
+  }
+  PL.icon = icon;
+
+  /* ---------- Dates ---------- */
+  const pad = (n) => String(n).padStart(2, '0');
+  const D = {};
+  D.pad = pad;
+  D.key = (d) => d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
+  D.parse = (k) => { const [y, m, d] = k.split('-').map(Number); return new Date(y, m - 1, d); };
+  /* ---------- the home's time zone ----------
+   * PL.now() is "right now" as the family's wall clock (settings.timeZone, for example America/Vancouver).
+   * It returns a normal Date whose hours, minutes and day are the home's, so the rest of the app can use
+   * getHours(), D.key() and so on as before. Without a home time zone it is just new Date().
+   * This keeps the clock right even on a computer or browser that reports the wrong time zone. */
+  const fmtCache = {};
+  function zoneParts(tz, ms) {
+    const f = fmtCache[tz] || (fmtCache[tz] = new Intl.DateTimeFormat('en-US', { timeZone: tz, hourCycle: 'h23', year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric', second: 'numeric' }));
+    const o = {}; f.formatToParts(new Date(ms)).forEach((p) => { o[p.type] = +p.value; });
+    return o;
+  }
+  PL.homeZone = () => { const z = PL.state && PL.state.settings && PL.state.settings.timeZone; return PL.validZone(z) ? z : ''; };
+  PL.validZone = (z) => { if (!z || typeof z !== 'string') return false; try { new Intl.DateTimeFormat('en-US', { timeZone: z }); return true; } catch (e) { return false; } };
+  PL.deviceZone = () => { try { return Intl.DateTimeFormat().resolvedOptions().timeZone || ''; } catch (e) { return ''; } };
+  PL.now = (ms) => {
+    const t = ms == null ? Date.now() : ms;
+    const tz = PL.homeZone();
+    if (!tz) return new Date(t);
+    const p = zoneParts(tz, t);
+    return new Date(p.year, p.month - 1, p.day, p.hour % 24, p.minute, p.second, new Date(t).getMilliseconds());
+  };
+  D.today = () => D.key(PL.now());
+  D.addDays = (k, n) => { const d = D.parse(k); d.setDate(d.getDate() + n); return D.key(d); };
+  // Whole days from key a to key b (b - a). Uses UTC so daylight-saving changes never skew it.
+  D.diff = (a, b) => {
+    const [ay, am, ad] = a.split('-').map(Number), [by, bm, bd] = b.split('-').map(Number);
+    return Math.round((Date.UTC(by, bm - 1, bd) - Date.UTC(ay, am - 1, ad)) / 86400000);
+  };
+  D.dow = (k) => D.parse(k).getDay();
+  D.daysInMonth = (y, m0) => new Date(y, m0 + 1, 0).getDate();
+  D.startOfWeek = (k, weekStart) => D.addDays(k, -((D.dow(k) - weekStart + 7) % 7));
+  D.monthStart = (k) => k.slice(0, 8) + '01';
+  // Move by whole months, clamping the day (Jan 31 + 1 month = Feb 28).
+  D.addMonths = (k, n) => {
+    const d = D.parse(k), day = d.getDate();
+    const t = new Date(d.getFullYear(), d.getMonth() + n, 1);
+    t.setDate(Math.min(day, D.daysInMonth(t.getFullYear(), t.getMonth())));
+    return D.key(t);
+  };
+  D.minutes = (t) => { const [h, m] = t.split(':').map(Number); return h * 60 + m; };
+  D.fmtTime = (t, hour12) => {
+    if (!t) return '';
+    const [h, m] = t.split(':').map(Number);
+    return new Date(2000, 0, 1, h, m).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit', hour12: hour12 !== false });
+  };
+  // Short time for small spaces: "5PM", "5:30PM" (or "17:00" on a 24-hour clock).
+  D.shortTime = (t, hour12) => {
+    if (!t) return '';
+    const [h, m] = t.split(':').map(Number);
+    if (hour12 === false) return pad(h) + ':' + pad(m);
+    return ((h % 12) || 12) + (m ? ':' + pad(m) : '') + (h < 12 ? 'AM' : 'PM');
+  };
+  D.fmt = (k, opts) => D.parse(k).toLocaleDateString(undefined, opts);
+  D.weekdayShort = (i) => new Date(2023, 0, 1 + i).toLocaleDateString(undefined, { weekday: 'short' }); // 0 = Sunday
+  D.weekdayLong = (i) => new Date(2023, 0, 1 + i).toLocaleDateString(undefined, { weekday: 'long' });
+  D.ordinal = (n) => { const s = ['th', 'st', 'nd', 'rd'], v = n % 100; return n + (s[(v - 20) % 10] || s[v] || s[0]); };
+  D.nowTime = () => { const n = PL.now(); return pad(n.getHours()) + ':' + pad(n.getMinutes()); };
+  // A moment in time from a date key and "HH:MM".
+  D.at = (k, t) => { const d = D.parse(k); const [h, m] = (t || '00:00').split(':').map(Number); d.setHours(h, m, 0, 0); return d; };
+  PL.D = D;
+
+  /* ---------- clock: big hours:minutes with small seconds and AM/PM stacked beside them ---------- */
+  // PL.clock.fill(el, date, hour12)  draws or updates the time inside el
+  // PL.clock.start(fn)               calls fn right on every new second, and right away when the page comes back; returns stop()
+  PL.clock = {
+    fill(el, now, hour12) {
+      const parts = new Intl.DateTimeFormat(undefined, { hour: 'numeric', minute: '2-digit', hour12: hour12 !== false }).formatToParts(now);
+      let hm = '', ap = '';
+      parts.forEach((p) => { if (p.type === 'dayPeriod') ap = p.value; else if (p.type === 'hour' || p.type === 'minute' || (p.type === 'literal' && p.value.trim() === ':')) hm += p.value; });
+      const ss = ':' + String(now.getSeconds()).padStart(2, '0');
+      if (!el._clk) {
+        const c = { hm: document.createElement('span'), s: document.createElement('span'), ap: document.createElement('span') };
+        const side = document.createElement('span');
+        c.hm.className = 'clk-hm'; side.className = 'clk-side'; c.s.className = 'clk-s'; c.ap.className = 'clk-ap';
+        c.s.setAttribute('aria-hidden', 'true');
+        side.append(c.s, c.ap);
+        el.replaceChildren(c.hm, side);
+        el._clk = c;
+      }
+      const c = el._clk;
+      if (c.hm.textContent !== hm) c.hm.textContent = hm;
+      if (c.ap.textContent !== ap) { c.ap.textContent = ap; c.ap.hidden = !ap; }
+      c.s.textContent = ss;
+    },
+    start(fn) {
+      let t = null, stopped = false;
+      const run = () => { if (stopped) return; try { fn(PL.now()); } catch (e) { /* keep ticking */ } t = setTimeout(run, 1000 - (Date.now() % 1000) + 5); };
+      const back = () => { if (!document.hidden) { clearTimeout(t); run(); } };
+      document.addEventListener('visibilitychange', back); window.addEventListener('focus', back);
+      run();
+      return () => { stopped = true; clearTimeout(t); document.removeEventListener('visibilitychange', back); window.removeEventListener('focus', back); };
+    }
+  };
+
+  /* ---------- Storage (this device only) ---------- */
+  // The web version sets PL_STORAGE_PREFIX so each family keeps its own saved copy on a shared browser.
+  const SP = window.PL_STORAGE_PREFIX || 'pl.';
+  PL.storage = {
+    get(key, fallback) {
+      try { const v = localStorage.getItem(SP + key); return v == null ? fallback : JSON.parse(v); } catch (e) { return fallback; }
+    },
+    set(key, value) {
+      try { localStorage.setItem(SP + key, JSON.stringify(value)); return true; } catch (e) { return false; }
+    }
+  };
+})();
+
+
+</script>
+<script>
+/*
+ * games.js — Games for the kids (from Keybop): Memory Match and Snack Snake.
+ *   Side menu → Games (a page with the game tiles), and Wall mode → 🎮 Games (the same list, full screen).
+ *   A game always opens full screen, with "← Games" to go back.
+ *   Nothing is sent anywhere: best scores and the sound setting stay on this device (localStorage, "kal.games:").
+ */
+(function () {
+  const PL = (window.PL = window.PL || {});
+  PL.screens = PL.screens || {};
+  const h = PL.h;
+
+  const rand = (a, b) => a + Math.random() * (b - a);
+  const pick = (a) => a[Math.floor(Math.random() * a.length)];
+  const shuffle = (a) => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+  function el(tag, cls, html) { const e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; }
+  const store = {
+    get(k, d) { try { const v = localStorage.getItem('kal.games:' + k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } },
+    set(k, v) { try { localStorage.setItem('kal.games:' + k, JSON.stringify(v)); } catch (e) { /* private mode */ } }
+  };
+  const reduce = () => !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const coarse = () => !!(window.matchMedia && matchMedia('(pointer: coarse)').matches);
+  const COL = { tomato: '#ff5b4d', sun: '#ffc531', leaf: '#26bf72', sky: '#3d8bff', grape: '#8b5cf6', pink: '#ff7eb6', ink: '#1b1a3a' };
+  const COLS = [COL.tomato, COL.sun, COL.leaf, COL.sky, COL.grape, COL.pink];
+  // A full-screen layer goes inside whatever is full screen (Wall mode), otherwise on the page.
+  const host = () => document.fullscreenElement || document.webkitFullscreenElement || document.body;
+
+  /* ---------- sound ---------- */
+  let sound = store.get('sound', true), ac = null;
+  function beep(freq, dur, type, vol) {
+    if (!sound) return;
+    try {
+      ac = ac || new (window.AudioContext || window.webkitAudioContext)();
+      if (ac.state === 'suspended') ac.resume();
+      const o = ac.createOscillator(), g = ac.createGain(), t = ac.currentTime;
+      o.type = type || 'triangle'; o.frequency.value = freq;
+      g.gain.setValueAtTime(vol || .12, t); g.gain.exponentialRampToValueAtTime(.0001, t + (dur || .16));
+      o.connect(g); g.connect(ac.destination); o.start(t); o.stop(t + (dur || .16) + .02);
+    } catch (e) { /* no audio */ }
+  }
+  const SCALE = [261.63, 293.66, 329.63, 392, 440, 523.25, 587.33, 659.25, 783.99, 880];
+  const note = (i) => beep(SCALE[Math.abs(i) % SCALE.length]);
+  function voice(t) {
+    if (!sound) return;
+    try { if (!('speechSynthesis' in window)) return; speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(t); u.rate = .85; u.pitch = 1.25; speechSynthesis.speak(u); } catch (e) { /* no voice */ }
+  }
+  function soundChip() {
+    const b = el('button', 'kg-chip'); b.type = 'button';
+    const paint = () => { b.textContent = sound ? 'Sound on' : 'Sound off'; b.setAttribute('aria-pressed', String(sound)); };
+    b.addEventListener('click', () => { sound = !sound; store.set('sound', sound); paint(); if (sound) note(4); else { try { speechSynthesis.cancel(); } catch (e) { /* ignore */ } } });
+    paint(); return b;
+  }
+
+  /* ---------- effects ---------- */
+  function confetti(n) {
+    if (reduce()) n = Math.min(n, 6);
+    let fx = host().querySelector(':scope > .kg-fx');
+    if (!fx) { fx = el('div', 'kg-fx'); fx.setAttribute('aria-hidden', 'true'); host().append(fx); }
+    for (let i = 0; i < n; i++) {
+      if (fx.childElementCount > 140) break;
+      const s = el('span', 'bit');
+      if (Math.random() < .4) { s.textContent = pick(['🎉', '⭐', '✨', '🎈']); s.style.fontSize = rand(20, 38) + 'px'; }
+      else { const w = rand(8, 14); Object.assign(s.style, { width: w + 'px', height: w * 1.5 + 'px', background: pick(COLS), border: '2px solid ' + COL.ink, borderRadius: '3px' }); }
+      s.style.left = rand(0, 100) + 'vw'; fx.appendChild(s);
+      const a = s.animate([{ transform: 'translate(0,-8vh) rotate(0deg)' }, { transform: 'translate(' + rand(-18, 18) + 'vw,108vh) rotate(' + rand(-720, 720) + 'deg)' }],
+        { duration: rand(1500, 2800), delay: rand(0, 350), easing: 'cubic-bezier(.3,.1,.6,1)', fill: 'both' });
+      a.onfinish = () => s.remove();
+    }
+  }
+  function panel(root, title, text, btns) {
+    const p = el('div', 'kg-panel'), c = el('div', 'kg-pcard'), hd = el('h3'), t = el('p');
+    hd.textContent = title; t.textContent = text; c.append(hd, t);
+    btns.forEach(([label, fn]) => { const b = el('button', 'kg-big'); b.type = 'button'; b.textContent = label; b.onclick = () => { p.remove(); fn(); }; c.append(b); });
+    p.append(c); root.append(p);
+    const f = c.querySelector('button'); if (f) f.focus();
+  }
+  function rr(ctx, x, y, w, hh, r) { ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + hh, r); ctx.arcTo(x + w, y + hh, x, y + hh, r); ctx.arcTo(x, y + hh, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath(); }
+
+  /* ================= Memory Match ================= */
+  // Card counts per level, chosen so every row is full and the cards fill the screen.
+  // Phones stop at 32 cards (about 80px each); tablets at 54 cards (about 110px each).
+  const PHONE_PAIRS = [6, 9, 14, 16];
+  const TABLET_PAIRS = [6, 10, 12, 20, 24, 27];
+  const POOL = ['🐶', '🐱', '🦊', '🐸', '🐼', '🦁', '🐙', '🦄', '🐢', '🦋', '🍓', '🍕', '🚀', '🚂', '⚽', '🎈', '🌈', '🍩', '🐝', '🐳',
+    '🦒', '🍉', '🚁', '🐨', '🧁', '🦀', '🍌', '🚲', '🐧', '🌵'];
+  function makeMemory(root, api) {
+    const isPhone = Math.min(innerWidth, innerHeight) < 600;
+    const LEVELS = isPhone ? PHONE_PAIRS : TABLET_PAIRS;
+    let lv = 0, pairs = LEVELS[0], flipped = [], matched = 0, moves = 0, lock = false;
+    const timers = [];
+    const wrap = el('div', 'kg-mem'); root.append(wrap);
+    const label = () => api.score('Level ' + (lv + 1) + ' · Moves ' + moves);
+    function deal() {
+      moves = 0; matched = 0; flipped = []; lock = false; label();
+      const set = shuffle(POOL).slice(0, pairs), grid = el('div', 'kg-mgrid');
+      shuffle([...set, ...set]).forEach((v) => {
+        const c = el('button', 'kg-mcard'); c.type = 'button'; c.dataset.v = v; c.setAttribute('aria-label', 'card');
+        c.innerHTML = '<span class="kg-minner"><span class="kg-mface q">?</span><span class="kg-mface v">' + v + '</span></span>';
+        c.addEventListener('click', () => flip(c)); grid.append(c);
+      });
+      wrap.replaceChildren(grid); fit();
+    }
+    // Square cards as big as the screen allows; among sizes within 8% of the biggest, use the most columns
+    // whose rows are all full (so the grid fills the width and no row is half empty).
+    function fit() {
+      const g = wrap.firstChild; if (!g || !wrap.clientWidth) return;
+      const n = pairs * 2, gap = 10, W = wrap.clientWidth - 32, H = wrap.clientHeight - 28, opts = [];
+      for (let c = 2; c <= 10; c++) { const r = Math.ceil(n / c); opts.push({ c, s: Math.floor(Math.min((W - gap * (c - 1)) / c, (H - gap * (r - 1)) / r)) }); }
+      const maxS = Math.max(...opts.map((o) => o.s)), near = opts.filter((o) => o.s >= maxS * .92), full = near.filter((o) => n % o.c === 0);
+      const best = (full.length ? full : near).pop();
+      Object.assign(g.style, { gap: gap + 'px', gridTemplateColumns: 'repeat(' + best.c + ',' + best.s + 'px)', gridAutoRows: best.s + 'px' });
+      g.querySelectorAll('.kg-mface').forEach((f) => { f.style.fontSize = Math.floor(best.s * .5) + 'px'; });
+    }
+    const ro = new ResizeObserver(fit); ro.observe(wrap);
+    function flip(c) {
+      if (lock || c.classList.contains('up')) return;
+      c.classList.add('up'); api.note(flipped.length + 2); flipped.push(c);
+      if (flipped.length < 2) return;
+      moves++; label();
+      const [a, b] = flipped;
+      if (a.dataset.v === b.dataset.v) {
+        a.classList.add('done'); b.classList.add('done'); flipped = []; matched++;
+        api.note(7); api.voice('Match!');
+        if (matched === pairs) win();
+      } else {
+        lock = true;
+        timers.push(setTimeout(() => { a.classList.remove('up'); b.classList.remove('up'); flipped = []; lock = false; }, 850));
+      }
+    }
+    function win() {
+      const key = 'best:memory:' + pairs, prev = store.get(key, 0);
+      if (!prev || moves < prev) store.set(key, moves);
+      const best = Math.min(prev || moves, moves), last = lv === LEVELS.length - 1;
+      api.confetti(70);
+      timers.push(setTimeout(() => {
+        panel(root, last ? 'You did every level!' : 'All matched!', 'Done in ' + moves + ' moves. Best for this level: ' + best + '.', [
+          [last ? 'Play again' : 'Next level', () => { if (!last) { lv++; pairs = LEVELS[lv]; } deal(); }]
+        ]);
+      }, 700));
+    }
+    deal();
+    return { destroy() { timers.forEach(clearTimeout); ro.disconnect(); } };
+  }
+
+  /* ================= Snack Snake ================= */
+  function makeSnake(root, api) {
+    const N = 16; // squares on the short side; the long side gets more, so the board fills the screen
+    let NX = N, NY = N;
+    const wrap = el('div', 'kg-snake'), cv = el('canvas'), pad = el('div', 'kg-dpad' + (coarse() ? ' on' : ''));
+    cv.setAttribute('aria-label', 'Snack Snake board');
+    pad.innerHTML = '<button class="u" type="button" aria-label="Up">▲</button><button class="l" type="button" aria-label="Left">◀</button><button class="d" type="button" aria-label="Down">▼</button><button class="r" type="button" aria-label="Right">▶</button>';
+    wrap.append(cv, pad); root.append(wrap);
+    const ctx = cv.getContext('2d');
+    let cell = 20, sized = false;
+    function size() {
+      if (!root.clientWidth) return;
+      const dpr = Math.min(2, devicePixelRatio || 1);
+      const padH = pad.classList.contains('on') ? (pad.offsetHeight || 180) + 34 : 40;
+      const aw = root.clientWidth - 32, ah = root.clientHeight - padH;
+      if (!sized) { cell = Math.max(12, Math.floor(Math.min(aw, ah) / N)); NX = Math.max(N, Math.floor(aw / cell)); NY = Math.max(N, Math.floor(ah / cell)); sized = true; }
+      cell = Math.max(10, Math.floor(Math.min(aw / NX, ah / NY)));
+      const BW = cell * NX, BH = cell * NY;
+      cv.width = BW * dpr; cv.height = BH * dpr; cv.style.width = BW + 'px'; cv.style.height = BH + 'px';
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    size();
+    const ro = new ResizeObserver(size); ro.observe(root);
+    let snake, dir, moved, apple, eaten, ms, acc, last, raf, started, flash, best = store.get('best:snake', 0);
+    const label = () => api.score('🍎 ' + eaten + ' · best ' + best);
+    function placeApple() {
+      let p;
+      do { p = { x: Math.floor(Math.random() * NX), y: Math.floor(Math.random() * NY) }; } while (snake.some((s) => s.x === p.x && s.y === p.y));
+      apple = p;
+    }
+    function reset() {
+      const cx = Math.floor(NX / 2), cy = Math.floor(NY / 2);
+      snake = [{ x: cx, y: cy }, { x: cx - 1, y: cy }, { x: cx - 2, y: cy }]; dir = { x: 1, y: 0 }; moved = { x: 0, y: 0 };
+      eaten = 0; ms = 150; acc = 0; last = 0; started = false; flash = 0; placeApple(); label();
+    }
+    function setDir(dx, dy) {
+      if (!started) {
+        const hd = snake[0];
+        snake = [hd, { x: (hd.x - dx + NX) % NX, y: (hd.y - dy + NY) % NY }, { x: (hd.x - 2 * dx + NX + NX) % NX, y: (hd.y - 2 * dy + NY + NY) % NY }];
+        dir = { x: dx, y: dy }; started = true; return;
+      }
+      if (dx === -moved.x && dy === -moved.y) return;
+      dir = { x: dx, y: dy };
+    }
+    function step() {
+      moved = dir;
+      const hx = (snake[0].x + dir.x + NX) % NX, hy = (snake[0].y + dir.y + NY) % NY;
+      const grow = hx === apple.x && hy === apple.y;
+      const bodyCells = grow ? snake : snake.slice(0, -1);
+      const idx = bodyCells.findIndex((s) => s.x === hx && s.y === hy);
+      if (idx >= 0) { snake = bodyCells.slice(0, Math.max(3, idx)); flash = 1; api.beep(180, .25, 'sawtooth', .08); }
+      else snake = bodyCells;
+      snake.unshift({ x: hx, y: hy });
+      if (grow) {
+        eaten++; ms = Math.max(85, 150 - eaten * 4);
+        if (eaten > best) { best = eaten; store.set('best:snake', best); }
+        label(); api.note(eaten); api.confetti(5); placeApple();
+      }
+    }
+    function draw() {
+      const bw = cell * NX, bh = cell * NY;
+      for (let y = 0; y < NY; y++) for (let x = 0; x < NX; x++) { ctx.fillStyle = (x + y) % 2 ? '#cdeed6' : '#dff5e3'; ctx.fillRect(x * cell, y * cell, cell, cell); }
+      ctx.font = Math.floor(cell * .8) + 'px "Segoe UI Emoji","Apple Color Emoji","Noto Color Emoji",sans-serif';
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText('🍎', apple.x * cell + cell / 2, apple.y * cell + cell / 2 + 1);
+      snake.forEach((s, i) => {
+        const p = i === 0 ? 1 : 3;
+        ctx.fillStyle = COL.leaf; rr(ctx, s.x * cell + p, s.y * cell + p, cell - p * 2, cell - p * 2, cell * .32); ctx.fill();
+        ctx.lineWidth = 2; ctx.strokeStyle = COL.ink; ctx.stroke();
+      });
+      const hd = snake[0], ex = hd.x * cell + cell / 2 + dir.x * cell * .12, ey = hd.y * cell + cell / 2 + dir.y * cell * .12;
+      const ox = dir.y !== 0 ? cell * .2 : 0, oy = dir.y !== 0 ? 0 : cell * .2;
+      [[-1, -1], [1, 1]].forEach(([a, b]) => {
+        const px = ex + (dir.y !== 0 ? a * ox : 0), py = ey + (dir.y !== 0 ? 0 : b * oy);
+        ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(px, py, cell * .13, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = COL.ink; ctx.beginPath(); ctx.arc(px + dir.x * cell * .03, py + dir.y * cell * .03, cell * .07, 0, Math.PI * 2); ctx.fill();
+      });
+      if (flash > 0) { ctx.fillStyle = 'rgba(255,91,77,' + (flash * .3).toFixed(2) + ')'; ctx.fillRect(0, 0, bw, bh); }
+      if (!started) {
+        ctx.fillStyle = 'rgba(27,26,58,.55)'; ctx.fillRect(0, bh / 2 - cell * 1.4, bw, cell * 2.8);
+        ctx.fillStyle = '#fff'; ctx.font = '400 ' + Math.floor(cell * 1.05) + 'px "Lilita One","Trebuchet MS",sans-serif';
+        ctx.fillText(coarse() ? 'Swipe or tap arrows' : 'Press an arrow key', bw / 2, bh / 2);
+      }
+    }
+    function frame(ts) {
+      raf = requestAnimationFrame(frame);
+      const dt = Math.min(100, last ? ts - last : 0); last = ts;
+      if (started) { acc += dt; while (acc >= ms) { acc -= ms; step(); } }
+      flash = Math.max(0, flash - dt / 900);
+      draw();
+    }
+    let sx = 0, sy = 0;
+    cv.addEventListener('pointerdown', (e) => { sx = e.clientX; sy = e.clientY; });
+    cv.addEventListener('pointerup', (e) => {
+      const dx = e.clientX - sx, dy = e.clientY - sy;
+      if (Math.max(Math.abs(dx), Math.abs(dy)) < 18) return;
+      if (Math.abs(dx) > Math.abs(dy)) setDir(dx > 0 ? 1 : -1, 0); else setDir(0, dy > 0 ? 1 : -1);
+    });
+    [['.u', 0, -1], ['.l', -1, 0], ['.d', 0, 1], ['.r', 1, 0]].forEach(([s, dx, dy]) => {
+      pad.querySelector(s).addEventListener('pointerdown', (e) => { e.preventDefault(); setDir(dx, dy); });
+    });
+    reset(); raf = requestAnimationFrame(frame);
+    const KEYS = { ArrowUp: [0, -1], w: [0, -1], W: [0, -1], ArrowLeft: [-1, 0], a: [-1, 0], A: [-1, 0], ArrowDown: [0, 1], s: [0, 1], S: [0, 1], ArrowRight: [1, 0], d: [1, 0], D: [1, 0] };
+    return {
+      key(e) { const k = KEYS[e.key]; if (k) { e.preventDefault(); setDir(k[0], k[1]); } },
+      destroy() { cancelAnimationFrame(raf); ro.disconnect(); }
+    };
+  }
+
+  /* ---------- the list of games ---------- */
+  const GAMES = [
+    { id: 'memory', title: 'Memory Match', ico: '🃏', c: COL.grape, age: 'Ages 3–8', blurb: 'Flip two cards at a time and find every pair.', make: makeMemory },
+    { id: 'snake', title: 'Snack Snake', ico: '🐍', c: COL.tomato, age: 'Ages 6+', blurb: 'Steer the snake to the apples. Walls wrap around, so nobody crashes.', make: makeSnake }
+  ];
+  function tiles() {
+    const box = el('div', 'kg-tiles');
+    GAMES.forEach((g) => {
+      const b = el('button', 'kg-tile'); b.type = 'button'; b.dataset.game = g.id; b.style.setProperty('--c', g.c);
+      b.innerHTML = '<span class="kg-tilehead"><span class="kg-ico" aria-hidden="true">' + g.ico + '</span><span class="kg-age">' + g.age + '</span></span><h3>' + g.title + '</h3><p>' + g.blurb + '</p>';
+      b.addEventListener('click', () => openGame(g));
+      box.append(b);
+    });
+    return box;
+  }
+
+  /* ---------- full-screen layers (keys, closing, cleanup) ---------- */
+  const layers = []; // top of the list = the one on screen
+  function openLayer(node, onClose) {
+    const layer = el('div', 'kg kg-layer');
+    layer.setAttribute('role', 'dialog'); layer.setAttribute('aria-modal', 'true');
+    layer.append(node);
+    const entry = { layer, onClose, closed: false };
+    entry.close = () => {
+      if (entry.closed) return; entry.closed = true;
+      clearInterval(entry.watch);
+      try { onClose && onClose(); } catch (e) { /* ignore */ }
+      layer.remove();
+      const i = layers.indexOf(entry); if (i >= 0) layers.splice(i, 1);
+      if (!layers.length) { document.documentElement.style.overflow = ''; window.removeEventListener('keydown', onKey, true); try { speechSynthesis.cancel(); } catch (e) { /* ignore */ } }
+    };
+    // If Wall mode closes underneath (it removes everything inside it), stop the game too.
+    entry.watch = setInterval(() => { if (!layer.isConnected) entry.close(); }, 500);
+    host().append(layer);
+    if (!layers.length) { document.documentElement.style.overflow = 'hidden'; window.addEventListener('keydown', onKey, true); }
+    layers.push(entry);
+    try { document.activeElement && document.activeElement.blur(); } catch (e) { /* ignore */ }
+    return entry;
+  }
+  // Keys go to the top layer only: Esc closes it (and never closes Wall mode underneath).
+  function onKey(e) {
+    const top = layers[layers.length - 1]; if (!top) return;
+    if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); top.close(); return; }
+    if (top.game && top.game.key) { top.game.key(e); e.stopPropagation(); }
+  }
+  function openGame(def) {
+    const back = el('button', 'kg-back'); back.type = 'button'; back.textContent = '← Games';
+    const title = el('h2'); title.textContent = def.title;
+    const score = el('div', 'kg-score'); score.setAttribute('aria-live', 'polite');
+    const bar = el('div', 'kg-bar'); bar.append(back, title, score);
+    const main = el('div', 'kg-main');
+    const box = el('div'); box.style.cssText = 'display:flex;flex-direction:column;height:100%';
+    box.append(bar, main);
+    let game = null;
+    const entry = openLayer(box, () => { if (game && game.destroy) game.destroy(); });
+    back.addEventListener('click', entry.close);
+    const api = { score: (t) => { score.textContent = t; }, confetti, voice, note, beep };
+    game = def.make(main, api);
+    entry.game = game;
+    return entry;
+  }
+  // From Wall mode: the games list, full screen, with "← Back to Wall".
+  function openPicker() {
+    const back = el('button', 'kg-back'); back.type = 'button'; back.textContent = '← Back to Wall';
+    const top = el('div', 'kg-top'); top.append(back, soundChip());
+    const t = el('h2', 'kg-title'); t.textContent = '🎮 Games';
+    const inner = el('div', 'kg-pick-in'); inner.append(top, t, tiles());
+    const pickEl = el('div', 'kg-pick'); pickEl.append(inner);
+    const entry = openLayer(pickEl);
+    back.addEventListener('click', entry.close);
+    return entry;
+  }
+
+  // kalendaryo.co/games: the games on their own page (no home, no sign-up), with a link to Kalendaryo.
+  function mountStandalone(root) {
+    const brand = el('a', 'kg-brand'); brand.href = '/'; brand.innerHTML = '<span class="kg-brand-pill">Kalendaryo</span>';
+    const top = el('div', 'kg-top'); top.append(brand, soundChip());
+    const t = el('h1', 'kg-title'); t.textContent = '🎮 Games';
+    const sub = el('p', 'kg-sub'); sub.textContent = 'Free games for kids. No sign-up, no ads. Scores stay on this device.';
+    const foot = el('p', 'kg-foot');
+    foot.innerHTML = 'Made by <a href="/">Kalendaryo</a>, a free calendar and family board for your home. <a href="/">Try it →</a>';
+    const inner = el('div', 'kg-pick-in'); inner.append(top, t, sub, tiles(), foot);
+    const pg = el('main', 'kg kg-pick kg-standalone'); pg.append(inner);
+    root.replaceChildren(pg);
+  }
+
+  PL.games = { openPicker, openGame: (id) => openGame(GAMES.find((g) => g.id === id)), list: GAMES, mountStandalone };
+
+  /* ---------- the Games page (side menu) ---------- */
+  PL.screens.games = {
+    mount(root) {
+      const page = h('div', { class: 'screen-page games-page' },
+        h('header', { class: 'page-head' }, h('h1', {}, 'Games'), h('span', { class: 'kg' }, soundChip())),
+        h('p', { class: 'sub' }, 'For the kids. Scores stay on this device.'),
+        h('div', { class: 'kg' }, tiles()));
+      root.append(page);
+      return { destroy() { while (layers.length) layers[layers.length - 1].close(); } };
+    }
+  };
+})();
+
+</script>
+<script>
+(function(){ PL.games.mountStandalone(document.getElementById('games-root')); })();
+</script>
+</body>
+</html>

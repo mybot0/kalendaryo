@@ -170,7 +170,7 @@ button, .btn { font: 700 14px 'Figtree', sans-serif; border: 0; cursor: pointer;
       (i === 0 || i === 6 || i === d.days.length - 1 ? esc(day(x.day + 'T12:00:00')) : '') + '</span></div>').join('');
     const countries = d.countries.length ? d.countries.map((c) => '<div class="r"><span>' + flag(c.cc) + esc(c.city ? c.city + ', ' + c.country : c.country) + '</span><b>' + c.n + '</b></div>').join('')
       : '<p class="empty">No places yet. They show up after the first visits.</p>';
-    const PAGE = { start: 'Start page', home: 'A home', invite: 'An invite link', trip: 'Triply', demo: 'Demo' };
+    const PAGE = { start: 'Start page', home: 'A home', invite: 'An invite link', trip: 'Triply', demo: 'Demo', games: 'Games' };
     // Where they came from: a ?s= tag on your link, the Facebook/Instagram app, the site that linked here, or typed it.
     const SRC = { fb: '📣 Facebook', ig: '📸 Instagram', direct: '⌨️ Typed it / bookmark', google: '🔎 Google', search: '🔎 Search', x: '𝕏 X', unknown: '❔ Before tracking' };
     const src = (k) => SRC[k] || (String(k).startsWith('site:') ? '🔗 ' + String(k).slice(5) : '🏷️ ' + k);

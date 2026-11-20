@@ -43,6 +43,14 @@
 .games-page .kg-tiles { margin-top: 6px; }
 .games-page .page-head .kg-chip { font-size: 14px; }
 
+/* kalendaryo.co/games (standalone page) */
+.kg-standalone { min-height: 100vh; min-height: 100dvh; padding-top: calc(16px + env(safe-area-inset-top, 0px)); }
+.kg-brand { text-decoration: none; }
+.kg-brand-pill { display: inline-block; background: var(--primary, #3F7360); color: #fff; font: 800 20px/1 'Outfit', 'Figtree', system-ui, sans-serif; padding: 9px 16px; border-radius: 14px; }
+.kg-sub { margin: -10px 0 0; color: var(--ink-2, #4a4870); font: 600 17px/1.4 'Figtree', system-ui, sans-serif; }
+.kg-foot { margin: 8px 0 0; text-align: center; color: var(--ink-2, #4a4870); font: 600 15px/1.5 'Figtree', system-ui, sans-serif; }
+.kg-foot a { color: var(--primary, #3F7360); font-weight: 800; }
+
 /* game bar */
 .kg-bar { display: flex; align-items: center; gap: 12px; padding: 12px 16px; }
 .kg-bar h2 { margin: 0; flex: 1; min-width: 0; font: 400 clamp(22px, 4vw, 30px)/1 var(--kg-display); text-align: center; color: var(--ink); }

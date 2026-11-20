@@ -323,7 +323,20 @@
     return entry;
   }
 
-  PL.games = { openPicker, openGame: (id) => openGame(GAMES.find((g) => g.id === id)), list: GAMES };
+  // kalendaryo.co/games: the games on their own page (no home, no sign-up), with a link to Kalendaryo.
+  function mountStandalone(root) {
+    const brand = el('a', 'kg-brand'); brand.href = '/'; brand.innerHTML = '<span class="kg-brand-pill">Kalendaryo</span>';
+    const top = el('div', 'kg-top'); top.append(brand, soundChip());
+    const t = el('h1', 'kg-title'); t.textContent = '🎮 Games';
+    const sub = el('p', 'kg-sub'); sub.textContent = 'Free games for kids. No sign-up, no ads. Scores stay on this device.';
+    const foot = el('p', 'kg-foot');
+    foot.innerHTML = 'Made by <a href="/">Kalendaryo</a>, a free calendar and family board for your home. <a href="/">Try it →</a>';
+    const inner = el('div', 'kg-pick-in'); inner.append(top, t, sub, tiles(), foot);
+    const pg = el('main', 'kg kg-pick kg-standalone'); pg.append(inner);
+    root.replaceChildren(pg);
+  }
+
+  PL.games = { openPicker, openGame: (id) => openGame(GAMES.find((g) => g.id === id)), list: GAMES, mountStandalone };
 
   /* ---------- the Games page (side menu) ---------- */
   PL.screens.games = {

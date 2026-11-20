@@ -1300,6 +1300,14 @@ html.care-mode .toast, html.care-open .toast { border-radius: 22px; width: max-c
 .games-page .kg-tiles { margin-top: 6px; }
 .games-page .page-head .kg-chip { font-size: 14px; }
 
+/* kalendaryo.co/games (standalone page) */
+.kg-standalone { min-height: 100vh; min-height: 100dvh; padding-top: calc(16px + env(safe-area-inset-top, 0px)); }
+.kg-brand { text-decoration: none; }
+.kg-brand-pill { display: inline-block; background: var(--primary, #3F7360); color: #fff; font: 800 20px/1 'Outfit', 'Figtree', system-ui, sans-serif; padding: 9px 16px; border-radius: 14px; }
+.kg-sub { margin: -10px 0 0; color: var(--ink-2, #4a4870); font: 600 17px/1.4 'Figtree', system-ui, sans-serif; }
+.kg-foot { margin: 8px 0 0; text-align: center; color: var(--ink-2, #4a4870); font: 600 15px/1.5 'Figtree', system-ui, sans-serif; }
+.kg-foot a { color: var(--primary, #3F7360); font-weight: 800; }
+
 /* game bar */
 .kg-bar { display: flex; align-items: center; gap: 12px; padding: 12px 16px; }
 .kg-bar h2 { margin: 0; flex: 1; min-width: 0; font: 400 clamp(22px, 4vw, 30px)/1 var(--kg-display); text-align: center; color: var(--ink); }
@@ -10972,7 +10980,20 @@ body:has(> .tour-switch) .main { padding-top: 62px; }
     return entry;
   }
 
-  PL.games = { openPicker, openGame: (id) => openGame(GAMES.find((g) => g.id === id)), list: GAMES };
+  // kalendaryo.co/games: the games on their own page (no home, no sign-up), with a link to Kalendaryo.
+  function mountStandalone(root) {
+    const brand = el('a', 'kg-brand'); brand.href = '/'; brand.innerHTML = '<span class="kg-brand-pill">Kalendaryo</span>';
+    const top = el('div', 'kg-top'); top.append(brand, soundChip());
+    const t = el('h1', 'kg-title'); t.textContent = '🎮 Games';
+    const sub = el('p', 'kg-sub'); sub.textContent = 'Free games for kids. No sign-up, no ads. Scores stay on this device.';
+    const foot = el('p', 'kg-foot');
+    foot.innerHTML = 'Made by <a href="/">Kalendaryo</a>, a free calendar and family board for your home. <a href="/">Try it →</a>';
+    const inner = el('div', 'kg-pick-in'); inner.append(top, t, sub, tiles(), foot);
+    const pg = el('main', 'kg kg-pick kg-standalone'); pg.append(inner);
+    root.replaceChildren(pg);
+  }
+
+  PL.games = { openPicker, openGame: (id) => openGame(GAMES.find((g) => g.id === id)), list: GAMES, mountStandalone };
 
   /* ---------- the Games page (side menu) ---------- */
   PL.screens.games = {

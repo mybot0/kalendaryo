@@ -493,6 +493,15 @@ r.get('/care/:board/app.webmanifest', async (req, res) => {
   care.manifest(req, res, req.params.board);
 });
 r.get('/care/:board', page);
+// kalendaryo.co/games: the kids' games on their own page (public/games.html, made by client/build.js).
+const GAMES_PAGE = path.join(__dirname, '..', 'public', 'games.html');
+r.get('/games', async (req, res) => {
+  owner.cookie(req, res);
+  owner.countPage(req, 'games');
+  const html = fs.readFileSync(GAMES_PAGE, 'utf8').replace('</head>', '<script src="/hi.js" defer></script></head>');
+  res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-cache' });
+  res.end(req.method === 'HEAD' ? undefined : html);
+});
 
 const server = http.createServer(async (req, res) => {
   owner.touch(req);
