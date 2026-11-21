@@ -145,12 +145,15 @@ function createSupport({ db, fail }) {
   /* ---------- the owner page ---------- */
   async function inbox(filter) {
     await ready;
-    const where = filter === 'done' ? "AND t.status = 'done'" : filter === 'all' ? '' : "AND t.status = 'open'";
-    const r = await db.q(`SELECT t.id, t.app, t.place_id, t.place_name, t.name, t.status, t.owner_unread, t.last_at,
-        (SELECT body FROM help_messages m WHERE m.thread_id = t.id AND NOT m.auto ORDER BY id DESC LIMIT 1) AS last_body,
+    // A real chat: the person wrote, or the owner replied by hand. "auto" = only automatic messages so far.
+    const real = '(t.wrote OR EXISTS (SELECT 1 FROM help_messages m WHERE m.thread_id = t.id AND m.from_team AND NOT m.auto))';
+    const where = filter === 'auto' ? 'NOT ' + real : real + (filter === 'done' ? " AND t.status = 'done'" : filter === 'all' ? '' : " AND t.status = 'open'");
+    const r = await db.q(`SELECT t.id, t.app, t.place_id, t.place_name, t.name, t.status, t.owner_unread, t.last_at, NOT ${real} AS auto_only,
+        COALESCE((SELECT body FROM help_messages m WHERE m.thread_id = t.id AND NOT m.auto ORDER BY id DESC LIMIT 1),
+          (SELECT body FROM help_messages m WHERE m.thread_id = t.id ORDER BY id DESC LIMIT 1)) AS last_body,
         (SELECT image IS NOT NULL FROM help_messages m WHERE m.thread_id = t.id AND NOT m.auto ORDER BY id DESC LIMIT 1) AS last_image,
         (SELECT tag FROM help_messages m WHERE m.thread_id = t.id AND NOT m.from_team AND tag <> '' ORDER BY id DESC LIMIT 1) AS tag
-      FROM help_threads t WHERE t.wrote ${where} ORDER BY t.owner_unread > 0 DESC, t.last_at DESC LIMIT 200`);
+      FROM help_threads t WHERE ${where} ORDER BY t.owner_unread > 0 DESC, t.last_at DESC LIMIT 200`);
     const n = await db.q("SELECT count(*)::int AS n FROM help_threads WHERE wrote AND owner_unread > 0");
     return { threads: r.rows.map((x) => Object.assign(x, { id: Number(x.id), team: TEAM[x.app] })), unread: n.rows[0].n };
   }

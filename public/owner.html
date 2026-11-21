@@ -245,8 +245,8 @@ button, .btn { font: 700 14px 'Figtree', sans-serif; border: 0; cursor: pointer;
       const msgsBox = el.querySelector('.ib-msgs'); const atBottom = !msgsBox || msgsBox.scrollHeight - msgsBox.scrollTop - msgsBox.clientHeight < 60;
       const list = threads.length ? threads.map((t) => '<button class="ib-item' + (t.owner_unread ? ' new' : '') + (t.id === sel ? ' sel' : '') + '" data-id="' + t.id + '"><span class="ib-dot"></span><span class="ib-main"><span class="ib-top"><span class="ib-name">' + esc(t.name || 'Someone') +
         '</span><span class="ib-app' + (t.app === 'trip' ? ' trip' : '') + '">' + APP[t.app] + '</span><span class="ib-place">' + esc(t.place_name) + '</span><span class="ib-when">' + ago(new Date(t.last_at).getTime()) + '</span></span><span class="ib-prev">' +
-        (t.tag ? TAG[t.tag] + ' ' : '') + esc(t.last_body || (t.last_image ? '📎 Screenshot' : '')) + '</span></span></button>').join('')
-        : '<p class="empty">' + (filter === 'open' ? 'No open messages. When people write from “Help & ideas”, they show up here.' : 'Nothing here.') + '</p>';
+        (t.auto_only ? '<i>Automatic · no reply yet</i> · ' : '') + (t.tag ? TAG[t.tag] + ' ' : '') + esc(t.last_body || (t.last_image ? '📎 Screenshot' : '')) + '</span></span></button>').join('')
+        : '<p class="empty">' + (filter === 'open' ? 'No open messages. When people write from “Help & ideas”, they show up here.' : filter === 'auto' ? 'No automatic-only chats.' : 'Nothing here.') + '</p>';
       let right = '<div class="ib-conv"><p class="ib-pick">Pick a message on the left to read and reply.</p></div>';
       if (conv) {
         const t = conv.thread;
@@ -257,7 +257,7 @@ button, .btn { font: 700 14px 'Figtree', sans-serif; border: 0; cursor: pointer;
           '</div><div class="ib-reply"><textarea rows="1" placeholder="Reply as ' + esc(t.team) + '…"></textarea><button class="ib-send">Send</button></div></div>';
       }
       el.innerHTML = '<div class="ib-head"><h2 style="margin:0"><span class="pill">INBOX</span> Help & ideas</h2>' + (unread ? '<span class="ib-new">' + unread + ' new</span>' : '') +
-        '<span class="ib-filters">' + ['open', 'done', 'all'].map((f) => '<button data-f="' + f + '" class="' + (filter === f ? 'on' : '') + '">' + f[0].toUpperCase() + f.slice(1) + '</button>').join('') + '</span></div>' +
+        '<span class="ib-filters">' + [['open', 'Open'], ['done', 'Done'], ['all', 'All'], ['auto', 'Automated']].map((f) => '<button data-f="' + f[0] + '" class="' + (filter === f[0] ? 'on' : '') + '"' + (f[0] === 'auto' ? ' title="People who only got an automatic message and never wrote. Reply to start a real chat."' : '') + '>' + f[1] + '</button>').join('') + '</span></div>' +
         '<div class="ib-grid"><div class="ib-list">' + list + '</div>' + right + '</div>' +
         '<details class="ib-welcome"' + (el.querySelector('.ib-welcome[open]') ? ' open' : '') + '><summary>Automatic messages (welcome and thank-you)</summary>' +
         '<p class="note">Each one opens the person’s chat once and is marked “Automated message”. Kalendaryo: welcome on the first visit, then a thank-you at most every 2 weeks. ' +
