@@ -64,7 +64,7 @@ const CHECKIN_DAYS = 14, MIN_DAYS_USED = 3;
 const TAGS = ['problem', 'idea', 'question'];
 const MAX_IMAGE = 900 * 1024;
 
-function createSupport({ db, fail }) {
+function createSupport({ db, fail, onUserMessage }) {
   const ready = db.q(SCHEMA).catch((e) => { console.error('[help] tables', e.message); });
   const clean = (s, n) => String(s == null ? '' : s).replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g, '').trim().slice(0, n);
   const first = (name) => (clean(name, 40).split(/\s+/)[0] || 'there');
@@ -134,6 +134,8 @@ function createSupport({ db, fail }) {
     if (!text && !image) fail(400, 'bad_request', 'Type a message first.');
     const m = await db.q('INSERT INTO help_messages (thread_id, tag, body, image) VALUES ($1,$2,$3,$4) RETURNING *', [t.id, tag, text, image]);
     await db.q("UPDATE help_threads SET owner_unread = owner_unread + 1, wrote = true, status = 'open', last_at = now() WHERE id = $1", [t.id]);
+    // Tell the owner (phone alert). Runs on its own: it can never slow down or break this message.
+    if (onUserMessage) Promise.resolve().then(() => onUserMessage({ threadId: Number(t.id), app, name: clean(name, 40), place: clean(placeName, 80), text, image: !!image, tag })).catch(() => {});
     return { message: msgOut(m.rows[0], app) };
   }
   async function userSeen(app, person) {

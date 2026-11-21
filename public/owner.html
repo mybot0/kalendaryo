@@ -4,6 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
+<link rel="manifest" href="/owner.webmanifest">
+<link rel="apple-touch-icon" href="/owner-icons/180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Owner">
+<meta name="theme-color" content="#3F7360">
 <title>Kalendaryo · Owner view</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;600;700;800&family=Outfit:wght@600;700;800&display=swap">
@@ -107,6 +112,14 @@ button, .btn { font: 700 14px 'Figtree', sans-serif; border: 0; cursor: pointer;
 .modal .gone:disabled { opacity: .4; cursor: not-allowed; }
 .login { max-width: 420px; margin: 12vh auto 0; display: flex; flex-direction: column; gap: 12px; }
 .login input { height: 48px; border: 1px solid #DCDAD3; border-radius: 12px; padding: 0 14px; font: inherit; }
+.login .remember { min-height: 44px; cursor: pointer; display: flex; gap: 8px; align-items: center; font-size: 14px; color: var(--ink-2); }
+.login .remember input { height: 20px; width: 20px; padding: 0; margin: 0; accent-color: var(--primary); }
+.alerts { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 14px 20px; }
+.alerts.blocked { background: #FFF6E8; box-shadow: inset 0 0 0 1px #F3D9AE; }
+.alerts .al-txt { flex: 1; min-width: 220px; color: var(--ink-2); font-size: 14px; }
+.alerts .al-txt b { color: var(--ink); }
+.alerts button { min-height: 44px; }
+.alerts .al-on { background: var(--primary); color: #fff; }
 .login .go { background: var(--primary); color: #fff; min-height: 48px; justify-content: center; font-size: 16px; }
 .err { color: #B4442F; font-weight: 700; margin: 0; }
 @media (max-width: 980px) { .tiles { grid-template-columns: repeat(3, minmax(0, 1fr)); } .row2 { grid-template-columns: 1fr; } }
@@ -137,16 +150,19 @@ button, .btn { font: 700 14px 'Figtree', sans-serif; border: 0; cursor: pointer;
 
   // The key comes once in the address (?key=...), then lives only in this tab.
   let key = '';
-  try { key = sessionStorage.getItem('kal.ownerKey') || ''; } catch (e) {}
+  try { key = sessionStorage.getItem('kal.ownerKey') || localStorage.getItem('kal.ownerKey') || ''; } catch (e) {}
+  const standalone = (window.matchMedia && matchMedia('(display-mode: standalone)').matches) || navigator.standalone === true;
+  const forgetKey = () => { try { sessionStorage.removeItem('kal.ownerKey'); localStorage.removeItem('kal.ownerKey'); } catch (x) {} };
   const fromUrl = new URLSearchParams(location.search).get('key');
   if (fromUrl) { key = fromUrl; try { sessionStorage.setItem('kal.ownerKey', key); } catch (e) {} }
-  if (location.search) history.replaceState(null, '', '/owner');
+  if (location.search) history.replaceState(null, '', '/owner' + location.hash);
 
   function login(msg) {
     app.innerHTML = '<form class="card login" id="f"><div class="top"><span class="mark">' + CAL + '</span><h1>Kalendaryo</h1></div>' +
       '<label for="k"><b>Owner key</b></label><input id="k" type="password" autocomplete="current-password" placeholder="Your OWNER_KEY">' +
+      '<label class="remember"><input type="checkbox" id="rem"' + (standalone ? ' checked' : '') + '> Remember on this device (only on your own phone or computer)</label>' +
       (msg ? '<p class="err">' + esc(msg) + '</p>' : '') + '<button class="go" type="submit">Open owner view</button></form>';
-    document.getElementById('f').onsubmit = (e) => { e.preventDefault(); key = document.getElementById('k').value.trim(); try { sessionStorage.setItem('kal.ownerKey', key); } catch (x) {} load(); };
+    document.getElementById('f').onsubmit = (e) => { e.preventDefault(); key = document.getElementById('k').value.trim(); try { sessionStorage.setItem('kal.ownerKey', key); if (document.getElementById('rem').checked) localStorage.setItem('kal.ownerKey', key); } catch (x) {} load(); };
   }
 
   async function api(method, url, body) {
@@ -158,18 +174,20 @@ button, .btn { font: 700 14px 'Figtree', sans-serif; border: 0; cursor: pointer;
   }
 
   let timer = null, last = null;
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && key && last) load(); });
   async function load() {
     clearTimeout(timer);
     if (!key) return login();
     try { last = await api('GET', '/api/owner/summary'); draw(last); }
     catch (e) {
-      if (e && e.wrongKey) { try { sessionStorage.removeItem('kal.ownerKey'); } catch (x) {} key = ''; return login('That key is not right.'); }
+      if (e && e.wrongKey) { forgetKey(); key = ''; return login('That key is not right.'); }
       if (!last) app.innerHTML = '<div class="card">Could not load. Trying again…</div>';
     }
     timer = setTimeout(load, 30000);
   }
 
   function draw(d) {
+    const act = document.activeElement, typing = act && act.matches && act.matches('.ib-reply textarea') ? [act, act.selectionStart, act.selectionEnd] : null;
     const t = d.tiles;
     const tile = (n, l, s, color) => '<div class="card tile"><div class="n"' + (color ? ' style="color:' + color + '"' : '') + '>' + n + '</div><div class="l">' + l + '</div><div class="s">' + s + '</div></div>';
     const mx = Math.max(1, ...d.days.map((x) => x.n));
@@ -214,7 +232,9 @@ button, .btn { font: 700 14px 'Figtree', sans-serif; border: 0; cursor: pointer;
       '<section class="card"><h2>Recent visitors</h2>' + recent + '<p class="note">The last 20 visits by real people: the page opened in a browser and they stayed 3 seconds or tapped. Bots, link previews and your own visits are not counted. “Device” is a short code, not a name.</p></section>' +
       (d.asks && d.asks.length ? '' : asks) + '<section class="card"><h2><span class="pill">HOMES</span>' + d.homes.length + (d.homes.length === 1 ? ' home' : ' homes') + '</h2>' + homes + '</section>' + trips +
       '<p class="note">Database: ' + mb(t.db_bytes) + ' used. “View” opens that home or trip read-only for 2 hours; your visit doesn’t count as theirs. “Delete” removes it for good, only when you click it.</p>';
-    const slot = document.getElementById('inbox-slot'); if (slot) slot.replaceWith(inbox.el);
+    const slot = document.getElementById('inbox-slot'); if (slot) { slot.replaceWith(inbox.el); inbox.el.parentNode.insertBefore(alerts.el, inbox.el); alerts.paint(); }
+    if (typing && typing[0].isConnected) { typing[0].focus({ preventScroll: true }); try { typing[0].setSelectionRange(typing[1], typing[2]); } catch (e) {} }
+    const goto = /^#t=(\d+)$/.exec(location.hash); if (goto) { history.replaceState(null, '', '/owner'); inbox.openThread(Number(goto[1])); }
     inbox.load();
     app.querySelectorAll('.ask').forEach((b) => (b.onclick = async () => {
       b.disabled = true;
@@ -230,6 +250,69 @@ button, .btn { font: 700 14px 'Figtree', sans-serif; border: 0; cursor: pointer;
   }
 
   /* ---------- Help & ideas inbox: messages from people in both apps; the team replies here ---------- */
+  /* ---------- Phone alerts (server/ownerpush.js, /owner-sw.js) ---------- */
+  const alerts = (function () {
+    const el = document.createElement('section'); el.className = 'card alerts';
+    const ios = /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    const can = 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window;
+    let reg = null, sub = null, devices = 0, busy = false, note = '';
+    if (can) {
+      navigator.serviceWorker.register('/owner-sw.js', { scope: '/owner' }).then(async (r) => {
+        reg = r; await navigator.serviceWorker.ready; const s = await r.pushManager.getSubscription();
+        if (s) { try { const a = await api('POST', '/api/owner/push/add', { sub: s.toJSON(), label: label() }); if (a.ok) { sub = s; devices = a.devices || 1; } } catch (e) {} } // re-save: the server may have dropped it
+        paint();
+      }).catch(() => {});
+      navigator.serviceWorker.addEventListener('message', (e) => { const m = e.data && /#t=(\d+)$/.exec(e.data.open || ''); if (m) inbox.openThread(Number(m[1])); });
+    }
+    const label = () => (ios ? (/iPhone/.test(navigator.userAgent) ? 'iPhone' : 'iPad') : /Android/.test(navigator.userAgent) ? 'Android' : /Windows/.test(navigator.userAgent) ? 'Windows' : /Mac/.test(navigator.userAgent) ? 'Mac' : 'Computer');
+    const remembered = () => { try { return !!localStorage.getItem('kal.ownerKey'); } catch (e) { return false; } };
+    function paint() {
+      let txt, btns = '';
+      if (!can && ios && !standalone) txt = '<b>🔔 Phone alerts:</b> on iPhone or iPad, tap <b>Share</b> → <b>Add to Home Screen</b>, then open <b>Owner</b> from that icon, type your key once, and turn alerts on there.';
+      else if (!can) txt = '<b>🔔 Phone alerts</b> don’t work in this browser. Try Chrome, Edge, or Safari.';
+      else if (Notification.permission === 'denied') txt = '<b>🔔 Alerts are blocked</b> for this page. Allow notifications for kalendaryo.co in your browser or phone settings, then close this page and open it again.';
+      else if (sub) { txt = '<b>🔔 Alerts are on</b> for this device ✓' + (devices > 1 ? ' · ' + devices + ' devices' : ''); btns = '<button class="view al-test">Send a test</button><button class="al-off">Turn off</button>'; }
+      else { txt = '<b>🔔 Get an alert</b> on this device when someone writes in Help & ideas.' + (/Windows|Mac|Linux/.test(navigator.userAgent) && !ios ? ' Alerts come while your browser is running.' : ''); btns = '<button class="al-on">Turn on alerts</button>'; }
+      if (remembered()) btns += '<button class="al-forget" title="This device remembers your owner key">Forget key on this device</button>';
+      el.classList.toggle('blocked', can && Notification.permission === 'denied');
+      el.innerHTML = '<span class="al-txt">' + txt + (note ? '<br>' + esc(note) : '') + '</span>' + btns;
+      const q = (c) => el.querySelector(c);
+      if (q('.al-on')) q('.al-on').onclick = on;
+      if (q('.al-off')) q('.al-off').onclick = off;
+      if (q('.al-test')) q('.al-test').onclick = test;
+      if (q('.al-forget')) q('.al-forget').onclick = () => { try { localStorage.removeItem('kal.ownerKey'); } catch (e) {} note = 'Done. You’ll type the key again next time.'; paint(); };
+    }
+    const toKey = (s) => { const b = atob(s.replace(/-/g, '+').replace(/_/g, '/') + '==='.slice((s.length + 3) % 4)); return Uint8Array.from(b, (c) => c.charCodeAt(0)); };
+    async function on() {
+      if (busy) return; busy = true; note = '';
+      try {
+        const perm = await Notification.requestPermission();
+        if (perm !== 'granted') { note = 'Alerts were not allowed.'; return; }
+        const r = reg || await navigator.serviceWorker.register('/owner-sw.js', { scope: '/owner' }); await navigator.serviceWorker.ready;
+        const info = await api('GET', '/api/owner/push');
+        const s = (await r.pushManager.getSubscription()) || await r.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: toKey(info.key) });
+        let a = null; try { a = await api('POST', '/api/owner/push/add', { sub: s.toJSON(), label: label() }); } catch (e) {}
+        if (!a || !a.ok) { try { await s.unsubscribe(); } catch (e) {} note = 'Could not turn on alerts. Check your internet and try again.'; return; }
+        sub = s; devices = a.devices || 1;
+        note = 'Tap “Send a test” to check it.';
+      } catch (e) { note = 'Could not turn on alerts. Close this page, open it again, and try once more.'; }
+      finally { busy = false; paint(); }
+    }
+    async function off() {
+      if (busy || !sub) return; busy = true;
+      try { await api('POST', '/api/owner/push/remove', { endpoint: sub.endpoint }); await sub.unsubscribe(); sub = null; note = 'Alerts are off for this device.'; }
+      catch (e) { note = 'Could not turn off alerts. Check your internet and try again.'; }
+      finally { busy = false; paint(); }
+    }
+    async function test() {
+      if (busy) return; busy = true; note = 'Sending…'; paint();
+      try { const r = await api('POST', '/api/owner/push/test'); note = r.sent ? 'Sent! It should show up in a few seconds.' : 'Nothing was sent. Try “Turn off”, then turn alerts on again.'; }
+      catch (e) { note = 'Could not send the test. Check your internet and try again.'; }
+      finally { busy = false; paint(); }
+    }
+    return { el, paint };
+  })();
+
   const inbox = (function () {
     const el = document.createElement('section');
     el.className = 'card';
@@ -249,6 +332,7 @@ button, .btn { font: 700 14px 'Figtree', sans-serif; border: 0; cursor: pointer;
     }
     function paint() {
       const box = el.querySelector('.ib-reply textarea'); if (box) draft = box.value;
+      const typing = box && document.activeElement === box ? [box.selectionStart, box.selectionEnd] : null;
       const msgsBox = el.querySelector('.ib-msgs'); const atBottom = !msgsBox || msgsBox.scrollHeight - msgsBox.scrollTop - msgsBox.clientHeight < 60;
       const list = threads.length ? threads.map((t) => '<button class="ib-item' + (t.owner_unread ? ' new' : '') + (t.id === sel ? ' sel' : '') + '" data-id="' + t.id + '"><span class="ib-dot"></span><span class="ib-main"><span class="ib-top"><span class="ib-name">' + esc(t.name || 'Someone') +
         '</span><span class="ib-app' + (t.app === 'trip' ? ' trip' : '') + '">' + APP[t.app] + '</span><span class="ib-place">' + esc(t.place_name) + '</span>' + (t.last_team == null ? '' : !t.last_team ? '<span class="ib-st reply">' + (t.owner_unread ? '💬 New reply' : '💬 They wrote') + '</span>' : t.user_unread ? '<span class="ib-st">Not seen yet</span>' : '<span class="ib-st seen">Seen ✓</span>') + '<span class="ib-when">' + ago(new Date(t.last_at).getTime()) + '</span></span><span class="ib-prev">' +
@@ -274,6 +358,7 @@ button, .btn { font: 700 14px 'Figtree', sans-serif; border: 0; cursor: pointer;
         (Array.isArray(welcome) ? welcome : []).map((w) => '<div><label for="w-' + w.key + '">' + esc(w.label) + '</label><textarea id="w-' + w.key + '">' + esc(w.text) + '</textarea><button class="view w-save" data-key="' + w.key + '" style="margin-top:6px">Save</button></div>').join('') + '</div></details>';
       const ta = el.querySelector('.ib-reply textarea');
       if (ta) { const fit = () => { ta.style.height = 'auto'; ta.style.height = Math.min(260, ta.scrollHeight + 2) + 'px'; }; ta.value = draft; fit(); ta.oninput = () => { draft = ta.value; fit(); }; ta.onkeydown = (e) => { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) send(); }; }
+      if (typing && ta) { ta.focus(); try { ta.setSelectionRange(typing[0], typing[1]); } catch (e) {} }
       const mb = el.querySelector('.ib-msgs'); if (mb && atBottom) mb.scrollTop = mb.scrollHeight;
       el.querySelectorAll('.ib-item').forEach((b) => (b.onclick = () => openThread(Number(b.dataset.id))));
       el.querySelectorAll('.ib-filters button').forEach((b) => (b.onclick = () => { filter = b.dataset.f; load(); }));
@@ -313,7 +398,7 @@ button, .btn { font: 700 14px 'Figtree', sans-serif; border: 0; cursor: pointer;
       try { await api('POST', '/api/owner/help/' + sel + '/reply', { body: text }); draft = ''; ta.value = ''; await load(); }
       catch (e) { alert(e.message); b.disabled = false; }
     }
-    return { el, load };
+    return { el, load, openThread };
   })();
 
   // Delete one home or trip. You must type its name exactly. Nothing is ever deleted any other way.

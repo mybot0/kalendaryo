@@ -444,10 +444,55 @@ const owner = require('./owner').createOwner({ db, live, ipOf, fail, triplySchem
 owner.install(r, json, send);
 
 /* ---------- Help & ideas (see server/support.js) ---------- */
-const support = require('./support').createSupport({ db, fail });
-support.install(r, { auth, json, send, helpJson: jsonBody(1200 * 1024),
-  ownerGuard: (req) => { if (!owner.isOwnerKey(req.headers['x-owner-key'])) fail(404, 'not_found', 'Not found.'); } });
+const ownerGuard = (req) => { if (!owner.isOwnerKey(req.headers['x-owner-key'])) fail(404, 'not_found', 'Not found.'); };
+/* Owner alerts: a phone notification when someone writes (server/ownerpush.js). */
+const ownerPush = require('./ownerpush').createOwnerPush({ db });
+ownerPush.install(r, { json, send, ownerGuard });
+const TAG_ICON = { problem: '🐞 ', idea: '💡 ', question: '❓ ' };
+const alerted = new Map(); // thread -> last alert time: at most one alert per chat per minute, so a burst of messages buzzes once
+setInterval(() => { const old = Date.now() - 60000; for (const [k, t] of alerted) if (t < old) alerted.delete(k); }, 600000).unref();
+const support = require('./support').createSupport({ db, fail, onUserMessage: (m) => {
+  if (Date.now() - (alerted.get(m.threadId) || 0) < 60000) return;
+  alerted.set(m.threadId, Date.now());
+  const text = Array.from(m.text || ''); // whole characters, so an emoji is never cut in half
+  return ownerPush.notify({
+    title: (m.name || 'Someone') + ' · ' + (m.app === 'trip' ? 'Triply' : 'Kalendaryo') + (m.place ? ' · ' + m.place : ''),
+    body: (TAG_ICON[m.tag] || '') + (text.length ? text.slice(0, 140).join('') + (text.length > 140 ? '…' : '') : '📎 Sent a screenshot'),
+    url: '/owner#t=' + m.threadId, tag: 'thread-' + m.threadId });
+} });
+support.install(r, { auth, json, send, helpJson: jsonBody(1200 * 1024), ownerGuard });
 const OWNER_PAGE = path.join(__dirname, '..', 'public', 'owner.html');
+// The owner page's service worker (alerts) and Home Screen app files. No key needed: they hold nothing private.
+const OWNER_SW = `self.addEventListener('push', (e) => {
+  let d = {}; try { d = e.data ? e.data.json() : {}; } catch (x) {}
+  e.waitUntil(self.registration.showNotification(d.title || 'Kalendaryo', { body: d.body || '', tag: d.tag || 'kal', renotify: true, icon: '/owner-icons/192.png', badge: '/owner-icons/192.png', data: { url: d.url || '/owner' } }));
+});
+self.addEventListener('notificationclick', (e) => {
+  e.notification.close();
+  const url = (e.notification.data && e.notification.data.url) || '/owner';
+  e.waitUntil(self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((list) => {
+    const w = list.find((c) => new URL(c.url).pathname === '/owner');
+    if (w) { w.postMessage({ open: url }); return w.focus(); }
+    return self.clients.openWindow(url);
+  }));
+});
+`;
+r.get('/owner-sw.js', async (req, res) => {
+  res.writeHead(200, { 'Content-Type': 'text/javascript; charset=utf-8', 'Cache-Control': 'no-cache', 'Service-Worker-Allowed': '/owner' });
+  res.end(req.method === 'HEAD' ? undefined : OWNER_SW);
+});
+const OWNER_MANIFEST = JSON.stringify({ name: 'Kalendaryo Owner', short_name: 'Owner', start_url: '/owner', scope: '/owner', display: 'standalone',
+  background_color: '#F4F3EE', theme_color: '#3F7360', icons: [192, 512].map((n) => ({ src: '/owner-icons/' + n + '.png', sizes: n + 'x' + n, type: 'image/png' })) });
+r.get('/owner.webmanifest', async (req, res) => {
+  res.writeHead(200, { 'Content-Type': 'application/manifest+json', 'Cache-Control': 'no-cache' });
+  res.end(req.method === 'HEAD' ? undefined : OWNER_MANIFEST);
+});
+r.get('/owner-icons/:size', async (req, res) => {
+  const m = /^(180|192|512)\.png$/.exec(req.params.size);
+  if (!m) { res.writeHead(404); return res.end(); }
+  res.writeHead(200, { 'Content-Type': 'image/png', 'Cache-Control': 'public, max-age=604800' });
+  res.end(req.method === 'HEAD' ? undefined : fs.readFileSync(path.join(__dirname, '..', 'public', 'owner-icon-' + m[1] + '.png')));
+});
 r.get('/owner', async (req, res) => {
   owner.cookie(req, res); // same browser ID as the site, so the owner's own visits are left out
   res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store', 'X-Robots-Tag': 'noindex' });
