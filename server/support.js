@@ -148,7 +148,8 @@ function createSupport({ db, fail }) {
     // A real chat: the person wrote, or the owner replied by hand. "auto" = only automatic messages so far.
     const real = '(t.wrote OR EXISTS (SELECT 1 FROM help_messages m WHERE m.thread_id = t.id AND m.from_team AND NOT m.auto))';
     const where = filter === 'auto' ? 'NOT ' + real : real + (filter === 'done' ? " AND t.status = 'done'" : filter === 'all' ? '' : " AND t.status = 'open'");
-    const r = await db.q(`SELECT t.id, t.app, t.place_id, t.place_name, t.name, t.status, t.owner_unread, t.last_at, NOT ${real} AS auto_only,
+    const r = await db.q(`SELECT t.id, t.app, t.place_id, t.place_name, t.name, t.status, t.owner_unread, t.user_unread, t.last_at, NOT ${real} AS auto_only,
+        (SELECT from_team FROM help_messages m WHERE m.thread_id = t.id ORDER BY id DESC LIMIT 1) AS last_team,
         COALESCE((SELECT body FROM help_messages m WHERE m.thread_id = t.id AND NOT m.auto ORDER BY id DESC LIMIT 1),
           (SELECT body FROM help_messages m WHERE m.thread_id = t.id ORDER BY id DESC LIMIT 1)) AS last_body,
         (SELECT image IS NOT NULL FROM help_messages m WHERE m.thread_id = t.id AND NOT m.auto ORDER BY id DESC LIMIT 1) AS last_image,

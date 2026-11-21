@@ -51,7 +51,7 @@ button, .btn { font: 700 14px 'Figtree', sans-serif; border: 0; cursor: pointer;
 .ib-filters button { background: #F0EEE8; color: var(--ink-2); min-height: 32px; font-size: 13px; }
 .ib-filters button.on { background: var(--ink); color: #fff; }
 .ib-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: 18px; margin-top: 12px; }
-.ib-list { display: flex; flex-direction: column; max-height: 520px; overflow-y: auto; }
+.ib-list { display: flex; flex-direction: column; max-height: 760px; overflow-y: auto; }
 .ib-item { display: flex; gap: 10px; padding: 12px; border-radius: 14px; border: 0; background: none; text-align: left; font: inherit; color: inherit; cursor: pointer; border-bottom: 1px solid #F0EEE8; min-height: 0; }
 .ib-item:hover { background: #FAF9F6; }
 .ib-item.sel { background: #F3F8F5; }
@@ -64,9 +64,12 @@ button, .btn { font: 700 14px 'Figtree', sans-serif; border: 0; cursor: pointer;
 .ib-app { font-size: 12px; font-weight: 800; padding: 2px 8px; border-radius: 999px; background: var(--primary-soft); color: var(--primary-ink); }
 .ib-app.trip { background: var(--trip-soft); color: var(--trip-ink); }
 .ib-place { color: var(--muted); font-size: 13px; }
+.ib-st { font-size: 12px; font-weight: 600; padding: 2px 8px; border-radius: 99px; background: #F1EFE9; color: var(--ink-2); white-space: nowrap; }
+.ib-st.reply { background: #FDE7C8; color: #8A4B00; }
+.ib-st.seen { background: #E2F2E8; color: var(--ok); }
 .ib-when { margin-left: auto; color: var(--muted); font-size: 12px; }
 .ib-prev { color: var(--ink-2); font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.ib-conv { border: 1px solid #EEECE6; border-radius: 16px; display: flex; flex-direction: column; min-height: 360px; max-height: 560px; }
+.ib-conv { border: 1px solid #EEECE6; border-radius: 16px; display: flex; flex-direction: column; min-height: 480px; max-height: 760px; }
 .ib-conv-head { padding: 12px 14px; border-bottom: 1px solid #EEECE6; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .ib-conv-head .acts { margin-left: auto; }
 .ib-done { background: var(--ink); color: #fff; }
@@ -84,7 +87,7 @@ button, .btn { font: 700 14px 'Figtree', sans-serif; border: 0; cursor: pointer;
 .ib-del:hover { color: #B3261E; background: #FBEAE8; }
 .ib-del.sure { color: #fff; background: #B3261E; }
 .ib-reply { padding: 10px; border-top: 1px solid #EEECE6; display: flex; gap: 8px; align-items: flex-end; }
-.ib-reply textarea { flex: 1; resize: none; min-height: 42px; max-height: 140px; border: 1px solid #DCDAD3; border-radius: 18px; padding: 10px 14px; font: inherit; }
+.ib-reply textarea { flex: 1; resize: none; min-height: 84px; max-height: 260px; line-height: 1.4; border: 1px solid #DCDAD3; border-radius: 18px; padding: 10px 14px; font: inherit; }
 .ib-send { background: var(--primary); color: #fff; min-height: 42px; }
 .ib-pick { margin: auto; color: var(--muted); text-align: center; padding: 30px; }
 .ib-welcome { margin-top: 14px; }
@@ -248,7 +251,7 @@ button, .btn { font: 700 14px 'Figtree', sans-serif; border: 0; cursor: pointer;
       const box = el.querySelector('.ib-reply textarea'); if (box) draft = box.value;
       const msgsBox = el.querySelector('.ib-msgs'); const atBottom = !msgsBox || msgsBox.scrollHeight - msgsBox.scrollTop - msgsBox.clientHeight < 60;
       const list = threads.length ? threads.map((t) => '<button class="ib-item' + (t.owner_unread ? ' new' : '') + (t.id === sel ? ' sel' : '') + '" data-id="' + t.id + '"><span class="ib-dot"></span><span class="ib-main"><span class="ib-top"><span class="ib-name">' + esc(t.name || 'Someone') +
-        '</span><span class="ib-app' + (t.app === 'trip' ? ' trip' : '') + '">' + APP[t.app] + '</span><span class="ib-place">' + esc(t.place_name) + '</span><span class="ib-when">' + ago(new Date(t.last_at).getTime()) + '</span></span><span class="ib-prev">' +
+        '</span><span class="ib-app' + (t.app === 'trip' ? ' trip' : '') + '">' + APP[t.app] + '</span><span class="ib-place">' + esc(t.place_name) + '</span>' + (t.last_team == null ? '' : !t.last_team ? '<span class="ib-st reply">' + (t.owner_unread ? '💬 New reply' : '💬 They wrote') + '</span>' : t.user_unread ? '<span class="ib-st">Not seen yet</span>' : '<span class="ib-st seen">Seen ✓</span>') + '<span class="ib-when">' + ago(new Date(t.last_at).getTime()) + '</span></span><span class="ib-prev">' +
         (t.auto_only ? '<i>Automatic · no reply yet</i> · ' : '') + (t.tag ? TAG[t.tag] + ' ' : '') + esc(t.last_body || (t.last_image ? '📎 Screenshot' : '')) + '</span></span></button>').join('')
         : '<p class="empty">' + (filter === 'open' ? 'No open messages. When people write from “Help & ideas”, they show up here.' : filter === 'auto' ? 'No automatic-only chats.' : 'Nothing here.') + '</p>';
       let right = '<div class="ib-conv"><p class="ib-pick">Pick a message on the left to read and reply.</p></div>';
@@ -259,7 +262,7 @@ button, .btn { font: 700 14px 'Figtree', sans-serif; border: 0; cursor: pointer;
           conv.messages.map((m) => '<div class="ib-msg' + (m.team ? ' team' : '') + (m.team && m.auto ? ' auto' : '') + '">' + (m.image ? '<img src="' + esc(m.image) + '" alt="Screenshot">' : '') + (m.body ? '<div class="ib-bubble">' + (m.tag ? TAG[m.tag] + ' ' : '') + esc(m.body) + '</div>' : '') +
             '<span class="ib-meta">' + (m.team ? esc(t.team) + (m.auto ? ' · Automated message' : '') : esc(t.name)) + ' · ' + new Date(m.at).toLocaleString([], { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) +
               (m.team ? ' · ' + (m.seen ? '<span class="ib-seen">Seen ✓</span>' : 'Not seen yet') : '') + (m.team && !m.auto ? ' <button class="ib-del" data-m="' + m.id + '" title="Delete this message from their chat">🗑 Delete</button>' : '') + '</span></div>').join('') +
-          '</div><div class="ib-reply"><textarea rows="1" placeholder="Reply as ' + esc(t.team) + '…"></textarea><button class="ib-send">Send</button></div></div>';
+          '</div><div class="ib-reply"><textarea rows="3" placeholder="Reply as ' + esc(t.team) + '…"></textarea><button class="ib-send">Send</button></div></div>';
       }
       el.innerHTML = '<div class="ib-head"><h2 style="margin:0"><span class="pill">INBOX</span> Help & ideas</h2>' + (unread ? '<span class="ib-new">' + unread + ' new</span>' : '') +
         '<span class="ib-filters">' + [['open', 'Open'], ['done', 'Done'], ['all', 'All'], ['auto', 'Automated']].map((f) => '<button data-f="' + f[0] + '" class="' + (filter === f[0] ? 'on' : '') + '"' + (f[0] === 'auto' ? ' title="People who only got an automatic message and never wrote. Reply to start a real chat."' : '') + '>' + f[1] + '</button>').join('') + '</span></div>' +
@@ -270,7 +273,7 @@ button, .btn { font: 700 14px 'Figtree', sans-serif; border: 0; cursor: pointer;
         'Use {name} for the person’s first name. Leave a box empty to go back to the original text.</p><div class="wrow">' +
         (Array.isArray(welcome) ? welcome : []).map((w) => '<div><label for="w-' + w.key + '">' + esc(w.label) + '</label><textarea id="w-' + w.key + '">' + esc(w.text) + '</textarea><button class="view w-save" data-key="' + w.key + '" style="margin-top:6px">Save</button></div>').join('') + '</div></details>';
       const ta = el.querySelector('.ib-reply textarea');
-      if (ta) { ta.value = draft; ta.oninput = () => { draft = ta.value; ta.style.height = 'auto'; ta.style.height = Math.min(140, ta.scrollHeight) + 'px'; }; ta.onkeydown = (e) => { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) send(); }; }
+      if (ta) { const fit = () => { ta.style.height = 'auto'; ta.style.height = Math.min(260, ta.scrollHeight + 2) + 'px'; }; ta.value = draft; fit(); ta.oninput = () => { draft = ta.value; fit(); }; ta.onkeydown = (e) => { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) send(); }; }
       const mb = el.querySelector('.ib-msgs'); if (mb && atBottom) mb.scrollTop = mb.scrollHeight;
       el.querySelectorAll('.ib-item').forEach((b) => (b.onclick = () => openThread(Number(b.dataset.id))));
       el.querySelectorAll('.ib-filters button').forEach((b) => (b.onclick = () => { filter = b.dataset.f; load(); }));
@@ -307,7 +310,7 @@ button, .btn { font: 700 14px 'Figtree', sans-serif; border: 0; cursor: pointer;
       const ta = el.querySelector('.ib-reply textarea'), text = ta ? ta.value.trim() : '';
       if (!text || !sel) return;
       const b = el.querySelector('.ib-send'); b.disabled = true;
-      try { await api('POST', '/api/owner/help/' + sel + '/reply', { body: text }); draft = ''; await load(); }
+      try { await api('POST', '/api/owner/help/' + sel + '/reply', { body: text }); draft = ''; ta.value = ''; await load(); }
       catch (e) { alert(e.message); b.disabled = false; }
     }
     return { el, load };
