@@ -163,7 +163,7 @@ function createSupport({ db, fail }) {
     if (!t.rowCount) fail(404, 'not_found', 'That conversation is gone.');
     await db.q('UPDATE help_threads SET owner_unread = 0 WHERE id = $1', [id]);
     const th = t.rows[0];
-    return { thread: { id: Number(th.id), app: th.app, place_id: th.place_id, place_name: th.place_name, name: th.name, status: th.status, team: TEAM[th.app] }, messages: await messages(id, th.app) };
+    return { thread: { id: Number(th.id), app: th.app, place_id: th.place_id, place_name: th.place_name, name: th.name, status: th.status, team: TEAM[th.app] }, messages: withSeen(await messages(id, th.app), th.user_unread) };
   }
   async function ownerReply(id, body) {
     await ready;
@@ -174,6 +174,23 @@ function createSupport({ db, fail }) {
     const m = await db.q('INSERT INTO help_messages (thread_id, from_team, body) VALUES ($1, true, $2) RETURNING *', [id, text]);
     await db.q('UPDATE help_threads SET user_unread = user_unread + 1, last_at = now() WHERE id = $1', [id]);
     return { message: msgOut(m.rows[0], t.rows[0].app) };
+  }
+  // The person has not opened the newest `unread` team messages yet; every older team message was seen.
+  function withSeen(msgs, unread) {
+    let left = Number(unread) || 0;
+    for (let i = msgs.length - 1; i >= 0; i--) if (msgs[i].team) { msgs[i].seen = left <= 0; left--; }
+    return msgs;
+  }
+  // Delete one message the owner wrote by hand. Never the person's messages, never automatic ones.
+  async function ownerDelete(threadId, msgId) {
+    await ready;
+    const t = await db.q('SELECT app, user_unread FROM help_threads WHERE id = $1', [threadId]);
+    if (!t.rowCount) fail(404, 'not_found', 'That conversation is gone.');
+    const seen = withSeen(await messages(threadId, t.rows[0].app), t.rows[0].user_unread).find((m) => m.id === msgId);
+    const d = await db.q('DELETE FROM help_messages WHERE id = $1 AND thread_id = $2 AND from_team AND NOT auto RETURNING id', [msgId, threadId]);
+    if (!d.rowCount) fail(404, 'not_found', 'Only your own messages can be deleted.');
+    if (seen && !seen.seen) await db.q('UPDATE help_threads SET user_unread = GREATEST(user_unread - 1, 0), popup = popup AND user_unread > 1 WHERE id = $1', [threadId]);
+    return { ok: true, was_seen: !!(seen && seen.seen) };
   }
   async function ownerStatus(id, status) {
     await ready;
@@ -203,6 +220,7 @@ function createSupport({ db, fail }) {
     r.get('/api/owner/help', async (req, res) => { ownerGuard(req); send(res, 200, Object.assign(await inbox(req.query.filter), { welcome: await getWelcome() })); });
     r.get('/api/owner/help/:id', async (req, res) => { ownerGuard(req); send(res, 200, await ownerThread(Number(req.params.id) || 0)); });
     r.post('/api/owner/help/:id/reply', json, async (req, res) => { ownerGuard(req); send(res, 200, await ownerReply(Number(req.params.id) || 0, req.body && req.body.body)); });
+    r.post('/api/owner/help/:id/delete/:msg', async (req, res) => { ownerGuard(req); send(res, 200, await ownerDelete(Number(req.params.id) || 0, Number(req.params.msg) || 0)); });
     r.post('/api/owner/help/:id/status', json, async (req, res) => { ownerGuard(req); send(res, 200, await ownerStatus(Number(req.params.id) || 0, req.body && req.body.status)); });
     r.post('/api/owner/help-welcome', json, async (req, res) => { ownerGuard(req); send(res, 200, await setWelcome(req.body && (req.body.key || req.body.app), req.body && req.body.text)); });
   }

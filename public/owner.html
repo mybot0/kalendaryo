@@ -79,6 +79,10 @@ button, .btn { font: 700 14px 'Figtree', sans-serif; border: 0; cursor: pointer;
 .ib-msg img { max-width: 220px; border-radius: 12px; cursor: zoom-in; }
 .ib-msg img.big { max-width: 100%; cursor: zoom-out; }
 .ib-meta { font-size: 11px; color: var(--muted); }
+.ib-seen { color: var(--ok); font-weight: 600; }
+.ib-del { border: 0; background: none; color: var(--muted); font: inherit; font-size: 11px; cursor: pointer; padding: 2px 4px; border-radius: 6px; }
+.ib-del:hover { color: #B3261E; background: #FBEAE8; }
+.ib-del.sure { color: #fff; background: #B3261E; }
 .ib-reply { padding: 10px; border-top: 1px solid #EEECE6; display: flex; gap: 8px; align-items: flex-end; }
 .ib-reply textarea { flex: 1; resize: none; min-height: 42px; max-height: 140px; border: 1px solid #DCDAD3; border-radius: 18px; padding: 10px 14px; font: inherit; }
 .ib-send { background: var(--primary); color: #fff; min-height: 42px; }
@@ -253,7 +257,8 @@ button, .btn { font: 700 14px 'Figtree', sans-serif; border: 0; cursor: pointer;
         right = '<div class="ib-conv"><div class="ib-conv-head"><b>' + esc(t.name || 'Someone') + '</b><span class="ib-app' + (t.app === 'trip' ? ' trip' : '') + '">' + APP[t.app] + '</span><span class="ib-place">' + esc(t.place_name) + '</span>' +
           '<span class="acts"><button class="view ib-view">' + EYE + (t.app === 'trip' ? 'View trip' : 'View home') + '</button><button class="ib-done">' + (t.status === 'done' ? '↺ Reopen' : '✓ Mark done') + '</button></span></div><div class="ib-msgs">' +
           conv.messages.map((m) => '<div class="ib-msg' + (m.team ? ' team' : '') + (m.team && m.auto ? ' auto' : '') + '">' + (m.image ? '<img src="' + esc(m.image) + '" alt="Screenshot">' : '') + (m.body ? '<div class="ib-bubble">' + (m.tag ? TAG[m.tag] + ' ' : '') + esc(m.body) + '</div>' : '') +
-            '<span class="ib-meta">' + (m.team ? esc(t.team) + (m.auto ? ' · Automated message' : '') : esc(t.name)) + ' · ' + new Date(m.at).toLocaleString([], { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) + '</span></div>').join('') +
+            '<span class="ib-meta">' + (m.team ? esc(t.team) + (m.auto ? ' · Automated message' : '') : esc(t.name)) + ' · ' + new Date(m.at).toLocaleString([], { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) +
+              (m.team ? ' · ' + (m.seen ? '<span class="ib-seen">Seen ✓</span>' : 'Not seen yet') : '') + (m.team && !m.auto ? ' <button class="ib-del" data-m="' + m.id + '" title="Delete this message from their chat">🗑 Delete</button>' : '') + '</span></div>').join('') +
           '</div><div class="ib-reply"><textarea rows="1" placeholder="Reply as ' + esc(t.team) + '…"></textarea><button class="ib-send">Send</button></div></div>';
       }
       el.innerHTML = '<div class="ib-head"><h2 style="margin:0"><span class="pill">INBOX</span> Help & ideas</h2>' + (unread ? '<span class="ib-new">' + unread + ' new</span>' : '') +
@@ -269,6 +274,12 @@ button, .btn { font: 700 14px 'Figtree', sans-serif; border: 0; cursor: pointer;
       const mb = el.querySelector('.ib-msgs'); if (mb && atBottom) mb.scrollTop = mb.scrollHeight;
       el.querySelectorAll('.ib-item').forEach((b) => (b.onclick = () => openThread(Number(b.dataset.id))));
       el.querySelectorAll('.ib-filters button').forEach((b) => (b.onclick = () => { filter = b.dataset.f; load(); }));
+      el.querySelectorAll('.ib-del').forEach((b) => (b.onclick = async () => {
+        if (!b.classList.contains('sure')) { b.classList.add('sure'); b.textContent = 'Tap again to delete'; setTimeout(() => { if (b.isConnected) { b.classList.remove('sure'); b.textContent = '🗑 Delete'; } }, 4000); return; }
+        b.disabled = true;
+        try { await api('POST', '/api/owner/help/' + sel + '/delete/' + b.dataset.m); await load(); }
+        catch (e) { alert(e.message); b.disabled = false; }
+      }));
       el.querySelectorAll('.ib-msg img').forEach((i) => (i.onclick = () => i.classList.toggle('big')));
       const sb = el.querySelector('.ib-send'); if (sb) sb.onclick = send;
       const db = el.querySelector('.ib-done'); if (db) db.onclick = async () => { await api('POST', '/api/owner/help/' + sel + '/status', { status: conv.thread.status === 'done' ? 'open' : 'done' }); load(); };
