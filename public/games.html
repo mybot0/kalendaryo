@@ -700,22 +700,21 @@ p { margin: 0; }
   function rr(ctx, x, y, w, hh, r) { ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + hh, r); ctx.arcTo(x + w, y + hh, x, y + hh, r); ctx.arcTo(x, y + hh, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath(); }
 
   /* ================= Pares-Pares (memory) ================= */
-  // Card counts per level, chosen so every row is full and the cards fill the screen.
-  // Phones stop at 32 cards (about 80px each); tablets at 54 cards (about 110px each).
-  const PHONE_PAIRS = [6, 9, 14, 16];
-  const TABLET_PAIRS = [6, 10, 12, 20, 24, 27];
+  // 10 levels (pairs per level). Every card count fills a full grid (3x4, 4x4, 4x5, 5x6, 6x6, 6x7, 6x8),
+  // the same on phones and tablets. Levels 8-10 use look-alike pictures; level 9 gives stars; level 10 is Champion.
+  const LEVELS = [6, 8, 10, 15, 18, 21, 24, 24, 24, 24];
+  const TRICKY_FROM = 7, STARS = 8, CHAMP = 9, CHAMP_MOVES = 36;
+  const TRICKY = ['🍎', '🍓', '🍒', '🍅', '🌹', '🎈', '🐞', '🦀', '🌶️', '🍉', '❤️', '🚒', '🐶', '🐕', '🦮', '🐩', '🐺', '🦊', '🐱', '🐈', '🐯', '🦁', '🐆', '🐅'];
   const POOL = ['🐶', '🐱', '🦊', '🐸', '🐼', '🦁', '🐙', '🦄', '🐢', '🦋', '🍓', '🍕', '🚀', '🚂', '⚽', '🎈', '🌈', '🍩', '🐝', '🐳',
     '🦒', '🍉', '🚁', '🐨', '🧁', '🦀', '🍌', '🚲', '🐧', '🌵'];
   function makeMemory(root, api) {
-    const isPhone = Math.min(innerWidth, innerHeight) < 600;
-    const LEVELS = isPhone ? PHONE_PAIRS : TABLET_PAIRS;
     let lv = 0, pairs = LEVELS[0], flipped = [], matched = 0, moves = 0, lock = false;
     const timers = [];
     const wrap = el('div', 'kg-mem'); root.append(wrap);
     const label = () => api.score('Level ' + (lv + 1) + ' · Moves ' + moves);
     function deal() {
       moves = 0; matched = 0; flipped = []; lock = false; label();
-      const set = shuffle(POOL).slice(0, pairs), grid = el('div', 'kg-mgrid');
+      const set = shuffle(lv >= TRICKY_FROM ? TRICKY : POOL).slice(0, pairs), grid = el('div', 'kg-mgrid');
       shuffle([...set, ...set]).forEach((v) => {
         const c = el('button', 'kg-mcard'); c.type = 'button'; c.dataset.v = v; c.setAttribute('aria-label', 'card');
         c.innerHTML = '<span class="kg-minner"><span class="kg-mface q">?</span><span class="kg-mface v">' + v + '</span></span>';
@@ -723,14 +722,14 @@ p { margin: 0; }
       });
       wrap.replaceChildren(grid); fit();
     }
-    // Square cards as big as the screen allows; among sizes within 8% of the biggest, use the most columns
-    // whose rows are all full (so the grid fills the width and no row is half empty).
+    // Square cards as big as the screen allows, using ONLY layouts where every row is full (never a half-empty row).
+    // If two layouts give the same card size, use the squarer one.
     function fit() {
       const g = wrap.firstChild; if (!g || !wrap.clientWidth) return;
       const n = pairs * 2, gap = 10, W = wrap.clientWidth - 32, H = wrap.clientHeight - 28, opts = [];
-      for (let c = 2; c <= 10; c++) { const r = Math.ceil(n / c); opts.push({ c, s: Math.floor(Math.min((W - gap * (c - 1)) / c, (H - gap * (r - 1)) / r)) }); }
-      const maxS = Math.max(...opts.map((o) => o.s)), near = opts.filter((o) => o.s >= maxS * .92), full = near.filter((o) => n % o.c === 0);
-      const best = (full.length ? full : near).pop();
+      for (let c = 2; c <= 12; c++) { if (n % c) continue; const r = n / c; opts.push({ c, s: Math.floor(Math.min((W - gap * (c - 1)) / c, (H - gap * (r - 1)) / r)) }); }
+      const maxS = Math.max(...opts.map((o) => o.s));
+      const best = opts.filter((o) => o.s >= maxS - 1).reduce((a, b) => (Math.abs(b.c - n / b.c) < Math.abs(a.c - n / a.c) ? b : a));
       Object.assign(g.style, { gap: gap + 'px', gridTemplateColumns: 'repeat(' + best.c + ',' + best.s + 'px)', gridAutoRows: best.s + 'px' });
       g.querySelectorAll('.kg-mface').forEach((f) => { f.style.fontSize = Math.floor(best.s * .5) + 'px'; });
     }
@@ -751,13 +750,22 @@ p { margin: 0; }
       }
     }
     function win() {
-      const key = 'best:memory:' + pairs, prev = store.get(key, 0);
+      // Best score per level (levels 1-7 keep their old keys, so earlier best scores still count).
+      const key = 'best:memory:' + (lv >= TRICKY_FROM ? 'L' + (lv + 1) : pairs), prev = store.get(key, 0);
       if (!prev || moves < prev) store.set(key, moves);
       const best = Math.min(prev || moves, moves), last = lv === LEVELS.length - 1;
-      api.confetti(70);
+      const stars = moves <= 40 ? '⭐⭐⭐' : moves <= 50 ? '⭐⭐' : '⭐';
+      const champ = lv === CHAMP && moves <= CHAMP_MOVES;
+      api.confetti(champ ? 140 : 70);
+      let title = 'All matched!', text = 'Done in ' + moves + ' moves. Best for this level: ' + best + '.';
+      if (lv === STARS) text = stars + ' ' + text;
+      if (lv === CHAMP) {
+        title = champ ? '🏆 Champion!' : 'All matched!';
+        text = champ ? 'You did every level in Champion time: ' + moves + ' moves!' : 'Done in ' + moves + ' moves. Finish in ' + CHAMP_MOVES + ' moves or less to be Champion. Best: ' + best + '.';
+      }
       timers.push(setTimeout(() => {
-        panel(root, last ? 'You did every level!' : 'All matched!', 'Done in ' + moves + ' moves. Best for this level: ' + best + '.', [
-          [last ? 'Play again' : 'Next level', () => { if (!last) { lv++; pairs = LEVELS[lv]; } deal(); }]
+        panel(root, title, text, [
+          [last ? (champ ? 'Play again' : 'Try again') : 'Next level', () => { if (!last) { lv++; pairs = LEVELS[lv]; } deal(); }]
         ]);
       }, 700));
     }
