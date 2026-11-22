@@ -140,7 +140,7 @@
       if (busy || (!body && !image)) return;
       busy = true; sendBtn.disabled = true; err.hidden = true;
       try {
-        if (opts.demo) state.messages.push({ team: false, tag, body, image, at: new Date().toISOString() }, { team: true, body: 'This is a demo home, so messages are not sent. In your own ' + (opts.app === 'Triply' ? 'trip' : 'home') + ', the team reads every message. 💛', at: new Date().toISOString() });
+        if (opts.demo) state.messages.push({ team: false, tag, body, image, at: new Date().toISOString() }, { team: true, body: 'This is a demo hub, so messages are not sent. In your own ' + (opts.app === 'Triply' ? 'trip' : 'hub') + ', the team reads every message. 💛', at: new Date().toISOString() });
         else { const r = await opts.send({ body, tag, image }); state.messages.push(r.message); }
         input.value = ''; input.style.height = ''; image = null; tag = ''; paintChip(); paintTags(); paintMsgs();
       } catch (e) { err.textContent = (e && (e.userMessage || e.message)) || 'Could not send. Try again.'; err.hidden = false; }

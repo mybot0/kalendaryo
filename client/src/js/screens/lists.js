@@ -112,7 +112,7 @@
                 return h('button', { type: 'button', class: 'list-card', onclick: () => { openId = l.id; render(); } },
                   icon('list'), h('strong', {}, l.title), h('span', { class: 'sub' }, !items.length ? 'Empty' : open ? open + (open === 1 ? ' item to go' : ' items to go') : 'All done'));
               }))
-            : ui.emptyState({ icon: 'list', title: 'No lists yet', text: 'Make a shared list for groceries, packing or anything else. Everyone in the family sees the same list.',
+            : ui.emptyState({ icon: 'list', title: 'No lists yet', text: 'Make a shared list for groceries, packing or anything else. Everyone in the hub sees the same list.',
                 action: h('div', { class: 'btn-row' }, QUICK.slice(0, 3).map((q) => ui.button(q, { icon: 'plus', onClick: async () => { const id = await PL.store.add('lists', { title: q }); if (id) { openId = id; madeAt = Date.now(); render(); } } }))) })
         ];
       }

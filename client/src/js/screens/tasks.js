@@ -132,7 +132,7 @@
     const body = h('form', { class: 'event-form', onsubmit: (e) => { e.preventDefault(); save(); } },
       ui.field('What needs doing?', title),
       h('div', { class: 'field' }, h('span', { class: 'field-label' }, 'Who does it?'),
-        members.length ? peopleBox : h('p', { class: 'hint' }, 'Add family members in the Family section to give chores to people.'),
+        members.length ? peopleBox : h('p', { class: 'hint' }, 'Add people in the People section to give chores to them.'),
         h('p', { class: 'hint' }, members.length ? 'Leave empty for anyone. Pick several and each person gets their own tick.' : '')),
       dateField,
       h('div', { class: 'field' }, ui.field('Repeat', repSel), wdBox),

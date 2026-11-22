@@ -34,7 +34,7 @@
     let role = 'editor';
     const linked = new Set((KAL.people || []).map((p) => p.member_id).filter(Boolean));
     const pending = new Set(invites.map((i) => i.member_id).filter(Boolean));
-    const members = PL.state.members.filter((m) => !m.demo).slice().sort((a, b) => (linked.has(a.id) - linked.has(b.id)) || a.name.localeCompare(b.name));
+    const members = PL.state.members.filter((m) => !m.demo && m.role !== 'pet').slice().sort((a, b) => (linked.has(a.id) - linked.has(b.id)) || a.name.localeCompare(b.name));
     const first = members.find((m) => !linked.has(m.id) && !pending.has(m.id)) || members.find((m) => !linked.has(m.id));
     let who = first ? first.id : 'new';
     const label = h('input', { type: 'text', maxlength: '30', placeholder: 'Their name, for example: Grandma', autocomplete: 'off' });
@@ -53,7 +53,7 @@
       newField.hidden = who !== 'new';
       sync();
     }
-    const newField = h('div', {}, ui.field('Their name', label, 'They are added to the family when they join.'));
+    const newField = h('div', {}, ui.field('Their name', label, 'They are added to the hub when they join.'));
     label.addEventListener('input', () => sync());
     const make = ui.button('Create invite link', { variant: 'primary', big: true, icon: 'plus', onClick: async () => {
       make.disabled = true;
@@ -94,14 +94,14 @@
       try { await KAL.api('PATCH', '/api/people/' + p.id, { role }); s.close(); ui.toast(p.name + ' is now ' + roleLabel(role) + '.'); loadPeople(); }
       catch (e) { ui.toast(e.userMessage); }
     } });
-    const remove = ui.button(p.isMe ? 'Leave family' : 'Remove', { variant: 'danger', icon: 'trash', onClick: () => { s.close(); removePerson(p); } });
+    const remove = ui.button(p.isMe ? 'Leave hub' : 'Remove', { variant: 'danger', icon: 'trash', onClick: () => { s.close(); removePerson(p); } });
     const s = ui.sheet({ title: p.name, body: h('div', { class: 'event-form' }, ui.field('Role', seg.el), help),
       footer: [remove, ui.button('Cancel', { variant: 'ghost', big: true, onClick: () => s.close() }), save] });
   }
 
   async function removePerson(p) {
     const ok = await ui.confirm(p.isMe
-      ? { title: 'Leave this family?', message: 'Your link will stop working. You will need a new invite to come back.', confirmLabel: 'Leave', danger: true }
+      ? { title: 'Leave this hub?', message: 'Your link will stop working. You will need a new invite to come back.', confirmLabel: 'Leave', danger: true }
       : { title: 'Remove ' + p.name + '?', message: 'Their link stops working right away. You can invite them again later.', confirmLabel: 'Remove', danger: true });
     if (!ok) return;
     try {
@@ -119,41 +119,66 @@
       catch (e) { ui.toast(e.userMessage); }
     } });
     const s = ui.sheet({ title: 'Delete ' + KAL.family.name + '?', body: h('div', { class: 'event-form' },
-      h('p', {}, 'Everything is deleted for everyone: calendar, chores, meals, lists and photos. All links stop working. This cannot be undone.'),
+      h('p', {}, 'Everything in this hub is deleted for everyone: calendar, chores, meals, lists and photos. All links stop working. This cannot be undone.'),
       ui.field('Type DELETE to confirm', input)), footer: [ui.button('Cancel', { variant: 'ghost', big: true, onClick: () => s.close() }), go] });
   }
 
-  /* ---------- the card in the Family section ---------- */
+  /* ---------- "Copy link" for people in the hub who have not joined yet (not pets, not the sample) ---------- */
+  function notJoined(people) {
+    const linked = new Set(people.map((p) => p.member_id).filter(Boolean));
+    return PL.state.members.filter((m) => !m.demo && m.role !== 'pet' && !linked.has(m.id));
+  }
+  // The same link each time until they join (server: /api/invites/member).
+  async function memberLink(m, role) {
+    const r = await KAL.api('POST', '/api/invites/member', role ? { memberId: m.id, role } : { memberId: m.id });
+    return location.origin + '/join/' + r.code;
+  }
+  async function copyMemberLink(m) {
+    try {
+      const url = await memberLink(m);
+      if (await copy(url, m.name + '’s link')) return;
+      const s = ui.sheet({ title: m.name + '’s link', body: h('div', { class: 'event-form' }, h('p', {}, 'Copy this link and send it to ' + m.name + '.'), linkBox(url)),
+        footer: [ui.button('Close', { variant: 'ghost', big: true, onClick: () => s.close() })] });
+    } catch (e) { ui.toast(e.userMessage || 'Could not make the link. Please try again.'); }
+  }
+  PL.access = { memberLink, copy };
+
+  /* ---------- the card in the People section ---------- */
   const card = h('section', { class: 'card access-card', 'aria-label': 'People with access' });
   function paint() {
     if (!KAL.me) { card.replaceChildren(); return; }
     const people = KAL.people || [];
     const fmt = (d) => new Date(d).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+    const openInv = invites.filter((i) => !i.kept); // the kept links belong to "Copy link" above
     card.replaceChildren(...[
       h('div', { class: 'page-head' }, h('h2', {}, 'People with access'), isOwner() ? ui.button('Invite someone', { variant: 'primary', icon: 'plus', onClick: openInvite }) : null),
-      h('p', { class: 'sub' }, 'Each person has their own link. To add someone, send an invite. Do not share your own link.'),
-      h('div', { class: 'stack' }, people.map((p) => h('div', { class: 'access-row' },
+      h('p', { class: 'sub' }, 'Each person has their own link. Copy it and send it to them. Do not share your own link.'),
+      h('div', { class: 'stack' }, ...people.map((p) => h('div', { class: 'access-row' },
         ui.avatar(p.member_id && PL.store.member(p.member_id) || { name: p.name, color: PL.config.neutralColor }, 36),
-        h('span', { class: 'access-name' }, h('strong', {}, ((p.member_id && PL.store.member(p.member_id)) || p).name + (p.isMe ? ' (you)' : '')), h('span', { class: 'sub' }, roleLabel(p.role))),
-        isOwner() ? ui.button('Change', { icon: 'edit', onClick: () => openRole(p) }) : (p.isMe ? ui.button('Leave', { variant: 'ghost', onClick: () => removePerson(p) }) : null)))),
-      isOwner() && invites.length ? h('h3', { class: 'mini-h' }, 'Open invites') : null,
-      isOwner() && invites.length ? h('div', { class: 'stack' }, invites.map((i) => h('div', { class: 'access-row' },
+        h('span', { class: 'access-name' }, h('strong', {}, ((p.member_id && PL.store.member(p.member_id)) || p).name + (p.isMe ? ' (you)' : '')), h('span', { class: 'sub' }, roleLabel(p.role), p.isMe ? null : [h('br'), 'Joined ✓'])),
+        isOwner() ? ui.button('Change', { icon: 'edit', onClick: () => openRole(p) }) : (p.isMe ? ui.button('Leave', { variant: 'ghost', onClick: () => removePerson(p) }) : null))),
+        ...(isOwner() ? notJoined(people).map((m) => h('div', { class: 'access-row' },
+          ui.avatar(m, 36),
+          h('span', { class: 'access-name' }, h('strong', {}, m.name), h('span', { class: 'sub' }, roleLabel(m.access || 'viewer'), h('br'), 'Not joined yet')),
+          ui.button('Copy link', { variant: 'primary', icon: 'copy', onClick: () => copyMemberLink(m) }))) : [])),
+      isOwner() && openInv.length ? h('h3', { class: 'mini-h' }, 'Open invites') : null,
+      isOwner() && openInv.length ? h('div', { class: 'stack' }, openInv.map((i) => h('div', { class: 'access-row' },
         h('span', { class: 'access-name' }, h('strong', {}, i.label || 'Invite'), h('span', { class: 'sub' }, roleLabel(i.role) + ' · expires ' + fmt(i.expires_at))),
         ui.button('Cancel', { variant: 'ghost', onClick: async () => { try { await KAL.api('DELETE', '/api/invites/' + i.id); loadPeople(); } catch (e) { ui.toast(e.userMessage); } } })))) : null,
       PL.me && !KAL.me.viewing ? h('div', { class: 'btn-row' }, PL.me.member()
         ? ui.button('My color, icon and birthday', { icon: 'edit', onClick: () => PL.me.openThatsYou(false) })
-        : ui.button('Link me to my name in the family', { icon: 'users', onClick: () => PL.me.openWhich() })) : null,
+        : ui.button('Link me to my name in People', { icon: 'users', onClick: () => PL.me.openWhich() })) : null,
       h('h3', { class: 'mini-h' }, 'Your link'),
       h('p', { class: 'hint' }, 'Bookmark it, or save it somewhere safe. Anyone with this link gets in as you.'),
       h('div', { class: 'btn-row' }, ui.button('Copy my link', { icon: 'copy', onClick: () => copy(myLink(), 'Your link') })),
-      isOwner() ? h('div', { class: 'btn-row access-danger' }, ui.button('Delete this family', { variant: 'danger', icon: 'trash', onClick: deleteFamily })) : null
+      isOwner() ? h('div', { class: 'btn-row access-danger' }, ui.button('Delete this hub', { variant: 'danger', icon: 'trash', onClick: deleteFamily })) : null
     ].filter(Boolean));
   }
   PL.familyExtras = () => {
     if (KAL.demo) { // the demo home has no links or invites
       return h('section', { class: 'card access-card' }, h('h2', {}, 'People with access'),
-        h('p', {}, 'In your own home, each person gets their own private link, and owners invite people as Viewer, Editor or Owner.'),
-        h('div', { class: 'btn-row' }, h('a', { class: 'btn primary big', href: '/' }, 'Create your own home')));
+        h('p', {}, 'In your own hub, each person gets their own private link, and owners invite people as Viewer, Editor or Owner.'),
+        h('div', { class: 'btn-row' }, h('a', { class: 'btn primary big', href: '/' }, 'Create your own hub')));
     }
     paint(); return card;
   };
@@ -168,10 +193,10 @@
     if (KAL.me && KAL.me.viewing) {
       // The site owner looking at someone's home (owner view): read-only, not counted as their visit.
       banner.className = 'status-banner role-banner owner-viewing';
-      banner.replaceChildren('👁 Viewing “' + ((KAL.family && KAL.family.name) || 'this home') + '” as the site owner · read-only · your visit doesn’t count as theirs',
+      banner.replaceChildren('👁 Viewing “' + ((KAL.family && KAL.family.name) || 'this hub') + '” as the site owner · read-only · your visit doesn’t count as theirs',
         h('a', { class: 'owner-back', href: '/owner' }, 'Back to owner view'));
     } else {
-      banner.textContent = viewer ? 'You can view this family. Ask an owner to make you an Editor to change things.' : '';
+      banner.textContent = viewer ? 'You can view this hub. Ask an owner to make you an Editor to change things.' : '';
     }
     banner.hidden = !viewer;
   }
@@ -180,7 +205,7 @@
     if (root.dataset.removed) return;
     root.dataset.removed = '1';
     KAL.recent.forget(KAL.token);
-    PL.landing.mount({ note: msg || 'This link does not work anymore. You may have been removed from the family, or the family was deleted. Ask an owner for a new invite.' });
+    PL.landing.mount({ note: msg || 'This link does not work anymore. You may have been removed from the hub, or the hub was deleted. Ask an owner for a new invite.' });
   }
   KAL.on('people', () => { if (!KAL.care) loadPeople(); });
   KAL.on('me', () => { if (KAL.care) return; showRole(); loadPeople(); });

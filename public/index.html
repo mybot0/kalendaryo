@@ -1495,6 +1495,101 @@ body:has(> .tour-switch) .content:has(> .demo-banner) .main { padding-top: 24px;
 @media (max-width: 639px) { body:has(> .tour-switch) .demo-banner { margin-top: 56px; } }
 .land-demo-trip { background: #B8583A; color: #fff; }
 
+/* ---------- the start page (approved design, Nov 2026): "Your people, in sync" ---------- */
+.land.lp { min-height: 100svh; display: flex; flex-direction: column; justify-content: center; box-sizing: border-box; padding-top: max(env(safe-area-inset-top), 24px); padding-bottom: 28px; }
+.lp h1, .lp h2, .lp p, .lp-for { text-wrap: balance; }
+.lp-brandrow { display: flex; align-items: center; justify-content: center; padding: 8px 0 0; }
+.lp-brand { display: inline-flex; align-items: center; gap: 14px; background: #3F7360; color: #fff; border-radius: 24px; padding: 14px 30px 14px 22px; box-shadow: 0 10px 26px rgba(63,115,96,.28);
+  font-family: Outfit, sans-serif; font-weight: 800; font-size: 46px; letter-spacing: -.5px; line-height: 1; text-decoration: none; }
+.lp-brand svg { width: 40px; height: 40px; }
+.lp-hero { text-align: center; padding: 6px 8px 0; }
+.lp-hero h1 { font-family: Outfit, sans-serif; font-weight: 800; color: var(--ink, #1f2a24); font-size: clamp(28px, 7vw, 46px); line-height: 1.1; margin: 0 0 8px; }
+.lp-hero h1 .hl { white-space: nowrap; background: linear-gradient(transparent 58%, #F6D98B 58%, #F6D98B 92%, transparent 92%); padding: 0 4px; }
+.lp-free { text-align: center; margin: 14px auto 2px; }
+.lp-free .row1 { display: inline-flex; align-items: center; gap: 10px; flex-wrap: wrap; justify-content: center; }
+.lp-free .fz { font-family: Outfit, sans-serif; font-weight: 800; font-size: 40px; line-height: 1; letter-spacing: 2px; color: #3F7360; background: linear-gradient(transparent 62%, #F6D98B 62%, #F6D98B 96%, transparent 96%); padding: 0 6px 0 8px; }
+.lp-free .ea { font-size: 19px; font-weight: 700; color: var(--ink, #1f2a24); }
+.lp-free .row2 { display: flex; gap: 18px; justify-content: center; margin-top: 8px; font-size: 16px; font-weight: 600; color: var(--ink-2, #4a554f); }
+.lp-free .row2 span::before { content: "✓"; color: #3F7360; font-weight: 800; margin-right: 6px; }
+.lp .land-picks { margin-top: 4px; }
+.lp .land-picks.one { grid-template-columns: minmax(0, 460px); justify-content: center; }
+.lp-demo { display: block; text-align: center; font-size: 14px; color: var(--ink-2, #4a554f); margin-top: 2px; }
+.lp-demo a { color: inherit; font-weight: 700; text-decoration: underline; }
+.lp-av { display: flex; justify-content: center; margin: 6px 0 0; }
+.lp-av span { width: 52px; height: 52px; border-radius: 50%; display: grid; place-items: center; font-size: 28px; border: 3px solid #fff; margin-left: -10px; box-shadow: 0 2px 8px rgba(0,0,0,.08); }
+.lp-av span:first-child { margin-left: 0; }
+.lp-for { text-align: center; margin: 4px 8px 0; color: var(--ink-2, #4a554f); font-size: 16px; font-weight: 600; }
+/* the two buttons: a soft glow under them and a ring that ripples out every 1.6 s (still for reduced motion) */
+.lp .land-pick-home .lp-go { --g: 63,115,96; }
+.lp .land-pick-trip .lp-go { --g: 184,88,58; }
+.lp .lp-go { box-shadow: 0 0 0 3px rgba(var(--g),.22), 0 8px 18px 0 rgba(var(--g),.45); animation: lp-ring 1.6s cubic-bezier(.5,1,.89,1) infinite; }
+@keyframes lp-ring {
+  from { box-shadow: 0 0 0 3px rgba(var(--g),.22), 0 8px 18px 0 rgba(var(--g),.45), 0 0 0 0 rgba(var(--g),.6); }
+  to   { box-shadow: 0 0 0 3px rgba(var(--g),.22), 0 8px 18px 0 rgba(var(--g),.45), 0 0 0 14px rgba(var(--g),0); }
+}
+@media (prefers-reduced-motion: reduce) { .lp .lp-go { animation: none; } }
+:root.reduce-motion .lp .lp-go, .reduce-motion .lp .lp-go { animation: none; }
+.lp-one { display: flex; flex-direction: column; gap: 14px; width: 100%; max-width: 460px; margin: 0 auto; }
+.lp-back { text-align: center; color: var(--ink-2); font-weight: 600; }
+@media (max-width: 600px) {
+  .land.lp { padding-top: max(env(safe-area-inset-top), 74px); padding-bottom: 32px; justify-content: flex-start; }
+  .lp-brand { font-size: 34px; padding: 11px 22px 11px 16px; border-radius: 20px; }
+  .lp-brand svg { width: 30px; height: 30px; }
+  .lp-free .fz { font-size: 34px; }
+  .lp-free .ea { font-size: 17px; }
+  .lp-start .land-picks { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .lp-start .land-picks.one { grid-template-columns: 1fr; }
+  .lp-start .land-pick, .lp-hub .land-pick { padding: 14px 12px !important; gap: 8px !important; }
+  .lp-start .land-pick-head { flex-direction: column; align-items: flex-start; gap: 6px; }
+  .lp-start .land-pick-head h2 { font-size: 18px; }
+  .lp-start .land-kicker, .lp-hub .land-kicker { font-size: 10px; }
+  .lp-start .land-pick-sub, .lp-hub .land-pick-sub { font-size: 13px; line-height: 1.35; }
+  .lp-start .lp-go { padding: 0 8px; min-height: 52px; font-size: 15px; }
+  .lp-demo { font-size: 12.5px; }
+}
+@media (min-width: 1100px) { .land.lp:not(.lp-trip) { zoom: 1.2; min-height: calc(100svh / 1.2); } }
+@media (min-width: 1100px) and (min-height: 1000px) { .land.lp:not(.lp-trip) { zoom: 1.25; min-height: calc(100svh / 1.25); } }
+
+/* ---------- the new-hub questions (setup.js) ---------- */
+.land.lp-hub, .land.lp-trip { justify-content: flex-start; padding-top: 40px; gap: 16px; }
+.lp-hub .lp-brand, .lp-trip .lp-brand { font-size: 30px; padding: 10px 20px 10px 16px; border-radius: 18px; }
+.lp-hub .lp-brand svg, .lp-trip .lp-brand svg { width: 26px; height: 26px; }
+.lp-hub > .card { width: 100%; max-width: 560px; margin: 0 auto; box-sizing: border-box; }
+.fl { display: flex; flex-direction: column; gap: 16px; text-align: left; }
+.fl h2 { font-size: 1.5rem; line-height: 1.2; margin: 2px 0 0; }
+.fl .land-pick-sub { margin: -6px 0 0; }
+.fl-dots { display: flex; gap: 6px; }
+.fl-dots i { width: 22px; height: 6px; border-radius: 99px; background: var(--line); }
+.fl-dots i.on { background: var(--primary); }
+.fl-skip { text-align: center; color: var(--ink-2); font-weight: 600; text-decoration: underline; text-underline-offset: 3px; }
+.fl-row { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--line); width: 100%; text-align: left; }
+.fl-row:last-child { border-bottom: 0; }
+button.fl-row { background: none; border-left: 0; border-right: 0; border-top: 0; font: inherit; color: inherit; cursor: pointer; }
+button.fl-row:last-child { border-bottom: 0; }
+.fl-row .who { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.fl-row strong { display: block; font-size: 1.05rem; }
+.fl-row .sub { font-size: .9rem; color: var(--ink-2); }
+.fl-row .btn { min-height: 40px; padding: 0 14px; font-size: .9rem; }
+.fl-tag { font-size: .78rem; font-weight: 800; padding: 4px 10px; border-radius: 99px; background: var(--primary-soft, #E4EFE9); color: var(--primary); flex: none; }
+.fl-tag.v { background: var(--surface-2); color: var(--ink-2); }
+.fl-ev { display: flex; gap: 10px; align-items: center; padding: 9px 12px; border-radius: 14px; background: var(--surface-2); }
+.fl-ev .t { flex: 1; min-width: 0; }
+.fl-ev strong { display: block; font-size: .98rem; }
+.fl-ev .sub { font-size: .85rem; color: var(--ink-2); }
+.fl-rec { margin-left: 8px; font-size: .72rem; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; background: rgba(255,255,255,.22); padding: 3px 8px; border-radius: 99px; }
+.fl-note { margin: 0; }
+.fl .field label, .fl-sheet .field label { font-weight: 700; }
+.fl-pic { display: flex; align-items: center; gap: 12px; background: none; border: 0; padding: 0; font: inherit; color: inherit; cursor: pointer; text-align: left; }
+.fl-sheet .chip-row .person-pick { padding: 4px 14px; min-height: 40px; }
+.fl-sheet .fl-part { display: flex; flex-direction: column; gap: 14px; }
+.fl-sheet .fl-part[hidden], .fl-sheet [hidden] { display: none; }
+.fl-cities:empty { display: none; }
+.fl-cities { margin-top: 6px; }
+
+/* Home: a note while the sample plans are there */
+.sample-note { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.sample-note p { flex: 1; min-width: 200px; margin: 0; }
+
 /* ---------- guide.js: first-visit guide (web version only) ---------- */
 .g-layer { position: fixed; inset: 0; z-index: 120; font-family: var(--font); }
 .g-shade { position: fixed; inset: 0; }
@@ -1886,7 +1981,7 @@ body:has(> .tour-switch) .main { padding-top: 62px; }
 
   PL.config = {
     appName: 'Kalendaryo',
-    tagline: 'your home calendar',
+    tagline: 'your people, in sync',
     version: '0.5 (round 3)',
 
     // Pastel palette offered when choosing a person's or an event's color.
@@ -1909,6 +2004,7 @@ body:has(> .tour-switch) .main { padding-top: 62px; }
     roles: [
       { id: 'parent', label: 'Parent' },
       { id: 'child',  label: 'Child' },
+      { id: 'pet',    label: 'Pet' },
       { id: 'other',  label: 'Other' }
     ],
 
@@ -1933,7 +2029,7 @@ body:has(> .tour-switch) .main { padding-top: 62px; }
 
     // Household-wide settings (shared by every device). Saved in the database.
     householdDefaults: {
-      householdName: 'Our home',
+      householdName: 'Our hub',
       weekStart: 0,   // 0 = Sunday, 1 = Monday
       hour12: true,
       weatherPlace: null, // { name, lat, lon }
@@ -2454,6 +2550,11 @@ body:has(> .tour-switch) .main { padding-top: 62px; }
         color: /^#[0-9a-fA-F]{6}$/.test(d.color) ? d.color : C.palette[0].hex,
         birthday: isKey(d.birthday) ? d.birthday : ''
       };
+      // From the new-hub questions (all optional): who they are to the owner ("Grandma", or a pet's kind like "Dog"),
+      // where they live when it is not with you ({ name, tz }), and the access their link gives ('editor' | 'viewer').
+      if (text(d.relation, 24)) out.relation = text(d.relation, 24);
+      if (d.place && text(d.place.name, 80)) out.place = { name: text(d.place.name, 80), tz: text(d.place.tz, 64) };
+      if (d.access === 'editor' || d.access === 'viewer') out.access = d.access;
       if (d.demo) out.demo = true;
       return out;
     },
@@ -2686,7 +2787,7 @@ body:has(> .tour-switch) .main { padding-top: 62px; }
     if (e && e.userMessage) return e.userMessage;
     const code = e && e.code;
     if (code === 'quota_exceeded') return 'The shared storage is full. Delete some items and try again.';
-    if (code === 'invalid_argument' || code === 'not_granted') return 'You can look at this family but not change it. Ask the page owner for Contributor access.';
+    if (code === 'invalid_argument' || code === 'not_granted') return 'You can look at this hub but not change it. Ask an owner to make you an Editor.';
     if (!state.online) return 'You are offline. Reconnect and try again.';
     return 'Could not save that. Check your connection and try again.';
   }
@@ -3970,11 +4071,11 @@ body:has(> .tour-switch) .main { padding-top: 62px; }
       ev && ev.repeat ? row('repeat', PL.recur.describe(ev)) : null,
       people.length
         ? row('users', h('div', { class: 'detail-people' }, people.map((p) => h('span', { class: 'person-chip' }, ui.avatar(p, 26), p.name))))
-        : (inst.kind === 'birthday' || inst.kind === 'holiday' ? null : row('users', 'Whole family')),
+        : (inst.kind === 'birthday' || inst.kind === 'holiday' ? null : row('users', 'Everyone')),
       inst.location ? row('pin', inst.location) : null,
       inst.notes ? row('note', h('span', { class: 'pre' }, inst.notes)) : null,
       ev && ev.reminder != null ? row('bell', (PL.config.reminderOptions.find((r) => r.value === ev.reminder) || {}).label || '') : null,
-      inst.kind === 'birthday' ? row('cake', 'Birthday from the family profile') : null,
+      inst.kind === 'birthday' ? row('cake', 'Birthday from People') : null,
       inst.kind === 'holiday' ? row('calendar', [h('strong', {}, 'Public holiday'), inst.setName ? h('div', { class: 'sub' }, inst.setName) : null, inst.check ? h('div', { class: 'sub' }, '⚠ Looked up by AI. Please check the date.') : null]) : null);
 
     let s;
@@ -4198,7 +4299,7 @@ body:has(> .tour-switch) .main { padding-top: 62px; }
       full ? ui.field('Title', title) : h('p', { class: 'sheet-text' }, '“' + (src ? src.title : '') + '”'),
       full ? h('div', { class: 'field' }, h('span', { class: 'field-label' }, 'Who is it for?'),
         members.length ? peopleBox : h('p', { class: 'hint' }, 'Add people in the People section to color-code events.'),
-        h('p', { class: 'hint' }, members.length ? 'Leave empty for the whole family.' : '')) : null,
+        h('p', { class: 'hint' }, members.length ? 'Leave empty for everyone.' : '')) : null,
       allDay.el, ui.field('Day', date), timesRow,
       full ? repeatBlock : null,
       full ? ui.field('Reminder', reminder) : null,
@@ -4272,7 +4373,8 @@ body:has(> .tour-switch) .main { padding-top: 62px; }
 </script>
 <script>
 /*
- * landing.js — web version only. The start page (create a family) and the join page (invite links).
+ * landing.js — web version only. The start page (create a hub or a trip) and the join page (invite links).
+ * The questions for a new hub are in setup.js.
  */
 (function () {
   const PL = (window.PL = window.PL || {});
@@ -4282,34 +4384,6 @@ body:has(> .tour-switch) .main { padding-top: 62px; }
   function field(label, input) { return ui.field(label, input); }
   function errorBox() { return h('p', { class: 'form-error', role: 'alert', hidden: true }); }
   const showErr = (el, msg) => { el.textContent = msg; el.hidden = !msg; };
-
-  function createCard(pick) {
-    const you = h('input', { type: 'text', maxlength: '30', placeholder: 'For example: ' + PL.examples.name(), autocomplete: 'given-name' });
-    const fam = h('input', { type: 'text', maxlength: '40', placeholder: 'For example: ' + PL.examples.home(), autocomplete: 'off' });
-    const err = errorBox();
-    const btn = ui.button('Create your home', { variant: 'primary', big: true, icon: 'plus', type: 'submit', block: true });
-    let weekStart = 0;
-    const week = pick ? ui.segmented([{ value: 0, label: 'Sunday' }, { value: 1, label: 'Monday' }], 0, (v) => { weekStart = Number(v); }, 'Week starts on') : null;
-    async function go(e) {
-      e.preventDefault();
-      if (!you.value.trim()) { showErr(err, 'Please type your name.'); you.focus(); return; }
-      btn.disabled = true; showErr(err, '');
-      try {
-        const r = await KAL.api('POST', '/api/families', { yourName: you.value.trim(), familyName: fam.value.trim(), timeZone: PL.deviceZone() });
-        if (pick && weekStart) {
-          // Save the chosen week start in the new home's settings (same document the Settings screen writes).
-          await fetch('/api/docs/settings/main', { method: 'PUT', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + r.token },
-            body: JSON.stringify({ data: { householdName: fam.value.trim() || 'Our home', weekStart } }) }).catch(() => {});
-        }
-        try { localStorage.setItem('kal.newlink', '1'); } catch (x) { /* fine */ }
-        location.href = '/c/' + r.token;
-      } catch (x) { showErr(err, x.userMessage); btn.disabled = false; }
-    }
-    if (pick) return pickForm(go, 'home', h('span', { class: 'land-pick-ic' }, icon('calendar')), 'Kalendaryo', 'Organize a home', 'Calendar, chores, meals, lists and photos for everyone you live with.', you, 'Home name', fam, err, btn, null, [field('Week starts on', week.el)]);
-    return h('form', { class: 'card land-card', onsubmit: go },
-      h('h2', {}, 'Start your home’s space'), field('Your name', you), field('Home name', fam), err, btn,
-      h('p', { class: 'hint' }, 'You get your own private link. Keep it safe: it is your key. No account or password needed.'));
-  }
 
   /* ---------- TOUCH POINT B: the home / trip choice (only when the server says Triply is on) ---------- */
   const TRIPLY_BASE = '/triply';
@@ -4373,35 +4447,13 @@ body:has(> .tour-switch) .main { padding-top: 62px; }
     const items = [recentCard(), await tripsCard()].filter(Boolean);
     return items.length ? h('div', { class: 'land-lists' + (items.length === 1 ? ' one' : '') }, ...items) : null;
   }
-  function choice() {
-    return [h('div', { class: 'land-picks' }, createCard(true), tripCard())];
-  }
-
   function recentCard() {
     const list = KAL.recent.all();
     if (!list.length) return null;
-    return h('section', { class: 'card land-card' }, h('h2', {}, 'Your homes on this device'),
+    return h('section', { class: 'card land-card' }, h('h2', {}, 'Your hubs on this device'),
       h('div', { class: 'stack' }, list.map((f) => h('div', { class: 'land-recent' },
         h('a', { class: 'btn soft big land-open', href: '/c/' + f.t }, icon('calendar'), h('span', {}, f.name + (f.who ? ' · ' + f.who : ''))),
         ui.iconButton('x', 'Forget ' + f.name + ' on this device', () => { KAL.recent.forget(f.t); render(); })))));
-  }
-
-  // "Just looking?" — the demo home (demo.js)
-  function demoCard() {
-    return h('section', { class: 'card land-demo' },
-      h('span', { class: 'land-demo-ic', 'aria-hidden': 'true' }, '👀'),
-      h('div', { class: 'land-demo-text' }, h('strong', {}, 'Just looking?'), h('span', { class: 'sub' }, window.KAL_TRIPLY
-        ? 'Try a demo: a made-up family home with 3 months of plans, or a 14-day family trip to France and Italy.'
-        : 'Try a demo home: a made-up family with 3 months of plans, meals, chores and photos.')),
-      h('div', { class: 'btn-row' }, h('a', { class: 'btn primary big', href: '/demo' }, 'Try a demo home'),
-        window.KAL_TRIPLY ? h('a', { class: 'btn big land-demo-trip', href: TRIPLY_BASE + '/demo' }, 'Try a demo trip') : null));
-  }
-
-  function steps() {
-    const s = window.KAL_TRIPLY
-      ? [['plus', 'Create', 'Start a home or a trip in one step. No account or password.'], ['users', 'Invite', 'Send invite links. Pick who can look, who can edit, and who is an owner.'], ['calendar', 'Share the day', 'Calendars, chores, meals, itineraries and group chat, live for everyone.']]
-      : [['plus', 'Create', 'Make your home’s space in one step.'], ['users', 'Invite', 'Send invite links. Pick who can look, who can edit, and who is an owner.'], ['calendar', 'Share the day', 'Calendar, chores, meals, lists and photos, live for everyone.']];
-    return h('div', { class: 'land-steps' }, s.map(([i, t, d]) => h('div', { class: 'land-step' }, h('span', { class: 'empty-icon' }, icon(i)), h('strong', {}, t), h('span', { class: 'sub' }, d))));
   }
 
   async function joinCard() {
@@ -4442,34 +4494,471 @@ body:has(> .tour-switch) .main { padding-top: 62px; }
     }
     box.replaceChildren(h('form', { class: 'stack', onsubmit: go },
       h('h2', {}, 'You are invited to ' + peek.familyName), h('p', {}, 'You will join as ' + ROLE_TEXT[peek.role] + '.'),
-      field('Your name', name), err, btn, h('p', { class: 'hint' }, 'You will get your own private link to this home. Keep it safe.')));
+      field('Your name', name), err, btn, h('p', { class: 'hint' }, 'You will get your own private link to this hub. Keep it safe.')));
     return box;
+  }
+
+  /* ---------- the start page: "Your people, in sync" with the hub and trip cards ---------- */
+  const AV = [['🦊', '#F6C9A0'], ['🦁', '#A9C9E8'], ['🚀', '#B7DDB0'], ['🌻', '#F3E19A'], ['🐶', '#CDBDEB'], ['🌸', '#F2B8CF']];
+  function brand() {
+    return h('header', { class: 'lp-brandrow' }, h('a', { class: 'lp-brand', href: '/', 'aria-label': PL.config.appName + ' start page' }, icon('calendar'), h('span', {}, PL.config.appName)));
+  }
+  function startCard(kind, ic, kicker, title, sub, label, go, demoHref, demoText) {
+    const btn = ui.button(label, { variant: 'primary', big: true, icon: 'plus', block: true, onClick: go });
+    btn.classList.add('lp-go');
+    return h('section', { class: 'card land-pick land-pick-' + kind },
+      h('div', { class: 'land-pick-head' }, ic, h('div', {}, h('span', { class: 'land-kicker' }, kicker), h('h2', {}, title))),
+      h('p', { class: 'land-pick-sub' }, sub), btn,
+      h('span', { class: 'lp-demo' }, 'or ', h('a', { href: demoHref }, demoText)));
+  }
+  function startPage(main) {
+    const hero = h('section', { class: 'lp-hero' });
+    hero.innerHTML = '<h1>Your people, <span class="hl">in sync</span>,<br>wherever they are.</h1>'; // our own fixed text
+    hero.append(h('div', { class: 'lp-free' },
+      h('div', { class: 'row1' }, h('span', { class: 'fz' }, 'FREE'), h('span', { class: 'ea' }, 'during early access')),
+      h('div', { class: 'row2' }, h('span', {}, 'No sign-up'), h('span', {}, 'No ads'))));
+    const tripIc = h('span', { class: 'land-pick-ic' }); tripIc.innerHTML = PLANE;
+    const cards = [startCard('home', h('span', { class: 'land-pick-ic' }, icon('calendar')), 'Kalendaryo', 'Everyone in sync',
+      'Calendar, chores, meals, lists and a digital photo frame. Takes 1 minute.', 'Create a hub', () => go('#new'), '/demo', 'try a demo hub')];
+    if (window.KAL_TRIPLY) cards.push(startCard('trip', tripIc, 'Triply by Kalendaryo', 'Plan a trip',
+      'One plan, every booking and a group chat for everyone going.', 'Create a trip', () => go('#trip'), TRIPLY_BASE + '/demo', 'try a demo trip'));
+    main.append(hero, h('div', { class: 'land-picks' + (cards.length === 1 ? ' one' : '') }, ...cards),
+      h('div', { class: 'lp-av', 'aria-hidden': 'true' }, AV.map(([e, c]) => h('span', { style: 'background:' + c }, e))),
+      h('p', { class: 'lp-for' }, 'For families, couples, roommates, best friends and loved ones far away.'));
+  }
+  // The trip form, unchanged, on its own after "Create a trip".
+  function tripPage(main) {
+    main.append(h('div', { class: 'lp-one' }, tripCard(), h('a', { class: 'lp-back', href: '#', onclick: (e) => { e.preventDefault(); go(''); } }, '← Back')));
+  }
+  function go(hash) {
+    if (location.hash !== hash) history.pushState(null, '', hash || location.pathname);
+    render();
+    window.scrollTo(0, 0);
   }
 
   let root;
   async function render(note) {
-    const tri = window.KAL_TRIPLY && !KAL.joinCode;
-    const head = tri
-      ? h('header', { class: 'card land-banner' }, h('span', { class: 'land-logo-mark' }, icon('calendar')),
-          h('div', {}, h('div', { class: 'brand-name land-banner-name' }, PL.config.appName), h('p', { class: 'land-banner-tag' }, 'Where home and trips get organized')))
-      : null;
-    const main = h('main', { class: tri ? 'land land-wide' : 'land' }, head ||
-      h('header', { class: 'land-head' }, h('div', { class: 'brand-name land-logo' }, h('span', { class: 'land-logo-mark' }, icon('calendar')), PL.config.appName),
-        h('h1', {}, 'Where home gets organized'), h('p', { class: 'land-lead' }, 'One shared place for your calendar, chores, meals and groceries, lists and photos. Everyone sees the same plan, updated live. Simple, calm, and private to your home.')),
+    const view = KAL.joinCode ? 'join' : location.hash === '#new' || location.hash === '#setup' ? 'hub' : location.hash === '#trip' && window.KAL_TRIPLY ? 'trip' : 'start';
+    const main = h('main', { class: 'land' + (view === 'join' ? '' : ' land-wide lp lp-' + view) },
+      view === 'join'
+        ? h('header', { class: 'land-head' }, h('div', { class: 'brand-name land-logo' }, h('span', { class: 'land-logo-mark' }, icon('calendar')), PL.config.appName),
+            h('h1', {}, 'Where home gets organized'), h('p', { class: 'land-lead' }, 'One shared place for your calendar, chores, meals and groceries, lists and photos. Everyone sees the same plan, updated live. Simple, calm, and private to your home.'))
+        : brand(),
       note ? h('p', { class: 'land-note', role: 'alert' }, note) : null);
     root.replaceChildren(main);
-    if (KAL.joinCode) main.append(await joinCard());
-    else if (window.KAL_TRIPLY) main.append(...[...choice(), demoCard(), await lists(), steps()].filter(Boolean));
-    else main.append(...[createCard(), demoCard(), recentCard(), steps()].filter(Boolean));
-    if (!KAL.joinCode && PL.guide) PL.guide.maybeStart(); // first visit: the friendly guide (guide.js)
+    if (view === 'join') { main.append(await joinCard()); return; }
+    if (view === 'hub') { PL.setup.mount(main, { back: () => go('') }); return; }
+    if (view === 'trip') { tripPage(main); return; }
+    startPage(main);
+    const more = await lists();
+    if (more && main.isConnected) main.append(more);
+    if (PL.guide) PL.guide.maybeStart(); // first visit: the friendly guide (guide.js)
   }
 
   PL.landing = {
     mount(opts) {
       root = document.getElementById('porchlight-root');
       document.body.classList.add('land-body');
-      document.title = PL.config.appName + (window.KAL_TRIPLY ? ' · Where home and trips get organized' : ' · Where home gets organized');
+      document.title = PL.config.appName + ' · Your people, in sync';
+      if (!root.dataset.nav) { root.dataset.nav = '1'; window.addEventListener('popstate', () => { if (document.body.classList.contains('land-body')) render(); }); }
       render(opts && opts.note);
+    }
+  };
+})();
+
+</script>
+<script>
+/*
+ * setup.js — web version only. The questions after "Create a hub" on the start page:
+ *   Step 1  hub name, your name, where you live (sets the hub's time zone and weather)  → the hub is made here
+ *   Step 2  who is in your hub: people (who they are to you, where they live, Editor or Viewer) and pets
+ *   Step 3  a quick sample with their own names (it can be cleared with one tap)
+ *   Done    each person's own link to copy (the same link is in People until they join)
+ * After step 1 the hub exists, so a reload comes back to step 2 (sessionStorage "kal.setup").
+ */
+(function () {
+  const PL = (window.PL = window.PL || {});
+  const h = PL.h, icon = PL.icon, ui = PL.ui, D = PL.D;
+  const KEY = 'kal.setup';
+  const ICONS = ['🦊', '🦁', '🌻', '🚀', '🐼', '🦋', '🐨', '🐬', '🌈', '⭐', '🐢', '🦄', '🐸', '🐝', '🎨', '🎸', '🧸', '🍓'];
+  const REL_MAIN = ['Husband', 'Wife', 'Partner', 'Son', 'Daughter', 'Mom', 'Dad', 'Grandma', 'Grandpa', 'Friend', 'Pet'];
+  const REL_MORE = ['Boyfriend', 'Girlfriend', 'Sister', 'Brother', 'Aunt', 'Uncle', 'Cousin', 'Roommate', 'Nanny / Helper', 'Other'];
+  const SHE = ['Wife', 'Daughter', 'Mom', 'Grandma', 'Girlfriend', 'Sister', 'Aunt'];
+  const HE = ['Husband', 'Son', 'Dad', 'Grandpa', 'Boyfriend', 'Brother', 'Uncle'];
+  const VIEWER = ['Son', 'Daughter', 'Grandma', 'Grandpa']; // kids and grandparents start as Viewer; anyone can be changed
+  const PETS = [['Dog', '🐶'], ['Cat', '🐱'], ['Bunny', '🐰'], ['Fish', '🐟'], ['Bird', '🐦'], ['Other', '🐾']];
+  const PARTNER = ['Husband', 'Wife', 'Partner', 'Boyfriend', 'Girlfriend'];
+  const roleFor = (rel) => (rel === 'Pet' ? 'pet' : rel === 'Son' || rel === 'Daughter' ? 'child' : PARTNER.includes(rel) ? 'parent' : 'other');
+  const pron = (rel) => (SHE.includes(rel) ? ['she', 'her'] : HE.includes(rel) ? ['he', 'his'] : rel === 'Pet' ? ['it', 'its'] : ['they', 'their']);
+  const ROLE_TXT = { editor: 'Editors can add and change plans.', viewer: 'Viewers see everything but can’t change things.' };
+
+  /* ---------- small helpers ---------- */
+  const load = () => { try { return JSON.parse(sessionStorage.getItem(KEY) || 'null'); } catch (e) { return null; } };
+  const save = (v) => { try { if (v) sessionStorage.setItem(KEY, JSON.stringify(v)); else sessionStorage.removeItem(KEY); } catch (e) { /* fine */ } };
+  async function call(token, method, url, body) {
+    const r = await fetch(url, { method, cache: 'no-store', headers: Object.assign({ 'Content-Type': 'application/json' }, token ? { Authorization: 'Bearer ' + token } : {}), body: body ? JSON.stringify(body) : undefined });
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok) { const e = new Error(j.message || 'Something went wrong. Please try again.'); e.userMessage = e.message; e.status = r.status; throw e; }
+    return j;
+  }
+  const errorBox = () => h('p', { class: 'form-error', role: 'alert', hidden: true });
+  const showErr = (el, msg) => { el.textContent = msg || ''; el.hidden = !msg; };
+  const timeIn = (tz, at) => { try { return new Intl.DateTimeFormat('en-US', { hour: 'numeric', minute: '2-digit', timeZone: tz }).format(at || new Date()); } catch (e) { return ''; } };
+  const deviceZone = () => (PL.deviceZone ? PL.deviceZone() : Intl.DateTimeFormat().resolvedOptions().timeZone);
+  function dots(n) { return h('div', { class: 'fl-dots', 'aria-hidden': 'true' }, [1, 2, 3].map((i) => h('i', { class: i <= n ? 'on' : '' }))); }
+  function head(n, title, sub) {
+    return [dots(n), h('span', { class: 'land-kicker' }, n ? 'Step ' + n + ' of 3' : 'All set'), h('h2', {}, title), sub ? h('p', { class: 'land-pick-sub' }, sub) : null];
+  }
+  const card = (...kids) => h('section', { class: 'card land-pick fl' }, ...kids);
+  const link = (text, onClick) => h('a', { class: 'fl-skip', href: '#', onclick: (e) => { e.preventDefault(); onClick(); } }, text);
+
+  /* ---------- city search (the free Open-Meteo place list, the same one the weather card uses) ---------- */
+  async function search(name) {
+    const ctl = new AbortController(); const t = setTimeout(() => ctl.abort(), 8000);
+    try {
+      const r = await fetch('https://geocoding-api.open-meteo.com/v1/search?count=6&language=en&name=' + encodeURIComponent(name), { signal: ctl.signal });
+      if (!r.ok) throw new Error('bad status');
+      return ((await r.json()).results || []).filter((x) => x.timezone).map((x) => ({
+        name: [x.name, x.country].filter(Boolean).join(', '), long: [x.name, x.admin1, x.country].filter(Boolean).join(', '), lat: x.latitude, lon: x.longitude, tz: x.timezone }));
+    } finally { clearTimeout(t); }
+  }
+  // Returns { el, input, resolve() }. resolve() gives the picked place, null when empty, or 'bad' when nothing matches.
+  function cityField(start, onPick) {
+    let picked = start || null, timer = 0, seq = 0;
+    const input = h('input', { type: 'text', maxlength: '60', placeholder: 'Type a city', autocomplete: 'off', value: start ? start.name : '' });
+    const list = h('div', { class: 'choices fl-cities' });
+    const pick = (p) => { picked = p; input.value = p.name; list.replaceChildren(); onPick && onPick(p); };
+    input.addEventListener('input', () => {
+      picked = null; onPick && onPick(null);
+      clearTimeout(timer);
+      const q = input.value.trim();
+      if (q.length < 2) { list.replaceChildren(); return; }
+      timer = setTimeout(async () => {
+        const my = ++seq;
+        try {
+          const res = await search(q);
+          if (my !== seq) return;
+          list.replaceChildren(...res.slice(0, 5).map((p) => h('button', { type: 'button', class: 'choice', onclick: () => pick(p) }, h('strong', {}, p.long))));
+        } catch (e) { if (my === seq) list.replaceChildren(); }
+      }, 350);
+    });
+    async function resolve() {
+      const q = input.value.trim();
+      if (!q) return null;
+      if (picked && picked.name === q) return picked;
+      try { const res = await search(q); if (res[0]) { pick(res[0]); return res[0]; } return 'bad'; }
+      catch (e) { return 'offline'; }
+    }
+    return { el: h('div', { class: 'fl-city' }, input, list), input, resolve, set: (p) => { if (p) pick(p); }, get: () => picked };
+  }
+  // A first guess from the phone's time zone ("America/Vancouver" → Vancouver, Canada).
+  async function guessCity() {
+    const tz = deviceZone();
+    if (!tz || tz.indexOf('/') < 0) return null;
+    const city = tz.split('/').pop().replace(/_/g, ' ');
+    try { return (await search(city)).find((p) => p.tz === tz) || null; } catch (e) { return null; }
+  }
+
+  /* ---------- the flow ---------- */
+  let main = null, back = null, box = null;
+  function show(...kids) {
+    const next = card(...kids);
+    if (box && box.isConnected) box.replaceWith(next); else main.append(next);
+    box = next;
+    window.scrollTo(0, 0);
+  }
+
+  // Step 1: name, your name, where you live → makes the hub.
+  function step1() {
+    if (location.hash !== '#new') history.replaceState(null, '', '#new');
+    const hub = h('input', { type: 'text', maxlength: '40', placeholder: PL.examples.home(), autocomplete: 'off' });
+    const you = h('input', { type: 'text', maxlength: '30', placeholder: PL.examples.name(), autocomplete: 'given-name' });
+    const hint = h('p', { class: 'hint' }, 'It sets your time and weather.');
+    const city = cityField(null, () => { hint.textContent = 'It sets your time and weather.'; });
+    guessCity().then((p) => { if (p && !city.input.value.trim()) { city.set(p); hint.textContent = 'We guessed this from your phone. It sets your time and weather.'; } });
+    const err = errorBox();
+    const next = ui.button('Next', { variant: 'primary', big: true, block: true, type: 'submit' });
+    async function go(e) {
+      e.preventDefault();
+      if (!you.value.trim()) { showErr(err, 'Please type your name.'); you.focus(); return; }
+      next.disabled = true; showErr(err, '');
+      const place = await city.resolve();
+      if (place === 'bad') { showErr(err, 'We could not find that city. Pick one from the list, or leave it empty.'); next.disabled = false; return; }
+      const p = place && place !== 'offline' ? place : null;
+      try {
+        const r = await call(null, 'POST', '/api/families', { yourName: you.value.trim(), familyName: hub.value.trim(), timeZone: (p && p.tz) || deviceZone(), place: p });
+        const me = await call(r.token, 'GET', '/api/me');
+        await call(r.token, 'PUT', '/api/me/profile', { avatar: ICONS[0] }).catch(() => {});
+        KAL.recent.remember(r.token, me.family.name, me.me.name);
+        save({ token: r.token, meId: me.me.memberId, hub: me.family.name, tz: (p && p.tz) || deviceZone(), step: 'people' });
+        history.replaceState(null, '', '#setup');
+        step2();
+      } catch (x) { showErr(err, x.userMessage || 'Could not make your hub. Please try again.'); next.disabled = false; }
+    }
+    show(h('form', { class: 'fl', onsubmit: go },
+      ...head(1, 'Let’s set up your hub', 'Takes about a minute.'),
+      ui.field('Hub name', hub), ui.field('Your name', you),
+      h('div', { class: 'field' }, h('label', {}, 'Where do you live?'), city.el, hint),
+      err, next, link('← Back', back)));
+  }
+
+  async function members(st) {
+    const j = await call(st.token, 'GET', '/api/state');
+    return ((j.docs && j.docs.members) || []).map((d) => Object.assign({ id: d.id }, d.data)).filter((m) => !m.demo)
+      .sort((a, b) => rank(a, st) - rank(b, st) || a.name.localeCompare(b.name));
+  }
+  // You first, then partners, kids, everyone else, and pets last.
+  const rank = (m, st) => (m.id === st.meId ? 0 : PARTNER.includes(m.relation) ? 1 : m.role === 'child' ? 2 : m.role === 'pet' ? 4 : 3);
+  function subFor(m, st) {
+    if (m.id === st.meId) return 'You';
+    if (m.role === 'pet') return (m.relation ? m.relation + ' · ' : '') + 'Pet';
+    const where = m.place ? m.place.name.split(',')[0] + (m.place.tz && m.place.tz !== st.tz ? ' · ' + timeIn(m.place.tz) + ' there' : '') : 'Lives with you';
+    return [m.relation, where].filter(Boolean).join(' · ');
+  }
+  function row(m, st, end, onClick, sub) {
+    const kids = [ui.avatar(m, 44), h('div', { class: 'who' }, h('strong', {}, m.name), h('span', { class: 'sub' }, sub || subFor(m, st))), end];
+    return onClick ? h('button', { type: 'button', class: 'fl-row fl-tap', onclick: onClick }, ...kids) : h('div', { class: 'fl-row' }, ...kids);
+  }
+  const tag = (m, st) => (m.id === st.meId ? h('span', { class: 'fl-tag' }, 'Owner') : m.role === 'pet' ? null
+    : h('span', { class: 'fl-tag' + (m.access === 'editor' ? '' : ' v') }, m.access === 'editor' ? 'Editor' : 'Viewer'));
+
+  // Step 2: who is in your hub.
+  async function step2() {
+    const st = load();
+    if (!st) return step1();
+    st.step = 'people'; save(st);
+    let list = [];
+    try { list = await members(st); } catch (e) { list = []; }
+    show(h('div', { class: 'fl' },
+      ...head(2, 'Who’s in your hub?', 'Add the people you want to keep in sync. You can change this later.'),
+      h('div', {}, list.map((m) => row(m, st, tag(m, st), m.id === st.meId ? null : () => person(st, list, m)))),
+      ui.button('Add a person', { big: true, block: true, icon: 'plus', onClick: () => person(st, list, null) }),
+      ui.button('Next', { variant: 'primary', big: true, block: true, onClick: () => step3() })));
+  }
+
+  // Add or change one person (or pet).
+  function person(st, list, m) {
+    const used = new Set(list.map((x) => x.avatar)), usedC = new Set(list.map((x) => x.color));
+    let rel = m ? (m.role === 'pet' ? 'Pet' : m.relation || '') : '';
+    let kind = m && m.role === 'pet' ? m.relation || '' : '';
+    let avatar = m ? m.avatar : (ICONS.find((a) => !used.has(a)) || ICONS[list.length % ICONS.length]);
+    let ownPick = !!m;
+    const color = m ? m.color : ((PL.config.palette.find((p) => !usedC.has(p.hex)) || PL.config.palette[list.length % PL.config.palette.length]).hex);
+    let away = !!(m && m.place);
+    let access = m && m.access ? m.access : 'editor';
+    let more = REL_MORE.includes(rel);
+
+    const pic = h('button', { type: 'button', class: 'fl-pic', 'aria-label': 'Change the picture' });
+    const grid = h('div', { class: 'avatar-grid', role: 'radiogroup', 'aria-label': 'Picture', hidden: true });
+    const paintPic = () => {
+      pic.replaceChildren(ui.avatar({ name: name.value || '?', avatar, color }, 64), h('span', { class: 'hint' }, 'Tap to change'));
+      grid.replaceChildren(...ICONS.concat(PETS.map((p) => p[1])).map((a) => h('button', { type: 'button', role: 'radio', class: 'avatar-opt' + (a === avatar ? ' on' : ''), 'aria-checked': a === avatar ? 'true' : 'false', 'aria-label': a,
+        onclick: () => { avatar = a; ownPick = true; grid.hidden = true; paintPic(); } }, a)));
+    };
+    pic.addEventListener('click', () => { grid.hidden = !grid.hidden; });
+    const name = h('input', { type: 'text', maxlength: '30', placeholder: 'Their name', autocomplete: 'off', value: m ? m.name : '' });
+
+    const relLabel = h('label', {}, 'Who is this to you?');
+    const relBox = h('div', { class: 'chip-row' });
+    const paintRel = () => relBox.replaceChildren(...REL_MAIN.concat(more ? REL_MORE : ['More…']).map((r) => h('button', { type: 'button', class: 'person-pick', 'aria-pressed': r === rel ? 'true' : 'false',
+      onclick: () => { if (r === 'More…') { more = true; paintRel(); return; } pickRel(r); } }, r)));
+
+    const kindBox = h('div', { class: 'chip-row' });
+    const paintKind = () => kindBox.replaceChildren(...PETS.map(([k, e]) => h('button', { type: 'button', class: 'person-pick', 'aria-pressed': k === kind ? 'true' : 'false',
+      onclick: () => { kind = k; if (!ownPick) { avatar = e; paintPic(); } paintKind(); } }, e + ' ' + k)));
+    const petHint = h('p', { class: 'hint' });
+    const paintPetHint = () => { petHint.textContent = 'Pets don’t need a link. You can give them chores, vet visits and a birthday, like “feed ' + (name.value.trim() || 'the dog') + '”.'; };
+    const petPart = h('div', { class: 'fl-part' }, h('div', { class: 'field' }, h('label', {}, 'What kind of pet?'), kindBox),
+      petHint);
+
+    const whereLabel = h('label', {}, 'Where do they live?');
+    const where = ui.segmented([{ value: 'with', label: 'With me' }, { value: 'away', label: 'Somewhere else' }], away ? 'away' : 'with', (v) => { away = v === 'away'; cityPart.hidden = !away; }, 'Where they live');
+    const cityHint = h('p', { class: 'hint' });
+    const city = cityField(m && m.place ? { name: m.place.name, tz: m.place.tz } : null, (p) => { cityHint.textContent = p && p.tz ? 'It’s ' + timeIn(p.tz) + ' there now.' : ''; });
+    if (m && m.place && m.place.tz) cityHint.textContent = 'It’s ' + timeIn(m.place.tz) + ' there now.';
+    const cityPart = h('div', { class: 'field' }, h('label', {}, 'City'), city.el, cityHint);
+    cityPart.hidden = !away;
+    const roleLabelEl = h('label', {}, 'What can they do?');
+    const roleHint = h('p', { class: 'hint' });
+    const role = ui.segmented([{ value: 'editor', label: 'Editor' }, { value: 'viewer', label: 'Viewer' }], access, (v) => { access = v; roleHint.textContent = ROLE_TXT[v]; }, 'What they can do');
+    roleHint.textContent = ROLE_TXT[access];
+    const personPart = h('div', { class: 'fl-part' }, h('div', { class: 'field' }, whereLabel, where.el), cityPart, h('div', { class: 'field' }, roleLabelEl, role.el, roleHint));
+
+    function pickRel(r) {
+      const wasPet = rel === 'Pet';
+      rel = r;
+      if (!m || !m.access) { access = VIEWER.includes(r) ? 'viewer' : 'editor'; role.set(access); roleHint.textContent = ROLE_TXT[access] + (VIEWER.includes(r) ? ' We picked this for ' + (r === 'Son' || r === 'Daughter' ? 'kids.' : 'grandparents.') : ''); }
+      if (r === 'Pet' && !kind) { kind = 'Dog'; if (!ownPick) avatar = '🐶'; }
+      if (wasPet && r !== 'Pet' && !ownPick) avatar = ICONS.find((a) => !used.has(a)) || ICONS[0];
+      paint();
+    }
+    function paint() {
+      const [p] = pron(rel);
+      relLabel.textContent = rel && rel !== 'Pet' && rel !== 'Other' ? 'Who is ' + (p === 'they' ? 'this' : p) + ' to you?' : 'Who is this to you?';
+      whereLabel.textContent = 'Where ' + (p === 'they' ? 'do they' : 'does ' + p) + ' live?';
+      roleLabelEl.textContent = 'What can ' + p + ' do?';
+      petPart.hidden = rel !== 'Pet'; personPart.hidden = rel === 'Pet';
+      paintRel(); paintKind(); paintPic(); label(); paintPetHint();
+    }
+    const err = errorBox();
+    const go = ui.button(m ? 'Save' : 'Add person', { variant: 'primary', big: true, icon: m ? null : 'plus', onClick: () => done() });
+    const label = () => { go.querySelector('span').textContent = m ? 'Save' : 'Add ' + (name.value.trim() || 'person'); };
+    name.addEventListener('input', () => { label(); paintPetHint(); });
+    async function done() {
+      const nm = name.value.trim();
+      if (!nm) { showErr(err, 'Please type a name.'); name.focus(); return; }
+      go.disabled = true; showErr(err, '');
+      let place = null;
+      if (rel !== 'Pet' && away) {
+        place = await city.resolve();
+        if (place === 'bad') { showErr(err, 'We could not find that city. Pick one from the list.'); go.disabled = false; return; }
+        if (place === 'offline') place = { name: city.input.value.trim(), tz: '' };
+      }
+      const pet = rel === 'Pet';
+      const data = PL.models.member({ name: nm, role: roleFor(rel), avatar, color, birthday: m ? m.birthday : '',
+        relation: pet ? (kind === 'Other' ? '' : kind) : (rel === 'Other' ? '' : rel), place: place ? { name: place.name, tz: place.tz } : null, access: pet ? '' : access });
+      try {
+        if (m) await call(st.token, 'PUT', '/api/docs/members/' + encodeURIComponent(m.id), { data });
+        else await call(st.token, 'POST', '/api/docs/members', { data });
+        s.close(); step2();
+      } catch (x) { showErr(err, x.userMessage); go.disabled = false; }
+    }
+    async function remove() {
+      if (!(await ui.confirm({ title: 'Remove ' + m.name + '?', message: m.name + ' will not be in your hub.', confirmLabel: 'Remove', danger: true }))) return;
+      try { await call(st.token, 'DELETE', '/api/docs/members/' + encodeURIComponent(m.id)); s.close(); step2(); } catch (x) { ui.toast(x.userMessage); }
+    }
+    const footer = m ? [ui.button('Remove', { variant: 'danger', icon: 'trash', onClick: remove }), h('span', { class: 'spacer' }), go] : [go];
+    const s = ui.sheet({ title: m ? m.name : 'Add a person', body: h('form', { class: 'event-form fl-sheet', onsubmit: (e) => { e.preventDefault(); done(); } },
+      pic, grid, ui.field('Name', name), h('div', { class: 'field' }, relLabel, relBox), petPart, personPart, err), footer });
+    if (!m) go.classList.add('block');
+    paint();
+  }
+
+  /* ---------- Step 3: a quick sample with their own names ---------- */
+  const weekly = (...wd) => ({ freq: 'weekly', interval: 1, weekdays: wd, end: { type: 'never' } });
+  const daily = { freq: 'daily', interval: 1, end: { type: 'never' } };
+  function zparts(t, tz) {
+    const o = {};
+    new Intl.DateTimeFormat('en-US', { timeZone: tz, year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).formatToParts(new Date(t)).forEach((x) => { o[x.type] = x.value; });
+    return Date.UTC(+o.year, +o.month - 1, +o.day, +o.hour % 24, +o.minute);
+  }
+  // The moment a wall-clock time in one zone happens (for "Sat 7:00 PM · Sun 11:00 AM in Manila").
+  function instant(key, hm, tz) {
+    const [y, mo, d] = key.split('-').map(Number), [H, M] = hm.split(':').map(Number);
+    const want = Date.UTC(y, mo - 1, d, H, M);
+    let t = want;
+    try { for (let i = 0; i < 3; i++) t += want - zparts(t, tz); } catch (e) { /* unknown zone: leave it */ }
+    return new Date(t);
+  }
+  const wd = (at, tz) => new Intl.DateTimeFormat('en-US', { weekday: 'short', timeZone: tz }).format(at);
+  function plan(list, st) {
+    const today = D.today(), t = (n) => D.addDays(today, n), next = (dow) => D.addDays(today, (dow - D.dow(today) + 7) % 7);
+    const me = list.find((m) => m.id === st.meId) || list[0];
+    const ppl = list.filter((m) => m.role !== 'pet');
+    const kids = ppl.filter((m) => m.role === 'child');
+    const kid = kids[0], partner = ppl.find((m) => PARTNER.includes(m.relation));
+    const other = partner || ppl.find((m) => m.id !== st.meId && m.role !== 'child') || me;
+    const far = ppl.find((m) => m.place && m.place.tz);
+    const pet = list.find((m) => m.role === 'pet');
+    const ev = (o) => Object.assign({ allDay: false, memberIds: [], repeat: null, reminder: null }, o);
+    const events = {}, chores = {}, preview = [];
+    events['demo-e01'] = kid ? ev({ title: kid.name + '’s piano lesson', date: next(2), start: '16:00', end: '16:45', memberIds: [kid.id], repeat: weekly(2) })
+      : ev({ title: 'Yoga class', date: next(2), start: '18:00', end: '19:00', memberIds: [me.id], repeat: weekly(2) });
+    preview.push([kid || me, events['demo-e01'].title, 'Tue · ' + (kid ? '4:00 PM' : '6:00 PM')]);
+    if (pet) {
+      const who = kid || other;
+      chores['demo-c01'] = { title: 'Feed ' + pet.name, date: today, memberIds: [who.id], repeat: daily };
+      preview.push([who, who.name + ': feed ' + pet.name, 'Chore · every day']);
+      events['demo-e06'] = ev({ title: 'Vet check-up for ' + pet.name, date: t(6), start: '10:00', end: '10:30', memberIds: [pet.id] });
+    }
+    if (kids.length) chores['demo-c02'] = { title: 'Make your bed', date: today, memberIds: kids.map((k) => k.id), repeat: daily };
+    if (!pet && kid) preview.push([kid, kid.name + ': make your bed', 'Chore · every day']);
+    if (far) {
+      const day = next(6), city = far.place.name.split(',')[0], at = instant(day, '19:00', st.tz);
+      events['demo-e02'] = ev({ title: 'Video call with ' + far.name, date: day, start: '19:00', end: '19:30', memberIds: [me.id, far.id], repeat: weekly(6), notes: 'It is ' + wd(at, far.place.tz) + ' ' + timeIn(far.place.tz, at) + ' in ' + city + '.' });
+      preview.push([far, 'Video call with ' + far.name, 'Sat 7:00 PM · ' + wd(at, far.place.tz) + ' ' + timeIn(far.place.tz, at) + ' in ' + city]);
+    }
+    events['demo-e03'] = ev({ title: 'Movie night', date: next(5), start: '19:00', end: '21:00', repeat: weekly(5) });
+    if (!far) preview.push([null, 'Movie night', 'Fri · 7:00 PM · everyone']);
+    if (kid) events['demo-e04'] = ev({ title: 'Dentist (' + kid.name + ')', date: t(3), start: '14:00', end: '14:45', memberIds: [kid.id], reminder: 60 });
+    if (partner) events['demo-e05'] = ev({ title: 'Date night', date: t(2), start: '19:30', end: '22:00', memberIds: [me.id, partner.id] });
+    events['demo-e07'] = ev({ title: 'Trash and recycling', date: next(3), allDay: true, repeat: weekly(3) });
+    chores['demo-c03'] = { title: 'Buy groceries', date: next(6), memberIds: [other.id], repeat: weekly(6) };
+    chores['demo-c04'] = { title: 'Take out the trash', date: next(3), memberIds: [other.id], repeat: weekly(3) };
+    preview.push([other, other.name + ': buy groceries', 'List · 6 items']);
+    const items = {};
+    ['Milk', 'Eggs', 'Bread', 'Rice', 'Bananas', 'Chicken'].forEach((text, i) => { items['demo-i' + (i + 1)] = { listId: 'demo-l1', text, done: false, at: Date.now() - (10 - i) * 1000 }; });
+    const meals = {};
+    ['Chicken adobo', 'Spaghetti', 'Tacos', 'Soup and bread'].forEach((title, i) => { meals[t(i) + '~dinner'] = { date: t(i), slot: 'dinner', title, recipeId: '' }; });
+    return {
+      preview: preview.slice(0, 4),
+      docs: [['events', events, 'event'], ['chores', chores, 'chore'], ['lists', { 'demo-l1': { title: 'Groceries' } }, 'list'], ['listitems', items, 'listitem'], ['meals', meals, 'meal'],
+        ['countdowns', { 'demo-k1': { title: 'Summer holiday', emoji: '🏖️', date: t(45), yearly: false } }, 'countdown']]
+    };
+  }
+  async function step3() {
+    const st = load();
+    if (!st) return step1();
+    st.step = 'sample'; save(st);
+    let list = [];
+    try { list = await members(st); } catch (e) { list = []; }
+    const p = plan(list, st);
+    const err = errorBox();
+    const yes = ui.button('Yes, show me', { variant: 'primary', big: true, block: true, onClick: async () => {
+      yes.disabled = true; showErr(err, '');
+      try {
+        for (const [col, docs, kind] of p.docs) {
+          for (const [id, x] of Object.entries(docs)) await call(st.token, 'PUT', '/api/docs/' + col + '/' + encodeURIComponent(id), { data: PL.models[kind](Object.assign({ demo: true }, x)) });
+        }
+        doneStep();
+      } catch (x) { showErr(err, x.userMessage); yes.disabled = false; }
+    } });
+    yes.replaceChildren(h('span', {}, 'Yes, show me'), h('span', { class: 'fl-rec' }, 'Recommended'));
+    const sub = h('p', { class: 'land-pick-sub' }, 'We’ll add a few example plans with your people’s names, so you can see how it all works. ', h('strong', {}, 'We suggest yes.'), ' You can clear it with one tap anytime.');
+    show(h('div', { class: 'fl' }, dots(3), h('span', { class: 'land-kicker' }, 'Step 3 of 3'), h('h2', {}, 'See your hub come alive'), sub,
+      ...p.preview.map(([m, title, when]) => h('div', { class: 'fl-ev' }, ui.avatar(m, 36), h('div', { class: 't' }, h('strong', {}, title), h('span', { class: 'sub' }, when)))),
+      err, yes, link('No thanks, start empty', () => doneStep()), link('← Back', () => step2())));
+  }
+
+  /* ---------- Done: each person's own link ---------- */
+  async function doneStep() {
+    const st = load();
+    if (!st) return step1();
+    st.step = 'done'; save(st);
+    let list = [];
+    try { list = await members(st); } catch (e) { list = []; }
+    const ppl = list.filter((m) => m.id !== st.meId && m.role !== 'pet');
+    async function copyFor(m) {
+      try {
+        const r = await call(st.token, 'POST', '/api/invites/member', { memberId: m.id, role: m.access || 'viewer' });
+        const url = location.origin + '/join/' + r.code;
+        try { await navigator.clipboard.writeText(url); ui.toast(m.name + '’s link copied.'); }
+        catch (e) {
+          const s = ui.sheet({ title: m.name + '’s link', body: h('div', { class: 'event-form' }, h('p', {}, 'Copy this link and send it to ' + m.name + '.'),
+            h('input', { type: 'text', readonly: true, value: url, class: 'link-input', 'aria-label': 'Link', onfocus: (ev) => ev.target.select() })),
+          footer: [ui.button('Close', { variant: 'ghost', big: true, onClick: () => s.close() })] });
+        }
+      } catch (x) { ui.toast(x.userMessage); }
+    }
+    const open = ui.button('Open my hub', { variant: 'primary', big: true, block: true, onClick: () => {
+      try { localStorage.setItem('kal.newlink', '1'); } catch (e) { /* fine */ }
+      save(null);
+      location.href = '/c/' + st.token;
+    } });
+    show(h('div', { class: 'fl' }, dots(3), h('span', { class: 'land-kicker' }, 'All set'), h('h2', {}, 'Your hub is ready! 🎉'),
+      h('p', { class: 'land-pick-sub' }, ppl.length ? 'Copy each person’s link and send it to them. No sign-up needed.' : 'You can add people anytime in People.'),
+      ppl.length ? h('div', {}, ppl.map((m) => row(m, st, ui.button('Copy link', { icon: 'copy', onClick: () => copyFor(m) }), null, [m.relation, m.access === 'editor' ? 'Editor' : 'Viewer'].filter(Boolean).join(' · ')))) : null,
+      ppl.length ? h('p', { class: 'hint fl-note' }, 'You can find everyone’s own link anytime in ', h('strong', {}, 'People'), '.') : null,
+      open));
+  }
+
+  PL.setup = {
+    mount(m, opts) {
+      main = m; back = opts.back; box = null;
+      const st = load();
+      if (location.hash === '#setup' && st && st.token) {
+        if (st.step === 'sample') step3(); else if (st.step === 'done') doneStep(); else step2();
+      } else step1();
     }
   };
 })();
@@ -4512,7 +5001,7 @@ body:has(> .tour-switch) .main { padding-top: 62px; }
     let role = 'editor';
     const linked = new Set((KAL.people || []).map((p) => p.member_id).filter(Boolean));
     const pending = new Set(invites.map((i) => i.member_id).filter(Boolean));
-    const members = PL.state.members.filter((m) => !m.demo).slice().sort((a, b) => (linked.has(a.id) - linked.has(b.id)) || a.name.localeCompare(b.name));
+    const members = PL.state.members.filter((m) => !m.demo && m.role !== 'pet').slice().sort((a, b) => (linked.has(a.id) - linked.has(b.id)) || a.name.localeCompare(b.name));
     const first = members.find((m) => !linked.has(m.id) && !pending.has(m.id)) || members.find((m) => !linked.has(m.id));
     let who = first ? first.id : 'new';
     const label = h('input', { type: 'text', maxlength: '30', placeholder: 'Their name, for example: Grandma', autocomplete: 'off' });
@@ -4531,7 +5020,7 @@ body:has(> .tour-switch) .main { padding-top: 62px; }
       newField.hidden = who !== 'new';
       sync();
     }
-    const newField = h('div', {}, ui.field('Their name', label, 'They are added to the family when they join.'));
+    const newField = h('div', {}, ui.field('Their name', label, 'They are added to the hub when they join.'));
     label.addEventListener('input', () => sync());
     const make = ui.button('Create invite link', { variant: 'primary', big: true, icon: 'plus', onClick: async () => {
       make.disabled = true;
@@ -4572,14 +5061,14 @@ body:has(> .tour-switch) .main { padding-top: 62px; }
       try { await KAL.api('PATCH', '/api/people/' + p.id, { role }); s.close(); ui.toast(p.name + ' is now ' + roleLabel(role) + '.'); loadPeople(); }
       catch (e) { ui.toast(e.userMessage); }
     } });
-    const remove = ui.button(p.isMe ? 'Leave family' : 'Remove', { variant: 'danger', icon: 'trash', onClick: () => { s.close(); removePerson(p); } });
+    const remove = ui.button(p.isMe ? 'Leave hub' : 'Remove', { variant: 'danger', icon: 'trash', onClick: () => { s.close(); removePerson(p); } });
     const s = ui.sheet({ title: p.name, body: h('div', { class: 'event-form' }, ui.field('Role', seg.el), help),
       footer: [remove, ui.button('Cancel', { variant: 'ghost', big: true, onClick: () => s.close() }), save] });
   }
 
   async function removePerson(p) {
     const ok = await ui.confirm(p.isMe
-      ? { title: 'Leave this family?', message: 'Your link will stop working. You will need a new invite to come back.', confirmLabel: 'Leave', danger: true }
+      ? { title: 'Leave this hub?', message: 'Your link will stop working. You will need a new invite to come back.', confirmLabel: 'Leave', danger: true }
       : { title: 'Remove ' + p.name + '?', message: 'Their link stops working right away. You can invite them again later.', confirmLabel: 'Remove', danger: true });
     if (!ok) return;
     try {
@@ -4597,41 +5086,66 @@ body:has(> .tour-switch) .main { padding-top: 62px; }
       catch (e) { ui.toast(e.userMessage); }
     } });
     const s = ui.sheet({ title: 'Delete ' + KAL.family.name + '?', body: h('div', { class: 'event-form' },
-      h('p', {}, 'Everything is deleted for everyone: calendar, chores, meals, lists and photos. All links stop working. This cannot be undone.'),
+      h('p', {}, 'Everything in this hub is deleted for everyone: calendar, chores, meals, lists and photos. All links stop working. This cannot be undone.'),
       ui.field('Type DELETE to confirm', input)), footer: [ui.button('Cancel', { variant: 'ghost', big: true, onClick: () => s.close() }), go] });
   }
 
-  /* ---------- the card in the Family section ---------- */
+  /* ---------- "Copy link" for people in the hub who have not joined yet (not pets, not the sample) ---------- */
+  function notJoined(people) {
+    const linked = new Set(people.map((p) => p.member_id).filter(Boolean));
+    return PL.state.members.filter((m) => !m.demo && m.role !== 'pet' && !linked.has(m.id));
+  }
+  // The same link each time until they join (server: /api/invites/member).
+  async function memberLink(m, role) {
+    const r = await KAL.api('POST', '/api/invites/member', role ? { memberId: m.id, role } : { memberId: m.id });
+    return location.origin + '/join/' + r.code;
+  }
+  async function copyMemberLink(m) {
+    try {
+      const url = await memberLink(m);
+      if (await copy(url, m.name + '’s link')) return;
+      const s = ui.sheet({ title: m.name + '’s link', body: h('div', { class: 'event-form' }, h('p', {}, 'Copy this link and send it to ' + m.name + '.'), linkBox(url)),
+        footer: [ui.button('Close', { variant: 'ghost', big: true, onClick: () => s.close() })] });
+    } catch (e) { ui.toast(e.userMessage || 'Could not make the link. Please try again.'); }
+  }
+  PL.access = { memberLink, copy };
+
+  /* ---------- the card in the People section ---------- */
   const card = h('section', { class: 'card access-card', 'aria-label': 'People with access' });
   function paint() {
     if (!KAL.me) { card.replaceChildren(); return; }
     const people = KAL.people || [];
     const fmt = (d) => new Date(d).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+    const openInv = invites.filter((i) => !i.kept); // the kept links belong to "Copy link" above
     card.replaceChildren(...[
       h('div', { class: 'page-head' }, h('h2', {}, 'People with access'), isOwner() ? ui.button('Invite someone', { variant: 'primary', icon: 'plus', onClick: openInvite }) : null),
-      h('p', { class: 'sub' }, 'Each person has their own link. To add someone, send an invite. Do not share your own link.'),
-      h('div', { class: 'stack' }, people.map((p) => h('div', { class: 'access-row' },
+      h('p', { class: 'sub' }, 'Each person has their own link. Copy it and send it to them. Do not share your own link.'),
+      h('div', { class: 'stack' }, ...people.map((p) => h('div', { class: 'access-row' },
         ui.avatar(p.member_id && PL.store.member(p.member_id) || { name: p.name, color: PL.config.neutralColor }, 36),
-        h('span', { class: 'access-name' }, h('strong', {}, ((p.member_id && PL.store.member(p.member_id)) || p).name + (p.isMe ? ' (you)' : '')), h('span', { class: 'sub' }, roleLabel(p.role))),
-        isOwner() ? ui.button('Change', { icon: 'edit', onClick: () => openRole(p) }) : (p.isMe ? ui.button('Leave', { variant: 'ghost', onClick: () => removePerson(p) }) : null)))),
-      isOwner() && invites.length ? h('h3', { class: 'mini-h' }, 'Open invites') : null,
-      isOwner() && invites.length ? h('div', { class: 'stack' }, invites.map((i) => h('div', { class: 'access-row' },
+        h('span', { class: 'access-name' }, h('strong', {}, ((p.member_id && PL.store.member(p.member_id)) || p).name + (p.isMe ? ' (you)' : '')), h('span', { class: 'sub' }, roleLabel(p.role), p.isMe ? null : [h('br'), 'Joined ✓'])),
+        isOwner() ? ui.button('Change', { icon: 'edit', onClick: () => openRole(p) }) : (p.isMe ? ui.button('Leave', { variant: 'ghost', onClick: () => removePerson(p) }) : null))),
+        ...(isOwner() ? notJoined(people).map((m) => h('div', { class: 'access-row' },
+          ui.avatar(m, 36),
+          h('span', { class: 'access-name' }, h('strong', {}, m.name), h('span', { class: 'sub' }, roleLabel(m.access || 'viewer'), h('br'), 'Not joined yet')),
+          ui.button('Copy link', { variant: 'primary', icon: 'copy', onClick: () => copyMemberLink(m) }))) : [])),
+      isOwner() && openInv.length ? h('h3', { class: 'mini-h' }, 'Open invites') : null,
+      isOwner() && openInv.length ? h('div', { class: 'stack' }, openInv.map((i) => h('div', { class: 'access-row' },
         h('span', { class: 'access-name' }, h('strong', {}, i.label || 'Invite'), h('span', { class: 'sub' }, roleLabel(i.role) + ' · expires ' + fmt(i.expires_at))),
         ui.button('Cancel', { variant: 'ghost', onClick: async () => { try { await KAL.api('DELETE', '/api/invites/' + i.id); loadPeople(); } catch (e) { ui.toast(e.userMessage); } } })))) : null,
       PL.me && !KAL.me.viewing ? h('div', { class: 'btn-row' }, PL.me.member()
         ? ui.button('My color, icon and birthday', { icon: 'edit', onClick: () => PL.me.openThatsYou(false) })
-        : ui.button('Link me to my name in the family', { icon: 'users', onClick: () => PL.me.openWhich() })) : null,
+        : ui.button('Link me to my name in People', { icon: 'users', onClick: () => PL.me.openWhich() })) : null,
       h('h3', { class: 'mini-h' }, 'Your link'),
       h('p', { class: 'hint' }, 'Bookmark it, or save it somewhere safe. Anyone with this link gets in as you.'),
       h('div', { class: 'btn-row' }, ui.button('Copy my link', { icon: 'copy', onClick: () => copy(myLink(), 'Your link') })),
-      isOwner() ? h('div', { class: 'btn-row access-danger' }, ui.button('Delete this family', { variant: 'danger', icon: 'trash', onClick: deleteFamily })) : null
+      isOwner() ? h('div', { class: 'btn-row access-danger' }, ui.button('Delete this hub', { variant: 'danger', icon: 'trash', onClick: deleteFamily })) : null
     ].filter(Boolean));
   }
   PL.familyExtras = () => {
     if (KAL.demo) { // the demo home has no links or invites
       return h('section', { class: 'card access-card' }, h('h2', {}, 'People with access'),
-        h('p', {}, 'In your own home, each person gets their own private link, and owners invite people as Viewer, Editor or Owner.'),
-        h('div', { class: 'btn-row' }, h('a', { class: 'btn primary big', href: '/' }, 'Create your own home')));
+        h('p', {}, 'In your own hub, each person gets their own private link, and owners invite people as Viewer, Editor or Owner.'),
+        h('div', { class: 'btn-row' }, h('a', { class: 'btn primary big', href: '/' }, 'Create your own hub')));
     }
     paint(); return card;
   };
@@ -4646,10 +5160,10 @@ body:has(> .tour-switch) .main { padding-top: 62px; }
     if (KAL.me && KAL.me.viewing) {
       // The site owner looking at someone's home (owner view): read-only, not counted as their visit.
       banner.className = 'status-banner role-banner owner-viewing';
-      banner.replaceChildren('👁 Viewing “' + ((KAL.family && KAL.family.name) || 'this home') + '” as the site owner · read-only · your visit doesn’t count as theirs',
+      banner.replaceChildren('👁 Viewing “' + ((KAL.family && KAL.family.name) || 'this hub') + '” as the site owner · read-only · your visit doesn’t count as theirs',
         h('a', { class: 'owner-back', href: '/owner' }, 'Back to owner view'));
     } else {
-      banner.textContent = viewer ? 'You can view this family. Ask an owner to make you an Editor to change things.' : '';
+      banner.textContent = viewer ? 'You can view this hub. Ask an owner to make you an Editor to change things.' : '';
     }
     banner.hidden = !viewer;
   }
@@ -4658,7 +5172,7 @@ body:has(> .tour-switch) .main { padding-top: 62px; }
     if (root.dataset.removed) return;
     root.dataset.removed = '1';
     KAL.recent.forget(KAL.token);
-    PL.landing.mount({ note: msg || 'This link does not work anymore. You may have been removed from the family, or the family was deleted. Ask an owner for a new invite.' });
+    PL.landing.mount({ note: msg || 'This link does not work anymore. You may have been removed from the hub, or the hub was deleted. Ask an owner for a new invite.' });
   }
   KAL.on('people', () => { if (!KAL.care) loadPeople(); });
   KAL.on('me', () => { if (KAL.care) return; showRole(); loadPeople(); });
@@ -4718,8 +5232,8 @@ body:has(> .tour-switch) .main { padding-top: 62px; }
     const s = ui.sheet({
       title: fresh ? 'That’s you, ' + m.name + '!' : 'Your profile',
       body: h('div', { class: 'event-form ty' },
-        fresh ? h('span', { class: 'ty-badge' }, KAL.me.role === 'owner' ? 'Your home is ready 🎉' : 'Welcome to ' + KAL.family.name + ' 🎉') : null,
-        h('div', { class: 'ty-who' }, preview, h('div', {}, h('strong', {}, m.name), h('p', { class: 'sub' }, fresh ? 'You are in the family already. Pick how you look on the calendar.' : 'How you look on the calendar.'))),
+        fresh ? h('span', { class: 'ty-badge' }, KAL.me.role === 'owner' ? 'Your hub is ready 🎉' : 'Welcome to ' + KAL.family.name + ' 🎉') : null,
+        h('div', { class: 'ty-who' }, preview, h('div', {}, h('strong', {}, m.name), h('p', { class: 'sub' }, fresh ? 'You are in the hub already. Pick how you look on the calendar.' : 'How you look on the calendar.'))),
         ui.field('Color', color.el),
         h('div', { class: 'field' }, h('span', { class: 'field-label' }, 'Icon'), grid),
         ui.field('Birthday (optional)', bday, 'It shows on the calendar every year.'),
@@ -4733,7 +5247,7 @@ body:has(> .tour-switch) .main { padding-top: 62px; }
   /* ---------- "Which one are you?" ---------- */
   function openWhich() {
     const linked = new Set((KAL.people || []).filter((p) => p.member_id && p.id !== KAL.me.id).map((p) => p.member_id));
-    const free = PL.state.members.filter((m) => !linked.has(m.id) && !m.demo);
+    const free = PL.state.members.filter((m) => !linked.has(m.id) && !m.demo && m.role !== 'pet');
     async function link(id) {
       try {
         await KAL.api('POST', '/api/me/member', id ? { memberId: id } : {});
@@ -4765,7 +5279,7 @@ body:has(> .tour-switch) .main { padding-top: 62px; }
         footer: [ui.button('Copy my link', { icon: 'copy', onClick: () => copy(myLink()) }), ui.button('Got it', { variant: 'primary', big: true, onClick: () => s.close() })] });
       return true;
     }
-    if (store(key) || !PL.state.members.filter((m) => !m.demo).length) return true;
+    if (store(key) || !PL.state.members.filter((m) => !m.demo && m.role !== 'pet').length) return true;
     store(key, '1');
     openWhich();
     return true;
@@ -5047,10 +5561,10 @@ body:has(> .tour-switch) .main { padding-top: 62px; }
       const content = document.querySelector('.content');
       if (content && !content.querySelector('.demo-banner')) {
         content.prepend(PL.h('div', { class: 'demo-banner', role: 'note' },
-          PL.h('span', {}, '👀 ', PL.h('strong', {}, 'This is a demo home.'), ' Try anything. Changes are not saved.'),
-          PL.h('a', { class: 'btn primary', href: '/' }, 'Create your own home')));
+          PL.h('span', {}, '👀 ', PL.h('strong', {}, 'This is a demo hub.'), ' Try anything. Changes are not saved.'),
+          PL.h('a', { class: 'btn primary', href: '/' }, 'Create your own hub')));
       }
-      document.title = 'Demo home · ' + PL.config.appName;
+      document.title = 'Demo hub · ' + PL.config.appName;
     }
   }
   // The app frame is drawn after start-up; wait for it.
@@ -5090,10 +5604,10 @@ body:has(> .tour-switch) .main { padding-top: 62px; }
     const steps = [
       { id: 'welcome', center: true, icon: svg(WAVE), tone: 'sun', title: 'Welcome to Kalendaryo!', sub: 'Let’s show you around.',
         body: tri ? [h('p', {}, 'Kalendaryo keeps two parts of life organized: ', h('b', {}, 'life at home'), ' and ', h('b', {}, 'your trips together'), '. It only takes a minute.')]
-          : [h('p', {}, 'Kalendaryo keeps ', h('b', {}, 'life at home'), ' organized, for everyone you live with. It only takes a minute.')],
+          : [h('p', {}, 'Kalendaryo keeps ', h('b', {}, 'everyday life'), ' in sync, for your people near or far. It only takes a minute.')],
         next: 'Let’s go' },
-      { id: 'home', target: tri ? '.land-pick-home' : '.land-card', side: 'right', icon: icon('home'), title: 'This is Kalendaryo',
-        body: [h('p', {}, 'For ', h('b', {}, 'everyday life'), ' with everyone you live with.'),
+      { id: 'home', target: '.land-pick-home', side: 'right', icon: icon('home'), title: 'This is Kalendaryo',
+        body: [h('p', {}, 'For ', h('b', {}, 'everyday life'), ' with your people, near or far.'),
           chips([['calendar', 'Calendar'], ['check', 'Chores'], ['meal', 'Meals'], ['list', 'Lists'], ['image', 'Photos'], ['users', 'People']])] }
     ];
     if (tri) {
@@ -5108,12 +5622,12 @@ body:has(> .tour-switch) .main { padding-top: 62px; }
       );
     }
     steps.push(tri
-      ? { id: 'start', target: '.land-pick input[autocomplete=given-name]', side: 'below', pad: 8, icon: icon('edit'), title: 'Start here',
-          body: [h('p', { class: 'g-rule' }, h('b', { class: 'g-green' }, 'Organizing your home?'), ' Type your name in the ', h('b', {}, 'green card'), ', then tap ', h('b', {}, 'Create your home'), '.'),
-            h('p', { class: 'g-rule' }, h('b', { class: 'g-terra' }, 'Planning a trip?'), ' Use the ', h('b', {}, 'orange card'), ', then tap ', h('b', {}, 'Create your trip'), '.')],
+      ? { id: 'start', target: '.land-pick .lp-go', side: 'below', pad: 8, icon: icon('edit'), title: 'Start here',
+          body: [h('p', { class: 'g-rule' }, h('b', { class: 'g-green' }, 'Everyday life?'), ' Tap ', h('b', {}, 'Create a hub'), ' in the ', h('b', {}, 'green card'), '.'),
+            h('p', { class: 'g-rule' }, h('b', { class: 'g-terra' }, 'Planning a trip?'), ' Tap ', h('b', {}, 'Create a trip'), ' in the ', h('b', {}, 'orange card'), '.')],
           next: 'Got it' }
-      : { id: 'start', target: '.land-card input[autocomplete=given-name]', side: 'below', pad: 8, icon: icon('edit'), title: 'Start here',
-          body: [h('p', {}, 'Type ', h('b', {}, 'your name'), ', then the home name, and tap ', h('b', {}, 'Create your home'), '.')], next: 'Got it' });
+      : { id: 'start', target: '.land-pick .lp-go', side: 'below', pad: 8, icon: icon('edit'), title: 'Start here',
+          body: [h('p', {}, 'Tap ', h('b', {}, 'Create a hub'), '. It takes about a minute.')], next: 'Got it' });
     return steps;
   }
 
@@ -5265,7 +5779,7 @@ body:has(> .tour-switch) .main { padding-top: 62px; }
   const PAGE_TOURS = {
     home: () => [
       { id: 'h-welcome', center: true, icon: icon('home'), tone: 'sun', title: 'This is your Home page', sub: 'Everything for today, in one place.',
-        body: [h('p', {}, 'Each box shows one part of your home. Tap ', h('b', {}, 'Open'), ' on any box to see more.')] },
+        body: [h('p', {}, 'Each box shows one part of your hub. Tap ', h('b', {}, 'Open'), ' on any box to see more.')] },
       { id: 'h-today', target: '.widget[aria-label="Today"]', side: 'right', icon: icon('calendar'), title: 'Today',
         body: [h('p', {}, 'What is happening ', h('b', {}, 'today'), ', for everyone you live with.'), h('p', {}, 'Tap an event to see it or change it.')] },
       { id: 'h-add', target: '.quick .btn.primary', side: 'below', pad: 8, icon: icon('plus'), title: 'Add an event',
@@ -5498,7 +6012,7 @@ body:has(> .tour-switch) .main { padding-top: 62px; }
       if (busy || (!body && !image)) return;
       busy = true; sendBtn.disabled = true; err.hidden = true;
       try {
-        if (opts.demo) state.messages.push({ team: false, tag, body, image, at: new Date().toISOString() }, { team: true, body: 'This is a demo home, so messages are not sent. In your own ' + (opts.app === 'Triply' ? 'trip' : 'home') + ', the team reads every message. 💛', at: new Date().toISOString() });
+        if (opts.demo) state.messages.push({ team: false, tag, body, image, at: new Date().toISOString() }, { team: true, body: 'This is a demo hub, so messages are not sent. In your own ' + (opts.app === 'Triply' ? 'trip' : 'hub') + ', the team reads every message. 💛', at: new Date().toISOString() });
         else { const r = await opts.send({ body, tag, image }); state.messages.push(r.message); }
         input.value = ''; input.style.height = ''; image = null; tag = ''; paintChip(); paintTags(); paintMsgs();
       } catch (e) { err.textContent = (e && (e.userMessage || e.message)) || 'Could not send. Try again.'; err.hidden = false; }
@@ -7243,6 +7757,13 @@ body:has(> .tour-switch) .main { padding-top: 62px; }
   const h = PL.h, D = PL.D, ui = PL.ui;
   const roleLabel = (r) => (PL.config.roles.find((x) => x.value === r) || { label: 'Family' }).label;
 
+  // What the People page shows under a name: "You", who they are ("Grandma"), a pet's kind ("Dog · Pet"), or the role.
+  function whoLabel(m) {
+    if (window.KAL && KAL.me && KAL.me.memberId === m.id) return 'You';
+    if (m.role === 'pet') return (m.relation ? m.relation + ' · ' : '') + 'Pet';
+    return m.relation || roleLabel(m.role);
+  }
+
   function nextColor() {
     const used = new Set(PL.state.members.map((m) => m.color));
     const free = PL.config.palette.find((p) => !used.has(p.hex));
@@ -7271,7 +7792,7 @@ body:has(> .tour-switch) .main { padding-top: 62px; }
     async function save() {
       const nm = name.value.trim();
       if (!nm) { err.textContent = 'Please enter a name.'; err.hidden = false; name.focus(); return; }
-      const data = PL.models.member({ name: nm, role: role.get(), avatar, color: color.get(), birthday: bday.value || '', demo: m.demo });
+      const data = PL.models.member({ name: nm, role: role.get(), avatar, color: color.get(), birthday: bday.value || '', demo: m.demo, relation: m.relation, place: m.place, access: m.access });
       const ok = editing ? await PL.store.updateMember(m.id, data) : await PL.store.addMember(data);
       if (ok) { s.close(); ui.toast(editing ? 'Saved.' : nm + ' added.'); }
     }
@@ -7279,7 +7800,7 @@ body:has(> .tour-switch) .main { padding-top: 62px; }
     if (editing) footer.push(ui.button('Remove', { variant: 'danger', icon: 'trash', onClick: () => { s.close(); removeMember(m); } }));
     footer.push(h('span', { class: 'spacer' }), ui.button('Cancel', { variant: 'ghost', big: true, onClick: () => s.close() }), ui.button(editing ? 'Save' : 'Add', { variant: 'primary', big: true, onClick: save }));
     const s = ui.sheet({
-      title: editing ? 'Edit ' + m.name : 'Add a family member',
+      title: editing ? 'Edit ' + m.name : 'Add a person',
       body: h('form', { class: 'event-form', onsubmit: (e) => { e.preventDefault(); save(); } },
         ui.field('Name', name),
         ui.field('Picture', avatarWrap),
@@ -7322,14 +7843,14 @@ body:has(> .tour-switch) .main { padding-top: 62px; }
     const s = ui.sheet({
       title: m.name,
       body: h('div', { class: 'stack' },
-        h('div', { class: 'member-head', style: '--c:' + m.color }, ui.avatar(m, 64), h('div', {}, h('strong', {}, m.name), h('div', { class: 'sub' }, roleLabel(m.role) + (m.birthday ? ' · Birthday ' + D.fmt(m.birthday, { month: 'long', day: 'numeric' }) : '')))),
+        h('div', { class: 'member-head', style: '--c:' + m.color }, ui.avatar(m, 64), h('div', {}, h('strong', {}, m.name), h('div', { class: 'sub' }, whoLabel(m) + (m.birthday ? ' · Birthday ' + D.fmt(m.birthday, { month: 'long', day: 'numeric' }) : '')))),
         h('h3', { class: 'mini-h' }, 'Next 30 days'),
         items.length ? h('div', { class: 'card-list' }, items.map((i) => PL.eventUi.card(i, { compact: true }))) : h('p', { class: 'sub' }, 'Nothing planned.')),
       footer: [ui.button('Add an event', { icon: 'plus', onClick: () => { s.close(); PL.eventUi.openForm({ mode: 'create', date: today, prefill: { title: '', memberIds: [m.id] } }); } }), h('span', { class: 'spacer' }), ui.button('Edit', { variant: 'primary', icon: 'edit', onClick: () => { s.close(); openForm(m); } })]
     });
   }
 
-  PL.familyUi = { openForm, openMember, removeMember };
+  PL.familyUi = { openForm, openMember, removeMember, whoLabel };
 
   /* ---------- screen ---------- */
   PL.screens.family = {
@@ -7339,11 +7860,11 @@ body:has(> .tour-switch) .main { padding-top: 62px; }
       function render() {
         const members = PL.state.members;
         el.replaceChildren(
-          h('header', { class: 'page-head' }, h('h1', {}, 'Family'), ui.button('Add person', { variant: 'primary', big: true, icon: 'plus', onClick: () => openForm() })),
+          h('header', { class: 'page-head' }, h('h1', {}, 'People'), ui.button('Add person', { variant: 'primary', big: true, icon: 'plus', onClick: () => openForm() })),
           members.length
             ? h('div', { class: 'family-grid' }, members.map((m) => h('button', { type: 'button', class: 'family-card', style: '--c:' + m.color, onclick: () => openMember(m.id) },
-                ui.avatar(m, 64), h('strong', {}, m.name), h('span', { class: 'sub' }, roleLabel(m.role)))))
-            : ui.emptyState({ icon: 'users', title: 'Who is in your family?', text: 'Add everyone who shares this calendar. Each person gets their own color.', action: ui.button('Add the first person', { variant: 'primary', big: true, icon: 'plus', onClick: () => openForm() }) }),
+                ui.avatar(m, 64), h('strong', {}, m.name), h('span', { class: 'sub' }, whoLabel(m)))))
+            : ui.emptyState({ icon: 'users', title: 'Who is in your hub?', text: 'Add everyone who shares this calendar. Each person gets their own color.', action: ui.button('Add the first person', { variant: 'primary', big: true, icon: 'plus', onClick: () => openForm() }) }),
           PL.familyExtras ? PL.familyExtras() : '');
       }
       render();
@@ -7428,7 +7949,7 @@ body:has(> .tour-switch) .main { padding-top: 62px; }
       ui.field('Name', title),
       h('div', { class: 'field' }, h('span', { class: 'field-label' }, 'When'), when.el),
       h('div', { class: 'field' }, h('span', { class: 'field-label' }, 'Who does it?'),
-        members.length ? peopleBox : h('p', { class: 'hint' }, 'Add family members in the Family section to give routines to people.'),
+        members.length ? peopleBox : h('p', { class: 'hint' }, 'Add people in the People section to give routines to them.'),
         h('p', { class: 'hint' }, members.length ? 'Leave empty for anyone. Pick several and each person gets their own checklist.' : '')),
       h('div', { class: 'field' }, h('span', { class: 'field-label' }, 'Days'), dayBox),
       ui.field('Steps', steps, 'One step per line, in order.'),
@@ -7725,7 +8246,7 @@ body:has(> .tour-switch) .main { padding-top: 62px; }
     const body = h('form', { class: 'event-form', onsubmit: (e) => { e.preventDefault(); save(); } },
       ui.field('What needs doing?', title),
       h('div', { class: 'field' }, h('span', { class: 'field-label' }, 'Who does it?'),
-        members.length ? peopleBox : h('p', { class: 'hint' }, 'Add family members in the Family section to give chores to people.'),
+        members.length ? peopleBox : h('p', { class: 'hint' }, 'Add people in the People section to give chores to them.'),
         h('p', { class: 'hint' }, members.length ? 'Leave empty for anyone. Pick several and each person gets their own tick.' : '')),
       dateField,
       h('div', { class: 'field' }, ui.field('Repeat', repSel), wdBox),
@@ -7957,7 +8478,7 @@ body:has(> .tour-switch) .main { padding-top: 62px; }
                 return h('button', { type: 'button', class: 'list-card', onclick: () => { openId = l.id; render(); } },
                   icon('list'), h('strong', {}, l.title), h('span', { class: 'sub' }, !items.length ? 'Empty' : open ? open + (open === 1 ? ' item to go' : ' items to go') : 'All done'));
               }))
-            : ui.emptyState({ icon: 'list', title: 'No lists yet', text: 'Make a shared list for groceries, packing or anything else. Everyone in the family sees the same list.',
+            : ui.emptyState({ icon: 'list', title: 'No lists yet', text: 'Make a shared list for groceries, packing or anything else. Everyone in the hub sees the same list.',
                 action: h('div', { class: 'btn-row' }, QUICK.slice(0, 3).map((q) => ui.button(q, { icon: 'plus', onClick: async () => { const id = await PL.store.add('lists', { title: q }); if (id) { openId = id; madeAt = Date.now(); render(); } } }))) })
         ];
       }
@@ -8086,7 +8607,7 @@ body:has(> .tour-switch) .main { padding-top: 62px; }
           notes.length ? notes.map((x) => h('button', { type: 'button', class: 'note-item' + (x.id === openId ? ' on' : ''), onclick: async () => { if (timer) await saveNow(); openId = x.id; work = null; render(); } },
             h('span', { class: 'note-kind ' + x.kind }, icon(x.kind === 'table' ? 'table' : 'note')),
             h('span', { class: 'note-item-text' }, h('strong', {}, x.title), h('span', { class: 'sub' }, (x.kind === 'table' ? 'Table' : 'Note') + (x.by ? ' · ' + x.by : '') + ', ' + when(x.at)))))
-            : ui.emptyState({ icon: 'note', title: 'No notes yet', text: 'Keep Wi-Fi codes, gift ideas and plans here, or make a table for a budget. Everyone in the home can see and change them.' }));
+            : ui.emptyState({ icon: 'note', title: 'No notes yet', text: 'Keep Wi-Fi codes, gift ideas and plans here, or make a table for a budget. Everyone in the hub can see and change them.' }));
       }
 
       /* ---------- a note ---------- */
@@ -9093,7 +9614,15 @@ body:has(> .tour-switch) .main { padding-top: 62px; }
             def.render());
         }));
 
-        el.replaceChildren(...[top, remBox, welcome, grid].filter(Boolean));
+        // The sample plans from the new-hub questions (or Settings): one tap to clear them.
+        const sample = !welcome && PL.data && PL.data.hasSample() && !(window.KAL && (KAL.demo || (KAL.me && (KAL.me.role === 'viewer' || KAL.me.viewing)))) ? h('section', { class: 'card sample-note', role: 'status' },
+          h('p', {}, h('strong', {}, 'These are sample plans'), ' so you can look around. Clear them when you’re ready to add your own.'),
+          ui.button('Clear sample', { icon: 'trash', onClick: async () => {
+            if (!(await ui.confirm({ title: 'Clear the sample?', message: 'Only the sample plans are removed. Your people and anything you added stay.', confirmLabel: 'Clear', danger: true }))) return;
+            await PL.data.removeSample(); ui.toast('Sample cleared.');
+          } })) : null;
+
+        el.replaceChildren(...[top, remBox, welcome, sample, grid].filter(Boolean));
       }
 
       render();
@@ -9325,10 +9854,10 @@ body:has(> .tour-switch) .main { padding-top: 62px; }
         ['America/Vancouver', 'America/Edmonton', 'America/Winnipeg', 'America/Toronto', 'America/Halifax', 'America/St_Johns', 'Asia/Manila', 'Europe/London', 'Europe/Madrid'].concat([devZ, curZ]).forEach((z) => { if (z && !zones.includes(z)) zones.push(z); });
         const zoneName = (z) => z.split('/').pop().replace(/_/g, ' ') + ' (' + z + ')';
         const zoneSel = ui.select([{ value: '', label: 'Same as this device' + (devZ ? ' (' + devZ + ')' : '') }].concat(zones.slice().sort().map((z) => ({ value: z, label: zoneName(z) }))), curZ, (v) => PL.store.saveSettings({ timeZone: v || null }));
-        zoneSel.setAttribute('aria-label', 'Home time zone');
-        const household = section('Home', 'Shared by everyone using this calendar.',
-          ui.field('Home name', nameIn), ui.field('Week starts on', weekStart.el), ui.field('Clock', clock.el),
-          ui.field('Home time zone', zoneSel, 'The clock, Today and reminders use this, on every screen.'), starsToggle.el);
+        zoneSel.setAttribute('aria-label', 'Hub time zone');
+        const household = section('Hub', 'Shared by everyone in this hub.',
+          ui.field('Hub name', nameIn), ui.field('Week starts on', weekStart.el), ui.field('Clock', clock.el),
+          ui.field('Hub time zone', zoneSel, 'The clock, Today and reminders use this, on every screen.'), starsToggle.el);
 
         /* parent PIN */
         const pinOn = PL.pin.isSet();
@@ -9360,7 +9889,7 @@ body:has(> .tour-switch) .main { padding-top: 62px; }
             PL.store.setDevice({ hiddenMembers: [...set] });
           });
           return h('div', { class: 'toggle-row' }, ui.avatar(m, 28), t.el);
-        })) : h('p', { class: 'sub' }, 'Add family members to choose who is shown.');
+        })) : h('p', { class: 'sub' }, 'Add people to choose who is shown.');
         /* appearance (this device) */
         const look = ui.segmented([{ value: 'light', label: 'Light' }, { value: 'dark', label: 'Dark' }, { value: 'auto', label: 'Auto' }], PL.theme.get(), (v) => PL.theme.set(v), 'Appearance');
         const wallLook = ui.select([{ value: 'night', label: 'Auto: dark at night (9 PM – 7 AM)' }, { value: 'app', label: 'Same as the app' }, { value: 'dark', label: 'Always dark' }, { value: 'light', label: 'Always light' }], PL.theme.wallLook(), (v) => PL.theme.setWallLook(v));
@@ -9396,7 +9925,7 @@ body:has(> .tour-switch) .main { padding-top: 62px; }
           if (yes && (await PL.data.applyBackup(r.data))) ui.toast('Backup restored.');
         });
         const sampleBtn = PL.data.hasSample()
-          ? ui.button('Remove sample data', { variant: 'danger', icon: 'trash', onClick: async () => { if (await ui.confirm({ title: 'Remove the sample family?', message: 'Only the sample people and events are removed. Anything you added stays.', confirmLabel: 'Remove', danger: true })) { await PL.data.removeSample(); ui.toast('Sample data removed.'); } } })
+          ? ui.button('Remove sample data', { variant: 'danger', icon: 'trash', onClick: async () => { if (await ui.confirm({ title: 'Remove the sample?', message: 'Only the sample people and events are removed. Anything you added stays.', confirmLabel: 'Remove', danger: true })) { await PL.data.removeSample(); ui.toast('Sample data removed.'); } } })
           : ui.button('Add sample family', { icon: 'sparkle', onClick: async () => { if (await PL.data.loadSample()) ui.toast('Sample family added.'); } });
         const icsIn = h('input', { type: 'file', accept: '.ics,text/calendar', hidden: true });
         icsIn.addEventListener('change', async () => {
@@ -9955,8 +10484,8 @@ body:has(> .tour-switch) .main { padding-top: 62px; }
       if (help) {
         const last = help.replies[help.replies.length - 1];
         kids.push(h('div', { class: 'cs-art', 'aria-hidden': 'true' }, '💛'),
-          h('div', { class: 's-txt' }, h('div', { class: 'care-say' }, 'Your family was told'),
-            h('div', { class: 'care-sub' }, last ? first(nameOf(last.by)) + ': “' + last.text + '”' : 'Someone will answer soon. For an emergency, call 911.')));
+          h('div', { class: 's-txt' }, h('div', { class: 'care-say' }, 'Your message was sent'),
+            h('div', { class: 'care-sub' }, last ? first(nameOf(last.by)) + ': “' + last.text + '”' : 'Your family will see it when they open Kalendaryo. If it’s urgent, call them. For an emergency, call 911.')));
       } else if (f) {
         const snz = snoozedUntil(f);
         const say = f.state === 'miss' ? 'Did you take ' + whenWord(f) + ' ' + pillWord(f) + '?' : snz > Date.now()
@@ -10125,9 +10654,9 @@ body:has(> .tour-switch) .main { padding-top: 62px; }
     function askHelp() {
       unlockSound();
       const s = bigSheet({ title: 'Tell your family you need help?',
-        body: h('div', { class: 'care-center' }, h('div', { class: 'help-art', 'aria-hidden': 'true' }, '🙋'), h('p', { class: 'care-sub' }, 'Your family gets a message right away.'), h('p', { class: 'care-safe' }, 'For an emergency, call 911.')),
+        body: h('div', { class: 'care-center' }, h('div', { class: 'help-art', 'aria-hidden': 'true' }, '🙋'), h('p', { class: 'care-sub' }, 'Your family sees it when they open Kalendaryo. If it’s urgent, call them.'), h('p', { class: 'care-safe' }, 'For an emergency, call 911.')),
         footer: [h('button', { type: 'button', class: 'btn big care-big', onclick: () => s.close() }, 'Cancel'),
-          h('button', { type: 'button', class: 'btn primary big care-big', onclick: async () => { s.close(); if (await C().log(who, 'help')) ui.toast('Your family was told.'); } }, 'Yes, tell them')] });
+          h('button', { type: 'button', class: 'btn primary big care-big', onclick: async () => { s.close(); if (await C().log(who, 'help')) ui.toast('Sent. Your family will see it in Kalendaryo.'); } }, 'Yes, tell them')] });
     }
 
     /* ----- I bought medicine (2 taps; 3 when two are low) ----- */
@@ -10338,7 +10867,7 @@ body:has(> .tour-switch) .main { padding-top: 62px; }
       s.panel.querySelector('.sheet-head h2').textContent = step === 1 ? 'Add a medicine' : (C().kind(d.kind).emoji + ' ' + (d.name || C().kind(d.kind).label));
       const kids = [h('p', { class: 'care-stepn small' }, 'Step ' + step + ' of 4')];
       if (step === 1) {
-        const ppl = PL.state.members.filter((m) => m.role !== 'child' || C().people().some((p) => p.id === m.id));
+        const ppl = PL.state.members.filter((m) => m.role !== 'pet' && (m.role !== 'child' || C().people().some((p) => p.id === m.id)));
         kids.push(h('div', { class: 'field' }, label('Who is it for?'), h('div', { class: 'chip-row' }, ppl.map((m) => personPick(m, d.who === m.id, () => { d.who = m.id; paint(); })))));
         kids.push(h('div', { class: 'field' }, label('What is it for?'), h('div', { class: 'care-types' }, C().KINDS.map((k) => h('button', { type: 'button', class: 'avatar-opt care-type' + (d.kind === k.id ? ' on' : ''), 'aria-pressed': String(d.kind === k.id), onclick: () => { if (d.kind !== k.id) d.name = ''; d.kind = k.id; paint(); } },
           h('span', { class: 'em' }, k.emoji), k.label)))));
@@ -10368,7 +10897,7 @@ body:has(> .tour-switch) .main { padding-top: 62px; }
         const how = ui.segmented([{ value: 'always', label: 'Every day' }, { value: 'short', label: 'For a few days' }], d.days ? 'short' : 'always', (v) => { d.days = v === 'short' ? 7 : null; paint(); }, 'How long');
         kids.push(h('div', { class: 'field' }, label('How long?'), how.el || how,
           d.days ? h('div', { class: 'care-row-inline' }, stepper(d.days, (v) => { d.days = v; paint(); }, 1, h('span', { class: 'days' }, 'days · last day ' + D.fmt(D.addDays(D.today(), d.days - 1), { weekday: 'long', month: 'short', day: 'numeric' })))) : null));
-        const helpers = PL.state.members.filter((m) => m.role !== 'child' && m.id !== d.who);
+        const helpers = PL.state.members.filter((m) => m.role !== 'child' && m.role !== 'pet' && m.id !== d.who);
         kids.push(h('div', { class: 'field' }, label('Who picks up refills?'), h('div', { class: 'chip-row' },
           personPick(null, !d.helper, () => { d.helper = ''; paint(); }, 'Nobody'), helpers.map((m) => personPick(m, d.helper === m.id, () => { d.helper = m.id; paint(); }))),
           h('p', { class: 'hint' }, 'They get a “Pick up ' + (d.name || 'it') + '” task in Chores before it runs out.')));
@@ -10416,7 +10945,7 @@ body:has(> .tour-switch) .main { padding-top: 62px; }
     nameIn.addEventListener('input', () => { d.name = nameIn.value; });
     const ro = !canEdit();
     function paint() {
-      const helpers = PL.state.members.filter((x) => x.role !== 'child' && x.id !== d.who);
+      const helpers = PL.state.members.filter((x) => x.role !== 'child' && x.role !== 'pet' && x.id !== d.who);
       const each = ui.segmented([{ value: 0.5, label: '½ pill' }, { value: 1, label: '1 pill' }, { value: 2, label: '2 pills' }], d.each, (v) => { d.each = Number(v); }, 'Pills each time');
       const food = ui.segmented([{ value: '', label: 'Any time' }, { value: 'with', label: 'With food' }, { value: 'before', label: 'Before eating' }], d.food, (v) => { d.food = v; }, 'Food');
       body.replaceChildren(...[
@@ -10488,7 +11017,7 @@ body:has(> .tour-switch) .main { padding-top: 62px; }
           h('div', { class: 'cb-steps' }, h('b', {}, 'On ' + (p ? first(p.name) + '’s' : 'the') + ' tablet:'),
             h('ol', {}, h('li', {}, 'Scan this code with the camera, or open the link.'), h('li', {}, 'Tap Share → “Add to Home Screen”. It is called “Care board”.'), h('li', {}, 'Open “Care board” from the home screen, tap Start, and keep the tablet plugged in.')),
             h('div', { class: 'btn-row' }, ui.button('Copy link', { icon: 'copy', onClick: () => copy(link.url) }), navigator.share ? ui.button('Send link', { icon: 'upload', onClick: () => navigator.share({ title: 'Care board', url: link.url }).catch(() => {}) }) : null),
-            link.demo ? h('p', { class: 'hint' }, 'This is the demo: in your own home the link opens the real board.') : h('p', { class: 'hint' }, 'The link opens only the Care board: no menus, no other pages. ' + boardStatus(who) + '.'))),
+            link.demo ? h('p', { class: 'hint' }, 'This is the demo: in your own hub the link opens the real board.') : h('p', { class: 'hint' }, 'The link opens only the Care board: no menus, no other pages. ' + boardStatus(who) + '.'))),
         h('div', { class: 'care-2' }, tg('Soft sound when it is time', 'sound'), tg('Ring again every 5 minutes', 'ring'), tg('Keep the screen awake', 'awake'), tg('Let ' + (p ? first(p.name) : 'them') + ' add medicines', 'letAdd')),
         isDemo() ? null : h('div', { class: 'cb-new' }, h('p', { class: 'hint' }, 'Tablet lost, or link shared by mistake? Make a new link. The old one stops working right away.'),
           ui.button('Make a new link', { variant: 'danger', icon: 'repeat', onClick: async () => {
@@ -10596,7 +11125,7 @@ body:has(> .tour-switch) .main { padding-top: 62px; }
       h('p', {}, 'For a grandparent, a parent, a child who is sick, or anyone getting better. Add their medicines here. Their own tablet shows a big, simple pill box that glows and rings softly when it is time, and you see on your phone when they took them.'),
       h('ul', { class: 'ci-list' }, h('li', {}, '✅ One tap to say “I took them” — no more “did she take it?”'),
         h('li', {}, '💊 Know when pills run out, with a pick-up task in Chores'),
-        h('li', {}, '🙋 A big “I need help” button that tells the family right away')),
+        h('li', {}, '🙋 A big “I need help” button that shows up in your family’s Kalendaryo')),
       h('p', { class: 'hint' }, 'Kalendaryo is a reminder helper, not a medical device. Always follow the doctor or pharmacist.'),
       canEdit() ? h('div', { class: 'btn-row' }, ui.button('Add a medicine', { variant: 'primary', big: true, icon: 'plus', onClick: () => addMedicine() }),
         ui.button('Not for us. Hide Care', { variant: 'ghost', onClick: async () => { if (await ui.confirm({ title: 'Hide Care?', message: 'Care leaves the menu for everyone. Turn it back on any time in Settings → Care.', confirmLabel: 'Hide Care' }) && await C().saveCare({ on: false })) { ui.toast('Care is hidden. Turn it on again in Settings.'); PL.nav.go('home'); } } })) : null);
@@ -10665,7 +11194,7 @@ body:has(> .tour-switch) .main { padding-top: 62px; }
     const section = (title, intro, ...kids) => h('section', { class: 'card settings-card care-set' }, h('h2', {}, title), intro ? h('p', { class: 'sub' }, intro) : null, ...kids);
     const onT = ui.toggle('Show Care in the menu', s.on, (v) => C().saveCare({ on: v }));
     const careCard = section('Care', 'Help someone at home take their medicines on time. Their own tablet shows a simple Care board.', onT.el,
-      h('div', { class: 'field' }, h('span', { class: 'field-label' }, 'Who gets care'), h('div', { class: 'chip-row' }, PL.state.members.map((m) => personPick(m, s.people.includes(m.id) || PL.state.meds.some((x) => x.who === m.id && !x.stopped), () => {
+      h('div', { class: 'field' }, h('span', { class: 'field-label' }, 'Who gets care'), h('div', { class: 'chip-row' }, PL.state.members.filter((m) => m.role !== 'pet').map((m) => personPick(m, s.people.includes(m.id) || PL.state.meds.some((x) => x.who === m.id && !x.stopped), () => {
         const set = new Set(s.people); set.has(m.id) ? set.delete(m.id) : set.add(m.id); C().saveCare({ people: [...set] });
       }))), h('p', { class: 'hint' }, 'Medicines and the Care board are set up on the Care page.')),
       h('div', { class: 'field' }, h('span', { class: 'field-label' }, 'Who can see Care'), (function () { const sg = ui.segmented([{ value: 'all', label: 'Everyone' }, { value: 'adults', label: 'Grown-ups only' }], s.show, (v) => C().saveCare({ show: v }), 'Who can see Care'); return sg.el || sg; })()));
@@ -11126,7 +11655,7 @@ body:has(> .tour-switch) .main { padding-top: 62px; }
     let msg = '';
     if (!s.available && s.ready) msg = 'Not connected to the shared database. Changes cannot be saved from this view.';
     else if (!s.online) msg = 'You are offline. Showing the last saved copy.';
-    else if (s.fromCache && s.ready) msg = 'Loading the latest from your family…';
+    else if (s.fromCache && s.ready) msg = 'Loading the latest from your hub…';
     banner.textContent = msg;
     banner.hidden = !msg;
   }

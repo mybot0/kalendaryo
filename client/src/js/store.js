@@ -84,7 +84,7 @@
     if (e && e.userMessage) return e.userMessage;
     const code = e && e.code;
     if (code === 'quota_exceeded') return 'The shared storage is full. Delete some items and try again.';
-    if (code === 'invalid_argument' || code === 'not_granted') return 'You can look at this family but not change it. Ask the page owner for Contributor access.';
+    if (code === 'invalid_argument' || code === 'not_granted') return 'You can look at this hub but not change it. Ask an owner to make you an Editor.';
     if (!state.online) return 'You are offline. Reconnect and try again.';
     return 'Could not save that. Check your connection and try again.';
   }

@@ -89,7 +89,7 @@ async function auth(req) {
   }
   if (!token || token.length > 100) fail(401, 'no_access', 'This link is not valid.');
   const r = await db.q('SELECT a.id, a.family_id, a.name, a.role, a.last_seen, a.member_id, a.theme, f.name AS family_name FROM access a JOIN families f ON f.id = a.family_id WHERE a.token_hash = $1', [hash(token)]);
-  if (!r.rowCount) fail(401, 'no_access', 'This link is not valid anymore. Ask an owner of the family for a new invite.');
+  if (!r.rowCount) fail(401, 'no_access', 'This link is not valid anymore. Ask an owner of the hub for a new invite.');
   req.me = r.rows[0];
   owner.noteUse(req, 'home', req.me.family_id);
   if (!req.me.last_seen || Date.now() - new Date(req.me.last_seen).getTime() > 3600000) db.q('UPDATE access SET last_seen = now() WHERE id=$1', [req.me.id]).catch(() => {});
@@ -97,7 +97,7 @@ async function auth(req) {
 // careOk: a Care board link may also use this route (its own rules are checked in save/delete).
 const need = (role, careOk) => async (req) => {
   if (req.me.care) { if (careOk) return; fail(403, 'read_only', 'The Care board cannot do that.'); }
-  if (!(RANK[req.me.role] >= RANK[role])) fail(403, 'read_only', role === 'owner' ? 'Only an owner of this family can do that.' : 'You can only view this family. Ask an owner to make you an Editor.');
+  if (!(RANK[req.me.role] >= RANK[role])) fail(403, 'read_only', role === 'owner' ? 'Only an owner of this hub can do that.' : 'You can only view this hub. Ask an owner to make you an Editor.');
 };
 const json = jsonBody(200 * 1024);
 const r = router();
@@ -109,15 +109,22 @@ function zoneOf(z) {
   if (typeof z !== 'string' || !/^[A-Za-z][A-Za-z0-9_+\-]*(\/[A-Za-z0-9_+\-]+){0,2}$/.test(z) || z.length > 64) return {};
   try { new Intl.DateTimeFormat('en-US', { timeZone: z }); return { timeZone: z }; } catch (e) { return {}; }
 }
+// The city picked when the hub is made: { name, lat, lon, tz }. Sets the hub's time zone and the weather place.
+function placeOf(p) {
+  if (!p || typeof p !== 'object') return null;
+  const name = clean(p.name, 80), lat = Number(p.lat), lon = Number(p.lon);
+  if (!name || !Number.isFinite(lat) || !Number.isFinite(lon) || Math.abs(lat) > 90 || Math.abs(lon) > 180) return null;
+  return { name, lat: Math.round(lat * 1e4) / 1e4, lon: Math.round(lon * 1e4) / 1e4 };
+}
 r.post('/api/families', json, async (req, res) => {
-  if (!limit('create:' + ipOf(req), 10, 3600000)) fail(429, 'rate_limited', 'Too many new families from here. Please try again later.');
-  const familyName = clean(req.body.familyName, 40) || 'Our home';
+  if (!limit('create:' + ipOf(req), 10, 3600000)) fail(429, 'rate_limited', 'Too many new hubs from here. Please try again later.');
+  const familyName = clean(req.body.familyName, 40) || 'Our hub';
   const yourName = clean(req.body.yourName, 30);
   if (!yourName) fail(400, 'bad_request', 'Please type your name.');
   const familyId = hexId(), accessId = hexId(), token = rand(24);
   await db.tx(async (c) => {
     await c.query('INSERT INTO families (id, name) VALUES ($1, $2)', [familyId, familyName]);
-    await c.query("INSERT INTO docs (family_id, col, id, data) VALUES ($1, 'settings', 'main', $2)", [familyId, JSON.stringify(Object.assign({ householdName: familyName }, zoneOf(req.body.timeZone)))]);
+    await c.query("INSERT INTO docs (family_id, col, id, data) VALUES ($1, 'settings', 'main', $2)", [familyId, JSON.stringify(Object.assign({ householdName: familyName }, zoneOf(req.body.timeZone), placeOf(req.body.place) ? { weatherPlace: placeOf(req.body.place) } : {}))]);
     const [memberId] = await newMember(c, familyId, yourName, 'parent'); // the person who starts the home is in the family right away
     await c.query('INSERT INTO access (id, family_id, token_hash, name, role, last_seen, member_id) VALUES ($1,$2,$3,$4,$5, now(), $6)', [accessId, familyId, hash(token), yourName, 'owner', memberId]);
   });
@@ -154,7 +161,7 @@ r.post('/api/join', json, async (req, res) => {
     if (!name) return 'name';
     if (!memberId) { const [id, data] = await newMember(c, i.family_id, name, 'other'); memberId = id; made = { id, data, family: i.family_id }; }
     await c.query('INSERT INTO access (id, family_id, token_hash, name, role, last_seen, member_id) VALUES ($1,$2,$3,$4,$5, now(), $6)', [accessId, i.family_id, hash(token), name, i.role, memberId]);
-    await c.query('UPDATE invites SET used_at = now(), used_by = $1 WHERE id = $2', [accessId, i.id]);
+    await c.query('UPDATE invites SET used_at = now(), used_by = $1, code_keep = NULL WHERE id = $2', [accessId, i.id]);
     return i;
   });
   if (inv === 'name') fail(400, 'bad_request', 'Please type your name.');
@@ -192,7 +199,7 @@ r.post('/api/me/member', auth, json, async (req, res) => {
   const msg = await db.tx(async (c) => {
     let id = req.body.memberId ? clean(req.body.memberId, 120) : '';
     if (id) {
-      if (!(await getMember(c, req.me.family_id, id))) return 'That person is not in this family.';
+      if (!(await getMember(c, req.me.family_id, id))) return 'That person is not in this hub.';
       const taken = await c.query('SELECT 1 FROM access WHERE family_id=$1 AND member_id=$2 AND id<>$3', [req.me.family_id, id, req.me.id]);
       if (taken.rowCount) return 'Someone else is already linked to that name.';
     } else { const [nid, data] = await newMember(c, req.me.family_id, req.me.name, 'other'); id = nid; made = { id: nid, data }; }
@@ -220,7 +227,7 @@ r.put('/api/me/profile', auth, json, async (req, res) => {
     if (next.name !== m.name) await c.query('UPDATE access SET name=$1 WHERE id=$2', [next.name, req.me.id]);
     return next;
   });
-  if (!data) fail(400, 'bad_request', 'Your link is not linked to a family profile yet.');
+  if (!data) fail(400, 'bad_request', 'Your link is not linked to a person in the hub yet.');
   live.send(req.me.family_id, 'doc', { col: 'members', id: req.me.member_id, data });
   live.send(req.me.family_id, 'people', {});
   send(res, 200, { ok: true });
@@ -242,8 +249,8 @@ r.patch('/api/people/:id', auth, json, need('owner'), async (req, res) => {
   if (!ROLES.includes(role)) fail(400, 'bad_request', 'Pick viewer, editor or owner.');
   const msg = await db.tx(async (c) => {
     const p = await lockPerson(c, req);
-    if (!p) return 'That person is not in this family.';
-    if (p.role === 'owner' && role !== 'owner' && (await ownerCount(c, req.me.family_id)) <= 1) return 'A family needs at least one owner. Make someone else an owner first.';
+    if (!p) return 'That person is not in this hub.';
+    if (p.role === 'owner' && role !== 'owner' && (await ownerCount(c, req.me.family_id)) <= 1) return 'A hub needs at least one owner. Make someone else an owner first.';
     await c.query('UPDATE access SET role=$1 WHERE id=$2', [role, p.id]);
     return '';
   });
@@ -254,11 +261,11 @@ r.patch('/api/people/:id', auth, json, need('owner'), async (req, res) => {
 });
 r.delete('/api/people/:id', auth, async (req, res) => {
   const self = req.params.id === req.me.id; // anyone may leave; only owners remove others
-  if (!self && req.me.role !== 'owner') fail(403, 'read_only', 'Only an owner of this family can do that.');
+  if (!self && req.me.role !== 'owner') fail(403, 'read_only', 'Only an owner of this hub can do that.');
   const msg = await db.tx(async (c) => {
     const p = await lockPerson(c, req);
-    if (!p) return 'That person is not in this family.';
-    if (p.role === 'owner' && (await ownerCount(c, req.me.family_id)) <= 1) return 'A family needs at least one owner. Make someone else an owner first.';
+    if (!p) return 'That person is not in this hub.';
+    if (p.role === 'owner' && (await ownerCount(c, req.me.family_id)) <= 1) return 'A hub needs at least one owner. Make someone else an owner first.';
     await c.query('DELETE FROM access WHERE id=$1', [p.id]);
     return '';
   });
@@ -270,7 +277,7 @@ r.delete('/api/people/:id', auth, async (req, res) => {
 
 /* invites (owners) */
 r.get('/api/invites', auth, need('owner'), async (req, res) => {
-  const q = await db.q('SELECT id, role, label, created_at, expires_at, member_id FROM invites WHERE family_id=$1 AND used_at IS NULL AND expires_at > now() ORDER BY created_at DESC', [req.me.family_id]);
+  const q = await db.q('SELECT id, role, label, created_at, expires_at, member_id, (code_keep IS NOT NULL) AS kept FROM invites WHERE family_id=$1 AND used_at IS NULL AND expires_at > now() ORDER BY created_at DESC', [req.me.family_id]);
   send(res, 200, { invites: q.rows });
 });
 r.post('/api/invites', auth, json, need('owner'), async (req, res) => {
@@ -282,13 +289,48 @@ r.post('/api/invites', auth, json, need('owner'), async (req, res) => {
   let memberId = null, label = clean(req.body.label, 40);
   if (req.body.memberId) {
     const m = await getMember(dbc, req.me.family_id, clean(req.body.memberId, 120));
-    if (!m) fail(400, 'bad_request', 'That person is not in this family anymore.');
+    if (!m) fail(400, 'bad_request', 'That person is not in this hub anymore.');
     memberId = clean(req.body.memberId, 120);
     label = label || clean(m.name, 40);
   }
   await db.q('INSERT INTO invites (id, family_id, code_hash, role, label, created_by, expires_at, member_id) VALUES ($1,$2,$3,$4,$5,$6, now() + make_interval(days => $7), $8)',
     [hexId(), req.me.family_id, hash(code), role, label, req.me.id, INVITE_DAYS(), memberId]);
   send(res, 200, { code, days: INVITE_DAYS() });
+});
+// "Copy link" for someone in the hub who has not joined yet. The same link is given every time until they
+// join (it is kept locked with a server key, never in plain text). If it expired, a new one is made.
+const KEEP_DAYS = () => Math.max(30, INVITE_DAYS());
+const keepKey = () => crypto.createHash('sha256').update('kal-invite-keep:' + (process.env.OWNER_KEY || process.env.DATABASE_URL || 'kal')).digest();
+function lock(code) {
+  const iv = crypto.randomBytes(12), c = crypto.createCipheriv('aes-256-gcm', keepKey(), iv);
+  const out = Buffer.concat([c.update(code, 'utf8'), c.final()]);
+  return [iv, c.getAuthTag(), out].map((b) => b.toString('base64url')).join('.');
+}
+function unlock(box) {
+  try {
+    const [iv, tag, data] = String(box).split('.').map((x) => Buffer.from(x, 'base64url'));
+    const d = crypto.createDecipheriv('aes-256-gcm', keepKey(), iv); d.setAuthTag(tag);
+    return Buffer.concat([d.update(data), d.final()]).toString('utf8');
+  } catch (e) { return null; }
+}
+r.post('/api/invites/member', auth, json, need('owner'), async (req, res) => {
+  const memberId = clean(req.body.memberId, 120);
+  const m = await getMember(dbc, req.me.family_id, memberId);
+  if (!m) fail(400, 'bad_request', 'That person is not in this hub anymore.');
+  if (m.role === 'pet') fail(400, 'bad_request', 'Pets do not need a link.');
+  const joined = await db.q('SELECT 1 FROM access WHERE family_id=$1 AND member_id=$2', [req.me.family_id, memberId]);
+  if (joined.rowCount) fail(400, 'bad_request', (m.name || 'They') + ' already joined.');
+  const role = ['viewer', 'editor', 'owner'].includes(req.body.role) ? req.body.role : (['viewer', 'editor'].includes(m.access) ? m.access : 'viewer');
+  const open = await db.q('SELECT id, role, code_keep FROM invites WHERE family_id=$1 AND member_id=$2 AND used_at IS NULL AND expires_at > now() AND code_keep IS NOT NULL ORDER BY created_at DESC LIMIT 1', [req.me.family_id, memberId]);
+  const kept = open.rows[0] && unlock(open.rows[0].code_keep);
+  if (kept && open.rows[0].role === role) return send(res, 200, { code: kept, role });
+  if (open.rows[0]) await db.q('DELETE FROM invites WHERE id=$1', [open.rows[0].id]); // the role changed: the old link stops, a new one is made
+  const n = Number((await db.q('SELECT count(*) FROM invites WHERE family_id=$1 AND used_at IS NULL AND expires_at > now()', [req.me.family_id])).rows[0].count);
+  if (n >= 50) fail(400, 'bad_request', 'There are too many open invites. Cancel some first.');
+  const code = rand(18);
+  await db.q('INSERT INTO invites (id, family_id, code_hash, role, label, created_by, expires_at, member_id, code_keep) VALUES ($1,$2,$3,$4,$5,$6, now() + make_interval(days => $7), $8, $9)',
+    [hexId(), req.me.family_id, hash(code), role, clean(m.name, 40), req.me.id, KEEP_DAYS(), memberId, lock(code)]);
+  send(res, 200, { code, role });
 });
 r.delete('/api/invites/:id', auth, need('owner'), async (req, res) => {
   await db.q('DELETE FROM invites WHERE id=$1 AND family_id=$2', [req.params.id, req.me.family_id]);
@@ -327,7 +369,7 @@ async function save(req, res, id) {
   let data = req.body && req.body.data;
   if (!data || typeof data !== 'object' || Array.isArray(data)) fail(400, 'bad_request', 'Nothing to save.');
   if (req.me.care) data = await care.checkWrite(req, id, data);
-  if (!(await withinQuota(req.me.family_id))) fail(400, 'quota_exceeded', 'This family has too many items saved. Delete some old items and try again.');
+  if (!(await withinQuota(req.me.family_id))) fail(400, 'quota_exceeded', 'This hub has too many items saved. Delete some old items and try again.');
   await db.q(`INSERT INTO docs (family_id, col, id, data, updated_at) VALUES ($1,$2,$3,$4, now())
               ON CONFLICT (family_id, col, id) DO UPDATE SET data = EXCLUDED.data, updated_at = now()`, [req.me.family_id, req.params.col, id, JSON.stringify(data)]);
   live.send(req.me.family_id, 'doc', { col: req.params.col, id, data });
@@ -357,7 +399,7 @@ r.post('/api/blobs', auth, need('editor'), rawBody(4 * 1024 * 1024), async (req,
   const type = String(req.headers['content-type'] || '').split(';')[0].trim();
   if (!/^image\/(jpeg|png|webp|gif)$/.test(type) || !req.body.length) fail(400, 'bad_request', 'Please pick a photo (JPEG, PNG, WebP or GIF).');
   const n = Number((await db.q('SELECT count(*) FROM blobs WHERE family_id=$1', [req.me.family_id])).rows[0].count);
-  if (n >= MAX_PHOTOS) fail(400, 'quota_exceeded', 'This family has the most photos it can keep (' + MAX_PHOTOS + '). Remove some first.');
+  if (n >= MAX_PHOTOS) fail(400, 'quota_exceeded', 'This hub has the most photos it can keep (' + MAX_PHOTOS + '). Remove some first.');
   const id = hexId();
   await db.q('INSERT INTO blobs (id, family_id, content_type, size, bytes) VALUES ($1,$2,$3,$4,$5)', [id, req.me.family_id, type, req.body.length, req.body]);
   send(res, 200, { id, url: '/api/blobs/' + id, sizeBytes: req.body.length, contentType: type });
@@ -378,9 +420,9 @@ r.post('/api/ai', auth, json, need('editor'), async (req, res) => {
   if (!ai.enabled()) fail(503, 'unavailable', 'AI ideas are not turned on for this site.');
   const prompt = clean(req.body.prompt, 6000);
   if (!prompt) fail(400, 'bad_request', 'Nothing to ask.');
-  if (!(await ai.take(req.me.family_id))) fail(429, 'daily_limit', 'Your family used all of today’s AI ideas. Try again tomorrow.');
+  if (!(await ai.take(req.me.family_id))) fail(429, 'daily_limit', 'Your hub used all of today’s AI ideas. Try again tomorrow.');
   const day = await ai.reserve();
-  if (!day) { await ai.giveBack(req.me.family_id); fail(429, 'ai_resting', 'AI help is resting until tomorrow. Lots of homes used it today. You can still do everything by hand.'); }
+  if (!day) { await ai.giveBack(req.me.family_id); fail(429, 'ai_resting', 'AI help is resting until tomorrow. Lots of hubs used it today. You can still do everything by hand.'); }
   let text, usd = 0.0005;
   try { const r = await ai.ask(prompt); text = r.text; usd = r.usd; }
   catch (e) {
@@ -511,6 +553,22 @@ r.get('/care-icons/:size', async (req, res) => {
   res.writeHead(200, { 'Content-Type': 'image/png', 'Cache-Control': 'public, max-age=604800' });
   res.end(req.method === 'HEAD' ? undefined : fs.readFileSync(path.join(__dirname, '..', 'public', 'care-icon-' + m[1] + '.png')));
 });
+// The link preview (Facebook, Messenger, WhatsApp, iMessage…): a title, a line and the picture public/og.png.
+// It says nothing about a hub, so private links (/c/…, /join/…) show the same general card.
+function linkPreview(req) {
+  const host = /^[A-Za-z0-9.\-]+(:\d+)?$/.test(String(req.headers.host || '')) ? req.headers.host : 'kalendaryo.co';
+  const base = (/^(localhost|127\.)/.test(host) ? 'http://' : 'https://') + host;
+  const title = 'Kalendaryo · Your people, in sync, wherever they are';
+  const desc = 'A shared calendar, chores, meals, lists and a digital photo frame for your people, near or far. Free during early access. No sign-up, no ads.';
+  return ['<meta name="description" content="' + desc + '">', '<meta property="og:type" content="website">', '<meta property="og:site_name" content="Kalendaryo">',
+    '<meta property="og:title" content="' + title + '">', '<meta property="og:description" content="' + desc + '">', '<meta property="og:url" content="' + base + '/">',
+    '<meta property="og:image" content="' + base + '/og.png">', '<meta property="og:image:width" content="1200">', '<meta property="og:image:height" content="630">',
+    '<meta property="og:image:alt" content="Kalendaryo: Your people, in sync, wherever they are. Free during early access.">', '<meta name="twitter:card" content="summary_large_image">'].join('');
+}
+r.get('/og.png', async (req, res) => {
+  res.writeHead(200, { 'Content-Type': 'image/png', 'Cache-Control': 'public, max-age=86400' });
+  res.end(req.method === 'HEAD' ? undefined : fs.readFileSync(path.join(__dirname, '..', 'public', 'og.png')));
+});
 const INDEX = path.join(__dirname, '..', 'public', 'index.html');
 let indexHtml = null;
 const page = async (req, res) => {
@@ -528,7 +586,7 @@ const page = async (req, res) => {
   if (req.params && req.params.board) {
     if (!care.isCareToken(req.params.board)) { res.writeHead(302, { Location: '/' }); return res.end(); }
     html = Buffer.from(html.toString('utf8').replace('<title>Kalendaryo</title>', care.headFor(req.params.board)));
-  }
+  } else html = Buffer.from(html.toString('utf8').replace('</head>', linkPreview(req) + '</head>'));
   res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-cache' });
   res.end(req.method === 'HEAD' ? undefined : html);
 };

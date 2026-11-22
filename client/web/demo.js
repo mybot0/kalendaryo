@@ -256,10 +256,10 @@
       const content = document.querySelector('.content');
       if (content && !content.querySelector('.demo-banner')) {
         content.prepend(PL.h('div', { class: 'demo-banner', role: 'note' },
-          PL.h('span', {}, '👀 ', PL.h('strong', {}, 'This is a demo home.'), ' Try anything. Changes are not saved.'),
-          PL.h('a', { class: 'btn primary', href: '/' }, 'Create your own home')));
+          PL.h('span', {}, '👀 ', PL.h('strong', {}, 'This is a demo hub.'), ' Try anything. Changes are not saved.'),
+          PL.h('a', { class: 'btn primary', href: '/' }, 'Create your own hub')));
       }
-      document.title = 'Demo home · ' + PL.config.appName;
+      document.title = 'Demo hub · ' + PL.config.appName;
     }
   }
   // The app frame is drawn after start-up; wait for it.

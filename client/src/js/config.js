@@ -8,7 +8,7 @@
 
   PL.config = {
     appName: 'Kalendaryo',
-    tagline: 'your home calendar',
+    tagline: 'your people, in sync',
     version: '0.5 (round 3)',
 
     // Pastel palette offered when choosing a person's or an event's color.
@@ -31,6 +31,7 @@
     roles: [
       { id: 'parent', label: 'Parent' },
       { id: 'child',  label: 'Child' },
+      { id: 'pet',    label: 'Pet' },
       { id: 'other',  label: 'Other' }
     ],
 
@@ -55,7 +56,7 @@
 
     // Household-wide settings (shared by every device). Saved in the database.
     householdDefaults: {
-      householdName: 'Our home',
+      householdName: 'Our hub',
       weekStart: 0,   // 0 = Sunday, 1 = Monday
       hour12: true,
       weatherPlace: null, // { name, lat, lon }

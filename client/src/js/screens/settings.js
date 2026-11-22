@@ -85,10 +85,10 @@
         ['America/Vancouver', 'America/Edmonton', 'America/Winnipeg', 'America/Toronto', 'America/Halifax', 'America/St_Johns', 'Asia/Manila', 'Europe/London', 'Europe/Madrid'].concat([devZ, curZ]).forEach((z) => { if (z && !zones.includes(z)) zones.push(z); });
         const zoneName = (z) => z.split('/').pop().replace(/_/g, ' ') + ' (' + z + ')';
         const zoneSel = ui.select([{ value: '', label: 'Same as this device' + (devZ ? ' (' + devZ + ')' : '') }].concat(zones.slice().sort().map((z) => ({ value: z, label: zoneName(z) }))), curZ, (v) => PL.store.saveSettings({ timeZone: v || null }));
-        zoneSel.setAttribute('aria-label', 'Home time zone');
-        const household = section('Home', 'Shared by everyone using this calendar.',
-          ui.field('Home name', nameIn), ui.field('Week starts on', weekStart.el), ui.field('Clock', clock.el),
-          ui.field('Home time zone', zoneSel, 'The clock, Today and reminders use this, on every screen.'), starsToggle.el);
+        zoneSel.setAttribute('aria-label', 'Hub time zone');
+        const household = section('Hub', 'Shared by everyone in this hub.',
+          ui.field('Hub name', nameIn), ui.field('Week starts on', weekStart.el), ui.field('Clock', clock.el),
+          ui.field('Hub time zone', zoneSel, 'The clock, Today and reminders use this, on every screen.'), starsToggle.el);
 
         /* parent PIN */
         const pinOn = PL.pin.isSet();
@@ -120,7 +120,7 @@
             PL.store.setDevice({ hiddenMembers: [...set] });
           });
           return h('div', { class: 'toggle-row' }, ui.avatar(m, 28), t.el);
-        })) : h('p', { class: 'sub' }, 'Add family members to choose who is shown.');
+        })) : h('p', { class: 'sub' }, 'Add people to choose who is shown.');
         /* appearance (this device) */
         const look = ui.segmented([{ value: 'light', label: 'Light' }, { value: 'dark', label: 'Dark' }, { value: 'auto', label: 'Auto' }], PL.theme.get(), (v) => PL.theme.set(v), 'Appearance');
         const wallLook = ui.select([{ value: 'night', label: 'Auto: dark at night (9 PM – 7 AM)' }, { value: 'app', label: 'Same as the app' }, { value: 'dark', label: 'Always dark' }, { value: 'light', label: 'Always light' }], PL.theme.wallLook(), (v) => PL.theme.setWallLook(v));
@@ -156,7 +156,7 @@
           if (yes && (await PL.data.applyBackup(r.data))) ui.toast('Backup restored.');
         });
         const sampleBtn = PL.data.hasSample()
-          ? ui.button('Remove sample data', { variant: 'danger', icon: 'trash', onClick: async () => { if (await ui.confirm({ title: 'Remove the sample family?', message: 'Only the sample people and events are removed. Anything you added stays.', confirmLabel: 'Remove', danger: true })) { await PL.data.removeSample(); ui.toast('Sample data removed.'); } } })
+          ? ui.button('Remove sample data', { variant: 'danger', icon: 'trash', onClick: async () => { if (await ui.confirm({ title: 'Remove the sample?', message: 'Only the sample people and events are removed. Anything you added stays.', confirmLabel: 'Remove', danger: true })) { await PL.data.removeSample(); ui.toast('Sample data removed.'); } } })
           : ui.button('Add sample family', { icon: 'sparkle', onClick: async () => { if (await PL.data.loadSample()) ui.toast('Sample family added.'); } });
         const icsIn = h('input', { type: 'file', accept: '.ics,text/calendar', hidden: true });
         icsIn.addEventListener('change', async () => {

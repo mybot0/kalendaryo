@@ -158,7 +158,15 @@
             def.render());
         }));
 
-        el.replaceChildren(...[top, remBox, welcome, grid].filter(Boolean));
+        // The sample plans from the new-hub questions (or Settings): one tap to clear them.
+        const sample = !welcome && PL.data && PL.data.hasSample() && !(window.KAL && (KAL.demo || (KAL.me && (KAL.me.role === 'viewer' || KAL.me.viewing)))) ? h('section', { class: 'card sample-note', role: 'status' },
+          h('p', {}, h('strong', {}, 'These are sample plans'), ' so you can look around. Clear them when you’re ready to add your own.'),
+          ui.button('Clear sample', { icon: 'trash', onClick: async () => {
+            if (!(await ui.confirm({ title: 'Clear the sample?', message: 'Only the sample plans are removed. Your people and anything you added stay.', confirmLabel: 'Clear', danger: true }))) return;
+            await PL.data.removeSample(); ui.toast('Sample cleared.');
+          } })) : null;
+
+        el.replaceChildren(...[top, remBox, welcome, sample, grid].filter(Boolean));
       }
 
       render();

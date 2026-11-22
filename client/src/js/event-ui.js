@@ -43,11 +43,11 @@
       ev && ev.repeat ? row('repeat', PL.recur.describe(ev)) : null,
       people.length
         ? row('users', h('div', { class: 'detail-people' }, people.map((p) => h('span', { class: 'person-chip' }, ui.avatar(p, 26), p.name))))
-        : (inst.kind === 'birthday' || inst.kind === 'holiday' ? null : row('users', 'Whole family')),
+        : (inst.kind === 'birthday' || inst.kind === 'holiday' ? null : row('users', 'Everyone')),
       inst.location ? row('pin', inst.location) : null,
       inst.notes ? row('note', h('span', { class: 'pre' }, inst.notes)) : null,
       ev && ev.reminder != null ? row('bell', (PL.config.reminderOptions.find((r) => r.value === ev.reminder) || {}).label || '') : null,
-      inst.kind === 'birthday' ? row('cake', 'Birthday from the family profile') : null,
+      inst.kind === 'birthday' ? row('cake', 'Birthday from People') : null,
       inst.kind === 'holiday' ? row('calendar', [h('strong', {}, 'Public holiday'), inst.setName ? h('div', { class: 'sub' }, inst.setName) : null, inst.check ? h('div', { class: 'sub' }, '⚠ Looked up by AI. Please check the date.') : null]) : null);
 
     let s;
@@ -271,7 +271,7 @@
       full ? ui.field('Title', title) : h('p', { class: 'sheet-text' }, '“' + (src ? src.title : '') + '”'),
       full ? h('div', { class: 'field' }, h('span', { class: 'field-label' }, 'Who is it for?'),
         members.length ? peopleBox : h('p', { class: 'hint' }, 'Add people in the People section to color-code events.'),
-        h('p', { class: 'hint' }, members.length ? 'Leave empty for the whole family.' : '')) : null,
+        h('p', { class: 'hint' }, members.length ? 'Leave empty for everyone.' : '')) : null,
       allDay.el, ui.field('Day', date), timesRow,
       full ? repeatBlock : null,
       full ? ui.field('Reminder', reminder) : null,

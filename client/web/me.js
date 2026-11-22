@@ -39,8 +39,8 @@
     const s = ui.sheet({
       title: fresh ? 'That’s you, ' + m.name + '!' : 'Your profile',
       body: h('div', { class: 'event-form ty' },
-        fresh ? h('span', { class: 'ty-badge' }, KAL.me.role === 'owner' ? 'Your home is ready 🎉' : 'Welcome to ' + KAL.family.name + ' 🎉') : null,
-        h('div', { class: 'ty-who' }, preview, h('div', {}, h('strong', {}, m.name), h('p', { class: 'sub' }, fresh ? 'You are in the family already. Pick how you look on the calendar.' : 'How you look on the calendar.'))),
+        fresh ? h('span', { class: 'ty-badge' }, KAL.me.role === 'owner' ? 'Your hub is ready 🎉' : 'Welcome to ' + KAL.family.name + ' 🎉') : null,
+        h('div', { class: 'ty-who' }, preview, h('div', {}, h('strong', {}, m.name), h('p', { class: 'sub' }, fresh ? 'You are in the hub already. Pick how you look on the calendar.' : 'How you look on the calendar.'))),
         ui.field('Color', color.el),
         h('div', { class: 'field' }, h('span', { class: 'field-label' }, 'Icon'), grid),
         ui.field('Birthday (optional)', bday, 'It shows on the calendar every year.'),
@@ -54,7 +54,7 @@
   /* ---------- "Which one are you?" ---------- */
   function openWhich() {
     const linked = new Set((KAL.people || []).filter((p) => p.member_id && p.id !== KAL.me.id).map((p) => p.member_id));
-    const free = PL.state.members.filter((m) => !linked.has(m.id) && !m.demo);
+    const free = PL.state.members.filter((m) => !linked.has(m.id) && !m.demo && m.role !== 'pet');
     async function link(id) {
       try {
         await KAL.api('POST', '/api/me/member', id ? { memberId: id } : {});
@@ -86,7 +86,7 @@
         footer: [ui.button('Copy my link', { icon: 'copy', onClick: () => copy(myLink()) }), ui.button('Got it', { variant: 'primary', big: true, onClick: () => s.close() })] });
       return true;
     }
-    if (store(key) || !PL.state.members.filter((m) => !m.demo).length) return true;
+    if (store(key) || !PL.state.members.filter((m) => !m.demo && m.role !== 'pet').length) return true;
     store(key, '1');
     openWhich();
     return true;

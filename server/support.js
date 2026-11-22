@@ -214,7 +214,7 @@ function createSupport({ db, fail, onUserMessage }) {
   // Kalendaryo's routes (people in a home) and the owner page's routes.
   function install(r, { auth, helpJson, json, ownerGuard, send }) {
     const homeArgs = (req) => ['home', req.me.id, req.me.family_id, req.me.family_name, req.me.name];
-    const noOwnerView = (req) => { if (req.me.viewing) fail(403, 'read_only', 'Help & ideas is for the people in this home.'); };
+    const noOwnerView = (req) => { if (req.me.viewing) fail(403, 'read_only', 'Help & ideas is for the people in this hub.'); };
     r.get('/api/help', auth, async (req, res) => { noOwnerView(req); send(res, 200, await forUser(...homeArgs(req))); });
     r.get('/api/help/unread', auth, async (req, res) => { if (req.me.viewing) return send(res, 200, { unread: 0 }); const t = await open(...homeArgs(req)); send(res, 200, { unread: t.unread, popup: t.popup }); });
     r.post('/api/help', auth, helpJson, async (req, res) => { noOwnerView(req); send(res, 200, await userSend(...homeArgs(req), req.body)); });

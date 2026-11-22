@@ -28,10 +28,10 @@
     const steps = [
       { id: 'welcome', center: true, icon: svg(WAVE), tone: 'sun', title: 'Welcome to Kalendaryo!', sub: 'Let’s show you around.',
         body: tri ? [h('p', {}, 'Kalendaryo keeps two parts of life organized: ', h('b', {}, 'life at home'), ' and ', h('b', {}, 'your trips together'), '. It only takes a minute.')]
-          : [h('p', {}, 'Kalendaryo keeps ', h('b', {}, 'life at home'), ' organized, for everyone you live with. It only takes a minute.')],
+          : [h('p', {}, 'Kalendaryo keeps ', h('b', {}, 'everyday life'), ' in sync, for your people near or far. It only takes a minute.')],
         next: 'Let’s go' },
-      { id: 'home', target: tri ? '.land-pick-home' : '.land-card', side: 'right', icon: icon('home'), title: 'This is Kalendaryo',
-        body: [h('p', {}, 'For ', h('b', {}, 'everyday life'), ' with everyone you live with.'),
+      { id: 'home', target: '.land-pick-home', side: 'right', icon: icon('home'), title: 'This is Kalendaryo',
+        body: [h('p', {}, 'For ', h('b', {}, 'everyday life'), ' with your people, near or far.'),
           chips([['calendar', 'Calendar'], ['check', 'Chores'], ['meal', 'Meals'], ['list', 'Lists'], ['image', 'Photos'], ['users', 'People']])] }
     ];
     if (tri) {
@@ -46,12 +46,12 @@
       );
     }
     steps.push(tri
-      ? { id: 'start', target: '.land-pick input[autocomplete=given-name]', side: 'below', pad: 8, icon: icon('edit'), title: 'Start here',
-          body: [h('p', { class: 'g-rule' }, h('b', { class: 'g-green' }, 'Organizing your home?'), ' Type your name in the ', h('b', {}, 'green card'), ', then tap ', h('b', {}, 'Create your home'), '.'),
-            h('p', { class: 'g-rule' }, h('b', { class: 'g-terra' }, 'Planning a trip?'), ' Use the ', h('b', {}, 'orange card'), ', then tap ', h('b', {}, 'Create your trip'), '.')],
+      ? { id: 'start', target: '.land-pick .lp-go', side: 'below', pad: 8, icon: icon('edit'), title: 'Start here',
+          body: [h('p', { class: 'g-rule' }, h('b', { class: 'g-green' }, 'Everyday life?'), ' Tap ', h('b', {}, 'Create a hub'), ' in the ', h('b', {}, 'green card'), '.'),
+            h('p', { class: 'g-rule' }, h('b', { class: 'g-terra' }, 'Planning a trip?'), ' Tap ', h('b', {}, 'Create a trip'), ' in the ', h('b', {}, 'orange card'), '.')],
           next: 'Got it' }
-      : { id: 'start', target: '.land-card input[autocomplete=given-name]', side: 'below', pad: 8, icon: icon('edit'), title: 'Start here',
-          body: [h('p', {}, 'Type ', h('b', {}, 'your name'), ', then the home name, and tap ', h('b', {}, 'Create your home'), '.')], next: 'Got it' });
+      : { id: 'start', target: '.land-pick .lp-go', side: 'below', pad: 8, icon: icon('edit'), title: 'Start here',
+          body: [h('p', {}, 'Tap ', h('b', {}, 'Create a hub'), '. It takes about a minute.')], next: 'Got it' });
     return steps;
   }
 
@@ -203,7 +203,7 @@
   const PAGE_TOURS = {
     home: () => [
       { id: 'h-welcome', center: true, icon: icon('home'), tone: 'sun', title: 'This is your Home page', sub: 'Everything for today, in one place.',
-        body: [h('p', {}, 'Each box shows one part of your home. Tap ', h('b', {}, 'Open'), ' on any box to see more.')] },
+        body: [h('p', {}, 'Each box shows one part of your hub. Tap ', h('b', {}, 'Open'), ' on any box to see more.')] },
       { id: 'h-today', target: '.widget[aria-label="Today"]', side: 'right', icon: icon('calendar'), title: 'Today',
         body: [h('p', {}, 'What is happening ', h('b', {}, 'today'), ', for everyone you live with.'), h('p', {}, 'Tap an event to see it or change it.')] },
       { id: 'h-add', target: '.quick .btn.primary', side: 'below', pad: 8, icon: icon('plus'), title: 'Add an event',

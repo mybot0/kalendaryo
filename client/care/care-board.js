@@ -103,8 +103,8 @@
       if (help) {
         const last = help.replies[help.replies.length - 1];
         kids.push(h('div', { class: 'cs-art', 'aria-hidden': 'true' }, '💛'),
-          h('div', { class: 's-txt' }, h('div', { class: 'care-say' }, 'Your family was told'),
-            h('div', { class: 'care-sub' }, last ? first(nameOf(last.by)) + ': “' + last.text + '”' : 'Someone will answer soon. For an emergency, call 911.')));
+          h('div', { class: 's-txt' }, h('div', { class: 'care-say' }, 'Your message was sent'),
+            h('div', { class: 'care-sub' }, last ? first(nameOf(last.by)) + ': “' + last.text + '”' : 'Your family will see it when they open Kalendaryo. If it’s urgent, call them. For an emergency, call 911.')));
       } else if (f) {
         const snz = snoozedUntil(f);
         const say = f.state === 'miss' ? 'Did you take ' + whenWord(f) + ' ' + pillWord(f) + '?' : snz > Date.now()
@@ -273,9 +273,9 @@
     function askHelp() {
       unlockSound();
       const s = bigSheet({ title: 'Tell your family you need help?',
-        body: h('div', { class: 'care-center' }, h('div', { class: 'help-art', 'aria-hidden': 'true' }, '🙋'), h('p', { class: 'care-sub' }, 'Your family gets a message right away.'), h('p', { class: 'care-safe' }, 'For an emergency, call 911.')),
+        body: h('div', { class: 'care-center' }, h('div', { class: 'help-art', 'aria-hidden': 'true' }, '🙋'), h('p', { class: 'care-sub' }, 'Your family sees it when they open Kalendaryo. If it’s urgent, call them.'), h('p', { class: 'care-safe' }, 'For an emergency, call 911.')),
         footer: [h('button', { type: 'button', class: 'btn big care-big', onclick: () => s.close() }, 'Cancel'),
-          h('button', { type: 'button', class: 'btn primary big care-big', onclick: async () => { s.close(); if (await C().log(who, 'help')) ui.toast('Your family was told.'); } }, 'Yes, tell them')] });
+          h('button', { type: 'button', class: 'btn primary big care-big', onclick: async () => { s.close(); if (await C().log(who, 'help')) ui.toast('Sent. Your family will see it in Kalendaryo.'); } }, 'Yes, tell them')] });
     }
 
     /* ----- I bought medicine (2 taps; 3 when two are low) ----- */

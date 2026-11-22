@@ -71,7 +71,7 @@
           notes.length ? notes.map((x) => h('button', { type: 'button', class: 'note-item' + (x.id === openId ? ' on' : ''), onclick: async () => { if (timer) await saveNow(); openId = x.id; work = null; render(); } },
             h('span', { class: 'note-kind ' + x.kind }, icon(x.kind === 'table' ? 'table' : 'note')),
             h('span', { class: 'note-item-text' }, h('strong', {}, x.title), h('span', { class: 'sub' }, (x.kind === 'table' ? 'Table' : 'Note') + (x.by ? ' · ' + x.by : '') + ', ' + when(x.at)))))
-            : ui.emptyState({ icon: 'note', title: 'No notes yet', text: 'Keep Wi-Fi codes, gift ideas and plans here, or make a table for a budget. Everyone in the home can see and change them.' }));
+            : ui.emptyState({ icon: 'note', title: 'No notes yet', text: 'Keep Wi-Fi codes, gift ideas and plans here, or make a table for a budget. Everyone in the hub can see and change them.' }));
       }
 
       /* ---------- a note ---------- */

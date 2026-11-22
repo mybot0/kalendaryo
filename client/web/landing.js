@@ -1,5 +1,6 @@
 /*
- * landing.js — web version only. The start page (create a family) and the join page (invite links).
+ * landing.js — web version only. The start page (create a hub or a trip) and the join page (invite links).
+ * The questions for a new hub are in setup.js.
  */
 (function () {
   const PL = (window.PL = window.PL || {});
@@ -9,34 +10,6 @@
   function field(label, input) { return ui.field(label, input); }
   function errorBox() { return h('p', { class: 'form-error', role: 'alert', hidden: true }); }
   const showErr = (el, msg) => { el.textContent = msg; el.hidden = !msg; };
-
-  function createCard(pick) {
-    const you = h('input', { type: 'text', maxlength: '30', placeholder: 'For example: ' + PL.examples.name(), autocomplete: 'given-name' });
-    const fam = h('input', { type: 'text', maxlength: '40', placeholder: 'For example: ' + PL.examples.home(), autocomplete: 'off' });
-    const err = errorBox();
-    const btn = ui.button('Create your home', { variant: 'primary', big: true, icon: 'plus', type: 'submit', block: true });
-    let weekStart = 0;
-    const week = pick ? ui.segmented([{ value: 0, label: 'Sunday' }, { value: 1, label: 'Monday' }], 0, (v) => { weekStart = Number(v); }, 'Week starts on') : null;
-    async function go(e) {
-      e.preventDefault();
-      if (!you.value.trim()) { showErr(err, 'Please type your name.'); you.focus(); return; }
-      btn.disabled = true; showErr(err, '');
-      try {
-        const r = await KAL.api('POST', '/api/families', { yourName: you.value.trim(), familyName: fam.value.trim(), timeZone: PL.deviceZone() });
-        if (pick && weekStart) {
-          // Save the chosen week start in the new home's settings (same document the Settings screen writes).
-          await fetch('/api/docs/settings/main', { method: 'PUT', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + r.token },
-            body: JSON.stringify({ data: { householdName: fam.value.trim() || 'Our home', weekStart } }) }).catch(() => {});
-        }
-        try { localStorage.setItem('kal.newlink', '1'); } catch (x) { /* fine */ }
-        location.href = '/c/' + r.token;
-      } catch (x) { showErr(err, x.userMessage); btn.disabled = false; }
-    }
-    if (pick) return pickForm(go, 'home', h('span', { class: 'land-pick-ic' }, icon('calendar')), 'Kalendaryo', 'Organize a home', 'Calendar, chores, meals, lists and photos for everyone you live with.', you, 'Home name', fam, err, btn, null, [field('Week starts on', week.el)]);
-    return h('form', { class: 'card land-card', onsubmit: go },
-      h('h2', {}, 'Start your home’s space'), field('Your name', you), field('Home name', fam), err, btn,
-      h('p', { class: 'hint' }, 'You get your own private link. Keep it safe: it is your key. No account or password needed.'));
-  }
 
   /* ---------- TOUCH POINT B: the home / trip choice (only when the server says Triply is on) ---------- */
   const TRIPLY_BASE = '/triply';
@@ -100,35 +73,13 @@
     const items = [recentCard(), await tripsCard()].filter(Boolean);
     return items.length ? h('div', { class: 'land-lists' + (items.length === 1 ? ' one' : '') }, ...items) : null;
   }
-  function choice() {
-    return [h('div', { class: 'land-picks' }, createCard(true), tripCard())];
-  }
-
   function recentCard() {
     const list = KAL.recent.all();
     if (!list.length) return null;
-    return h('section', { class: 'card land-card' }, h('h2', {}, 'Your homes on this device'),
+    return h('section', { class: 'card land-card' }, h('h2', {}, 'Your hubs on this device'),
       h('div', { class: 'stack' }, list.map((f) => h('div', { class: 'land-recent' },
         h('a', { class: 'btn soft big land-open', href: '/c/' + f.t }, icon('calendar'), h('span', {}, f.name + (f.who ? ' · ' + f.who : ''))),
         ui.iconButton('x', 'Forget ' + f.name + ' on this device', () => { KAL.recent.forget(f.t); render(); })))));
-  }
-
-  // "Just looking?" — the demo home (demo.js)
-  function demoCard() {
-    return h('section', { class: 'card land-demo' },
-      h('span', { class: 'land-demo-ic', 'aria-hidden': 'true' }, '👀'),
-      h('div', { class: 'land-demo-text' }, h('strong', {}, 'Just looking?'), h('span', { class: 'sub' }, window.KAL_TRIPLY
-        ? 'Try a demo: a made-up family home with 3 months of plans, or a 14-day family trip to France and Italy.'
-        : 'Try a demo home: a made-up family with 3 months of plans, meals, chores and photos.')),
-      h('div', { class: 'btn-row' }, h('a', { class: 'btn primary big', href: '/demo' }, 'Try a demo home'),
-        window.KAL_TRIPLY ? h('a', { class: 'btn big land-demo-trip', href: TRIPLY_BASE + '/demo' }, 'Try a demo trip') : null));
-  }
-
-  function steps() {
-    const s = window.KAL_TRIPLY
-      ? [['plus', 'Create', 'Start a home or a trip in one step. No account or password.'], ['users', 'Invite', 'Send invite links. Pick who can look, who can edit, and who is an owner.'], ['calendar', 'Share the day', 'Calendars, chores, meals, itineraries and group chat, live for everyone.']]
-      : [['plus', 'Create', 'Make your home’s space in one step.'], ['users', 'Invite', 'Send invite links. Pick who can look, who can edit, and who is an owner.'], ['calendar', 'Share the day', 'Calendar, chores, meals, lists and photos, live for everyone.']];
-    return h('div', { class: 'land-steps' }, s.map(([i, t, d]) => h('div', { class: 'land-step' }, h('span', { class: 'empty-icon' }, icon(i)), h('strong', {}, t), h('span', { class: 'sub' }, d))));
   }
 
   async function joinCard() {
@@ -169,33 +120,73 @@
     }
     box.replaceChildren(h('form', { class: 'stack', onsubmit: go },
       h('h2', {}, 'You are invited to ' + peek.familyName), h('p', {}, 'You will join as ' + ROLE_TEXT[peek.role] + '.'),
-      field('Your name', name), err, btn, h('p', { class: 'hint' }, 'You will get your own private link to this home. Keep it safe.')));
+      field('Your name', name), err, btn, h('p', { class: 'hint' }, 'You will get your own private link to this hub. Keep it safe.')));
     return box;
+  }
+
+  /* ---------- the start page: "Your people, in sync" with the hub and trip cards ---------- */
+  const AV = [['🦊', '#F6C9A0'], ['🦁', '#A9C9E8'], ['🚀', '#B7DDB0'], ['🌻', '#F3E19A'], ['🐶', '#CDBDEB'], ['🌸', '#F2B8CF']];
+  function brand() {
+    return h('header', { class: 'lp-brandrow' }, h('a', { class: 'lp-brand', href: '/', 'aria-label': PL.config.appName + ' start page' }, icon('calendar'), h('span', {}, PL.config.appName)));
+  }
+  function startCard(kind, ic, kicker, title, sub, label, go, demoHref, demoText) {
+    const btn = ui.button(label, { variant: 'primary', big: true, icon: 'plus', block: true, onClick: go });
+    btn.classList.add('lp-go');
+    return h('section', { class: 'card land-pick land-pick-' + kind },
+      h('div', { class: 'land-pick-head' }, ic, h('div', {}, h('span', { class: 'land-kicker' }, kicker), h('h2', {}, title))),
+      h('p', { class: 'land-pick-sub' }, sub), btn,
+      h('span', { class: 'lp-demo' }, 'or ', h('a', { href: demoHref }, demoText)));
+  }
+  function startPage(main) {
+    const hero = h('section', { class: 'lp-hero' });
+    hero.innerHTML = '<h1>Your people, <span class="hl">in sync</span>,<br>wherever they are.</h1>'; // our own fixed text
+    hero.append(h('div', { class: 'lp-free' },
+      h('div', { class: 'row1' }, h('span', { class: 'fz' }, 'FREE'), h('span', { class: 'ea' }, 'during early access')),
+      h('div', { class: 'row2' }, h('span', {}, 'No sign-up'), h('span', {}, 'No ads'))));
+    const tripIc = h('span', { class: 'land-pick-ic' }); tripIc.innerHTML = PLANE;
+    const cards = [startCard('home', h('span', { class: 'land-pick-ic' }, icon('calendar')), 'Kalendaryo', 'Everyone in sync',
+      'Calendar, chores, meals, lists and a digital photo frame. Takes 1 minute.', 'Create a hub', () => go('#new'), '/demo', 'try a demo hub')];
+    if (window.KAL_TRIPLY) cards.push(startCard('trip', tripIc, 'Triply by Kalendaryo', 'Plan a trip',
+      'One plan, every booking and a group chat for everyone going.', 'Create a trip', () => go('#trip'), TRIPLY_BASE + '/demo', 'try a demo trip'));
+    main.append(hero, h('div', { class: 'land-picks' + (cards.length === 1 ? ' one' : '') }, ...cards),
+      h('div', { class: 'lp-av', 'aria-hidden': 'true' }, AV.map(([e, c]) => h('span', { style: 'background:' + c }, e))),
+      h('p', { class: 'lp-for' }, 'For families, couples, roommates, best friends and loved ones far away.'));
+  }
+  // The trip form, unchanged, on its own after "Create a trip".
+  function tripPage(main) {
+    main.append(h('div', { class: 'lp-one' }, tripCard(), h('a', { class: 'lp-back', href: '#', onclick: (e) => { e.preventDefault(); go(''); } }, '← Back')));
+  }
+  function go(hash) {
+    if (location.hash !== hash) history.pushState(null, '', hash || location.pathname);
+    render();
+    window.scrollTo(0, 0);
   }
 
   let root;
   async function render(note) {
-    const tri = window.KAL_TRIPLY && !KAL.joinCode;
-    const head = tri
-      ? h('header', { class: 'card land-banner' }, h('span', { class: 'land-logo-mark' }, icon('calendar')),
-          h('div', {}, h('div', { class: 'brand-name land-banner-name' }, PL.config.appName), h('p', { class: 'land-banner-tag' }, 'Where home and trips get organized')))
-      : null;
-    const main = h('main', { class: tri ? 'land land-wide' : 'land' }, head ||
-      h('header', { class: 'land-head' }, h('div', { class: 'brand-name land-logo' }, h('span', { class: 'land-logo-mark' }, icon('calendar')), PL.config.appName),
-        h('h1', {}, 'Where home gets organized'), h('p', { class: 'land-lead' }, 'One shared place for your calendar, chores, meals and groceries, lists and photos. Everyone sees the same plan, updated live. Simple, calm, and private to your home.')),
+    const view = KAL.joinCode ? 'join' : location.hash === '#new' || location.hash === '#setup' ? 'hub' : location.hash === '#trip' && window.KAL_TRIPLY ? 'trip' : 'start';
+    const main = h('main', { class: 'land' + (view === 'join' ? '' : ' land-wide lp lp-' + view) },
+      view === 'join'
+        ? h('header', { class: 'land-head' }, h('div', { class: 'brand-name land-logo' }, h('span', { class: 'land-logo-mark' }, icon('calendar')), PL.config.appName),
+            h('h1', {}, 'Where home gets organized'), h('p', { class: 'land-lead' }, 'One shared place for your calendar, chores, meals and groceries, lists and photos. Everyone sees the same plan, updated live. Simple, calm, and private to your home.'))
+        : brand(),
       note ? h('p', { class: 'land-note', role: 'alert' }, note) : null);
     root.replaceChildren(main);
-    if (KAL.joinCode) main.append(await joinCard());
-    else if (window.KAL_TRIPLY) main.append(...[...choice(), demoCard(), await lists(), steps()].filter(Boolean));
-    else main.append(...[createCard(), demoCard(), recentCard(), steps()].filter(Boolean));
-    if (!KAL.joinCode && PL.guide) PL.guide.maybeStart(); // first visit: the friendly guide (guide.js)
+    if (view === 'join') { main.append(await joinCard()); return; }
+    if (view === 'hub') { PL.setup.mount(main, { back: () => go('') }); return; }
+    if (view === 'trip') { tripPage(main); return; }
+    startPage(main);
+    const more = await lists();
+    if (more && main.isConnected) main.append(more);
+    if (PL.guide) PL.guide.maybeStart(); // first visit: the friendly guide (guide.js)
   }
 
   PL.landing = {
     mount(opts) {
       root = document.getElementById('porchlight-root');
       document.body.classList.add('land-body');
-      document.title = PL.config.appName + (window.KAL_TRIPLY ? ' · Where home and trips get organized' : ' · Where home gets organized');
+      document.title = PL.config.appName + ' · Your people, in sync';
+      if (!root.dataset.nav) { root.dataset.nav = '1'; window.addEventListener('popstate', () => { if (document.body.classList.contains('land-body')) render(); }); }
       render(opts && opts.note);
     }
   };

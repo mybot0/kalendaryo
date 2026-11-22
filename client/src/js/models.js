@@ -175,6 +175,11 @@
         color: /^#[0-9a-fA-F]{6}$/.test(d.color) ? d.color : C.palette[0].hex,
         birthday: isKey(d.birthday) ? d.birthday : ''
       };
+      // From the new-hub questions (all optional): who they are to the owner ("Grandma", or a pet's kind like "Dog"),
+      // where they live when it is not with you ({ name, tz }), and the access their link gives ('editor' | 'viewer').
+      if (text(d.relation, 24)) out.relation = text(d.relation, 24);
+      if (d.place && text(d.place.name, 80)) out.place = { name: text(d.place.name, 80), tz: text(d.place.tz, 64) };
+      if (d.access === 'editor' || d.access === 'viewer') out.access = d.access;
       if (d.demo) out.demo = true;
       return out;
     },

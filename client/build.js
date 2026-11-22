@@ -30,7 +30,7 @@ if (web) scripts.push(rd('web/shim.js'));
 for (const j of js) {
   scripts.push(rd('src/js/' + j + '.js'));
   if (j === 'screens/settings') { careJs.forEach((c) => scripts.push(rd('care/' + c + '.js'))); gamesJs.forEach((c) => scripts.push(rd('games/' + c + '.js'))); }
-  if (web && j === 'event-ui') scripts.push(rd('web/examples.js'), rd('web/landing.js'), rd('web/access.js'), rd('web/me.js'), rd('web/demo.js'), rd('web/guide.js'), rd('web/help.js'), rd('web/help-kal.js'), rd('web/theme-sync.js'));
+  if (web && j === 'event-ui') scripts.push(rd('web/examples.js'), rd('web/landing.js'), rd('web/setup.js'), rd('web/access.js'), rd('web/me.js'), rd('web/demo.js'), rd('web/guide.js'), rd('web/help.js'), rd('web/help-kal.js'), rd('web/theme-sync.js'));
 }
 for (const s of scripts) if (/<\/script/i.test(s)) throw new Error('a script contains </script');
 

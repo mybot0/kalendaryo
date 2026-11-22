@@ -7,6 +7,13 @@
   const h = PL.h, D = PL.D, ui = PL.ui;
   const roleLabel = (r) => (PL.config.roles.find((x) => x.value === r) || { label: 'Family' }).label;
 
+  // What the People page shows under a name: "You", who they are ("Grandma"), a pet's kind ("Dog · Pet"), or the role.
+  function whoLabel(m) {
+    if (window.KAL && KAL.me && KAL.me.memberId === m.id) return 'You';
+    if (m.role === 'pet') return (m.relation ? m.relation + ' · ' : '') + 'Pet';
+    return m.relation || roleLabel(m.role);
+  }
+
   function nextColor() {
     const used = new Set(PL.state.members.map((m) => m.color));
     const free = PL.config.palette.find((p) => !used.has(p.hex));
@@ -35,7 +42,7 @@
     async function save() {
       const nm = name.value.trim();
       if (!nm) { err.textContent = 'Please enter a name.'; err.hidden = false; name.focus(); return; }
-      const data = PL.models.member({ name: nm, role: role.get(), avatar, color: color.get(), birthday: bday.value || '', demo: m.demo });
+      const data = PL.models.member({ name: nm, role: role.get(), avatar, color: color.get(), birthday: bday.value || '', demo: m.demo, relation: m.relation, place: m.place, access: m.access });
       const ok = editing ? await PL.store.updateMember(m.id, data) : await PL.store.addMember(data);
       if (ok) { s.close(); ui.toast(editing ? 'Saved.' : nm + ' added.'); }
     }
@@ -43,7 +50,7 @@
     if (editing) footer.push(ui.button('Remove', { variant: 'danger', icon: 'trash', onClick: () => { s.close(); removeMember(m); } }));
     footer.push(h('span', { class: 'spacer' }), ui.button('Cancel', { variant: 'ghost', big: true, onClick: () => s.close() }), ui.button(editing ? 'Save' : 'Add', { variant: 'primary', big: true, onClick: save }));
     const s = ui.sheet({
-      title: editing ? 'Edit ' + m.name : 'Add a family member',
+      title: editing ? 'Edit ' + m.name : 'Add a person',
       body: h('form', { class: 'event-form', onsubmit: (e) => { e.preventDefault(); save(); } },
         ui.field('Name', name),
         ui.field('Picture', avatarWrap),
@@ -86,14 +93,14 @@
     const s = ui.sheet({
       title: m.name,
       body: h('div', { class: 'stack' },
-        h('div', { class: 'member-head', style: '--c:' + m.color }, ui.avatar(m, 64), h('div', {}, h('strong', {}, m.name), h('div', { class: 'sub' }, roleLabel(m.role) + (m.birthday ? ' · Birthday ' + D.fmt(m.birthday, { month: 'long', day: 'numeric' }) : '')))),
+        h('div', { class: 'member-head', style: '--c:' + m.color }, ui.avatar(m, 64), h('div', {}, h('strong', {}, m.name), h('div', { class: 'sub' }, whoLabel(m) + (m.birthday ? ' · Birthday ' + D.fmt(m.birthday, { month: 'long', day: 'numeric' }) : '')))),
         h('h3', { class: 'mini-h' }, 'Next 30 days'),
         items.length ? h('div', { class: 'card-list' }, items.map((i) => PL.eventUi.card(i, { compact: true }))) : h('p', { class: 'sub' }, 'Nothing planned.')),
       footer: [ui.button('Add an event', { icon: 'plus', onClick: () => { s.close(); PL.eventUi.openForm({ mode: 'create', date: today, prefill: { title: '', memberIds: [m.id] } }); } }), h('span', { class: 'spacer' }), ui.button('Edit', { variant: 'primary', icon: 'edit', onClick: () => { s.close(); openForm(m); } })]
     });
   }
 
-  PL.familyUi = { openForm, openMember, removeMember };
+  PL.familyUi = { openForm, openMember, removeMember, whoLabel };
 
   /* ---------- screen ---------- */
   PL.screens.family = {
@@ -103,11 +110,11 @@
       function render() {
         const members = PL.state.members;
         el.replaceChildren(
-          h('header', { class: 'page-head' }, h('h1', {}, 'Family'), ui.button('Add person', { variant: 'primary', big: true, icon: 'plus', onClick: () => openForm() })),
+          h('header', { class: 'page-head' }, h('h1', {}, 'People'), ui.button('Add person', { variant: 'primary', big: true, icon: 'plus', onClick: () => openForm() })),
           members.length
             ? h('div', { class: 'family-grid' }, members.map((m) => h('button', { type: 'button', class: 'family-card', style: '--c:' + m.color, onclick: () => openMember(m.id) },
-                ui.avatar(m, 64), h('strong', {}, m.name), h('span', { class: 'sub' }, roleLabel(m.role)))))
-            : ui.emptyState({ icon: 'users', title: 'Who is in your family?', text: 'Add everyone who shares this calendar. Each person gets their own color.', action: ui.button('Add the first person', { variant: 'primary', big: true, icon: 'plus', onClick: () => openForm() }) }),
+                ui.avatar(m, 64), h('strong', {}, m.name), h('span', { class: 'sub' }, whoLabel(m)))))
+            : ui.emptyState({ icon: 'users', title: 'Who is in your hub?', text: 'Add everyone who shares this calendar. Each person gets their own color.', action: ui.button('Add the first person', { variant: 'primary', big: true, icon: 'plus', onClick: () => openForm() }) }),
           PL.familyExtras ? PL.familyExtras() : '');
       }
       render();

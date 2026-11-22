@@ -47,7 +47,7 @@
       s.panel.querySelector('.sheet-head h2').textContent = step === 1 ? 'Add a medicine' : (C().kind(d.kind).emoji + ' ' + (d.name || C().kind(d.kind).label));
       const kids = [h('p', { class: 'care-stepn small' }, 'Step ' + step + ' of 4')];
       if (step === 1) {
-        const ppl = PL.state.members.filter((m) => m.role !== 'child' || C().people().some((p) => p.id === m.id));
+        const ppl = PL.state.members.filter((m) => m.role !== 'pet' && (m.role !== 'child' || C().people().some((p) => p.id === m.id)));
         kids.push(h('div', { class: 'field' }, label('Who is it for?'), h('div', { class: 'chip-row' }, ppl.map((m) => personPick(m, d.who === m.id, () => { d.who = m.id; paint(); })))));
         kids.push(h('div', { class: 'field' }, label('What is it for?'), h('div', { class: 'care-types' }, C().KINDS.map((k) => h('button', { type: 'button', class: 'avatar-opt care-type' + (d.kind === k.id ? ' on' : ''), 'aria-pressed': String(d.kind === k.id), onclick: () => { if (d.kind !== k.id) d.name = ''; d.kind = k.id; paint(); } },
           h('span', { class: 'em' }, k.emoji), k.label)))));
@@ -77,7 +77,7 @@
         const how = ui.segmented([{ value: 'always', label: 'Every day' }, { value: 'short', label: 'For a few days' }], d.days ? 'short' : 'always', (v) => { d.days = v === 'short' ? 7 : null; paint(); }, 'How long');
         kids.push(h('div', { class: 'field' }, label('How long?'), how.el || how,
           d.days ? h('div', { class: 'care-row-inline' }, stepper(d.days, (v) => { d.days = v; paint(); }, 1, h('span', { class: 'days' }, 'days · last day ' + D.fmt(D.addDays(D.today(), d.days - 1), { weekday: 'long', month: 'short', day: 'numeric' })))) : null));
-        const helpers = PL.state.members.filter((m) => m.role !== 'child' && m.id !== d.who);
+        const helpers = PL.state.members.filter((m) => m.role !== 'child' && m.role !== 'pet' && m.id !== d.who);
         kids.push(h('div', { class: 'field' }, label('Who picks up refills?'), h('div', { class: 'chip-row' },
           personPick(null, !d.helper, () => { d.helper = ''; paint(); }, 'Nobody'), helpers.map((m) => personPick(m, d.helper === m.id, () => { d.helper = m.id; paint(); }))),
           h('p', { class: 'hint' }, 'They get a “Pick up ' + (d.name || 'it') + '” task in Chores before it runs out.')));
@@ -125,7 +125,7 @@
     nameIn.addEventListener('input', () => { d.name = nameIn.value; });
     const ro = !canEdit();
     function paint() {
-      const helpers = PL.state.members.filter((x) => x.role !== 'child' && x.id !== d.who);
+      const helpers = PL.state.members.filter((x) => x.role !== 'child' && x.role !== 'pet' && x.id !== d.who);
       const each = ui.segmented([{ value: 0.5, label: '½ pill' }, { value: 1, label: '1 pill' }, { value: 2, label: '2 pills' }], d.each, (v) => { d.each = Number(v); }, 'Pills each time');
       const food = ui.segmented([{ value: '', label: 'Any time' }, { value: 'with', label: 'With food' }, { value: 'before', label: 'Before eating' }], d.food, (v) => { d.food = v; }, 'Food');
       body.replaceChildren(...[
@@ -197,7 +197,7 @@
           h('div', { class: 'cb-steps' }, h('b', {}, 'On ' + (p ? first(p.name) + '’s' : 'the') + ' tablet:'),
             h('ol', {}, h('li', {}, 'Scan this code with the camera, or open the link.'), h('li', {}, 'Tap Share → “Add to Home Screen”. It is called “Care board”.'), h('li', {}, 'Open “Care board” from the home screen, tap Start, and keep the tablet plugged in.')),
             h('div', { class: 'btn-row' }, ui.button('Copy link', { icon: 'copy', onClick: () => copy(link.url) }), navigator.share ? ui.button('Send link', { icon: 'upload', onClick: () => navigator.share({ title: 'Care board', url: link.url }).catch(() => {}) }) : null),
-            link.demo ? h('p', { class: 'hint' }, 'This is the demo: in your own home the link opens the real board.') : h('p', { class: 'hint' }, 'The link opens only the Care board: no menus, no other pages. ' + boardStatus(who) + '.'))),
+            link.demo ? h('p', { class: 'hint' }, 'This is the demo: in your own hub the link opens the real board.') : h('p', { class: 'hint' }, 'The link opens only the Care board: no menus, no other pages. ' + boardStatus(who) + '.'))),
         h('div', { class: 'care-2' }, tg('Soft sound when it is time', 'sound'), tg('Ring again every 5 minutes', 'ring'), tg('Keep the screen awake', 'awake'), tg('Let ' + (p ? first(p.name) : 'them') + ' add medicines', 'letAdd')),
         isDemo() ? null : h('div', { class: 'cb-new' }, h('p', { class: 'hint' }, 'Tablet lost, or link shared by mistake? Make a new link. The old one stops working right away.'),
           ui.button('Make a new link', { variant: 'danger', icon: 'repeat', onClick: async () => {
@@ -305,7 +305,7 @@
       h('p', {}, 'For a grandparent, a parent, a child who is sick, or anyone getting better. Add their medicines here. Their own tablet shows a big, simple pill box that glows and rings softly when it is time, and you see on your phone when they took them.'),
       h('ul', { class: 'ci-list' }, h('li', {}, '✅ One tap to say “I took them” — no more “did she take it?”'),
         h('li', {}, '💊 Know when pills run out, with a pick-up task in Chores'),
-        h('li', {}, '🙋 A big “I need help” button that tells the family right away')),
+        h('li', {}, '🙋 A big “I need help” button that shows up in your family’s Kalendaryo')),
       h('p', { class: 'hint' }, 'Kalendaryo is a reminder helper, not a medical device. Always follow the doctor or pharmacist.'),
       canEdit() ? h('div', { class: 'btn-row' }, ui.button('Add a medicine', { variant: 'primary', big: true, icon: 'plus', onClick: () => addMedicine() }),
         ui.button('Not for us. Hide Care', { variant: 'ghost', onClick: async () => { if (await ui.confirm({ title: 'Hide Care?', message: 'Care leaves the menu for everyone. Turn it back on any time in Settings → Care.', confirmLabel: 'Hide Care' }) && await C().saveCare({ on: false })) { ui.toast('Care is hidden. Turn it on again in Settings.'); PL.nav.go('home'); } } })) : null);
@@ -374,7 +374,7 @@
     const section = (title, intro, ...kids) => h('section', { class: 'card settings-card care-set' }, h('h2', {}, title), intro ? h('p', { class: 'sub' }, intro) : null, ...kids);
     const onT = ui.toggle('Show Care in the menu', s.on, (v) => C().saveCare({ on: v }));
     const careCard = section('Care', 'Help someone at home take their medicines on time. Their own tablet shows a simple Care board.', onT.el,
-      h('div', { class: 'field' }, h('span', { class: 'field-label' }, 'Who gets care'), h('div', { class: 'chip-row' }, PL.state.members.map((m) => personPick(m, s.people.includes(m.id) || PL.state.meds.some((x) => x.who === m.id && !x.stopped), () => {
+      h('div', { class: 'field' }, h('span', { class: 'field-label' }, 'Who gets care'), h('div', { class: 'chip-row' }, PL.state.members.filter((m) => m.role !== 'pet').map((m) => personPick(m, s.people.includes(m.id) || PL.state.meds.some((x) => x.who === m.id && !x.stopped), () => {
         const set = new Set(s.people); set.has(m.id) ? set.delete(m.id) : set.add(m.id); C().saveCare({ people: [...set] });
       }))), h('p', { class: 'hint' }, 'Medicines and the Care board are set up on the Care page.')),
       h('div', { class: 'field' }, h('span', { class: 'field-label' }, 'Who can see Care'), (function () { const sg = ui.segmented([{ value: 'all', label: 'Everyone' }, { value: 'adults', label: 'Grown-ups only' }], s.show, (v) => C().saveCare({ show: v }), 'Who can see Care'); return sg.el || sg; })()));

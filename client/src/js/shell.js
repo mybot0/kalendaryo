@@ -29,7 +29,7 @@
     let msg = '';
     if (!s.available && s.ready) msg = 'Not connected to the shared database. Changes cannot be saved from this view.';
     else if (!s.online) msg = 'You are offline. Showing the last saved copy.';
-    else if (s.fromCache && s.ready) msg = 'Loading the latest from your family…';
+    else if (s.fromCache && s.ready) msg = 'Loading the latest from your hub…';
     banner.textContent = msg;
     banner.hidden = !msg;
   }
