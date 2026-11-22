@@ -994,6 +994,17 @@ html.has-sheet .toast { bottom: calc(110px + env(safe-area-inset-bottom)); }
   .rail { display: flex; flex-direction: column; }
   .theme-btn { display: flex; margin-top: auto; }
 }
+/* Wide screens that are not tall (iPad sideways, small laptops): a little less space between menu lines so every
+   line fits, Dark mode included. The menu uses the height you can see (dvh) and scrolls on its own if it still does not fit. */
+@media (min-width: 900px) {
+  .rail { height: 100dvh; overflow-y: auto; overscroll-behavior: contain; }
+}
+@media (min-width: 900px) and (max-height: 820px) {
+  .rail { padding-top: 16px; padding-bottom: 12px; }
+  .brand { padding-bottom: 14px; }
+  .nav { gap: 2px; }
+  .nav-btn { min-height: 44px; }
+}
 
 /* wall Notes card: a dimmer sticky note at night */
 :root[data-theme="dark"] .wn { background: #E9D98F; }
@@ -1522,10 +1533,10 @@ body:has(> .tour-switch) .content:has(> .demo-banner) .main { padding-top: 24px;
 /* the two buttons: a soft glow under them and a ring that ripples out every 1.6 s (still for reduced motion) */
 .lp .land-pick-home .lp-go { --g: 63,115,96; }
 .lp .land-pick-trip .lp-go { --g: 184,88,58; }
-.lp .lp-go { box-shadow: 0 0 0 3px rgba(var(--g),.22), 0 8px 18px 0 rgba(var(--g),.45); animation: lp-ring 1.6s cubic-bezier(.5,1,.89,1) infinite; }
+.lp .lp-go { box-shadow: 0 8px 18px 0 rgba(var(--g),.45); animation: lp-ring 1.6s cubic-bezier(.5,1,.89,1) infinite; }
 @keyframes lp-ring {
-  from { box-shadow: 0 0 0 3px rgba(var(--g),.22), 0 8px 18px 0 rgba(var(--g),.45), 0 0 0 0 rgba(var(--g),.6); }
-  to   { box-shadow: 0 0 0 3px rgba(var(--g),.22), 0 8px 18px 0 rgba(var(--g),.45), 0 0 0 14px rgba(var(--g),0); }
+  from { box-shadow: 0 8px 18px 0 rgba(var(--g),.45), 0 0 0 0 rgba(var(--g),.6); }
+  to   { box-shadow: 0 8px 18px 0 rgba(var(--g),.45), 0 0 0 14px rgba(var(--g),0); }
 }
 @media (prefers-reduced-motion: reduce) { .lp .lp-go { animation: none; } }
 :root.reduce-motion .lp .lp-go, .reduce-motion .lp .lp-go { animation: none; }
@@ -1589,6 +1600,25 @@ button.fl-row:last-child { border-bottom: 0; }
 /* Home: a note while the sample plans are there */
 .sample-note { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
 .sample-note p { flex: 1; min-width: 200px; margin: 0; }
+
+/* Home: Wall mode glows 5 times (a soft glow and a ring that ripples out), then rests 5 s, then again. No edge line. */
+.wall-glow { animation: wall-glow 13s linear infinite; }
+@keyframes wall-glow {
+  0% { box-shadow: 0 8px 18px 0 rgba(63,115,96,0), 0 0 0 0 rgba(63,115,96,0); }
+  0.008% { box-shadow: 0 8px 18px 0 rgba(63,115,96,.45), 0 0 0 0 rgba(63,115,96,.6); animation-timing-function: cubic-bezier(.5,1,.89,1); }
+  12.292% { box-shadow: 0 8px 18px 0 rgba(63,115,96,.45), 0 0 0 14px rgba(63,115,96,0); animation-timing-function: steps(1, end); }
+  12.315% { box-shadow: 0 8px 18px 0 rgba(63,115,96,.45), 0 0 0 0 rgba(63,115,96,.6); animation-timing-function: cubic-bezier(.5,1,.89,1); }
+  24.600% { box-shadow: 0 8px 18px 0 rgba(63,115,96,.45), 0 0 0 14px rgba(63,115,96,0); animation-timing-function: steps(1, end); }
+  24.623% { box-shadow: 0 8px 18px 0 rgba(63,115,96,.45), 0 0 0 0 rgba(63,115,96,.6); animation-timing-function: cubic-bezier(.5,1,.89,1); }
+  36.908% { box-shadow: 0 8px 18px 0 rgba(63,115,96,.45), 0 0 0 14px rgba(63,115,96,0); animation-timing-function: steps(1, end); }
+  36.931% { box-shadow: 0 8px 18px 0 rgba(63,115,96,.45), 0 0 0 0 rgba(63,115,96,.6); animation-timing-function: cubic-bezier(.5,1,.89,1); }
+  49.215% { box-shadow: 0 8px 18px 0 rgba(63,115,96,.45), 0 0 0 14px rgba(63,115,96,0); animation-timing-function: steps(1, end); }
+  49.238% { box-shadow: 0 8px 18px 0 rgba(63,115,96,.45), 0 0 0 0 rgba(63,115,96,.6); animation-timing-function: cubic-bezier(.5,1,.89,1); }
+  61.523% { box-shadow: 0 8px 18px 0 rgba(63,115,96,.45), 0 0 0 14px rgba(63,115,96,0); animation-timing-function: ease; }
+  64.615% { box-shadow: 0 8px 18px 0 rgba(63,115,96,0), 0 0 0 0 rgba(63,115,96,0); }
+  100% { box-shadow: 0 8px 18px 0 rgba(63,115,96,0), 0 0 0 0 rgba(63,115,96,0); }
+}
+@media (prefers-reduced-motion: reduce) { .wall-glow { animation: none; } }
 
 /* ---------- guide.js: first-visit guide (web version only) ---------- */
 .g-layer { position: fixed; inset: 0; z-index: 120; font-family: var(--font); }
@@ -9469,6 +9499,8 @@ body:has(> .tour-switch) .main { padding-top: 62px; }
   const timeText = (d) => d.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit', hour12: PL.state.settings.hour12 !== false });
   const open = (screen, params) => () => PL.nav.go(screen, params);
   const newEvent = (date) => () => PL.eventUi.openForm({ mode: 'create', date: date || D.today() });
+  // Wall mode on Home: glows 5 times, rests 5 seconds, again (web.css "wall-glow"; still with reduced motion).
+  const wallBtn = () => { const b = ui.button('Wall mode', { big: true, icon: 'expand', onClick: () => PL.photos.openWall('wall') }); b.classList.add('wall-glow'); return b; };
 
   /* ---------- widgets ---------- */
   function todayWidget() {
@@ -9593,7 +9625,7 @@ body:has(> .tour-switch) .main { padding-top: 62px; }
         const top = h('header', { class: 'home-top' },
           h('div', { class: 'clock' }, h('div', { class: 'greeting' }, greeting), timeEl, dateEl),
           sky,
-          h('div', { class: 'quick btn-row' }, ui.button('Wall mode', { big: true, icon: 'expand', onClick: () => PL.photos.openWall('wall') }), ui.button('Add event', { variant: 'primary', big: true, icon: 'plus', onClick: newEvent() })));
+          h('div', { class: 'quick btn-row' }, wallBtn(), ui.button('Add event', { variant: 'primary', big: true, icon: 'plus', onClick: newEvent() })));
 
         const reminders = PL.cal.dueReminders(now);
         const remBox = reminders.length ? h('div', { class: 'reminders', role: 'status' }, reminders.map((r) => reminderBanner(r, now))) : null;

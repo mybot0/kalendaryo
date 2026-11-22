@@ -73,6 +73,17 @@
   .rail { display: flex; flex-direction: column; }
   .theme-btn { display: flex; margin-top: auto; }
 }
+/* Wide screens that are not tall (iPad sideways, small laptops): a little less space between menu lines so every
+   line fits, Dark mode included. The menu uses the height you can see (dvh) and scrolls on its own if it still does not fit. */
+@media (min-width: 900px) {
+  .rail { height: 100dvh; overflow-y: auto; overscroll-behavior: contain; }
+}
+@media (min-width: 900px) and (max-height: 820px) {
+  .rail { padding-top: 16px; padding-bottom: 12px; }
+  .brand { padding-bottom: 14px; }
+  .nav { gap: 2px; }
+  .nav-btn { min-height: 44px; }
+}
 
 /* wall Notes card: a dimmer sticky note at night */
 :root[data-theme="dark"] .wn { background: #E9D98F; }

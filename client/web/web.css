@@ -143,10 +143,10 @@ body:has(> .tour-switch) .content:has(> .demo-banner) .main { padding-top: 24px;
 /* the two buttons: a soft glow under them and a ring that ripples out every 1.6 s (still for reduced motion) */
 .lp .land-pick-home .lp-go { --g: 63,115,96; }
 .lp .land-pick-trip .lp-go { --g: 184,88,58; }
-.lp .lp-go { box-shadow: 0 0 0 3px rgba(var(--g),.22), 0 8px 18px 0 rgba(var(--g),.45); animation: lp-ring 1.6s cubic-bezier(.5,1,.89,1) infinite; }
+.lp .lp-go { box-shadow: 0 8px 18px 0 rgba(var(--g),.45); animation: lp-ring 1.6s cubic-bezier(.5,1,.89,1) infinite; }
 @keyframes lp-ring {
-  from { box-shadow: 0 0 0 3px rgba(var(--g),.22), 0 8px 18px 0 rgba(var(--g),.45), 0 0 0 0 rgba(var(--g),.6); }
-  to   { box-shadow: 0 0 0 3px rgba(var(--g),.22), 0 8px 18px 0 rgba(var(--g),.45), 0 0 0 14px rgba(var(--g),0); }
+  from { box-shadow: 0 8px 18px 0 rgba(var(--g),.45), 0 0 0 0 rgba(var(--g),.6); }
+  to   { box-shadow: 0 8px 18px 0 rgba(var(--g),.45), 0 0 0 14px rgba(var(--g),0); }
 }
 @media (prefers-reduced-motion: reduce) { .lp .lp-go { animation: none; } }
 :root.reduce-motion .lp .lp-go, .reduce-motion .lp .lp-go { animation: none; }
@@ -210,3 +210,22 @@ button.fl-row:last-child { border-bottom: 0; }
 /* Home: a note while the sample plans are there */
 .sample-note { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
 .sample-note p { flex: 1; min-width: 200px; margin: 0; }
+
+/* Home: Wall mode glows 5 times (a soft glow and a ring that ripples out), then rests 5 s, then again. No edge line. */
+.wall-glow { animation: wall-glow 13s linear infinite; }
+@keyframes wall-glow {
+  0% { box-shadow: 0 8px 18px 0 rgba(63,115,96,0), 0 0 0 0 rgba(63,115,96,0); }
+  0.008% { box-shadow: 0 8px 18px 0 rgba(63,115,96,.45), 0 0 0 0 rgba(63,115,96,.6); animation-timing-function: cubic-bezier(.5,1,.89,1); }
+  12.292% { box-shadow: 0 8px 18px 0 rgba(63,115,96,.45), 0 0 0 14px rgba(63,115,96,0); animation-timing-function: steps(1, end); }
+  12.315% { box-shadow: 0 8px 18px 0 rgba(63,115,96,.45), 0 0 0 0 rgba(63,115,96,.6); animation-timing-function: cubic-bezier(.5,1,.89,1); }
+  24.600% { box-shadow: 0 8px 18px 0 rgba(63,115,96,.45), 0 0 0 14px rgba(63,115,96,0); animation-timing-function: steps(1, end); }
+  24.623% { box-shadow: 0 8px 18px 0 rgba(63,115,96,.45), 0 0 0 0 rgba(63,115,96,.6); animation-timing-function: cubic-bezier(.5,1,.89,1); }
+  36.908% { box-shadow: 0 8px 18px 0 rgba(63,115,96,.45), 0 0 0 14px rgba(63,115,96,0); animation-timing-function: steps(1, end); }
+  36.931% { box-shadow: 0 8px 18px 0 rgba(63,115,96,.45), 0 0 0 0 rgba(63,115,96,.6); animation-timing-function: cubic-bezier(.5,1,.89,1); }
+  49.215% { box-shadow: 0 8px 18px 0 rgba(63,115,96,.45), 0 0 0 14px rgba(63,115,96,0); animation-timing-function: steps(1, end); }
+  49.238% { box-shadow: 0 8px 18px 0 rgba(63,115,96,.45), 0 0 0 0 rgba(63,115,96,.6); animation-timing-function: cubic-bezier(.5,1,.89,1); }
+  61.523% { box-shadow: 0 8px 18px 0 rgba(63,115,96,.45), 0 0 0 14px rgba(63,115,96,0); animation-timing-function: ease; }
+  64.615% { box-shadow: 0 8px 18px 0 rgba(63,115,96,0), 0 0 0 0 rgba(63,115,96,0); }
+  100% { box-shadow: 0 8px 18px 0 rgba(63,115,96,0), 0 0 0 0 rgba(63,115,96,0); }
+}
+@media (prefers-reduced-motion: reduce) { .wall-glow { animation: none; } }

@@ -13,6 +13,8 @@
   const timeText = (d) => d.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit', hour12: PL.state.settings.hour12 !== false });
   const open = (screen, params) => () => PL.nav.go(screen, params);
   const newEvent = (date) => () => PL.eventUi.openForm({ mode: 'create', date: date || D.today() });
+  // Wall mode on Home: glows 5 times, rests 5 seconds, again (web.css "wall-glow"; still with reduced motion).
+  const wallBtn = () => { const b = ui.button('Wall mode', { big: true, icon: 'expand', onClick: () => PL.photos.openWall('wall') }); b.classList.add('wall-glow'); return b; };
 
   /* ---------- widgets ---------- */
   function todayWidget() {
@@ -137,7 +139,7 @@
         const top = h('header', { class: 'home-top' },
           h('div', { class: 'clock' }, h('div', { class: 'greeting' }, greeting), timeEl, dateEl),
           sky,
-          h('div', { class: 'quick btn-row' }, ui.button('Wall mode', { big: true, icon: 'expand', onClick: () => PL.photos.openWall('wall') }), ui.button('Add event', { variant: 'primary', big: true, icon: 'plus', onClick: newEvent() })));
+          h('div', { class: 'quick btn-row' }, wallBtn(), ui.button('Add event', { variant: 'primary', big: true, icon: 'plus', onClick: newEvent() })));
 
         const reminders = PL.cal.dueReminders(now);
         const remBox = reminders.length ? h('div', { class: 'reminders', role: 'status' }, reminders.map((r) => reminderBanner(r, now))) : null;
