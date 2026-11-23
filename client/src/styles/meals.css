@@ -297,6 +297,9 @@
 .stepper button { width: 40px; height: 40px; border: 0; border-radius: 12px; background: var(--surface-2); font: 800 1.3rem var(--font); color: var(--ink); cursor: pointer; }
 .stepper-num { min-width: 1.4em; text-align: center; font-size: 1.1rem; }
 .stepper span:last-child { padding-right: 8px; }
+/* a number you can also type (Countdown starts): looks like the plain number */
+.stepper .stepper-input { width: 3.2em; border: 0; background: none; padding: 0; font: inherit; font-size: 1.1rem; font-weight: 800; color: var(--ink); text-align: center; -moz-appearance: textfield; }
+.stepper .stepper-input::-webkit-outer-spin-button, .stepper .stepper-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
 .find-tip { color: #7A5A00; font-size: .92rem; margin: 0; }
 .cooking { display: flex; align-items: center; gap: 12px; color: #7A5A00; font-weight: 700; padding: 6px 0; }
 .cooking-pot { font-size: 1.9rem; display: inline-block; animation: cook-bob 1s ease-in-out infinite; }

@@ -18,6 +18,8 @@
   const isKey = (v) => typeof v === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(v);
   const isTime = (v) => typeof v === 'string' && /^\d{2}:\d{2}$/.test(v);
 
+  // Days before a countdown starts showing on Home: a whole number 1-365, or 0 for "not set".
+  const startDays = (v) => { const n = parseInt(v, 10); return Number.isFinite(n) && n >= 1 ? Math.min(365, n) : 0; };
   const stars = (v) => (v == null || v === '' ? 1 : Math.min(10, Math.max(0, parseInt(v, 10) || 0)));
 
   function cleanRepeat(r) {
@@ -129,6 +131,8 @@
 
     countdown(d) {
       const out = { title: text(d.title, 60) || 'Countdown', date: isKey(d.date) ? d.date : PL.D.today(), emoji: text(d.emoji, 8), yearly: !!d.yearly };
+      // How many days before the date it starts showing on Home. Not set (countdowns made before this setting) = always.
+      const sd = startDays(d.startDays); if (sd) out.startDays = sd;
       if (d.demo) out.demo = true;
       return out;
     },
@@ -175,6 +179,8 @@
         color: /^#[0-9a-fA-F]{6}$/.test(d.color) ? d.color : C.palette[0].hex,
         birthday: isKey(d.birthday) ? d.birthday : ''
       };
+      // The birthday countdown starts this many days before (default 30 when not set).
+      const sd = startDays(d.countdownDays); if (out.birthday && sd) out.countdownDays = sd;
       // From the new-hub questions (all optional): who they are to the owner ("Grandma", or a pet's kind like "Dog"),
       // where they live when it is not with you ({ name, tz }), and the access their link gives ('editor' | 'viewer').
       if (text(d.relation, 24)) out.relation = text(d.relation, 24);

@@ -1,7 +1,9 @@
 /*
  * screens/countdowns.js — days until the things the family is looking forward to.
- *   countdowns/{id}  { title, date, emoji, yearly }
+ *   countdowns/{id}  { title, date, emoji, yearly, startDays? }
  * A yearly countdown (a birthday, a holiday) always points at the next one.
+ * startDays: it shows on Home only from this many days before (new ones: 30). Not set = always, like before.
+ * Each person's birthday (People) is a yearly countdown too, made here on the fly: no need to add it twice.
  */
 (function () {
   const PL = (window.PL = window.PL || {});
@@ -21,9 +23,39 @@
   function daysLeft(c, today) { return D.diff(today || D.today(), target(c, today || D.today())); }
   function label(n) { return n === 0 ? 'Today!' : n === 1 ? 'Tomorrow' : n > 0 ? n + ' days' : Math.abs(n) === 1 ? 'Yesterday' : Math.abs(n) + ' days ago'; }
 
+  const DEFAULT_START = 30;
+  const norm = (s) => String(s || '').toLowerCase().replace(/[’']/g, '').replace(/\s+/g, ' ').trim();
+  // People's birthdays as yearly countdowns. Skipped when the family already made the same countdown by hand.
+  function birthdays() {
+    const mine = new Set(PL.state.countdowns.map((c) => norm(c.title)));
+    return PL.state.members.filter((m) => m.birthday).map((m) => ({ id: 'bday-' + m.id, member: m, title: m.name + '’s birthday', date: m.birthday, emoji: '🎂', yearly: true, startDays: m.countdownDays || DEFAULT_START }))
+      .filter((c) => !mine.has(norm(c.title)));
+  }
+  function all() { return PL.state.countdowns.concat(birthdays()); }
   function sorted() {
     const today = D.today();
-    return PL.state.countdowns.map((c) => ({ c, n: daysLeft(c, today) })).sort((a, b) => (a.n < 0) - (b.n < 0) || (a.n >= 0 ? a.n - b.n : b.n - a.n));
+    return all().map((c) => ({ c, n: daysLeft(c, today) })).sort((a, b) => (a.n < 0) - (b.n < 0) || (a.n >= 0 ? a.n - b.n : b.n - a.n));
+  }
+  // Shows on Home now? Countdowns from before the setting (no startDays) always do.
+  const onHome = (c, n) => n >= 0 && (!c.startDays || n <= c.startDays);
+  // A birthday opens its person; anything else opens the countdown form.
+  const open = (c) => (c.member ? PL.familyUi.openForm(c.member) : openForm(c));
+
+  // "Starts − 30 + days before": the same − / + box as in Meals, and the number can be typed.
+  function startField(days, onChange) {
+    let v = days;
+    const clamp = (n) => Math.min(365, Math.max(1, parseInt(n, 10) || 1));
+    const num = h('input', { type: 'number', inputmode: 'numeric', min: '1', max: '365', class: 'stepper-num stepper-input', 'aria-label': 'Days before' });
+    num.value = String(v);
+    const set = (n) => { v = clamp(n); num.value = String(v); onChange(v); };
+    num.addEventListener('input', () => { if (num.value !== '') { v = clamp(num.value); onChange(v); } });
+    num.addEventListener('blur', () => set(num.value));
+    const box = h('div', { class: 'stepper', role: 'group', 'aria-label': 'Countdown starts' },
+      h('span', {}, 'Starts'),
+      h('button', { type: 'button', 'aria-label': 'Fewer days', onclick: () => set(v - 1) }, '−'), num,
+      h('button', { type: 'button', 'aria-label': 'More days', onclick: () => set(v + 1) }, '+'),
+      h('span', {}, 'days before'));
+    return ui.field('Countdown starts', box, 'Shows on Home from this many days before. Tap − or + or type a number.');
   }
 
   function openForm(c) {
@@ -36,11 +68,15 @@
     const paint = () => grid.replaceChildren(...EMOJI.map((e) => h('button', { type: 'button', role: 'radio', class: 'avatar-opt' + (e === emoji ? ' on' : ''), 'aria-checked': e === emoji ? 'true' : 'false', 'aria-label': e, onclick: () => { emoji = e; paint(); } }, e)));
     paint();
     const tog = ui.toggle('Every year', yearly, (v) => { yearly = v; });
+    // New: 30 days. A countdown from before this setting stays "always on Home" unless someone changes the number.
+    let startDays = c ? c.startDays || 0 : DEFAULT_START;
+    const start = startField(startDays || DEFAULT_START, (n) => { startDays = n; });
     async function save() {
       const t = title.value.trim();
       if (!t) { ui.toast('Please type a name first.'); title.focus(); return; }
       if (!date.value) { ui.toast('Please pick a date.'); date.focus(); return; }
       const data = { title: t, date: date.value, emoji, yearly };
+      if (startDays) data.startDays = startDays;
       const ok = c ? await PL.store.set('countdowns', c.id, data) : !!(await PL.store.add('countdowns', data));
       if (ok) { s.close(); ui.toast('Saved.'); }
     }
@@ -48,17 +84,17 @@
     if (c) footer.unshift(ui.button('Delete', { variant: 'danger', icon: 'trash', onClick: async () => { if (await ui.confirm({ title: 'Delete this countdown?', message: '“' + c.title + '” will be removed for everyone.', confirmLabel: 'Delete', danger: true }) && await PL.store.del('countdowns', c.id)) { s.close(); ui.toast('Deleted.'); } } }));
     const s = ui.sheet({ title: c ? 'Edit countdown' : 'New countdown', footer,
       body: h('form', { class: 'event-form', onsubmit: (e) => { e.preventDefault(); save(); } },
-        ui.field('Name', title), ui.field('Date', date), h('div', { class: 'field' }, h('span', { class: 'field-label' }, 'Picture'), grid), tog.el) });
+        ui.field('Name', title), ui.field('Date', date), h('div', { class: 'field' }, h('span', { class: 'field-label' }, 'Picture'), grid), tog.el, start) });
   }
 
   function widget() {
-    const rows = sorted().filter((x) => x.n >= 0).slice(0, 4);
+    const rows = sorted().filter((x) => onHome(x.c, x.n)).slice(0, 4);
     if (!rows.length) return ui.emptyState({ icon: 'cake', title: 'Nothing to count down to', text: 'Add a trip, a birthday or a holiday.', action: ui.button('Add countdown', { icon: 'plus', onClick: () => openForm(null) }) });
-    return h('div', { class: 'stack' }, rows.map(({ c, n }) => h('button', { type: 'button', class: 'cd-row', onclick: () => openForm(c) },
+    return h('div', { class: 'stack' }, rows.map(({ c, n }) => h('button', { type: 'button', class: 'cd-row', onclick: () => open(c) },
       h('span', { class: 'cd-emoji' }, c.emoji || '🎉'), h('span', { class: 'cd-title' }, c.title), h('span', { class: 'cd-count' }, label(n)))));
   }
 
-  PL.countdownsUi = { widget, daysLeft, openForm };
+  PL.countdownsUi = { widget, daysLeft, openForm, startField, DEFAULT_START };
 
   PL.screens.countdowns = {
     mount(root) {
@@ -69,7 +105,7 @@
         el.replaceChildren(
           h('header', { class: 'page-head' }, h('h1', {}, 'Countdowns'), ui.button('New countdown', { variant: 'primary', big: true, icon: 'plus', onClick: () => openForm(null) })),
           all.length
-            ? h('div', { class: 'cd-grid' }, all.map(({ c, n }) => h('button', { type: 'button', class: 'cd-card', onclick: () => openForm(c), 'aria-label': c.title + ', ' + label(n) },
+            ? h('div', { class: 'cd-grid' }, all.map(({ c, n }) => h('button', { type: 'button', class: 'cd-card', onclick: () => open(c), 'aria-label': c.title + ', ' + label(n) },
                 h('span', { class: 'cd-emoji' }, c.emoji || '🎉'), h('span', { class: 'cd-num' }, n === 0 ? 'Today!' : Math.abs(n)), h('span', { class: 'sub' }, n === 0 ? '' : n > 0 ? (n === 1 ? 'day to go' : 'days to go') : (Math.abs(n) === 1 ? 'day ago' : 'days ago')),
                 h('span', { class: 'cd-title' }, c.title), h('span', { class: 'sub' }, D.fmt(target(c, D.today()), { month: 'short', day: 'numeric', year: 'numeric' })))))
             : ui.emptyState({ icon: 'cake', title: 'Nothing to count down to', text: 'Count the days to a trip, a birthday, the last day of school or a holiday.', action: ui.button('Add the first one', { icon: 'plus', onClick: () => openForm(null) }) }));

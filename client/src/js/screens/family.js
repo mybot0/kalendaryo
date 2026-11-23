@@ -38,11 +38,16 @@
     }
     paintAvatars();
     const err = h('p', { class: 'form-error', role: 'alert', hidden: true });
+    // The birthday countdown on Home: shown once a birthday is filled in.
+    let countdownDays = m.countdownDays || PL.countdownsUi.DEFAULT_START;
+    const start = PL.countdownsUi.startField(countdownDays, (n) => { countdownDays = n; });
+    const showStart = () => { start.hidden = !bday.value; };
+    bday.addEventListener('input', showStart); bday.addEventListener('change', showStart); showStart();
 
     async function save() {
       const nm = name.value.trim();
       if (!nm) { err.textContent = 'Please enter a name.'; err.hidden = false; name.focus(); return; }
-      const data = PL.models.member({ name: nm, role: role.get(), avatar, color: color.get(), birthday: bday.value || '', demo: m.demo, relation: m.relation, place: m.place, access: m.access });
+      const data = PL.models.member({ name: nm, role: role.get(), avatar, color: color.get(), birthday: bday.value || '', countdownDays, demo: m.demo, relation: m.relation, place: m.place, access: m.access });
       const ok = editing ? await PL.store.updateMember(m.id, data) : await PL.store.addMember(data);
       if (ok) { s.close(); ui.toast(editing ? 'Saved.' : nm + ' added.'); }
     }
@@ -57,6 +62,7 @@
         ui.field('Role', role.el),
         ui.field('Color', color.el, 'Used on the calendar for everything this person is part of.'),
         ui.field('Birthday (optional)', bday, 'Birthdays appear on the calendar every year.'),
+        start,
         err),
       footer
     });
