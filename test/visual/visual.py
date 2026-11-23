@@ -27,7 +27,7 @@ BASE = f'http://localhost:{PORT}'
 OWNER_KEY = 'visual-test-owner-key'
 DAY = '2026-11-20'
 CLOCK = DAY + 'T10:00:00-08:00'
-SIZES = {'phone': (390, 844, True), 'ipad': (820, 1180, True), 'ipad-side': (1180, 820, True), 'desktop': (1440, 900, False)}
+SIZES = {'phone': (390, 844, True), 'ipad': (820, 1180, True), 'ipad-side': (1180, 820, True), 'ipad-side-small': (1024, 768, True), 'desktop': (1440, 900, False)}
 TOLERANCE = 0.001  # a screen fails if more than 0.1% of its pixels changed
 
 FONT_CSS = ''.join(
@@ -67,6 +67,7 @@ def screens(board):
     out = [('start-' + s, s, '/', None) for s in ('phone', 'desktop')]
     for scr in ('home', 'calendar', 'lists', 'meals', 'tasks', 'family', 'settings'):
         out += [(f'demo-{scr}-{s}', s, '/demo', nav(scr)) for s in ('phone', 'ipad', 'desktop')]
+    out += [('demo-home-' + s, s, '/demo', nav('home')) for s in ('ipad-side', 'ipad-side-small')]
     out += [('wall-ipad-side', 'ipad-side', '/demo', wall)]
     out += [('games-' + s, s, '/games', None) for s in ('phone', 'ipad')]
     out += [('pares-' + s, s, '/games', game('Pares-Pares')) for s in ('phone', 'ipad', 'ipad-side')]

@@ -72,6 +72,8 @@
 .sky .sky-path text { font: 700 20px var(--font); fill: #A07A50; stroke: none; }
 .wall-top .sky { align-self: stretch; margin: 0 2vw; min-height: clamp(80px, 12vh, 150px); }
 @media (max-width: 899px) { .home-top .sky { display: none; } } /* phones: no room */
+/* iPad sideways and small laptops: the sky gives up room first, so Wall mode and Add event stay on the right, next to it */
+@media (min-width: 900px) { .home-top .sky { flex-basis: 200px; min-width: 150px; } }
 /* phones in wall mode: the sky may sit behind the greeting, but never over the time and date */
 @media (max-width: 640px) {
   .wall-top { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: end; }
