@@ -21,9 +21,6 @@ License text: https://openfontlicense.org
 | Lilita One | Juan Montoreano | Games titles, Brain Train |
 | Nunito | Vernon Adams | Games text, Brain Train |
 
-Brain Train does not load fonts from Google. It uses self-hosted copies of Lilita One and Nunito (latin subset, weights 400, 600 and 800)
-in public/brain-train/fonts, under the same SIL Open Font License 1.1; the license texts are next to them (LICENSE-lilita-one.txt, LICENSE-nunito.txt).
-
 ## Emoji
 
 Emoji (for example the fruit and the memory card pictures in Games) are plain Unicode text.
