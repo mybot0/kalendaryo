@@ -303,6 +303,102 @@ button:disabled{cursor:default}
   #ride .feedback p{font-size:1rem;line-height:1.25}
   #ride .feedback .big{font-size:1.2rem;min-height:56px;padding:8px 26px}
 }
+/* PHONE RIDE LAYOUT (phones held upright, narrower than 600px; v1.7). The ride screen is exactly one screen tall and never scrolls:
+   question, all answers, and after answering the feedback + Next. Home screen, tablets and the wide layout are untouched.
+   The script (fitPhone) picks the sizes: it sets --qf/--af/--ff/--tf/--hf/--ah and the fit-* classes on #ride. No :has(), no zoom. */
+@media (max-width:599px) and (orientation:portrait){
+  body.ride-on{height:calc(100vh - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px));height:calc(100dvh - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px));overflow:hidden}
+  #ride{--g:10px;--cp:12px;--cg:10px;--ag:10px;--th:68px;--z:.6;--rb:48px;
+    --qf:max(22px,1.25rem);--af:max(19px,1.05rem);--ff:max(17px,.95rem);--tf:max(17px,.9rem);--hf:max(22px,1.15rem);--ah:52px;
+    position:relative;max-width:none;margin:0;height:100%;padding:8px 10px 10px;gap:var(--g);display:flex;flex-direction:column;overflow:hidden}
+  #ride.fit-g1{--g:8px;--cp:9px;--cg:7px;--ag:8px}
+  #ride.fit-g2{--g:5px;--cp:7px;--cg:5px;--ag:7px;--rb:46px}
+
+  /* 1. header: one slim row. Back | Station 1 of 3 + level pill + fog count | stars */
+  #ride .rbar{flex:none;height:var(--rb);gap:8px}
+  #ride .back{flex:none;height:44px;min-height:44px;padding:0 12px;font-size:16px;border-radius:12px;box-shadow:0 3px 0 var(--ink);white-space:nowrap}
+  #ride .rmid{flex:1;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:1px 8px;align-content:center}
+  #ride .rbar h2{flex:none;font-size:18px;line-height:1.1;white-space:nowrap}
+  #ride .status{flex:none;flex-wrap:nowrap;gap:6px}
+  #ride .lvl{font-size:15px;line-height:1.2;padding:1px 10px}
+  #ride .steam{font-size:15px;line-height:1.2;white-space:nowrap}
+  #ride .steam:empty{display:none}
+  #ride .starbox{flex:none;font-size:18px}
+
+  /* 2. track: a slim strip; ground, rail, flags and train are sized together by --z (explicit sizes, no zoom) */
+  #ride .track{flex:none;height:var(--th);border-radius:16px;box-shadow:4px 4px 0 var(--ink)}
+  #ride .track::before{height:calc(34px*var(--z))}
+  #ride .rail{bottom:calc(26px*var(--z));height:calc(12px*var(--z));border-top-width:3px;background:repeating-linear-gradient(90deg,#8a5a2b 0 calc(8px*var(--z)),transparent calc(8px*var(--z)) calc(22px*var(--z)))}
+  #ride .stn{bottom:calc(40px*var(--z))}
+  #ride .stn:nth-child(1){left:6px!important}
+  #ride .stn:nth-child(2){left:calc((6px + var(--tw))*var(--z) + (100% - (var(--tw) + 12px)*var(--z))*.3333)!important}
+  #ride .stn:nth-child(3){left:calc((6px + var(--tw))*var(--z) + (100% - (var(--tw) + 12px)*var(--z))*.6667)!important}
+  #ride .stn:nth-child(4){left:calc(100% - 16px)!important}
+  #ride .stn .flag{font-size:13px;border-width:2px;border-radius:6px;padding:2px 5px}
+  #ride .stn .pole{width:3px;height:calc(22px*var(--z))}
+  #ride .trainwrap{bottom:calc(22px*var(--z));left:calc((100% - (var(--tw,84px) + 12px)*var(--z))*var(--p,0) + 6px*var(--z))}
+  #ride .trainwrap svg{width:calc(40px*var(--z));height:calc(66px*var(--z))}
+  #ride .trainwrap svg:last-child{width:calc(84px*var(--z))}
+  #ride .fogcloud svg{width:auto;height:92%}
+  /* very short screens only: a thinner strip without flags, then no strip */
+  #ride.fit-trk-s{--th:46px;--z:.42}
+  #ride.fit-trk-s .stn{display:none}
+  #ride.fit-trk-0 .track{display:none}
+
+  /* 3. helpers: one row of three; icon + name, no description line */
+  #ride .helpers{flex:none;display:flex;gap:6px}
+  #ride .help{flex:1 1 auto;flex-direction:row;justify-content:center;align-items:center;gap:5px;min-width:min-content;min-height:52px;padding:4px 7px;border-radius:14px;box-shadow:0 3px 0 var(--ink);text-align:left}
+  #ride .help .hi{font-size:20px}
+  #ride .help .ht{display:block}
+  #ride .help b{display:block;font-size:15px;line-height:1.1}
+  #ride .help small{display:none}
+  #ride .help:disabled{box-shadow:0 1px 0 var(--ink);transform:translateY(2px)}
+
+  /* 4. question card: fills the rest. Topic chip + Read aloud on one line, question, answers */
+  #ride .qcard{flex:1 1 auto;padding:var(--cp);gap:var(--cg);border-radius:20px;box-shadow:4px 4px 0 var(--ink)}
+  #ride .qmeta{flex:none;flex-wrap:nowrap;gap:8px}
+  #ride .qcat{flex:0 1 auto;font-size:15px;line-height:1.1;padding:5px 10px;border-radius:14px}
+  #ride .qmeta .small{flex:none;align-self:center;max-width:9.6em;min-height:44px;padding:3px 10px;font-size:15px;line-height:1.1;text-align:left}
+  #ride .qtext{flex:1 1 auto;display:flex;align-items:center;font-size:var(--qf);line-height:1.12}
+  #ride .qpic{flex:none;font-size:calc(var(--qf)*1.2);line-height:1.15;letter-spacing:2px}
+  /* Conductor's Tip takes the track's place while the question is open, so nothing below it moves */
+  #ride.tip-shown .track{display:none}
+  #ride .tipbox{flex:none;display:flex;align-items:center;min-height:var(--th);margin:0;font-size:var(--tf);line-height:1.2;padding:6px 12px;border-radius:14px}
+  #ride .qcard .hint{flex:none;font-size:15px;line-height:1.2}
+  #ride .answers,#ride .tfrow{flex:none;display:flex;flex-direction:column;gap:var(--ag)}
+  #ride .ans{flex:none;min-height:var(--ah);padding:3px 10px;gap:10px;font-size:var(--af);line-height:1.1;border-radius:16px;box-shadow:0 4px 0 var(--ink)}
+  #ride .ans .key{width:40px;height:40px;border-radius:11px;font-size:20px}
+  #ride .ordtag{width:38px;height:38px;font-size:19px}
+  #ride .tfrow .ans{font-size:calc(var(--af)*1.4)}
+  #ride .qcard>.small{flex:none;min-height:44px;font-size:15px}
+  /* 'Checking... / Change answer' takes the helpers' row for its 2 seconds (the script gives it that row's top and height) */
+  #ride.fit-pend .helpers{visibility:hidden}
+  #ride .pendbar{position:absolute;left:10px;right:10px;z-index:2;flex-wrap:nowrap;gap:8px;padding:0 5px 0 12px;font-size:17px;font-weight:800;background:#fff6d6;border:3px solid var(--ink);border-radius:14px}
+  #ride .pendbar .bar{min-width:40px}
+  #ride .pendbar .small{flex:none;min-height:40px;font-size:15px;padding:2px 10px}
+  /* last resort on very short screens: answers in two columns */
+  #ride.fit-col2 .answers{display:grid;grid-template-columns:1fr 1fr}
+  #ride.fit-col2 .ans{padding:3px 7px;gap:7px}
+  #ride.fit-col2 .ans .key{width:34px;height:34px;font-size:18px}
+
+  /* 5. after answering: helpers and the chip row go away, the feedback takes their room; Next is at the bottom, always in the same place */
+  #ride.is-feedback .helpers,#ride.is-feedback .qmeta,#ride.is-feedback .tipbox,#ride.is-feedback .qcard .hint{display:none}
+  #ride #fbArea{flex:none}
+  #ride #fbArea:empty{display:none}
+  #ride.is-feedback .ans .key{width:34px;height:34px;font-size:18px;border-radius:10px}
+  #ride.is-feedback .ordtag{width:34px;height:34px;font-size:18px}
+  #ride .feedback{padding:9px 12px 10px;gap:5px;border-radius:18px;box-shadow:4px 4px 0 var(--ink)}
+  #ride .feedback h3{font-size:var(--hf)}
+  #ride .feedback p{font-size:var(--ff);line-height:1.22}
+  #ride .feedback .big{width:100%;min-height:56px;margin-top:3px;padding:6px 16px;font-size:24px;border-radius:16px;box-shadow:0 4px 0 var(--ink)}
+  #ride.fit-fbmin .ans.dim{display:none}
+  #ride.fit-noans .answers,#ride.fit-noans .tfrow{display:none}
+  #ride.fit-qclamp .qtext{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;flex:none}
+
+  /* used by the script while it measures */
+  #ride.fit-m .qcard,#ride.fit-m .qtext{flex:none}
+}
+@media (max-width:380px) and (orientation:portrait){#ride .helpers{gap:5px}#ride .help{padding:4px;gap:3px}#ride .help .hi{font-size:18px}}
 </style>
 </head>
 <body>
@@ -430,7 +526,7 @@ const S={
   stars:['stars','bituin'],best:['best ride','pinakamagaling'],
   credit:['Facts from Wikipedia, written in our own words.','Mga datos mula sa Wikipedia, isinulat sa sarili naming salita.'],
   privacy:['Your picks and stars are saved only on this device.','Ang mga pinili mo at bituin ay naka-save lang sa device na ito.'],
-  version:['Brain Train · Version 1.6','Brain Train · Bersyon 1.6'],
+  version:['Brain Train · Version 1.7','Brain Train · Bersyon 1.7'],
   hi:['Hi, {n}!','Kumusta, {n}!'],
   pick:['Pick what you like','Piliin ang gusto mo'],pickhint:['Tap a category to turn it on ✓ or off.','Pindutin ang kategorya para piliin ✓ o alisin.'],
   needcat:['First tap a topic above ⬆','Pumili muna ng paksa sa itaas ⬆'],
@@ -696,6 +792,7 @@ const carSvg=c=>'<svg width="40" height="66" viewBox="0 0 76 96"><rect x="0" y="
 /* ---------- screens ---------- */
 const screens={home:$('#home'),ride:$('#ride')};
 /* wide ride layout: state classes for the CSS (framed = shown inside the Games layer) */
+const PHONE_MQ='(max-width:599px) and (orientation:portrait)';
 let framed=false;try{framed=window.self!==window.top;}catch(e){framed=true;}
 document.body.classList.toggle('framed',framed);
 function go(name){for(const k in screens)screens[k].hidden=k!==name;document.body.classList.toggle('ride-on',name==='ride');window.scrollTo(0,0);if(typeof updHint==='function')updHint();}
@@ -904,7 +1001,7 @@ function resolve(){
   $('#fbArea').innerHTML=fb;
   const nb=$('#nextBtn');
   nb.addEventListener('click',()=>{if(finished||stopped)endRide(finished);else nextQ();});
-  try{nb.scrollIntoView({behavior:reduce?'auto':'smooth',block:'nearest'});}catch(e){}
+  if(!(window.matchMedia&&matchMedia(PHONE_MQ).matches)){try{nb.scrollIntoView({behavior:reduce?'auto':'smooth',block:'nearest'});}catch(e){}}
   if(sound)speak(ok?(lang==='tl'?'Tama!':'Correct!'):t('answer_is',{a:right}));
 }
 function endRide(won){
@@ -940,6 +1037,120 @@ addEventListener('keydown',e=>{
     if(m!==undefined){const b=document.querySelector('[data-a="'+m+'"]');if(b&&!b.disabled)b.click();}
   }
 });
+
+/* ---------- phone ride layout (v1.7): the ride screen is exactly one screen tall on a phone held upright ----------
+   fitPhone() runs after every render. Order of squeezing: gaps -> question text (floor 22px) -> answer / tip / feedback text
+   (floors 19 / 17 / 17px) -> (feedback only) hide the grey unpicked answers -> thinner track -> no track -> two-column answers
+   -> last resort below the floors. Then text sizes are given back while it still fits, and spare height goes to the answers.
+   On tablets and the wide layout it only puts everything back the way it was. */
+(function(){
+  var ride=screens.ride,qc=$('#qcard'),fbA=$('#fbArea');if(!ride||!qc||!fbA||!window.matchMedia)return;
+  var mq=matchMedia(PHONE_MQ);
+  var FIT=['fit-g1','fit-g2','fit-trk-s','fit-trk-0','fit-col2','fit-fbmin','fit-noans','fit-qclamp','fit-pend','fit-m'];
+  var VARS=['--qf','--af','--ff','--tf','--hf','--ah'];
+  var rbar=ride.querySelector('.rbar'),h2=$('#rideTitle'),status=ride.querySelector('.status'),helpers=$('#helpers'),star=$('#starbox');
+  var mid=document.createElement('div');mid.className='rmid';
+  // header on phones: Back | [Station 1 of 3] [Easy] [fog] | stars. Everywhere else the page stays as written.
+  function arrange(on){
+    if(on){if(h2.parentNode!==mid){rbar.insertBefore(mid,h2);mid.appendChild(h2);mid.appendChild(status);}return;}
+    if(mid.parentNode===rbar){rbar.insertBefore(h2,star);rbar.removeChild(mid);ride.insertBefore(status,helpers);}
+    for(var k=ride.children.length-1;k>=0;k--){var e=ride.children[k];if(e.classList&&e.classList.contains('tipbox')){
+      var at=qc.querySelector('.hint,.answers,.tfrow');if(!qc.querySelector('.tipbox')&&at)qc.insertBefore(e,at);else ride.removeChild(e);}}
+    var p=qc.querySelector('.pendbar');if(p){p.style.top='';p.style.height='';}
+  }
+  function vis(e){return e&&e.getClientRects().length>0;}
+  function spare(){            // room left under the last block
+    var kids=ride.children,last=null;
+    for(var i=0;i<kids.length;i++)if(vis(kids[i])&&kids[i].getBoundingClientRect().height>0)last=kids[i];
+    if(!last)return 0;
+    var r=ride.getBoundingClientRect(),pb=parseFloat(getComputedStyle(ride).paddingBottom)||0;
+    return r.bottom-pb-last.getBoundingClientRect().bottom;
+  }
+  function clipped(){          // text that does not fit its own box
+    if(rbar.scrollWidth>rbar.clientWidth+1||mid.scrollHeight>rbar.clientHeight+1)return true;
+    var els=ride.querySelectorAll('.ans,.help,.qmeta,.pendbar,.answers');
+    for(var i=0;i<els.length;i++)if(vis(els[i])&&els[i].scrollWidth>els[i].clientWidth+1)return els[i].className;
+    return false;
+  }
+  function fit(){
+    var cl=ride.classList,st=ride.style;
+    FIT.forEach(function(c){cl.remove(c);});VARS.forEach(function(v){st.removeProperty(v);});
+    ride.removeAttribute('data-fit');
+    arrange(mq.matches);
+    if(ride.hidden||!mq.matches)return;
+    ride.scrollTop=0;var trace=[];
+    // Conductor's Tip: shown where the track is (the track is back as soon as the answer is given)
+    var tb=qc.querySelector('.tipbox'),tipOn=cl.contains('tip-shown');
+    if(!tipOn||tb)for(var k=ride.children.length-1;k>=0;k--)if(ride.children[k].classList.contains('tipbox'))ride.removeChild(ride.children[k]);
+    if(tipOn&&tb)ride.insertBefore(tb,helpers);
+    // 'Checking... / Change answer' sits in the helpers' row for its 2 seconds, so nothing moves
+    var pb=qc.querySelector('.pendbar');
+    if(pb)cl.add('fit-pend');
+    var root=parseFloat(getComputedStyle(document.documentElement).fontSize)||20;
+    var fb=cl.contains('is-feedback'),tf=!!ride.querySelector('.tfrow'),mc=!!ride.querySelector('.ans .key');
+    var s={qf:Math.max(22,Math.round(root*1.25)),af:Math.max(19,Math.round(root*1.05)),ff:Math.max(17,Math.round(root*.95)),
+      tf:Math.max(17,Math.round(root*.9)),hf:Math.max(22,Math.round(root*1.15)),amin:fb?46:(tf?56:52),below:0};
+    function put(){
+      st.setProperty('--qf',s.qf+'px');st.setProperty('--af',s.af+'px');st.setProperty('--ff',s.ff+'px');
+      st.setProperty('--tf',s.tf+'px');st.setProperty('--hf',s.hf+'px');st.setProperty('--ah',s.amin+'px');
+    }
+    function ok(){put();var a=spare(),b=clipped();trace.push(Math.round(a)+(b?'C:'+b:''));return a>=-0.5&&!b;}
+    function down(k,floor){return function(){if(s[k]<=floor)return false;s[k]--;return true;};}
+    function all(){var a=[].slice.call(arguments);return function(){var ch=false;a.forEach(function(f){if(f())ch=true;});return ch;};}
+    function add(c,test){return function(){if(cl.contains(c)||(test&&!test()))return false;cl.add(c);return true;};}
+    function rep(f){f.again=true;return f;}
+    function shortAns(){       // two columns only when every answer is short enough for half the width
+      if(!mc)return false;cl.add('fit-col2');put();var bad=clipped();cl.remove('fit-col2');return !bad;
+    }
+    var steps=fb?[
+      add('fit-g1'),rep(down('qf',22)),add('fit-fbmin'),rep(all(down('af',19),down('ff',17),down('hf',22))),add('fit-g2'),
+      add('fit-noans',function(){return !!ride.querySelector('.ans.bad .ordtag');}),   // wrong order: the feedback already lists the right order
+      add('fit-trk-s'),add('fit-trk-0'),add('fit-qclamp'),add('fit-noans'),
+      rep(function(){if(s.ff<=15)return false;s.ff--;s.below=1;return true;})
+    ]:[
+      add('fit-g1'),rep(down('qf',22)),rep(all(down('af',19),down('tf',17))),add('fit-g2'),
+      add('fit-trk-s'),add('fit-trk-0'),add('fit-col2',shortAns),
+      rep(function(){var ch=false;if(s.amin>46){s.amin-=2;ch=true;}if(s.qf>19){s.qf--;ch=true;}if(s.af>17){s.af--;ch=true;}if(ch)s.below=1;return ch;})
+    ];
+    cl.add('fit-m');
+    var good=ok(),i=0;
+    while(!good&&i<steps.length){
+      if(steps[i]()){good=ok();if(!steps[i].again)i++;}else i++;
+    }
+    // a late step can free more room than was needed: give text sizes back while it still fits
+    if(good&&i>0){
+      var ideal={qf:Math.max(22,Math.round(root*1.25)),af:Math.max(19,Math.round(root*1.05)),ff:Math.max(17,Math.round(root*.95)),
+        tf:Math.max(17,Math.round(root*.9)),hf:Math.max(22,Math.round(root*1.15))};
+      (fb?['ff','hf','af','qf']:['af','tf','qf']).forEach(function(k){
+        while(s[k]<ideal[k]){s[k]++;if(!ok()){s[k]--;break;}}
+      });
+      put();
+    }
+    // share the spare height between the answers
+    var n=0,list=ride.querySelectorAll('.ans');
+    for(var j=0;j<list.length;j++)if(vis(list[j]))n++;
+    var rows=cl.contains('fit-col2')?Math.ceil(n/2):n,sp=Math.max(0,spare());
+    var amax=tf?120:76,ah=s.amin;
+    if(good&&rows)ah=Math.min(amax,s.amin+Math.floor(sp/rows));
+    st.setProperty('--ah',ah+'px');
+    cl.remove('fit-m');
+    if(pb){pb.style.top=helpers.offsetTop+'px';pb.style.height=helpers.offsetHeight+'px';}
+    ride.setAttribute('data-fit',JSON.stringify({ok:good,qf:s.qf,af:s.af,ff:s.ff,tf:s.tf,hf:s.hf,ah:ah,amin:s.amin,below:s.below,
+      trace:trace.join(','),cls:FIT.filter(function(c){return cl.contains(c);}).join(' ')}));
+  }
+  window.__btFit=fit;
+  var pend=0,raf=window.requestAnimationFrame||function(f){return setTimeout(f,16);};
+  function later(){if(!pend)pend=raf(function(){pend=0;fit();});}
+  if(typeof MutationObserver==='function'){
+    new MutationObserver(fit).observe(qc,{childList:true});
+    new MutationObserver(fit).observe(fbA,{childList:true});
+    new MutationObserver(later).observe(ride,{attributes:true,attributeFilter:['hidden']});
+    new MutationObserver(later).observe(document.documentElement,{attributes:true,attributeFilter:['style']});
+  }
+  addEventListener('resize',later);addEventListener('orientationchange',later);
+  if(document.fonts&&document.fonts.ready&&document.fonts.ready.then)document.fonts.ready.then(later);
+  fit();
+})();
 
 paintSize();paintStatic();paintHome();updHint();
 }

@@ -301,13 +301,25 @@
       f.src = src; f.title = label;
       f.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;border:0;display:block';
       // Esc inside the game closes it too, like the other games (the page is from this same site).
+      // Short phones (iPhone SE and the like): while a ride is on, the bar above the game is put away (see games.css),
+      // so the whole question fits on one screen. It comes back on the game's own first screen.
+      let watch = null;
       f.addEventListener('load', () => {
         try { f.contentWindow.addEventListener('keydown', (e) => { if (e.key === 'Escape') { e.preventDefault(); api.close(); } }); } catch (e) { /* ignore */ }
         try { f.focus(); } catch (e) { /* ignore */ }
+        try {
+          const layer = root.closest('.kg-layer'), body = f.contentDocument.body;
+          if (layer && body && typeof MutationObserver === 'function') {
+            const sync = () => layer.classList.toggle('kg-riding', body.classList.contains('ride-on'));
+            if (watch) watch.disconnect();
+            watch = new MutationObserver(sync); watch.observe(body, { attributes: true, attributeFilter: ['class'] }); sync();
+          }
+        } catch (e) { /* ignore */ }
       });
       root.append(f);
       return {
         destroy() {
+          if (watch) watch.disconnect();
           try { f.contentWindow.speechSynthesis.cancel(); } catch (e) { /* ignore */ }
           f.src = 'about:blank'; f.remove();
         }
@@ -325,7 +337,7 @@
   const GAMES = [
     { id: 'memory', title: 'Pares-Pares', ico: ICO_PARES, c: COL.grape, blurb: '<b>A memory game!</b> Flip two cards and find every pair.', make: makeMemory },
     { id: 'snake', title: 'Hangry Snake', logoHtml: '<span class="kg-logo" role="img" aria-label="Hangry Snake">' + ICO_HANGRY + '<span class="kg-logo-t" aria-hidden="true"><span>H<span class="a">ANGRY</span></span><span class="s">SNAKE</span></span></span>', titleHtml: 'H<span class="kg-angry">ANGRY</span> Snake', ico: ICO_HANGRY, c: COL.tomato, blurb: '<b>So hungry, it’s ANGRY!</b> A snake game: eat the fruit and grow longer. Walls wrap around, so nobody crashes.', make: makeSnake },
-    { id: 'brain', title: 'Brain Train', ico: ICO_BRAIN, c: COL.leaf, blurb: '<b>A trivia train ride!</b> Answer right and the train moves to the next station. English or Tagalog.', make: makeFrame('/brain-train', 'Brain Train') }
+    { id: 'brain', title: 'Brain Train', ico: ICO_BRAIN, c: COL.leaf, blurb: '<b>A trivia train ride!</b> Answer right and the train moves to the next station. English or Tagalog.', oneRow: true, make: makeFrame('/brain-train', 'Brain Train') }
   ];
   function tiles() {
     const box = el('div', 'kg-tiles');
@@ -372,6 +384,7 @@
     const title = el('h2'); title.innerHTML = def.logoHtml || def.titleHtml || def.title;
     const score = el('div', 'kg-score'); score.setAttribute('aria-live', 'polite');
     const bar = el('div', 'kg-bar'); bar.append(back, title, score);
+    if (def.oneRow) bar.classList.add('kg-bar-one');   // Brain Train on phones: button and title on one line
     const main = el('div', 'kg-main');
     const box = el('div'); box.style.cssText = 'display:flex;flex-direction:column;height:100%';
     box.append(bar, main);
