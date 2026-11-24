@@ -296,6 +296,7 @@ button:disabled{cursor:default}
 <div id="toast" role="status" hidden></div>
 
 <script>
+(function(){
 {
 'use strict';
 const $=s=>document.querySelector(s);
@@ -834,6 +835,7 @@ addEventListener('keydown',e=>{
 
 paintSize();paintStatic();paintHome();updHint();
 }
+})();
 </script>
 </body>
 </html>
