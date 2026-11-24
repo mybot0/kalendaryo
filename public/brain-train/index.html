@@ -200,6 +200,109 @@ button:disabled{cursor:default}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 @media(max-width:480px){.panelbox{padding:14px 12px}.wrap{padding-inline:12px}.qtext{font-size:1.25rem}.help small{display:none}.track{height:136px}}
 @media(prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+.help .ht{display:contents}
+/* WIDE RIDE LAYOUT (iPad landscape and bigger; v1.6). Two equal columns that fill the frame, no scrolling.
+   Only the ride screen changes; phones, portrait and the home screen are untouched.
+   States come from classes the script sets (no :has): #ride.is-feedback / .tip-shown / .is-pending, body.ride-on / .framed.
+   --m outer margin; --sh room for the hard shadows on the right/bottom; --z scale of the track scene (explicit sizes, no zoom). */
+@media (min-width:900px) and (min-height:560px) and (orientation:landscape){
+  /* inside the Games layer the Kalendaryo background shows through; opened directly the game keeps its own blue */
+  body.framed.ride-on{background:transparent}
+  body.framed.ride-on .endpanel{background:rgba(244,243,238,.92)}
+  #ride{--m:14px;--sh:6px;--cg:calc(var(--m) + 5px);--rg:calc(var(--m) + 4px);--z:1.2;--th:180px;--rb:62px;--hc:84px;--hg:12px;
+    position:relative;max-width:1180px;
+    height:calc(100vh - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px));height:calc(100dvh - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px));
+    padding:var(--m) calc(var(--m) + var(--sh)) calc(var(--m) + var(--sh)) var(--m);
+    display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-rows:var(--rb) var(--th) minmax(min-content,1fr);column-gap:var(--cg);row-gap:var(--rg);align-items:stretch}
+  #ride>.rbar,#ride>.track,#ride>.status,#ride>.helpers,#ride>#fbArea{grid-column:1}
+  #ride>.rbar{grid-row:1}
+  #ride .rbar h2{font-size:1.35rem}
+  #ride .back{font-size:1rem;align-self:stretch;margin-bottom:4px}
+  #ride .starbox{font-size:1.35rem}
+  /* track: fixed height; ground, rail, flags and train are sized up together by --z */
+  #ride>.track{grid-row:2;height:var(--th)}
+  #ride .track::before{height:calc(34px*var(--z));border-top-width:calc(3px*var(--z))}
+  #ride .rail{bottom:calc(26px*var(--z));height:calc(12px*var(--z));border-top-width:calc(4px*var(--z));background:repeating-linear-gradient(90deg,#8a5a2b 0 calc(8px*var(--z)),transparent calc(8px*var(--z)) calc(22px*var(--z)))}
+  #ride .stn{bottom:calc(40px*var(--z))}
+  #ride .stn:nth-child(1){left:calc(8px*var(--z))!important}
+  #ride .stn:nth-child(2){left:calc((6px + var(--tw))*var(--z) + (100% - (var(--tw) + 12px)*var(--z))*.3333)!important}
+  #ride .stn:nth-child(3){left:calc((6px + var(--tw))*var(--z) + (100% - (var(--tw) + 12px)*var(--z))*.6667)!important}
+  #ride .stn:nth-child(4){left:calc(100% - 24px*var(--z))!important}
+  #ride .stn .flag{font-size:calc(.7rem*var(--z));border-width:calc(3px*var(--z));border-radius:calc(8px*var(--z));padding:calc(4px*var(--z)) calc(7px*var(--z))}
+  #ride .stn .pole{width:calc(4px*var(--z));height:calc(22px*var(--z))}
+  #ride .trainwrap{bottom:calc(22px*var(--z));left:calc((100% - (var(--tw,84px) + 12px)*var(--z))*var(--p,0) + 6px*var(--z))}
+  #ride .trainwrap svg{width:calc(40px*var(--z));height:calc(66px*var(--z))}
+  #ride .trainwrap svg:last-child{width:calc(84px*var(--z))}
+  #ride>.status{grid-row:2;align-self:start;position:relative;z-index:2;padding:8px 12px;pointer-events:none}
+  #ride .lvl,#ride .steam{font-size:.95rem}
+  /* helpers: three full-width rows sharing the area; icon + text centred as a group */
+  #ride>.helpers{grid-row:3;display:flex;flex-direction:column;gap:var(--hg)}
+  #ride .help{flex:1 1 0;flex-direction:row;justify-content:center;align-items:center;gap:18px;padding:4px 16px;text-align:left;min-height:64px}
+  #ride .help .ht{display:flex;flex-direction:column;align-items:flex-start;gap:2px}
+  #ride .help .hi{font-size:3rem}
+  #ride .help b{font-size:1.25rem}
+  #ride .help small{font-size:.92rem}
+  #ride .help:disabled{transform:none}
+  /* feedback: fills exactly the helpers' area; text centred between the heading and a full-width Next at the bottom */
+  #ride>#fbArea{grid-row:3;position:relative;z-index:3;display:flex;flex-direction:column;pointer-events:none}
+  #ride.is-feedback>#fbArea{pointer-events:auto}
+  #ride.is-feedback>.helpers{visibility:hidden}
+  #ride .feedback{flex:1 1 auto;gap:6px}
+  #ride .feedback h3{font-size:1.7rem}
+  #ride .feedback p{font-size:1.15rem;line-height:1.3}
+  #ride .feedback h3+p{margin-top:auto}
+  #ride .feedback .big{margin-top:auto;font-size:1.4rem;padding:12px 26px}
+  /* Conductor's Tip: shown where its (now used) button was; the other two helpers become compact rows */
+  #ride.tip-shown .help{flex:0 0 var(--hc);min-height:0}
+  #ride.tip-shown .help[data-help=tip]{flex:1 1 0;visibility:hidden}
+  #ride.tip-shown .help .hi{font-size:2.2rem}
+  #ride .tipbox{position:absolute;left:var(--m);width:calc((100% - 2*var(--m) - var(--sh) - var(--cg))/2);top:calc(var(--m) + var(--rb) + var(--th) + 2*var(--rg) + var(--hc) + var(--hg));bottom:calc(var(--m) + var(--sh) + var(--hc) + var(--hg));display:flex;align-items:center;justify-content:center;text-align:center;z-index:2;font-size:1.15rem}
+  #ride.is-feedback .tipbox{display:none}
+  /* question card: full column height; topic chip and Read aloud sit above it, level with Back; spare height goes into the answers */
+  #ride>#qcard{grid-column:2;grid-row:2/-1}
+  #ride .qmeta{position:absolute;top:var(--m);right:calc(var(--m) + var(--sh));width:calc((100% - 2*var(--m) - var(--sh) - var(--cg))/2);height:calc(var(--rb) - 4px);padding-left:8px;gap:8px;flex-wrap:nowrap;align-items:center}
+  #ride .qmeta .small{flex:none;align-self:center;white-space:nowrap;padding-inline:10px;font-size:.92rem}
+  #ride .qcat{flex:0 1 auto;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-inline:7px;font-size:.88rem}
+  #ride .small{font-size:.92rem}
+  #ride .qtext{font-size:1.7rem;line-height:1.15;text-wrap:wrap}
+  #ride .qcard .hint{font-size:.92rem}
+  #ride .answers,#ride .tfrow{flex:1 1 auto}
+  #ride .answers .ans{flex:1 1 auto;font-size:1.22rem;min-height:70px;padding:8px 14px}
+  #ride.is-pending .ans{min-height:58px;padding-block:2px}
+  #ride .ans .key{width:50px;height:50px;font-size:1.3rem}
+  #ride .ordtag{width:46px;height:46px;font-size:1.25rem}
+  /* True / False: two big stacked buttons, label grows with the screen height */
+  #ride .tfrow{display:flex;flex-direction:column}
+  #ride .tfrow .ans{flex:1 1 0;font-size:clamp(1.4rem,11vh,3.6rem)}
+}
+/* Compact wide screens (5th-gen iPad landscape inside the Games layer, about 1024 x 600; anything under 1100 wide or 745 tall): smaller text, modest trims */
+@media (min-width:900px) and (min-height:560px) and (orientation:landscape) and (max-height:744px),(min-width:900px) and (max-width:1099px) and (min-height:560px) and (orientation:landscape){
+  #ride{--m:8px;--z:1;--th:136px;--rb:52px;--hc:72px;--hg:10px}
+  #ride .rbar h2,#ride .starbox{font-size:1.15rem}
+  #ride .back{font-size:.85rem}
+  #ride>.status{padding:3px 6px}
+  #ride .lvl{padding:2px 12px}
+  #ride .lvl,#ride .steam{font-size:.8rem}
+  #ride .help .hi{font-size:2.4rem}
+  #ride.tip-shown .help .hi{font-size:1.8rem}
+  #ride .help b{font-size:1.1rem}
+  #ride .help small{font-size:.8rem}
+  #ride .tipbox{font-size:1rem}
+  #ride .qcard{padding:12px 16px;gap:8px}
+  #ride .qcat{font-size:.75rem}
+  #ride .small,#ride .qmeta .small,#ride .qcard .hint{font-size:.8rem}
+  #ride .qtext{font-size:clamp(1.25rem,5.4vh,1.45rem);line-height:1.15}
+  #ride .answers{gap:8px}
+  #ride .answers .ans{min-height:64px;padding:6px 14px;font-size:1.05rem}
+  #ride .ans .key{width:44px;height:44px;font-size:1.1rem}
+  #ride .ordtag{width:40px;height:40px;font-size:1.1rem}
+  /* while 'Checking… / Change answer' or 'Start over' is showing, answers may go down to 56px */
+  #ride.is-pending .ans{min-height:56px;padding-block:2px}
+  #ride .feedback{padding:10px 14px;gap:5px}
+  #ride .feedback h3{font-size:1.5rem}
+  #ride .feedback p{font-size:1rem;line-height:1.25}
+  #ride .feedback .big{font-size:1.2rem;min-height:56px;padding:8px 26px}
+}
 </style>
 </head>
 <body>
@@ -327,7 +430,7 @@ const S={
   stars:['stars','bituin'],best:['best ride','pinakamagaling'],
   credit:['Facts from Wikipedia, written in our own words.','Mga datos mula sa Wikipedia, isinulat sa sarili naming salita.'],
   privacy:['Your picks and stars are saved only on this device.','Ang mga pinili mo at bituin ay naka-save lang sa device na ito.'],
-  version:['Brain Train · Version 1.5','Brain Train · Bersyon 1.5'],
+  version:['Brain Train · Version 1.6','Brain Train · Bersyon 1.6'],
   hi:['Hi, {n}!','Kumusta, {n}!'],
   pick:['Pick what you like','Piliin ang gusto mo'],pickhint:['Tap a category to turn it on ✓ or off.','Pindutin ang kategorya para piliin ✓ o alisin.'],
   needcat:['First tap a topic above ⬆','Pumili muna ng paksa sa itaas ⬆'],
@@ -592,7 +695,10 @@ const carSvg=c=>'<svg width="40" height="66" viewBox="0 0 76 96"><rect x="0" y="
 
 /* ---------- screens ---------- */
 const screens={home:$('#home'),ride:$('#ride')};
-function go(name){for(const k in screens)screens[k].hidden=k!==name;window.scrollTo(0,0);if(typeof updHint==='function')updHint();}
+/* wide ride layout: state classes for the CSS (framed = shown inside the Games layer) */
+let framed=false;try{framed=window.self!==window.top;}catch(e){framed=true;}
+document.body.classList.toggle('framed',framed);
+function go(name){for(const k in screens)screens[k].hidden=k!==name;document.body.classList.toggle('ride-on',name==='ride');window.scrollTo(0,0);if(typeof updHint==='function')updHint();}
 
 function paintStatic(){
   document.documentElement.lang=lang==='tl'?'tl':'en';
@@ -713,7 +819,7 @@ function renderRide(){
   const H=[['express','🚄',canExpress],['tip','🧢',!s.tipShown],['swap','🔀',true]];
   $('#helpers').innerHTML=H.map(([k,ic,ok])=>{
     const avail=R.help[k]&&ok&&asking&&s.picked===null;
-    return '<button class="help" type="button" data-help="'+k+'"'+(avail?'':' disabled')+'><span class="hi" aria-hidden="true">'+ic+'</span><b>'+esc(t('h_'+k))+'</b><small>'+esc(R.help[k]?t('h_'+k+'_d'):t('used'))+'</small></button>';
+    return '<button class="help" type="button" data-help="'+k+'"'+(avail?'':' disabled')+'><span class="hi" aria-hidden="true">'+ic+'</span><span class="ht"><b>'+esc(t('h_'+k))+'</b><small>'+esc(R.help[k]?t('h_'+k+'_d'):t('used'))+'</small></span></button>';
   }).join('');
   const cat=CAT[q.c];
   let h='<div class="qmeta"><span class="qcat" style="--c:var('+cat.c+')">'+cat.ico+' '+esc(cat.n[L()])+'</span><button class="small" type="button" id="readBtn">'+esc(t('read'))+'</button></div>';
@@ -738,6 +844,8 @@ function renderRide(){
   if(q.t==='order'&&s.order.length&&s.picked===null&&!s.done)h+='<button class="small" type="button" id="ordReset">↺ '+esc(t('order_reset'))+'</button>';
   if(s.picked!==null&&!s.done)h+='<div class="pendbar"><span>'+esc(t('checking'))+'</span><span class="bar"><i></i></span><button class="small" type="button" id="changeBtn">'+esc(t('change'))+'</button></div>';
   $('#qcard').innerHTML=h;
+  const rc=screens.ride.classList;
+  rc.toggle('is-feedback',!asking);rc.toggle('tip-shown',asking&&!!s.tipShown);rc.toggle('is-pending',asking&&(s.picked!==null||(q.t==='order'&&s.order.length>0)));
 }
 function readAloud(){
   const s=R.cur,q=s.q;
