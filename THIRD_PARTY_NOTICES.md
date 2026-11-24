@@ -18,8 +18,8 @@ License text: https://openfontlicense.org
 |---|---|---|
 | Figtree | Erik Kennedy | Main app text |
 | Outfit | Rodrigo Fuenzalida | App headings |
-| Lilita One | Juan Montoreano | Games titles |
-| Nunito | Vernon Adams | Games text |
+| Lilita One | Juan Montoreano | Games titles, Brain Train |
+| Nunito | Vernon Adams | Games text, Brain Train |
 
 ## Emoji
 
@@ -30,7 +30,8 @@ Do not use screenshots of emoji in ads or videos without checking the emoji make
 ## Made by us
 
 - All app code, including the games (from our own Keybop).
-- All icons, the tile icons (Pares-Pares cards, Hangry Snake), the gamepad icon, the doodle background art and the layouts.
+- Brain Train (public/brain-train) and its mascot Choo-Choo Noodle.
+- All icons, the tile icons (Pares-Pares cards, Hangry Snake, Brain Train), the gamepad icon, the doodle background art and the layouts.
 - All website and guide text.
 
 ## Made with AI help

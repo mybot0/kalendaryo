@@ -1,5 +1,5 @@
 /*
- * games.js — Kalendaryo Games (from Keybop): Pares-Pares and Hangry Snake.
+ * games.js — Kalendaryo Games (from Keybop): Pares-Pares and Hangry Snake, plus Brain Train (its own page, public/brain-train).
  *   Side menu → Games (a page with the game tiles), and Wall mode → Games (the same list, full screen).
  *   A game always opens full screen, with "← Games" to go back.
  *   Nothing is sent anywhere: best scores and the sound setting stay on this device (localStorage, "kal.games:").
@@ -292,14 +292,40 @@
     };
   }
 
+  /* ================= games that are their own page (Brain Train) ================= */
+  // The game's own page (served unchanged by the server) fills the game area in a frame.
+  // Closing removes the frame, which stops its sound and speech.
+  function makeFrame(src, label) {
+    return function (root, api) {
+      const f = document.createElement('iframe');
+      f.src = src; f.title = label;
+      f.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;border:0;display:block';
+      // Esc inside the game closes it too, like the other games (the page is from this same site).
+      f.addEventListener('load', () => {
+        try { f.contentWindow.addEventListener('keydown', (e) => { if (e.key === 'Escape') { e.preventDefault(); api.close(); } }); } catch (e) { /* ignore */ }
+        try { f.focus(); } catch (e) { /* ignore */ }
+      });
+      root.append(f);
+      return {
+        destroy() {
+          try { f.contentWindow.speechSynthesis.cancel(); } catch (e) { /* ignore */ }
+          f.src = 'about:blank'; f.remove();
+        }
+      };
+    };
+  }
+
   /* ---------- the list of games ---------- */
   // Our own drawings (no emoji) for the tiles and the title.
   const ICO_PARES = '<svg viewBox="0 0 64 64" width="72" height="72"><g stroke="#1b1a3a" stroke-width="3" stroke-linejoin="round"><g transform="rotate(-14 21 33)"><rect x="5" y="13" width="31" height="42" rx="6" fill="#fff"/><rect x="10" y="18" width="21" height="32" rx="3" fill="#ffc531" stroke-width="2.5"/><path d="M20.5 25l6 9-6 9-6-9z" fill="#fff" stroke-width="2.5"/></g><g transform="rotate(12 43 33)"><rect x="27" y="11" width="31" height="42" rx="6" fill="#fff"/><path d="M42.5 43s-10-5.5-10-12.5a5 5 0 0110-1.8 5 5 0 0110 1.8c0 7-10 12.5-10 12.5z" fill="#ff5b4d" stroke-width="2.5"/></g></g></svg>';
   const ICO_HANGRY = '<svg viewBox="0 0 64 64" width="72" height="72"><g stroke="#1b1a3a" stroke-linecap="round" stroke-linejoin="round"><path d="M8 54c2-9 10-9 17-9s13-3 13-11" fill="none" stroke-width="14"/><path d="M8 54c2-9 10-9 17-9s13-3 13-11" fill="none" stroke="#26bf72" stroke-width="8"/><circle cx="36" cy="25" r="15" fill="#26bf72" stroke-width="3"/><circle cx="27" cy="29" r="3" fill="#ff7eb6" stroke="none" opacity=".9"/><circle cx="47" cy="27" r="3" fill="#ff7eb6" stroke="none" opacity=".9"/><circle cx="31" cy="22" r="5" fill="#fff" stroke-width="2.5"/><circle cx="42" cy="20" r="5" fill="#fff" stroke-width="2.5"/><circle cx="32.5" cy="23" r="2.2" fill="#1b1a3a" stroke="none"/><circle cx="40.5" cy="21" r="2.2" fill="#1b1a3a" stroke="none"/><path d="M25 14l9 5M48 11l-8 6" fill="none" stroke-width="3.5"/><path d="M33 33q4-3 8-1" fill="none" stroke-width="3"/><path d="M17 12c-3 0-4-3-2-4 0-3 4-3 5-1 2-1 4 1 3 3 1 2-1 3-3 2-1 1-3 1-3 0z" fill="#fff" stroke-width="2"/><path d="M53 6c-2.5 0-3.5-2.5-1.5-3.5 0-2.5 3.5-2.5 4-1 1.8-1 3.5 1 2.5 2.5 1 1.8-1 2.8-2.5 1.8-1 1-2.5 1-2.5.2z" fill="#fff" stroke-width="2"/><path d="M51 44c-3-2.5-9-1.5-9 5 0 5 4 9.5 6.5 9.5 1 0 1.5-.6 2.5-.6s1.5.6 2.5.6c2.5 0 6.5-4.5 6.5-9.5 0-6.5-6-7.5-9-5z" fill="#c9182b" stroke-width="2.5"/><path d="M51 44c0-2.5 1-4.5 3-5.5" fill="none" stroke-width="2.5"/><path d="M53 41.5c2-2.5 5-2.5 6.5-1.5-1.5 2.5-4 3-6.5 1.5z" fill="#26bf72" stroke-width="2"/><path d="M46 48.5q.5-2 2.5-2.5" fill="none" stroke="#fff" stroke-width="2"/></g></svg>';
+  // Brain Train's tile: Choo-Choo Noodle (the pink brain in a conductor hat) from the game itself, drawn small.
+  const ICO_BRAIN = '<svg viewBox="16 6 172 172" width="72" height="72"><g stroke="#1b1a3a" stroke-linejoin="round" stroke-linecap="round"><path d="M58 150c-34 0-40-38-18-48-8-26 16-44 38-36 8-18 40-20 50-4 22-8 44 10 36 32 24 10 18 56-14 56z" fill="#ff7eb6" stroke-width="8"/><path d="M70 92c10 4 10 14 0 20M100 74c-8 8-2 16 6 18M132 88c-10 4-8 16 2 18M150 118c-10-2-16 6-10 14M54 124c10-2 14 8 6 14" fill="none" stroke="#c2407f" stroke-width="6"/><circle cx="86" cy="118" r="9" fill="#1b1a3a" stroke="none"/><circle cx="120" cy="118" r="9" fill="#1b1a3a" stroke="none"/><circle cx="89" cy="115" r="3" fill="#fff" stroke="none"/><circle cx="123" cy="115" r="3" fill="#fff" stroke="none"/><circle cx="74" cy="132" r="7" fill="#ff5b4d" opacity=".45" stroke="none"/><circle cx="133" cy="132" r="7" fill="#ff5b4d" opacity=".45" stroke="none"/><path d="M92 132q11 12 22 0" fill="none" stroke-width="6"/><path d="M64 58c0-32 74-32 74 0z" fill="#3d8bff" stroke-width="8"/><path d="M56 60q45 14 90 0l6 10q-51 18-102 0z" fill="#1b1a3a" stroke="none"/><circle cx="101" cy="40" r="10" fill="#ffc531" stroke-width="5"/></g></svg>';
   const TITLE_HTML = '<svg class="kg-title-ic" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 8h10a5 5 0 015 5v.5a4.5 4.5 0 01-8.1 2.7L13 15h-2l-.9 1.2A4.5 4.5 0 012 13.5V13a5 5 0 015-5zM7 11v3M5.5 12.5h3M16 11.5h.01M18 13.5h.01"/></svg><span>Games</span>';
   const GAMES = [
     { id: 'memory', title: 'Pares-Pares', ico: ICO_PARES, c: COL.grape, blurb: '<b>A memory game!</b> Flip two cards and find every pair.', make: makeMemory },
-    { id: 'snake', title: 'Hangry Snake', logoHtml: '<span class="kg-logo" role="img" aria-label="Hangry Snake">' + ICO_HANGRY + '<span class="kg-logo-t" aria-hidden="true"><span>H<span class="a">ANGRY</span></span><span class="s">SNAKE</span></span></span>', titleHtml: 'H<span class="kg-angry">ANGRY</span> Snake', ico: ICO_HANGRY, c: COL.tomato, blurb: '<b>So hungry, it’s ANGRY!</b> A snake game: eat the fruit and grow longer. Walls wrap around, so nobody crashes.', make: makeSnake }
+    { id: 'snake', title: 'Hangry Snake', logoHtml: '<span class="kg-logo" role="img" aria-label="Hangry Snake">' + ICO_HANGRY + '<span class="kg-logo-t" aria-hidden="true"><span>H<span class="a">ANGRY</span></span><span class="s">SNAKE</span></span></span>', titleHtml: 'H<span class="kg-angry">ANGRY</span> Snake', ico: ICO_HANGRY, c: COL.tomato, blurb: '<b>So hungry, it’s ANGRY!</b> A snake game: eat the fruit and grow longer. Walls wrap around, so nobody crashes.', make: makeSnake },
+    { id: 'brain', title: 'Brain Train', ico: ICO_BRAIN, c: COL.leaf, blurb: '<b>A trivia train ride!</b> Answer right and the train moves to the next station. English or Tagalog.', make: makeFrame('/brain-train', 'Brain Train') }
   ];
   function tiles() {
     const box = el('div', 'kg-tiles');
@@ -363,7 +389,7 @@
       const L = entry.layer, req = L.requestFullscreen || L.webkitRequestFullscreen;
       if (req) { try { const p = req.call(L); entry.ownFs = true; if (p && p.catch) p.catch(() => { entry.ownFs = false; }); } catch (e) { entry.ownFs = false; } }
     }
-    const api = { score: (t) => { score.textContent = t; }, confetti, voice, note, beep };
+    const api = { score: (t) => { score.textContent = t; }, confetti, voice, note, beep, close: () => entry.close() };
     game = def.make(main, api);
     entry.game = game;
     return entry;

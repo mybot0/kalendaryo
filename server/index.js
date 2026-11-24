@@ -605,6 +605,17 @@ r.get('/games', async (req, res) => {
   res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-cache' });
   res.end(req.method === 'HEAD' ? undefined : html);
 });
+// kalendaryo.co/brain-train: the Brain Train trivia game (public/brain-train/index.html), sent byte-for-byte as it is:
+// no build step, no /hi.js, nothing added. Games → Brain Train shows this page in a frame, so only this page may be
+// framed, and only by Kalendaryo itself (same site). The rest of the security rules stay the same.
+const BRAIN_TRAIN = path.join(__dirname, '..', 'public', 'brain-train', 'index.html');
+const brainTrain = async (req, res) => {
+  res.setHeader('X-Frame-Options', 'SAMEORIGIN');
+  res.setHeader('Content-Security-Policy', SECURITY['Content-Security-Policy'].replace("frame-ancestors 'none'", "frame-ancestors 'self'"));
+  res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-cache' });
+  res.end(req.method === 'HEAD' ? undefined : fs.readFileSync(BRAIN_TRAIN));
+};
+r.get('/brain-train', brainTrain); r.get('/brain-train/index.html', brainTrain);
 
 const server = http.createServer(async (req, res) => {
   owner.touch(req);

@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Brain Train</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Nunito:wght@600;800&display=swap">
+<style>
+/* VOICE: silly, warm, calm enough for seniors.
+   IDEA: a toy train set; each right answer moves the train to the next station.
+   PICTURE: Choo-Choo Noodle (a pink brain in a conductor hat) and a 2D track.
+   COLOUR and TYPE: Keybop family look - ink outlines, hard shadows, bright fields; Lilita One + Nunito.
+   LAYOUT: one centered column, huge tap targets, stacked answers. */
+:root{
+  --ink:#1b1a3a;--ink-soft:#4a4870;--bg:#d6eaff;--card:#fff;
+  --tomato:#ff5b4d;--sun:#ffc531;--leaf:#26bf72;--sky:#3d8bff;--grape:#8b5cf6;--pink:#ff7eb6;
+  --fog:#c9ccd8;--good:#c9f5dc;--bad:#ffd6d2;
+  --f-display:'Lilita One','Arial Rounded MT Bold','Trebuchet MS',system-ui,sans-serif;
+  --f-body:'Nunito','Trebuchet MS',system-ui,sans-serif;
+  --fs:20px;color-scheme:light;
+  padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+}
+html{font-size:var(--fs)}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f-body);font-weight:600;font-size:1rem;line-height:1.45;overflow-x:clip}
+[hidden]{display:none!important}
+button{font:inherit;color:inherit;cursor:pointer}
+button:disabled{cursor:default}
+:focus-visible{outline:4px solid var(--grape);outline-offset:3px}
+.wrap{max-width:780px;margin:0 auto;padding:16px 16px 110px;display:flex;flex-direction:column;gap:28px}
+.chip{border:3px solid var(--ink);background:var(--card);border-radius:99px;padding:8px 16px;font-weight:800;font-size:.8rem;line-height:1.2;box-shadow:0 4px 0 var(--ink);min-height:48px}
+.chip:active{transform:translateY(3px);box-shadow:0 1px 0 var(--ink)}
+.seg{display:inline-flex;border:3px solid var(--ink);border-radius:99px;overflow:hidden;box-shadow:0 4px 0 var(--ink);background:var(--card)}
+.seg button{border:0;background:none;padding:8px 14px;font-weight:800;font-size:.8rem;min-height:44px}
+.seg button+button{border-left:3px solid var(--ink)}
+.seg button[aria-pressed=true]{background:var(--sun)}
+.topbar{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;align-items:center}
+.big{font:400 1.2rem/1 var(--f-display);background:var(--sun);color:var(--ink);border:3px solid var(--ink);border-radius:18px;padding:16px 26px;box-shadow:0 6px 0 var(--ink);min-height:64px}
+.big:active{transform:translateY(5px);box-shadow:0 1px 0 var(--ink)}
+.big.alt{background:var(--card)}
+.big:disabled{opacity:.5;transform:none;box-shadow:0 6px 0 var(--ink)}
+
+/* hero */
+.hero{display:flex;flex-direction:column;align-items:center;text-align:center;gap:10px}
+.noodle{width:min(30vw,130px);height:auto;animation:bob 2.6s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(-8px) rotate(2deg)}}
+.word{display:flex;flex-wrap:wrap;justify-content:center;gap:6px 14px;margin:0}
+.word .w{display:flex;gap:4px}
+.word .l{display:grid;place-items:center;width:clamp(38px,10vw,58px);height:clamp(44px,11vw,64px);font:400 clamp(26px,7vw,42px)/1 var(--f-display);background:var(--c);border:3px solid var(--ink);border-radius:10px;box-shadow:0 6px 0 var(--ink);position:relative}
+.word .l::after{content:'';position:absolute;bottom:-14px;left:18%;width:12px;height:12px;border-radius:50%;background:var(--ink);box-shadow:calc(clamp(38px,10vw,58px)*.64 - 12px) 0 0 var(--ink)}
+.tag{margin:8px 0 0;font:400 1.25rem/1.15 var(--f-display)}
+.sub{margin:0;max-width:34ch;color:var(--ink-soft);font-weight:700}
+
+/* players */
+.h2{font:400 1.5rem/1.1 var(--f-display);margin:0 0 14px;text-align:center}
+.players{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,210px),1fr));gap:18px}
+.pcard{display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;background:var(--card);border:3px solid var(--ink);border-radius:24px;padding:18px 14px;box-shadow:6px 6px 0 var(--ink)}
+.av{width:84px;height:84px;border-radius:50%;display:grid;place-items:center;font-size:48px;background:var(--c);border:3px solid var(--ink)}
+.pname{font:400 1.4rem/1.1 var(--f-display);margin:0;overflow-wrap:anywhere}
+.pstat{margin:0;color:var(--ink-soft);font-size:.8rem;font-weight:800}
+.pcard .big{width:100%}
+.linkbtn{border:0;background:none;text-decoration:underline;font-weight:800;font-size:.8rem;color:var(--ink-soft);min-height:44px;padding:4px 8px}
+.nameedit{display:flex;flex-direction:column;gap:8px;width:100%}
+.nameedit input{font:inherit;font-size:1rem;border:3px solid var(--ink);border-radius:12px;padding:10px;width:100%;text-align:center}
+.mystats{text-align:center;font:400 1.1rem/1.2 var(--f-display);margin:-10px 0 0}
+.pickhead{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px}
+.pickhead .h2{margin:0;text-align:left}
+.steph{display:flex;align-items:center;gap:12px;margin:0;font:400 1.35rem/1.15 var(--f-display)}
+.stepnum{flex:none;width:52px;height:52px;border-radius:50%;display:grid;place-items:center;background:var(--sky);color:#fff;border:3px solid var(--ink);font:400 1.5rem/1 var(--f-display);box-shadow:0 4px 0 var(--ink)}
+.allbtn{align-self:flex-start}
+.aboard{width:100%;font-size:1.5rem;min-height:84px}
+.aboard.ready{background:var(--leaf);color:#fff;animation:blink 1.1s ease-in-out infinite}
+@keyframes blink{0%,100%{background:var(--leaf);box-shadow:0 6px 0 var(--ink),0 0 0 0 rgba(38,191,114,.7)}50%{background:#7dedb0;color:var(--ink);box-shadow:0 6px 0 var(--ink),0 0 0 12px rgba(38,191,114,.25)}}
+.aboard.wait{background:#e7e7ef;color:var(--ink-soft)}
+@keyframes glow{0%,100%{box-shadow:0 6px 0 var(--ink),0 0 0 0 rgba(38,191,114,.55)}50%{box-shadow:0 6px 0 var(--ink),0 0 0 14px rgba(38,191,114,0)}}
+.more summary{font:400 1.05rem/1.2 var(--f-display);cursor:pointer;min-height:44px;display:flex;align-items:center}
+.more summary::before{content:'⚙️';margin-right:8px}
+.scrollhint{position:fixed;left:50%;bottom:calc(14px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:30;font:400 1.1rem/1 var(--f-display);max-width:calc(100vw - 24px);background:var(--sun);color:var(--ink);border:3px solid var(--ink);border-radius:99px;padding:14px 26px;box-shadow:0 6px 0 var(--ink);min-height:56px;white-space:nowrap;line-height:1;font-size:min(1rem,4.3vw);padding:12px 16px}
+@keyframes bounce{50%{transform:translate(-50%,-10px)}}
+.swipeguide{position:fixed;right:max(4px,env(safe-area-inset-right,0px));top:26vh;z-index:29;width:44px;height:42vh;padding:0;border:0;background:none;transition:opacity .5s}
+.swipeguide.fade{opacity:0;pointer-events:none}
+.sgtrack{position:relative;display:block;height:100%}
+.sgtrack::before{content:'';position:absolute;left:50%;top:6px;bottom:6px;width:6px;margin-left:-3px;border-radius:3px;background:repeating-linear-gradient(180deg,var(--ink) 0 8px,transparent 8px 16px);opacity:.35}
+.sgdot{position:absolute;left:50%;top:0;width:40px;height:40px;margin-left:-20px;border-radius:50%;background:var(--sun);border:3px solid var(--ink);box-shadow:0 3px 0 var(--ink);display:grid;place-items:center;font-size:20px;font-weight:800;animation:slide 1.8s ease-in-out infinite}
+@keyframes slideup{0%{top:calc(100% - 40px);opacity:0}12%{opacity:1}80%{top:0;opacity:1}100%{top:0;opacity:0}}
+.swipeguide.up .sgdot{animation-name:slideup;background:#fff;font-size:22px}
+@keyframes slide{0%{top:0;opacity:0}12%{opacity:1}80%{top:calc(100% - 40px);opacity:1}100%{top:calc(100% - 40px);opacity:0}}
+@media(min-width:900px){.swipeguide{right:calc(50% - 390px - 80px)}}
+.cat.nudge{animation:nudge 1.1s ease-in-out infinite}
+@keyframes nudge{50%{box-shadow:0 5px 0 var(--ink),0 0 0 8px rgba(255,197,49,.9)}}
+.cat .tapme{position:absolute;right:62px;top:-16px;background:var(--ink);color:#fff;font-size:.7rem;font-weight:800;border-radius:99px;padding:4px 10px;white-space:nowrap;animation:bounce2 1.1s ease-in-out infinite}
+@keyframes bounce2{50%{transform:translateY(-5px)}}
+.foot{text-align:center;color:var(--ink-soft);font-size:.75rem;font-weight:800;margin:0}
+
+/* setup */
+.panelbox{background:var(--card);border:3px solid var(--ink);border-radius:24px;padding:18px;box-shadow:6px 6px 0 var(--ink);display:flex;flex-direction:column;gap:14px}
+.panelbox h3{font:400 1.25rem/1.1 var(--f-display);margin:0}
+.hint{margin:0;color:var(--ink-soft);font-size:.8rem;font-weight:700}
+.cats{display:grid;grid-template-columns:1fr;gap:16px;margin-top:6px}
+.cat{position:relative;display:flex;align-items:center;gap:12px;text-align:left;border:3px solid var(--ink);background:var(--card);border-radius:18px;padding:10px 12px;font-weight:800;font-size:min(1.1rem,6vw);line-height:1.2;min-height:80px;box-shadow:0 5px 0 var(--ink);color:var(--ink)}
+.cat .ci{font-size:1.6rem;width:52px;height:52px;flex:none;display:grid;place-items:center;border-radius:12px;background:var(--c);border:2px solid var(--ink)}
+.cat .cn{flex:1;overflow-wrap:break-word;word-break:normal}
+.cat .ck{margin-left:auto;width:42px;height:42px;flex:none;border:3px solid var(--ink);border-radius:12px;display:grid;place-items:center;font-size:1.5rem;font-weight:800;background:#fff}
+.cat[aria-pressed=true]{background:#fff3c4;border-width:4px}
+.cat[aria-pressed=true] .ck{background:var(--leaf);color:#fff}
+.cat .cs{display:block;margin-top:2px;font-size:.72em;font-weight:800;color:var(--ink-soft)}
+.cat[aria-pressed=true] .cs{color:#127a45}
+.cat[aria-pressed=false] .ck{box-shadow:0 0 0 4px rgba(255,197,49,.55)}
+.cats.none .cat .ck{animation:boxglow 1.3s ease-in-out infinite}
+@keyframes boxglow{0%,100%{box-shadow:0 0 0 3px rgba(255,197,49,.5)}50%{box-shadow:0 0 0 9px rgba(255,197,49,.95);background:#fff6d6}}
+.opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:10px}
+.opt{text-align:left;border:3px solid var(--ink);background:var(--card);border-radius:16px;padding:12px 14px;box-shadow:0 4px 0 var(--ink);min-height:64px}
+.opt b{display:block;font-size:.95rem}
+.opt span{font-size:.75rem;color:var(--ink-soft);font-weight:700}
+.opt[aria-pressed=true]{background:var(--sun)}
+.toggle{display:flex;align-items:center;gap:12px;border:3px solid var(--ink);border-radius:16px;padding:12px 14px;background:var(--card);box-shadow:0 4px 0 var(--ink);text-align:left;font-weight:800;font-size:.85rem;min-height:60px}
+.toggle .sw{width:56px;height:32px;flex:none;border:3px solid var(--ink);border-radius:99px;position:relative;background:#e7e7ef}
+.toggle .sw::after{content:'';position:absolute;top:2px;left:2px;width:22px;height:22px;border-radius:50%;background:var(--ink);transition:left .2s}
+.toggle[aria-pressed=true] .sw{background:var(--leaf)}
+.toggle[aria-pressed=true] .sw::after{left:26px;background:#fff}
+.err{color:#b3261e;font-weight:800;margin:0}
+
+/* ride */
+.rbar{display:flex;align-items:center;gap:10px}
+.rbar h2{flex:1;margin:0;text-align:center;font:400 1.15rem/1.1 var(--f-display)}
+.back{border:3px solid var(--ink);background:var(--card);border-radius:14px;padding:8px 14px;font-weight:800;font-size:.85rem;box-shadow:0 4px 0 var(--ink);min-height:48px}
+.back:active{transform:translateY(3px);box-shadow:0 1px 0 var(--ink)}
+.starbox{font:400 1.15rem/1 var(--f-display);white-space:nowrap}
+.track{position:relative;height:150px;background:linear-gradient(#aee0ff,#e9f7ff 70%);border:3px solid var(--ink);border-radius:20px;overflow:hidden;box-shadow:5px 5px 0 var(--ink)}
+.track::before{content:'';position:absolute;left:0;right:0;bottom:0;height:34px;background:var(--leaf);border-top:3px solid var(--ink)}
+.rail{position:absolute;left:0;right:0;bottom:26px;height:12px;background:repeating-linear-gradient(90deg,#8a5a2b 0 8px,transparent 8px 22px);border-top:4px solid var(--ink-soft)}
+.stn{position:absolute;bottom:40px;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;pointer-events:none}
+.stn .flag{font:400 .7rem/1 var(--f-display);background:var(--card);border:3px solid var(--ink);border-radius:8px;padding:4px 7px;white-space:nowrap}
+.stn .pole{width:4px;height:22px;background:var(--ink)}
+.stn.on .flag{background:var(--sun)}
+.trainwrap{position:absolute;bottom:22px;left:calc((100% - var(--tw,84px) - 12px) * var(--p,0) + 6px);display:flex;align-items:flex-end;transition:left .9s cubic-bezier(.4,1.3,.5,1)}
+.trainwrap svg{display:block}
+.puffs{position:absolute;bottom:96px;pointer-events:none}
+.fogcloud{position:absolute;inset:0;display:grid;place-items:center;background:rgba(201,204,216,.55);pointer-events:none}
+.fogcloud svg{width:min(60%,260px);height:auto}
+.fogcloud.go{animation:fogin 1.6s ease forwards}
+@keyframes fogin{0%{opacity:0;transform:translateX(-30%)}25%{opacity:1;transform:none}75%{opacity:1}100%{opacity:0;transform:translateX(20%)}}
+.status{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:10px}
+.steam{display:flex;align-items:center;gap:6px;font-weight:800;font-size:.8rem}
+.puff{width:22px;height:22px;border-radius:50%;border:3px solid var(--ink);background:#fff}
+.puff.off{background:var(--fog);opacity:.5}
+.lvl{font-weight:800;font-size:.8rem;background:var(--ink);color:#fff;border-radius:99px;padding:5px 12px}
+.helpers{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.help{display:flex;flex-direction:column;align-items:center;gap:2px;border:3px solid var(--ink);background:var(--card);border-radius:16px;padding:8px 4px;box-shadow:0 4px 0 var(--ink);min-height:72px;text-align:center}
+.help .hi{font-size:1.3rem;line-height:1}
+.help b{font-size:.72rem;line-height:1.15}
+.help small{font-size:.62rem;color:var(--ink-soft);font-weight:700;line-height:1.15}
+.help:disabled{opacity:.45;box-shadow:0 1px 0 var(--ink);transform:translateY(3px)}
+.qcard{background:var(--card);border:3px solid var(--ink);border-radius:24px;padding:18px;box-shadow:6px 6px 0 var(--ink);display:flex;flex-direction:column;gap:14px}
+.qmeta{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between}
+.qcat{font-weight:800;font-size:.75rem;border:2px solid var(--ink);border-radius:99px;padding:4px 10px;background:var(--c)}
+.qtext{font:400 1.45rem/1.2 var(--f-display);margin:0;text-wrap:balance}
+.qpic{font-size:2rem;line-height:1.25;letter-spacing:4px;text-align:center;overflow-wrap:anywhere}
+.tipbox{background:#fff6d6;border:3px dashed var(--ink);border-radius:14px;padding:10px 12px;font-weight:800;font-size:.9rem;margin:0}
+.answers{display:flex;flex-direction:column;gap:12px}
+.ans{display:flex;align-items:center;gap:12px;text-align:left;border:3px solid var(--ink);background:var(--card);border-radius:18px;padding:12px 14px;font-weight:800;font-size:1.05rem;box-shadow:0 5px 0 var(--ink);min-height:68px;transition:transform .08s}
+.ans:active:not(:disabled){transform:translateY(4px);box-shadow:0 1px 0 var(--ink)}
+.ans .key{flex:none;width:44px;height:44px;border-radius:12px;display:grid;place-items:center;font:400 1.1rem/1 var(--f-display);background:var(--c,var(--sky));color:#fff;border:3px solid var(--ink)}
+.ans.gone{visibility:hidden}
+.ans.pending{background:#fff6d6;outline:4px solid var(--sun)}
+.ans.good{background:var(--good)}
+.ans.good .key{background:var(--leaf)}
+.ans.bad{background:var(--bad)}
+.ans.bad .key{background:var(--tomato)}
+.ans.dim{opacity:.55}
+.ans:disabled{cursor:default}
+.tfrow{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.tfrow .ans{justify-content:center;font:400 1.4rem/1 var(--f-display);min-height:90px}
+.ordtag{margin-left:auto;flex:none;width:40px;height:40px;border-radius:50%;border:3px solid var(--ink);display:grid;place-items:center;font:400 1.1rem/1 var(--f-display);background:var(--sun)}
+.ordtag:empty{background:none;border-style:dashed}
+.small{align-self:flex-start;border:3px solid var(--ink);background:var(--card);border-radius:12px;padding:6px 12px;font-weight:800;font-size:.8rem;box-shadow:0 3px 0 var(--ink);min-height:44px}
+.pendbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.pendbar .bar{flex:1;min-width:120px;height:14px;border:3px solid var(--ink);border-radius:99px;overflow:hidden;background:#fff}
+.pendbar .bar i{display:block;height:100%;background:var(--sun);animation:fill 2s linear forwards}
+@keyframes fill{from{width:0}to{width:100%}}
+.feedback{border:3px solid var(--ink);border-radius:20px;padding:14px 16px;display:flex;flex-direction:column;gap:8px;box-shadow:5px 5px 0 var(--ink)}
+.feedback.good{background:var(--good)}
+.feedback.bad{background:#eceef4}
+.feedback h3{margin:0;font:400 1.5rem/1.1 var(--f-display)}
+.feedback p{margin:0;font-weight:700}
+.feedback .big{align-self:stretch}
+
+/* end panel + fx */
+.endpanel{position:fixed;inset:0;z-index:60;display:grid;place-items:center;background:rgba(214,234,255,.9);padding:16px}
+.endcard{display:flex;flex-direction:column;align-items:center;gap:14px;text-align:center;background:var(--card);border:3px solid var(--ink);border-radius:26px;box-shadow:7px 7px 0 var(--ink);padding:24px;max-width:420px;width:100%}
+.endcard h3{font:400 1.8rem/1.05 var(--f-display);margin:0}
+.endcard p{margin:0;color:var(--ink-soft);font-weight:700}
+.endcard .big{width:100%}
+.endcard svg{width:140px;height:auto}
+#fx{position:fixed;inset:0;z-index:90;pointer-events:none;overflow:hidden}
+#fx .bit{position:absolute;top:0;left:0}
+#toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:95;background:var(--ink);color:#fff;font-weight:800;padding:12px 18px;border-radius:18px;max-width:calc(100vw - 32px);text-align:center;font-size:.85rem}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+@media(max-width:480px){.panelbox{padding:14px 12px}.wrap{padding-inline:12px}.qtext{font-size:1.25rem}.help small{display:none}.track{height:136px}}
+@media(prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+</style>
+</head>
+<body>
+
+<!-- HOME -->
+<div class="wrap" id="home">
+  <div class="topbar">
+    <button class="chip" id="snd" type="button" aria-pressed="true">Sound on</button>
+    <div class="seg" role="group" aria-label="Language" id="langSeg">
+      <button type="button" data-lang="en">English</button><button type="button" data-lang="tl">Tagalog</button>
+    </div>
+    <div class="seg" role="group" aria-label="Text size" id="sizeSeg">
+      <button type="button" data-size="18" aria-label="Normal text">A</button><button type="button" data-size="21" aria-label="Big text">A+</button><button type="button" data-size="25" aria-label="Biggest text">A++</button>
+    </div>
+  </div>
+
+  <header class="hero">
+    <svg class="noodle" viewBox="0 0 200 190" role="img" aria-label="Choo-Choo Noodle, a pink brain wearing a train conductor hat">
+      <defs><symbol id="noodleBody" viewBox="0 0 200 190">
+        <path d="M58 150c-34 0-40-38-18-48-8-26 16-44 38-36 8-18 40-20 50-4 22-8 44 10 36 32 24 10 18 56-14 56z" fill="#ff7eb6" stroke="#1b1a3a" stroke-width="6" stroke-linejoin="round"/>
+        <path d="M70 92c10 4 10 14 0 20M100 74c-8 8-2 16 6 18M132 88c-10 4-8 16 2 18M150 118c-10-2-16 6-10 14M54 124c10-2 14 8 6 14" fill="none" stroke="#c2407f" stroke-width="5" stroke-linecap="round"/>
+        <circle cx="86" cy="118" r="8" fill="#1b1a3a"/><circle cx="120" cy="118" r="8" fill="#1b1a3a"/>
+        <circle cx="89" cy="115" r="2.6" fill="#fff"/><circle cx="123" cy="115" r="2.6" fill="#fff"/>
+        <circle cx="74" cy="132" r="7" fill="#ff5b4d" opacity=".45"/><circle cx="133" cy="132" r="7" fill="#ff5b4d" opacity=".45"/>
+        <path d="M92 132q11 12 22 0" fill="none" stroke="#1b1a3a" stroke-width="5" stroke-linecap="round"/>
+        <path d="M64 58c0-32 74-32 74 0z" fill="#3d8bff" stroke="#1b1a3a" stroke-width="6" stroke-linejoin="round"/>
+        <path d="M56 60q45 14 90 0l6 10q-51 18-102 0z" fill="#1b1a3a"/>
+        <circle cx="101" cy="40" r="9" fill="#ffc531" stroke="#1b1a3a" stroke-width="4"/>
+      </symbol></defs>
+      <use href="#noodleBody"/>
+    </svg>
+    <h1 class="word" aria-label="Brain Train">
+      <span class="w" aria-hidden="true"><span class="l" style="--c:var(--tomato)">B</span><span class="l" style="--c:var(--sun)">R</span><span class="l" style="--c:var(--leaf)">A</span><span class="l" style="--c:var(--sky)">I</span><span class="l" style="--c:var(--grape)">N</span></span>
+      <span class="w" aria-hidden="true"><span class="l" style="--c:var(--pink)">T</span><span class="l" style="--c:var(--sun)">R</span><span class="l" style="--c:var(--leaf)">A</span><span class="l" style="--c:var(--sky)">I</span><span class="l" style="--c:var(--tomato)">N</span></span>
+    </h1>
+    <p class="tag" data-t="tagline"></p>
+  </header>
+
+  <p class="mystats" id="mystats"></p>
+
+  <section class="panelbox step" aria-labelledby="pickH">
+    <h2 class="steph" id="pickH"><span class="stepnum" aria-hidden="true">1</span><span data-t="step1"></span></h2>
+    <p class="hint" data-t="step1sub"></p>
+    <button class="small allbtn" type="button" id="allBtn"></button>
+    <div class="cats" id="cats"></div>
+  </section>
+
+  <section class="panelbox step" aria-labelledby="goH" id="step2">
+    <h2 class="steph" id="goH"><span class="stepnum" aria-hidden="true">2</span><span data-t="step2"></span></h2>
+    <p class="err" id="catErr" hidden data-t="needcat"></p>
+    <button class="big aboard" type="button" id="aboard"></button>
+  </section>
+
+  <details class="panelbox more">
+    <summary data-t="more"></summary>
+    <div class="opts" id="rideOpts">
+      <button class="opt" type="button" data-ride="full"><b data-t="full"></b><span data-t="fullsub"></span></button>
+      <button class="opt" type="button" data-ride="gentle"><b data-t="gentle"></b><span data-t="gentlesub"></span></button>
+    </div>
+    <button class="toggle" type="button" id="undoTog"><span class="sw" aria-hidden="true"></span><span data-t="undo"></span></button>
+  </details>
+
+  <div>
+    <p class="foot" data-t="credit"></p>
+    <p class="foot" data-t="privacy"></p>
+    <p class="foot" data-t="version"></p>
+  </div>
+</div>
+<button class="scrollhint" type="button" id="scrollHint" hidden></button>
+<button class="swipeguide" type="button" id="swipeGuide" hidden><span class="sgtrack" aria-hidden="true"><span class="sgdot">⬇</span></span></button>
+
+<!-- RIDE -->
+<div class="wrap" id="ride" hidden>
+  <div class="rbar"><button class="back" type="button" id="rideBack"></button><h2 id="rideTitle"></h2><span class="starbox" id="starbox" aria-live="polite"></span></div>
+  <div class="track" id="track" aria-hidden="true">
+    <div class="rail"></div>
+    <div id="stations"></div>
+    <div class="trainwrap" id="train"></div>
+    <div class="fogcloud" id="fog" hidden>
+      <svg viewBox="0 0 260 150"><g fill="#c9ccd8" stroke="#1b1a3a" stroke-width="6"><circle cx="70" cy="90" r="40"/><circle cx="120" cy="62" r="50"/><circle cx="180" cy="84" r="42"/><rect x="60" y="88" width="140" height="44" rx="22"/></g><rect x="66" y="96" width="128" height="30" fill="#c9ccd8"/><path d="M98 76l18 8M162 76l-18 8" stroke="#1b1a3a" stroke-width="6" stroke-linecap="round"/><circle cx="110" cy="96" r="6" fill="#1b1a3a"/><circle cx="150" cy="96" r="6" fill="#1b1a3a"/><path d="M114 120q16-12 32 0" fill="none" stroke="#1b1a3a" stroke-width="6" stroke-linecap="round"/></svg>
+    </div>
+  </div>
+  <div class="status">
+    <div class="steam" id="steam"></div>
+    <span class="lvl" id="lvl"></span>
+  </div>
+  <div class="helpers" id="helpers"></div>
+  <div class="qcard" id="qcard"></div>
+  <div id="fbArea"></div>
+</div>
+
+<div id="endArea"></div>
+<div id="fx" aria-hidden="true"></div>
+<div id="toast" role="status" hidden></div>
+
+<script>
+{
+'use strict';
+const $=s=>document.querySelector(s);
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const rand=(a,b)=>a+Math.random()*(b-a);
+const ri=(a,b)=>Math.floor(rand(a,b+1));
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;};
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const store={
+  get(k,d){try{const v=localStorage.getItem('braintrain:'+k);return v===null?d:JSON.parse(v);}catch(e){return d;}},
+  set(k,v){try{localStorage.setItem('braintrain:'+k,JSON.stringify(v));}catch(e){}}
+};
+const COLS=['--tomato','--sun','--leaf','--sky','--grape','--pink'];
+const css=getComputedStyle(document.documentElement);
+const T=n=>css.getPropertyValue(n).trim()||'#888';
+
+/* ---------- words (English, Tagalog) ---------- */
+const S={
+  sound_on:['Sound on','May tunog'],sound_off:['Sound off','Walang tunog'],
+  tagline:['No brain fog on this train!','Walang brain fog sa tren na ito!'],
+  sub:['A trivia ride for the whole family. Right answers move the train. Wrong answers bring the fog.','Trivia na sakayan ng buong pamilya. Tamang sagot, aandar ang tren. Maling sagot, darating ang fog.'],
+  step1:['Tap the topics you like','Pindutin ang mga paksang gusto mo'],step1sub:['A green ✓ means it is picked. Tap again to remove.','Ang berdeng ✓ ay ibig sabihing napili. Pindutin ulit para alisin.'],
+  step2:['Tap the green button to play','Pindutin ang berdeng button para maglaro'],tappick:['Tap to pick','Pindutin para piliin'],picked:['Picked ✓','Napili ✓'],
+  scroll:['⬇ Scroll down to see more topics','⬇ Mag-scroll pababa para sa iba pa'],swipe:['👆 Swipe up to see more topics','👆 Mag-swipe pataas para sa iba pa'],more:['More settings','Iba pang settings'],pickall:['Pick all','Piliin lahat'],clearall:['Clear all','Alisin lahat'],
+  mystats:['⭐\u00a0{s}\u00a0stars · 🏅\u00a0best\u00a0ride:\u00a0{b}','⭐\u00a0{s}\u00a0bituin · 🏅\u00a0pinakamagaling:\u00a0{b}'],
+  ride:['Ride','Sumakay'],edit:['Change name','Palitan ang pangalan'],save:['Save','I-save'],
+  stars:['stars','bituin'],best:['best ride','pinakamagaling'],
+  credit:['Facts from Wikipedia, written in our own words.','Mga datos mula sa Wikipedia, isinulat sa sarili naming salita.'],
+  privacy:['Your picks and stars are saved only on this device.','Ang mga pinili mo at bituin ay naka-save lang sa device na ito.'],
+  version:['Brain Train · Version 1.5','Brain Train · Bersyon 1.5'],
+  hi:['Hi, {n}!','Kumusta, {n}!'],
+  pick:['Pick what you like','Piliin ang gusto mo'],pickhint:['Tap a category to turn it on ✓ or off.','Pindutin ang kategorya para piliin ✓ o alisin.'],
+  needcat:['First tap a topic above ⬆','Pumili muna ng paksa sa itaas ⬆'],
+  ridetype:['Ride type','Uri ng sakay'],
+  full:['Full ride','Buong sakay'],fullsub:['Easy, then medium, then hard','Madali, katamtaman, tapos mahirap'],
+  gentle:['Gentle ride','Banayad na sakay'],gentlesub:['Easy and medium only','Madali at katamtaman lang'],
+  undo:['Give me 2 seconds to change my answer','Bigyan ako ng 2 segundo para palitan ang sagot'],
+  aboard:['All aboard! 🚂','Sakay na! 🚂'],back:['← Back','← Bumalik'],
+  station:['Station {n} of 3','Istasyon {n} sa 3'],
+  lv:[['Easy','Madali'],['Medium','Katamtaman'],['Hard','Mahirap']],
+  steam:['Steam','Singaw'],start:['Start','Simula'],
+  h_express:['Express','Express'],h_express_d:['Hides 2 wrong answers','Tinatago ang 2 mali'],
+  h_tip:["Conductor's Tip",'Tip ng Konduktor'],h_tip_d:['A little clue','Maliit na clue'],
+  h_swap:['Switch Track','Lipat Riles'],h_swap_d:['A new question','Bagong tanong'],
+  used:['Used','Nagamit na'],
+  read:['🔊 Read aloud','🔊 Basahin nang malakas'],
+  tf_true:['True','Tama'],tf_false:['False','Mali'],
+  order_hint:['Tap them in order: first, second, third.','Pindutin ayon sa pagkakasunod: una, ikalawa, ikatlo.'],
+  order_reset:['Start over','Ulitin'],
+  checking:['Checking…','Sinusuri…'],change:['Change answer','Palitan ang sagot'],
+  right:['Choo-choo! Correct!','Choo-choo! Tama!'],wrong:['Brain Fog!','Brain Fog!'],
+  answer_is:['The answer is: {a}','Ang sagot ay: {a}'],
+  didyou:['Did you know? {t}','Alam mo ba? {t}'],
+  goback:['The train goes back to the start of this station.','Babalik ang tren sa simula ng istasyong ito.'],
+  reached:['You reached Station {n}!','Narating mo ang Istasyon {n}!'],
+  next:['Next ▶','Susunod ▶'],
+  win_h:['Fog-free!','Walang fog!'],win_h2:['You made it!','Nakarating ka!'],win_p:['You finished the whole ride with {s} stars.','Natapos mo ang buong sakay na may {s} bituin.'],
+  lose_h:['The fog stopped the train','Pinahinto ng fog ang tren'],
+  lose_p:['You reached Station {st} and got {s} stars. Try again!','Narating mo ang Istasyon {st} at nakakuha ng {s} bituin. Subukan ulit!'],
+  lose_p0:['You got {s} stars. The train will go farther next time!','Nakakuha ka ng {s} bituin. Mas malayo ang tren sa susunod!'],
+  again:['Ride again','Sumakay ulit'],home:['Home','Home'],newbest:['New best ride! 🏅','Bagong record! 🏅'],
+  novoice:['This device has no Tagalog voice, so the reading may sound English.','Walang Tagalog na boses ang device na ito, kaya baka Ingles ang tunog ng pagbasa.'],
+  leave:['Leave this ride?','Aalis na sa sakay na ito?'],leave_yes:['Yes, leave','Oo, aalis na'],leave_no:['Keep riding','Tuloy ang sakay']
+};
+let lang=store.get('lang','en');
+const L=()=>lang==='tl'?1:0;
+const t=(k,vars)=>{let s=S[k][L()];if(vars)for(const v in vars)s=s.split('{'+v+'}').join(vars[v]);return s;};
+const tx=p=>Array.isArray(p)?p[L()]:p;
+
+/* ---------- categories ---------- */
+const CATS=[
+  {id:'retro',ico:'🕰️',c:'--sun',n:['Remember When','Naaalala Mo Ba?']},
+  {id:'ph',ico:'🏝️',c:'--sky',n:['Philippines','Pilipinas']},
+  {id:'faith',ico:'⛪',c:'--grape',n:['Faith & Holidays','Simbahan at Pista']},
+  {id:'food',ico:'🍲',c:'--tomato',n:['Food & Cooking','Pagkain at Luto']},
+  {id:'animals',ico:'🐢',c:'--leaf',n:['Animals & Nature','Hayop at Kalikasan']},
+  {id:'sports',ico:'🥊',c:'--tomato',n:['Sports','Palakasan']},
+  {id:'trend',ico:'📰',c:'--sky',n:['Trending Now','Uso Ngayon']},
+  {id:'celeb',ico:'⭐',c:'--pink',n:['Celebrity Express','Celebrity Express']},
+  {id:'space',ico:'🪐',c:'--grape',n:['Space Station','Kalawakan']},
+  {id:'volcano',ico:'🌋',c:'--tomato',n:['Volcano Valley','Bulkan at Lindol']},
+  {id:'math',ico:'➗',c:'--leaf',n:['Math Junction','Math Junction']}
+];
+const CAT=Object.fromEntries(CATS.map(c=>[c.id,c]));
+
+/* ---------- question bank ----------
+   M = multiple choice (first answer is right; shown shuffled)
+   TF = true or false;  OR = put in order (given in the right order) */
+const two=x=>typeof x==='string'?[x,x]:x;
+const QS=[];
+const M=(c,d,q,a,tip)=>QS.push({c,d,t:'mc',q,a:a.map(two),tip});
+const TF=(c,d,q,ans,tip)=>QS.push({c,d,t:'tf',q,ans,tip});
+const OR=(c,d,q,a,tip)=>QS.push({c,d,t:'order',q,a:a.map(two),tip});
+
+// Remember When
+M('retro',1,["Before phones played music, what machine played music tapes?","Bago pa tumugtog ng musika ang cellphone, anong makina ang nagpapatugtog ng tape?"],["Cassette player","Microwave",["Typewriter","Makinilya"],["Electric fan","Bentilador"]],["The tape had two little wheels inside.","May dalawang maliit na gulong sa loob ng tape."]);
+TF('retro',1,["Neil Armstrong was the first person to walk on the Moon, in 1969.","Si Neil Armstrong ang unang taong lumakad sa buwan, noong 1969."],true,["It was the Apollo 11 trip.","Ito ang biyahe ng Apollo 11."]);
+M('retro',1,["Which toy goes up and down on a string?","Anong laruan ang taas-baba sa isang pisi?"],["Yo-yo",["Kite","Saranggola"],["Spinning top","Trompo"],["Marbles","Holen"]],["A Filipino-American, Pedro Flores, helped make it famous in the 1920s.","Isang Pilipino-Amerikano, si Pedro Flores, ang tumulong na pasikatin ito noong 1920s."]);
+M('retro',1,["What did you drop into an old pay phone to make a call?","Ano ang inihuhulog sa lumang pay phone para makatawag?"],[["A coin","Barya"],["A leaf","Dahon"],["A stamp","Selyo"],["A button","Butones"]],["Clink! It drops into a slot.","Kling! Nahuhulog ito sa butas."]);
+M('retro',2,["Which band from Liverpool, England, sang “Hey Jude”?","Aling banda mula sa Liverpool, England, ang kumanta ng “Hey Jude”?"],["The Beatles","The Rolling Stones","ABBA","Queen"],["John, Paul, George and Ringo.","Sina John, Paul, George at Ringo."]);
+M('retro',2,["In what year did the EDSA People Power Revolution happen?","Anong taon nangyari ang EDSA People Power Revolution?"],["1986","1972","1998","1965"],["It was the same year Corazon Aquino became president.","Ito rin ang taon na naging pangulo si Corazon Aquino."]);
+OR('retro',2,["Put these in order, oldest first.","Ayusin mula sa pinakaluma."],[["Radio shows","Palabas sa radyo"],["Black-and-white TV","Black-and-white na TV"],["Smartphones","Smartphone"]],["First sound, then pictures, then screens in our pockets.","Una ang tunog, tapos larawan, tapos screen sa bulsa."]);
+M('retro',3,["What was the first satellite sent into space, in 1957?","Ano ang unang satellite na ipinadala sa kalawakan, noong 1957?"],["Sputnik 1","Apollo 11","Hubble","Voyager 1"],["It was launched by the Soviet Union.","Inilunsad ito ng Soviet Union."]);
+M('retro',3,["In what year did the Berlin Wall fall?","Anong taon bumagsak ang Berlin Wall?"],["1989","1975","1961","2001"],["Near the end of the 1980s.","Malapit sa katapusan ng dekada 1980."]);
+M('retro',3,["Who was the first Filipina to win Miss Universe?","Sino ang unang Pilipinang nanalo ng Miss Universe?"],["Gloria Diaz","Margie Moran","Pia Wurtzbach","Catriona Gray"],["She won in 1969, the same year as the Moon landing.","Nanalo siya noong 1969, kasabay ng pagtapak sa buwan."]);
+// Philippines
+M('ph',1,["What is the capital city of the Philippines?","Ano ang kabisera ng Pilipinas?"],[["Manila","Maynila"],"Cebu City","Davao City","Baguio City"],["Intramuros, the old walled city, is there.","Nandito ang Intramuros, ang lumang lungsod na may pader."]);
+M('ph',1,["What is the national language of the Philippines?","Ano ang pambansang wika ng Pilipinas?"],["Filipino",["Spanish","Espanyol"],["Japanese","Hapon"],["French","Pranses"]],["It is based mostly on Tagalog.","Nakabatay ito karamihan sa Tagalog."]);
+TF('ph',1,["The Philippines has more than 7,000 islands.","Ang Pilipinas ay may higit sa 7,000 na isla."],true,["The count is over 7,600 islands.","Higit sa 7,600 ang bilang ng mga isla."]);
+M('ph',1,["Which colorful ride was first made from old army jeeps?","Aling makulay na sasakyan ang unang ginawa mula sa lumang jeep ng sundalo?"],[["Jeepney","Dyip"],"Tram","Gondola","Cable car"],["Many were made after World War II.","Marami ang ginawa pagkatapos ng World War II."]);
+M('ph',2,["Who is the national hero who wrote “Noli Me Tángere”?","Sino ang pambansang bayani na sumulat ng “Noli Me Tángere”?"],["José Rizal","Andrés Bonifacio","Emilio Aguinaldo","Apolinario Mabini"],["He was also an eye doctor.","Isa rin siyang doktor sa mata."]);
+M('ph',2,["What is the national flower of the Philippines?","Ano ang pambansang bulaklak ng Pilipinas?"],["Sampaguita",["Rose","Rosas"],"Gumamela",["Sunflower","Mirasol"]],["It is small, white and smells very sweet.","Maliit, puti at napakabango nito."]);
+M('ph',2,["What are the famous round hills of Bohol called?","Ano ang tawag sa sikat na bilog na burol ng Bohol?"],["Chocolate Hills","Rice Terraces","Blue Hills","Sugar Hills"],["They turn brown in the dry season, like chocolate.","Nagiging kulay-tsokolate sila kapag tag-init."]);
+M('ph',3,["In what year did the Philippines declare independence from Spain?","Anong taon idineklara ng Pilipinas ang kalayaan mula sa Espanya?"],["1898","1946","1521","1935"],["June 12, in Kawit, Cavite.","Hunyo 12, sa Kawit, Cavite."]);
+M('ph',3,["The Banaue Rice Terraces are in which province?","Saang probinsya matatagpuan ang Banaue Rice Terraces?"],["Ifugao","Batangas","Palawan","Laguna"],["It is high in the mountains of northern Luzon.","Nasa mataas na bundok ito ng hilagang Luzon."]);
+M('ph',3,["What is the longest river in the Philippines?","Ano ang pinakamahabang ilog sa Pilipinas?"],[["Cagayan River","Ilog Cagayan"],["Pasig River","Ilog Pasig"],["Agusan River","Ilog Agusan"],["Pampanga River","Ilog Pampanga"]],["It flows through northern Luzon.","Dumadaloy ito sa hilagang Luzon."]);
+// Faith & Holidays
+M('faith',1,["In which month is Christmas?","Anong buwan ang Pasko?"],[["December","Disyembre"],["June","Hunyo"],["March","Marso"],["August","Agosto"]],["It is the last month of the year.","Ito ang huling buwan ng taon."]);
+M('faith',1,["What is the star-shaped Christmas lantern called?","Ano ang tawag sa hugis-bituin na ilaw tuwing Pasko?"],["Parol","Belen","Bibingka","Puto"],["Many are made in San Fernando, Pampanga.","Marami nito ang gawa sa San Fernando, Pampanga."]);
+TF('faith',1,["Simbang Gabi is nine days of Masses before Christmas.","Ang Simbang Gabi ay siyam na araw ng Misa bago ang Pasko."],true,["It starts on December 16.","Nagsisimula ito sa Disyembre 16."]);
+M('faith',1,["On which holiday do many families visit the cemetery to remember loved ones?","Anong araw dumadalaw ang maraming pamilya sa sementeryo para alalahanin ang mga mahal sa buhay?"],[["All Saints' Day (Undas)","Undas"],["Valentine's Day","Araw ng mga Puso"],["Labor Day","Araw ng Paggawa"],["Independence Day","Araw ng Kalayaan"]],["It is on November 1.","Ito ay sa Nobyembre 1."]);
+M('faith',2,["What is Holy Week called in the Philippines?","Ano ang ibang tawag sa Holy Week sa Pilipinas?"],["Semana Santa","Simbang Gabi","Flores de Mayo","Pahiyas"],["It is Spanish for “Holy Week”.","Espanyol ito para sa “Banal na Linggo”."]);
+M('faith',2,["Flores de Mayo is celebrated in which month?","Anong buwan ipinagdiriwang ang Flores de Mayo?"],[["May","Mayo"],["January","Enero"],["October","Oktubre"],["December","Disyembre"]],["The month is in its name.","Nasa pangalan nito ang buwan."]);
+M('faith',2,["The Feast of the Black Nazarene every January 9 is in which part of Manila?","Saang bahagi ng Maynila ang Pista ng Itim na Nazareno tuwing Enero 9?"],["Quiapo","Makati","Pasay","Tondo"],["Its church is the Minor Basilica of the Black Nazarene.","Ang simbahan nito ay ang Minor Basilica of the Black Nazarene."]);
+M('faith',3,["The Sinulog Festival for the Santo Niño is in which city?","Saang lungsod ginaganap ang Sinulog Festival para sa Santo Niño?"],["Cebu City","Davao City","Iloilo City","Baguio City"],["It is held on the third Sunday of January.","Ginaganap ito tuwing ikatlong Linggo ng Enero."]);
+M('faith',3,["The Ati-Atihan Festival is celebrated in which town?","Saang bayan ipinagdiriwang ang Ati-Atihan Festival?"],["Kalibo, Aklan","Lucban, Quezon","Vigan, Ilocos Sur","Tagaytay, Cavite"],["It is in the same province as Boracay.","Nasa parehong probinsya ito ng Boracay."]);
+M('faith',3,["Which town covers its houses in colorful rice wafers (kiping) for the Pahiyas Festival?","Aling bayan ang nagtatakip ng makukulay na kiping sa mga bahay para sa Pahiyas Festival?"],["Lucban, Quezon","Kalibo, Aklan","Bacolod","Vigan"],["It honors San Isidro Labrador every May 15.","Para ito kay San Isidro Labrador tuwing Mayo 15."]);
+// Food & Cooking
+M('food',1,["Which dish is meat cooked in vinegar, soy sauce and garlic?","Anong ulam ang karneng niluto sa suka, toyo at bawang?"],["Adobo","Sinigang","Halo-halo","Lumpia"],["Many call it the unofficial national dish.","Marami ang tumatawag dito na hindi opisyal na pambansang ulam."]);
+M('food',1,["Which fruit is called the “king of fruits” and smells very strong?","Aling prutas ang tinatawag na “hari ng mga prutas” at napakatapang ng amoy?"],["Durian",["Mango","Mangga"],["Banana","Saging"],"Calamansi"],["It is famous in Davao.","Sikat ito sa Davao."]);
+TF('food',1,["Halo-halo is a cold dessert with shaved ice.","Ang halo-halo ay malamig na panghimagas na may dinurog na yelo."],true,["“Halo-halo” means “mixed together”.","Ang ibig sabihin ng “halo-halo” ay pinaghalo-halo."]);
+M('food',1,["Which rice cake is baked in banana leaves and eaten after Simbang Gabi?","Anong kakanin ang niluluto sa dahon ng saging at kinakain pagkatapos ng Simbang Gabi?"],["Bibingka","Sisig","Pancit","Taho"],["It often has salted egg on top.","Madalas may itlog na maalat sa ibabaw."]);
+M('food',2,["Sinigang most often gets its sour taste from which fruit?","Saang prutas kadalasang nanggagaling ang asim ng sinigang?"],[["Tamarind","Sampalok"],["Apple","Mansanas"],["Coconut","Niyog"],"Papaya"],["It grows in brown pods.","Tumutubo ito sa kulay-kayumangging balat."]);
+M('food',2,["Lechon is a whole roasted what?","Ang lechon ay buong inihaw na ano?"],[["Pig","Baboy"],["Fish","Isda"],["Chicken","Manok"],["Goat","Kambing"]],["Cebu is famous for it.","Sikat dito ang Cebu."]);
+M('food',2,["Which province is most famous for dried mangoes?","Aling probinsya ang pinakasikat sa dried mangoes?"],["Cebu","Benguet","Ilocos Sur","Leyte"],["It is also famous for lechon.","Sikat din ito sa lechon."]);
+M('food',3,["Sisig comes from which province, called the food capital of the Philippines?","Saang probinsya nagmula ang sisig, na tinatawag na food capital ng Pilipinas?"],["Pampanga","Batangas","Ilocos Norte","Laguna"],["Its people are called Kapampangan.","Kapampangan ang tawag sa mga tao roon."]);
+M('food',3,["Kare-kare's thick sauce is made mainly from what?","Saan pangunahing gawa ang malapot na sarsa ng kare-kare?"],[["Peanuts","Mani"],["Coconut milk","Gata"],["Tomatoes","Kamatis"],["Chocolate","Tsokolate"]],["It is served with bagoong on the side.","Isinisilbi ito na may bagoong sa gilid."]);
+M('food',3,["Which Ilocano vegetable dish is flavored with bagoong?","Aling gulay na ulam ng Ilocano ang tinitimplahan ng bagoong?"],["Pinakbet","Tinola","Bulalo","Arroz caldo"],["It has eggplant, squash, okra and bitter melon.","May talong, kalabasa, okra at ampalaya ito."]);
+// Animals & Nature
+M('animals',1,["What is the national bird of the Philippines?","Ano ang pambansang ibon ng Pilipinas?"],[["Philippine Eagle","Agila ng Pilipinas"],["Maya bird","Maya"],["Parrot","Loro"],["Owl","Kuwago"]],["It is one of the biggest eagles in the world.","Isa ito sa pinakamalaking agila sa mundo."]);
+M('animals',1,["What is the biggest animal on Earth?","Ano ang pinakamalaking hayop sa mundo?"],["Blue whale",["Elephant","Elepante"],["Giraffe","Dyirap"],["Shark","Pating"]],["It lives in the ocean.","Nakatira ito sa dagat."]);
+TF('animals',1,["A carabao is a kind of water buffalo.","Ang kalabaw ay isang uri ng water buffalo."],true,["It loves cool mud baths on hot days.","Mahilig itong magtampisaw sa putik kapag mainit."]);
+M('animals',1,["How many legs does a spider have?","Ilan ang paa ng gagamba?"],["8","6","4","10"],["Two more than an ant.","Dalawang higit sa langgam."]);
+M('animals',2,["The tiny tarsier with huge eyes is famous in which island?","Saang isla sikat ang maliit na tarsier na may malalaking mata?"],["Bohol","Batanes","Siargao","Boracay"],["The Chocolate Hills are there too.","Nandoon din ang Chocolate Hills."]);
+M('animals',2,["What is a baby frog called?","Ano ang tawag sa batang palaka?"],[["Tadpole","Butete"],["Chick","Sisiw"],["Puppy","Tuta"],["Calf","Guya"]],["It swims with a tail before it grows legs.","Lumalangoy ito gamit ang buntot bago tumubo ang paa."]);
+M('animals',2,["What is the fastest land animal?","Ano ang pinakamabilis na hayop sa lupa?"],["Cheetah",["Lion","Leon"],["Horse","Kabayo"],"Ostrich"],["It is a big spotted cat.","Isa itong malaking pusang may batik."]);
+M('animals',3,["Whale sharks (butanding) are famous in which town in Sorsogon?","Sa aling bayan sa Sorsogon sikat ang butanding?"],["Donsol","Vigan","Lucban","Sagada"],["The town name starts with D.","Nagsisimula sa D ang pangalan ng bayan."]);
+M('animals',3,["The Tubbataha Reefs, a World Heritage Site, are in which sea?","Saang dagat matatagpuan ang Tubbataha Reefs, isang World Heritage Site?"],[["Sulu Sea","Dagat Sulu"],["Celebes Sea","Dagat Celebes"],["Philippine Sea","Dagat Pilipinas"],["Bohol Sea","Dagat Bohol"]],["It is part of Palawan.","Bahagi ito ng Palawan."]);
+M('animals',3,["Which is the only mammal that can truly fly?","Alin ang tanging mammal na talagang nakakalipad?"],[["Bat","Paniki"],"Flying squirrel",["Flying lemur","Kagwang"],"Sugar glider"],["The others only glide through the air.","Ang iba ay dumadausdos lang sa hangin."]);
+// Sports
+M('sports',1,["Manny Pacquiao is famous for which sport?","Saang sport sikat si Manny Pacquiao?"],["Boxing","Basketball",["Swimming","Paglangoy"],"Tennis"],["People call him “Pac-Man”.","Tinatawag siyang “Pac-Man”."]);
+M('sports',1,["How many players from one team are on a basketball court at a time?","Ilan ang manlalaro ng isang team sa loob ng court ng basketball?"],["5","6","7","11"],["Count the fingers on one hand.","Bilangin ang daliri sa isang kamay."]);
+TF('sports',1,["A boxing match is split into rounds.","Ang laban sa boxing ay hinahati sa mga round."],true,["A bell rings at the start of each round.","Tumutunog ang bell sa simula ng bawat round."]);
+M('sports',1,["Which sport uses a shuttlecock?","Aling sport ang gumagamit ng shuttlecock?"],["Badminton","Volleyball","Golf","Bowling"],["You hit it over a high net with a racket.","Pinapalo ito sa ibabaw ng mataas na net gamit ang raketa."]);
+M('sports',2,["Manny Pacquiao won world titles in how many weight divisions?","Sa ilang weight division nanalo ng world title si Manny Pacquiao?"],["8","4","6","12"],["He is the only boxer to win in this many.","Siya lang ang boksingerong nakagawa nito."]);
+M('sports',2,["What is the pro basketball league of the Philippines called?","Ano ang tawag sa pro basketball league ng Pilipinas?"],["PBA","NFL","MLB","NHL"],["It started in 1975, the first pro basketball league in Asia.","Nagsimula ito noong 1975, ang unang pro basketball league sa Asya."]);
+M('sports',2,["Hidilyn Diaz won the first Olympic gold for the Philippines in which sport?","Sa anong sport nanalo si Hidilyn Diaz ng unang Olympic gold ng Pilipinas?"],["Weightlifting","Boxing",["Swimming","Paglangoy"],"Gymnastics"],["She lifted heavy weights at the Tokyo Olympics.","Bumuhat siya ng mabibigat sa Tokyo Olympics."]);
+M('sports',3,["Carlos Yulo won two Olympic golds in 2024 in which sport?","Sa anong sport nanalo si Carlos Yulo ng dalawang Olympic gold noong 2024?"],["Gymnastics","Weightlifting","Boxing",["Swimming","Paglangoy"]],["He won on the floor and the vault.","Nanalo siya sa floor at sa vault."]);
+M('sports',3,["The 1975 “Thrilla in Manila” was Muhammad Ali against who?","Ang “Thrilla in Manila” noong 1975 ay laban ni Muhammad Ali kanino?"],["Joe Frazier","George Foreman","Mike Tyson","Sonny Liston"],["It was their third fight.","Ito ang ikatlo nilang laban."]);
+M('sports',3,["How long is one round in men's pro boxing?","Gaano katagal ang isang round sa pro boxing ng mga lalaki?"],[["3 minutes","3 minuto"],["2 minutes","2 minuto"],["5 minutes","5 minuto"],["10 minutes","10 minuto"]],["Then the boxers rest for 1 minute.","Tapos magpapahinga ng 1 minuto ang mga boksingero."]);
+// Trending Now (pack: November 2026)
+M('trend',1,["The 2026 FIFA World Cup was hosted by the USA, Canada and which country?","Ang 2026 FIFA World Cup ay ginanap sa USA, Canada at aling bansa?"],["Mexico","Brazil",["Spain","Espanya"],["Japan","Hapon"]],["It is just south of the USA.","Nasa timog lang ito ng USA."]);
+TF('trend',1,["The 2026 Winter Olympics were held in Italy.","Ang 2026 Winter Olympics ay ginanap sa Italy."],true,["In Milan and Cortina d'Ampezzo.","Sa Milan at Cortina d'Ampezzo."]);
+M('trend',1,["What do we call a computer helper you can chat with in words?","Ano ang tawag sa computer helper na puwedeng kausapin gamit ang salita?"],["A chatbot","A fax machine","A calculator",["A typewriter","Makinilya"]],["Many are powered by AI.","Marami ay pinapagana ng AI."]);
+M('trend',1,["Which app is famous for short dance videos and trends?","Aling app ang sikat sa maiikling dance video at trends?"],["TikTok","Calculator","Weather","Flashlight"],["Its videos are often under one minute.","Kadalasan wala pang isang minuto ang mga video nito."]);
+M('trend',2,["In May 2025, the new pope chose which name?","Noong Mayo 2025, anong pangalan ang pinili ng bagong Papa?"],["Leo XIV","Francis II","John XXIV","Pius XIII"],["His name means “lion” in Latin.","“Leon” ang ibig sabihin ng pangalan niya sa Latin."]);
+TF('trend',2,["Pope Leo XIV is the first pope born in the United States.","Si Pope Leo XIV ang unang Papa na ipinanganak sa Estados Unidos."],true,["He also worked for many years in Peru.","Matagal din siyang naglingkod sa Peru."]);
+M('trend',2,["Which city will host the 2028 Summer Olympics?","Aling lungsod ang magho-host ng 2028 Summer Olympics?"],["Los Angeles","Paris","Tokyo","Rome"],["It is the home of Hollywood.","Dito matatagpuan ang Hollywood."]);
+M('trend',3,["NASA's Artemis program plans to send astronauts back to where?","Saan balak ibalik ng Artemis program ng NASA ang mga astronaut?"],[["The Moon","Buwan"],"Mars",["The Sun","Araw"],"Jupiter"],["In Greek stories, Artemis is the twin sister of Apollo.","Sa kuwentong Griyego, si Artemis ang kambal ni Apollo."]);
+M('trend',3,["Pope Leo XIV was born in which US city?","Saang lungsod sa US ipinanganak si Pope Leo XIV?"],["Chicago","New York","Boston","Miami"],["It is called the “Windy City”.","Tinatawag itong “Windy City”."]);
+M('trend',3,["Which city will host the 2032 Summer Olympics?","Aling lungsod ang magho-host ng 2032 Summer Olympics?"],["Brisbane",["Manila","Maynila"],"Madrid","Doha"],["It is in Australia.","Nasa Australia ito."]);
+// Celebrity Express (facts only)
+M('celeb',1,["Which singer had the record-breaking “Eras Tour”?","Aling singer ang may record-breaking na “Eras Tour”?"],["Taylor Swift","Adele","Beyoncé","Rihanna"],["Her fans are called “Swifties”.","“Swifties” ang tawag sa fans niya."]);
+M('celeb',1,["Who played Jack in the 1997 movie “Titanic”?","Sino ang gumanap na Jack sa pelikulang “Titanic” noong 1997?"],["Leonardo DiCaprio","Brad Pitt","Tom Cruise","Johnny Depp"],["His first name is the same as a famous painter's.","Kapangalan niya ang isang sikat na pintor."]);
+TF('celeb',1,["Actor Dwayne Johnson is also called “The Rock”.","Ang aktor na si Dwayne Johnson ay tinatawag ding “The Rock”."],true,["He was a wrestler before he made movies.","Wrestler muna siya bago nag-artista."]);
+M('celeb',1,["Which Filipina singer sang for Disney princesses Jasmine and Mulan?","Aling Pilipinang singer ang kumanta para sa Disney princesses na sina Jasmine at Mulan?"],["Lea Salonga","Regine Velasquez","Sarah Geronimo","Morissette"],["She also starred in “Miss Saigon”.","Bida rin siya sa “Miss Saigon”."]);
+M('celeb',2,["Who is called “Asia's Songbird”?","Sino ang tinatawag na “Asia's Songbird”?"],["Regine Velasquez","Lea Salonga","Sharon Cuneta","Nora Aunor"],["She is married to singer Ogie Alcasid.","Asawa niya ang singer na si Ogie Alcasid."]);
+M('celeb',2,["Sharon Cuneta is known by which title?","Anong titulo ang kilala kay Sharon Cuneta?"],["Megastar","Superstar","Star for All Seasons","Diamond Star"],["“Mega” means very, very big.","Ang “mega” ay ibig sabihin ay napakalaki."]);
+M('celeb',2,["Beyoncé first became famous in which girl group?","Saang girl group unang sumikat si Beyoncé?"],["Destiny's Child","Spice Girls","TLC","The Supremes"],["The group had a hit called “Survivor”.","May hit na kanta ang grupo na “Survivor”."]);
+M('celeb',3,["Fernando Poe Jr. (FPJ) was called the “King of” what?","Si Fernando Poe Jr. (FPJ) ay tinawag na “Hari ng” ano?"],[["Philippine Movies","Pelikulang Pilipino"],["Comedy","Komedya"],"Basketball",["Rock music","Rock na musika"]],["Fans simply called him “Da King”.","“Da King” lang ang tawag sa kanya ng fans."]);
+M('celeb',3,["Who is known as the “Star for All Seasons”?","Sino ang kilala bilang “Star for All Seasons”?"],["Vilma Santos","Nora Aunor","Sharon Cuneta","Maricel Soriano"],["Her fans are called “Vilmanians”.","“Vilmanians” ang tawag sa fans niya."]);
+M('celeb',3,["Which K-pop group sang “Dynamite” in 2020?","Aling K-pop group ang kumanta ng “Dynamite” noong 2020?"],["BTS","BLACKPINK","TWICE","EXO"],["The group has seven members.","Pito ang miyembro ng grupo."]);
+// Space Station
+M('space',1,["Which planet do we live on?","Saang planeta tayo nakatira?"],[["Earth","Daigdig"],"Mars","Venus","Jupiter"],["It is the blue planet.","Ito ang asul na planeta."]);
+M('space',1,["What is the closest star to Earth?","Ano ang pinakamalapit na bituin sa Daigdig?"],[["The Sun","Ang Araw"],["The Moon","Ang Buwan"],"Mars","North Star"],["You see it every day.","Nakikita mo ito araw-araw."]);
+TF('space',1,["The Moon makes its own light.","Ang buwan ay gumagawa ng sariling liwanag."],false,["Moonlight is really sunlight bouncing off the Moon.","Ang liwanag ng buwan ay sinag ng araw na tumatalbog dito."]);
+M('space',1,["Which planet has big, bright rings?","Aling planeta ang may malalaki at maliliwanag na singsing?"],["Saturn","Mars","Mercury",["Earth","Daigdig"]],["The rings are made of ice and rock.","Gawa sa yelo at bato ang mga singsing."]);
+OR('space',2,["Put these planets in order, closest to the Sun first.","Ayusin ang mga planetang ito, pinakamalapit sa Araw muna."],["Mercury","Venus",["Earth","Daigdig"]],["Earth is the third planet from the Sun.","Ikatlong planeta mula sa Araw ang Daigdig."]);
+M('space',2,["What is the biggest planet in our solar system?","Ano ang pinakamalaking planeta sa ating solar system?"],["Jupiter","Saturn",["Earth","Daigdig"],"Neptune"],["It has a giant storm called the Great Red Spot.","May higanteng bagyo ito na tinatawag na Great Red Spot."]);
+M('space',2,["Which planet is called the “Red Planet”?","Aling planeta ang tinatawag na “Pulang Planeta”?"],["Mars","Venus","Neptune","Uranus"],["Robot rovers drive on it.","May mga robot na rover na umaandar dito."]);
+M('space',3,["How many planets are in our solar system?","Ilan ang planeta sa ating solar system?"],["8","9","7","10"],["Pluto became a “dwarf planet” in 2006.","Naging “dwarf planet” ang Pluto noong 2006."]);
+M('space',3,["About how long does sunlight take to reach Earth?","Gaano katagal bago umabot ang sinag ng araw sa Daigdig?"],[["About 8 minutes","Mga 8 minuto"],["About 8 seconds","Mga 8 segundo"],["About 8 hours","Mga 8 oras"],["About 8 days","Mga 8 araw"]],["Less time than it takes to cook rice.","Mas maikli pa kaysa sa pagsasaing."]);
+M('space',3,["Which planet is the hottest?","Aling planeta ang pinakamainit?"],["Venus","Mercury","Mars","Jupiter"],["Not the closest one! Thick clouds trap its heat.","Hindi ang pinakamalapit! Kinukulong ng makapal na ulap ang init nito."]);
+// Volcano Valley
+M('volcano',1,["What comes out of a volcano when it erupts?","Ano ang lumalabas sa bulkan kapag pumutok ito?"],[["Hot lava","Mainit na lava"],"Ice cream",["Snowflakes","Niyebe"],"Popcorn"],["It is red, glowing and very hot.","Pula, nagliliwanag at napakainit nito."]);
+TF('volcano',1,["Hot melted rock under the ground is called magma.","Ang mainit na tunaw na bato sa ilalim ng lupa ay tinatawag na magma."],true,["When it comes out, we call it lava.","Kapag lumabas na, lava na ang tawag dito."]);
+M('volcano',1,["What does the ground do in an earthquake?","Ano ang ginagawa ng lupa kapag may lindol?"],[["It shakes","Yumayanig"],["It freezes","Nagyeyelo"],["It glows","Nagliliwanag"],["It sings","Kumakanta"]],["Remember: drop, cover and hold on!","Tandaan: dumapa, magtago at kumapit!"]);
+M('volcano',1,["Taal Volcano sits in the middle of a what?","Ang Bulkang Taal ay nasa gitna ng ano?"],[["A lake","Lawa"],["A desert","Disyerto"],["A mall","Mall"],["A forest","Gubat"]],["You can see it from Tagaytay.","Makikita mo ito mula sa Tagaytay."]);
+M('volcano',2,["Mayon Volcano, with its near-perfect cone shape, is in which province?","Saang probinsya ang Bulkang Mayon na halos perpekto ang hugis?"],["Albay","Batangas","Cebu","Benguet"],["It is in the Bicol Region.","Nasa Bicol Region ito."]);
+M('volcano',2,["When lava cools down, what does it become?","Kapag lumamig ang lava, ano ito nagiging?"],[["Rock","Bato"],["Water","Tubig"],["Gold","Ginto"],["Sugar","Asukal"]],["Many islands are made of it.","Maraming isla ang gawa rito."]);
+M('volcano',2,["Mount Pinatubo had a huge eruption in which year?","Anong taon nagkaroon ng malaking pagputok ang Bundok Pinatubo?"],["1991","1965","2001","1980"],["It was in the early 1990s.","Noong simula ng dekada 1990."]);
+M('volcano',3,["What is the “Ring of Fire”?","Ano ang “Ring of Fire”?"],[["Volcanoes around the Pacific Ocean","Mga bulkan sa paligid ng Pacific Ocean"],["A circus trick","Isang circus trick"],["A storm on the Sun","Bagyo sa Araw"],["A ring around Saturn","Singsing ng Saturn"]],["The Philippines is part of it.","Kasama rito ang Pilipinas."]);
+M('volcano',3,["What do we call a scientist who studies volcanoes?","Ano ang tawag sa siyentipikong nag-aaral ng bulkan?"],["Volcanologist","Astronomer","Biologist","Chef"],["The word starts with “volcano”.","Nagsisimula ang salita sa “volcano”."]);
+M('volcano',3,["What is the tallest volcano in our solar system?","Ano ang pinakamataas na bulkan sa ating solar system?"],[["Olympus Mons, on Mars","Olympus Mons, sa Mars"],"Mount Everest","Mayon","Mauna Kea"],["It is on the Red Planet.","Nasa Pulang Planeta ito."]);
+
+/* ---------- math questions (made fresh each time) ---------- */
+const COUNT_ITEMS=[['🍎','apples','mansanas'],['⭐','stars','bituin'],['🐟','fish','isda'],['🎈','balloons','lobo'],['🐥','chicks','sisiw'],['🥭','mangoes','mangga']];
+function nearNums(ans,spread){
+  const s=new Set([ans]);let guard=0;
+  while(s.size<4&&guard++<60){const v=ans+ri(-spread,spread);if(v>=0&&v!==ans)s.add(v);}
+  let k=1;while(s.size<4)s.add(ans+spread+k++);
+  return [...s].map(String);
+}
+function mathQ(d){
+  const r=Math.random();
+  if(d===1&&r<.5){
+    const it=pick(COUNT_ITEMS),n=ri(3,9);
+    return {c:'math',d,t:'mc',q:['How many '+it[1]+'?','Ilan ang '+it[2]+'?'],pic:it[0].repeat(n),a:nearNums(n,2).map(two),tip:['Touch each one as you count.','Hawakan ang bawat isa habang nagbibilang.']};
+  }
+  if(d===1){const a=ri(1,6),b=ri(1,10-a);return {c:'math',d,t:'mc',q:['What is '+a+' + '+b+'?','Ano ang '+a+' + '+b+'?'],a:nearNums(a+b,2).map(two),tip:['Start with '+Math.max(a,b)+' and count up.','Magsimula sa '+Math.max(a,b)+' at magbilang pataas.']};}
+  if(d===2&&r<.35){const nums=new Set();while(nums.size<4)nums.add(ri(10,99));const arr=[...nums].sort((x,y)=>y-x).map(String);return {c:'math',d,t:'mc',q:['Which is the biggest number?','Alin ang pinakamalaking numero?'],a:arr.map(two),tip:['Look at the first digit (the tens) first.','Tingnan muna ang unang digit (ang sampuan).']};}
+  if(d===2&&r<.7){const a=ri(8,20),b=ri(2,a-1);return {c:'math',d,t:'mc',q:['What is '+a+' − '+b+'?','Ano ang '+a+' − '+b+'?'],a:nearNums(a-b,3).map(two),tip:['Count down from '+a+'.','Magbilang pababa mula '+a+'.']};}
+  if(d===2){const a=ri(5,12),b=ri(3,9);return {c:'math',d,t:'mc',q:['What is '+a+' + '+b+'?','Ano ang '+a+' + '+b+'?'],a:nearNums(a+b,3).map(two),tip:['Make a 10 first, then add the rest.','Bumuo muna ng 10, saka idagdag ang natira.']};}
+  if(r<.5){const a=ri(3,10),b=ri(3,10);return {c:'math',d,t:'mc',q:['What is '+a+' × '+b+'?','Ano ang '+a+' × '+b+'?'],a:nearNums(a*b,6).map(two),tip:[a+' × '+b+' means '+a+' groups of '+b+'.','Ang '+a+' × '+b+' ay '+a+' grupo ng '+b+'.']};}
+  const a=ri(15,60),b=ri(12,39);
+  return {c:'math',d,t:'mc',q:['What is '+a+' + '+b+'?','Ano ang '+a+' + '+b+'?'],a:nearNums(a+b,10).map(two),tip:['Add the tens first, then the ones.','Pagsamahin muna ang sampuan, saka ang isahan.']};
+}
+
+/* ---------- settings (no names; one per device) ---------- */
+const DEF={cats:[],ride:'full',undo:true,stars:0,best:0};
+let me=store.get('cfg',null);
+if(!me||typeof me!=='object')me=JSON.parse(JSON.stringify(DEF));
+for(const k in DEF)if(me[k]===undefined)me[k]=JSON.parse(JSON.stringify(DEF[k]));
+me.cats=(Array.isArray(me.cats)?me.cats:[]).filter(c=>CAT[c]);
+const savePlayers=()=>store.set('cfg',me);
+
+/* ---------- sound + voice ---------- */
+let sound=store.get('sound',true),ac=null;
+function beep(f,dur,type,vol,delay){
+  if(!sound)return;
+  try{
+    ac=ac||new (window.AudioContext||window.webkitAudioContext)();
+    if(ac.state==='suspended')ac.resume();
+    const o=ac.createOscillator(),g=ac.createGain(),t0=ac.currentTime+(delay||0);
+    o.type=type||'triangle';o.frequency.value=f;
+    g.gain.setValueAtTime(vol||.12,t0);g.gain.exponentialRampToValueAtTime(.0001,t0+dur);
+    o.connect(g);g.connect(ac.destination);o.start(t0);o.stop(t0+dur+.02);
+  }catch(e){}
+}
+const choo=()=>{beep(587,.18,'square',.06);beep(740,.32,'square',.06,.2);beep(880,.4,'triangle',.08,.45);};
+const fogSnd=()=>{beep(220,.35,'sine',.12);beep(165,.5,'sine',.12,.3);};
+const tap=()=>beep(660,.06,'triangle',.06);
+let warnedVoice=false;
+function speak(text){
+  if(!sound)return;
+  try{
+    if(!('speechSynthesis' in window))return;
+    speechSynthesis.cancel();
+    const u=new SpeechSynthesisUtterance(text);
+    u.rate=.85;u.pitch=1.05;
+    if(lang==='tl'){
+      u.lang='fil-PH';
+      const v=speechSynthesis.getVoices().find(v=>/^(fil|tl)/i.test(v.lang));
+      if(v)u.voice=v;else if(!warnedVoice){warnedVoice=true;toast(t('novoice'));}
+    }else u.lang='en-US';
+    speechSynthesis.speak(u);
+  }catch(e){}
+}
+try{if('speechSynthesis' in window)speechSynthesis.getVoices();}catch(e){}
+const hush=()=>{try{speechSynthesis.cancel();}catch(e){}};
+
+/* ---------- effects ---------- */
+function confetti(n){
+  if(reduce)n=Math.min(n,6);
+  const fx=$('#fx');
+  for(let i=0;i<n;i++){
+    if(fx.childElementCount>120)break;
+    const s=document.createElement('span');s.className='bit';
+    if(Math.random()<.4){s.textContent=pick(['⭐','🎉','✨','🚂']);s.style.fontSize=rand(20,36)+'px';}
+    else{const w=rand(8,14);s.style.width=w+'px';s.style.height=w*1.5+'px';s.style.background=T(pick(COLS));s.style.border='2px solid '+T('--ink');s.style.borderRadius='3px';}
+    s.style.left=rand(0,100)+'vw';fx.appendChild(s);
+    const a=s.animate([{transform:'translate(0,-8vh) rotate(0)'},{transform:'translate('+rand(-18,18)+'vw,108vh) rotate('+rand(-720,720)+'deg)'}],{duration:rand(1500,2700),delay:rand(0,300),easing:'cubic-bezier(.3,.1,.6,1)',fill:'both'});
+    a.onfinish=()=>s.remove();
+  }
+}
+let toastT=0;
+function toast(m){const e=$('#toast');e.textContent=m;e.hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>{e.hidden=true;},4000);}
+
+/* ---------- train drawing ---------- */
+const ENGINE='<svg width="84" height="66" viewBox="0 0 160 96"><rect x="20" y="12" width="44" height="62" rx="6" fill="#ff5b4d" stroke="#1b1a3a" stroke-width="6"/><rect x="28" y="22" width="28" height="22" rx="4" fill="#fff" stroke="#1b1a3a" stroke-width="4"/><circle cx="42" cy="36" r="9" fill="#ff7eb6" stroke="#1b1a3a" stroke-width="3"/><circle cx="39" cy="35" r="1.8" fill="#1b1a3a"/><circle cx="45" cy="35" r="1.8" fill="#1b1a3a"/><path d="M33 27q9-8 18 0z" fill="#3d8bff" stroke="#1b1a3a" stroke-width="2"/><rect x="60" y="34" width="78" height="40" rx="8" fill="#3d8bff" stroke="#1b1a3a" stroke-width="6"/><rect x="112" y="12" width="16" height="24" fill="#1b1a3a"/><rect x="108" y="8" width="24" height="8" rx="3" fill="#1b1a3a"/><path d="M138 62l14 14h-14z" fill="#ffc531" stroke="#1b1a3a" stroke-width="4" stroke-linejoin="round"/><circle cx="142" cy="48" r="6" fill="#ffc531" stroke="#1b1a3a" stroke-width="3"/><g fill="#1b1a3a"><circle cx="40" cy="80" r="13"/><circle cx="84" cy="80" r="11"/><circle cx="118" cy="80" r="11"/></g><g fill="#ffc531"><circle cx="40" cy="80" r="5"/><circle cx="84" cy="80" r="4"/><circle cx="118" cy="80" r="4"/></g></svg>';
+const carSvg=c=>'<svg width="40" height="66" viewBox="0 0 76 96"><rect x="0" y="58" width="10" height="6" fill="#1b1a3a"/><rect x="8" y="34" width="62" height="40" rx="7" fill="'+c+'" stroke="#1b1a3a" stroke-width="6"/><text x="39" y="63" text-anchor="middle" font-size="26">⭐</text><g fill="#1b1a3a"><circle cx="24" cy="80" r="10"/><circle cx="54" cy="80" r="10"/></g></svg>';
+
+/* ---------- screens ---------- */
+const screens={home:$('#home'),ride:$('#ride')};
+function go(name){for(const k in screens)screens[k].hidden=k!==name;window.scrollTo(0,0);if(typeof updHint==='function')updHint();}
+
+function paintStatic(){
+  document.documentElement.lang=lang==='tl'?'tl':'en';
+  document.querySelectorAll('[data-t]').forEach(e=>{e.textContent=t(e.dataset.t);});
+  $('#snd').textContent=sound?t('sound_on'):t('sound_off');$('#snd').setAttribute('aria-pressed',String(sound));
+  document.querySelectorAll('#langSeg button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.lang===lang)));
+  $('#rideBack').textContent=t('back');$('#aboard').textContent=t('aboard');
+}
+let size=store.get('size',25);
+function paintSize(){document.documentElement.style.setProperty('--fs',size+'px');document.querySelectorAll('#sizeSeg button').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.size===size)));}
+
+/* home: categories + settings */
+function paintHome(){
+  $('#mystats').textContent=t('mystats',{s:me.stars,b:me.best});
+  const all=me.cats.length===CATS.length;
+  $('#allBtn').textContent=all?t('clearall'):t('pickall');
+  const none=!me.cats.length;
+  $('#cats').innerHTML=CATS.map(c=>{const on=me.cats.includes(c.id);return '<button class="cat" type="button" data-cat="'+c.id+'" aria-pressed="'+on+'" style="--c:var('+c.c+')"><span class="ci" aria-hidden="true">'+c.ico+'</span><span class="cn">'+esc(c.n[L()])+'<small class="cs">'+esc(on?t('picked'):t('tappick'))+'</small></span><span class="ck" aria-hidden="true">'+(on?'✓':'')+'</span>'+'</button>';}).join('');
+  $('#cats').classList.toggle('none',none);
+  const ab=$('#aboard');ab.classList.toggle('ready',!none);ab.classList.toggle('wait',none);
+  const touch=matchMedia('(pointer:coarse)').matches;
+  $('#scrollHint').textContent=touch?t('swipe'):t('scroll');
+  const g=$('#swipeGuide');g.classList.toggle('up',touch);g.setAttribute('aria-label',touch?t('swipe'):t('scroll'));g.querySelector('.sgdot').textContent=touch?'👆':'⬇';
+  document.querySelectorAll('#rideOpts .opt').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.ride===me.ride)));
+  $('#undoTog').setAttribute('aria-pressed',String(!!me.undo));
+  if(me.cats.length)$('#catErr').hidden=true;
+}
+$('#cats').addEventListener('click',e=>{
+  const b=e.target.closest('[data-cat]');if(!b)return;tap();
+  const id=b.dataset.cat;
+  me.cats=me.cats.includes(id)?me.cats.filter(x=>x!==id):[...me.cats,id];
+  savePlayers();paintHome();
+});
+$('#allBtn').addEventListener('click',()=>{tap();me.cats=me.cats.length===CATS.length?[]:CATS.map(c=>c.id);savePlayers();paintHome();});
+$('#rideOpts').addEventListener('click',e=>{const b=e.target.closest('[data-ride]');if(!b)return;tap();me.ride=b.dataset.ride;savePlayers();paintHome();});
+$('#undoTog').addEventListener('click',()=>{tap();me.undo=!me.undo;savePlayers();paintHome();});
+$('#aboard').addEventListener('click',()=>{
+  if(!me.cats.length){
+    $('#catErr').hidden=false;
+    document.querySelectorAll('.cat').forEach(c=>c.classList.add('nudge'));
+    try{$('#cats').scrollIntoView({behavior:reduce?'auto':'smooth',block:'start'});}catch(e){}
+    return;
+  }
+  startRide();
+});
+/* scroll guide: bouncing button until the green button is on screen */
+let aboardSeen=false;
+let userScrolled=false;
+function updHint(){
+  const off=aboardSeen||screens.home.hidden;
+  $('#scrollHint').hidden=off;
+  const g=$('#swipeGuide');g.hidden=off;g.classList.toggle('fade',userScrolled);
+}
+addEventListener('scroll',()=>{if(!userScrolled&&window.scrollY>120&&!screens.home.hidden){userScrolled=true;updHint();}},{passive:true});
+try{new IntersectionObserver(es=>{for(const e of es)aboardSeen=e.isIntersecting;updHint();},{threshold:.6}).observe($('#aboard'));}catch(e){}
+$('#swipeGuide').addEventListener('click',()=>{tap();window.scrollBy({top:Math.round(innerHeight*.7),behavior:reduce?'auto':'smooth'});});
+$('#scrollHint').addEventListener('click',()=>{tap();try{$('#step2').scrollIntoView({behavior:reduce?'auto':'smooth',block:'center'});}catch(e){window.scrollTo(0,document.body.scrollHeight);}});
+/* on opening: slowly show there is more below, then come back */
+function introScroll(){
+  if(reduce)return;
+  setTimeout(()=>{
+    if(screens.home.hidden||window.scrollY>10)return;
+    window.scrollTo({top:Math.min(320,document.body.scrollHeight),behavior:'smooth'});
+    setTimeout(()=>{if(!screens.home.hidden)window.scrollTo({top:0,behavior:'smooth'});},1300);
+  },900);
+}
+
+/* ---------- ride ---------- */
+let R=null,pendT=0;
+function startRide(){
+  R={station:0,step:0,stars:0,used:new Set(),help:{express:true,tip:true,swap:true},cur:null,phase:'ask',fogs:0};
+  go('ride');choo();nextQ();
+}
+const diffFor=()=>{const st=Math.min(2,R.station);return me.ride==='gentle'?[1,1,2][st]:st+1;};
+function drawQ(d){
+  const cats=me.cats,hasMath=cats.includes('math'),content=cats.filter(c=>c!=='math');
+  if(hasMath&&(!content.length||Math.random()<1/cats.length))return mathQ(d);
+  let pool=QS.filter(q=>content.includes(q.c)&&!R.used.has(q));
+  let same=pool.filter(q=>q.d===d);
+  if(!same.length)same=pool.filter(q=>Math.abs(q.d-d)===1);
+  if(!same.length)same=pool;
+  if(!same.length){
+    if(hasMath)return mathQ(d);
+    R.used.clear();same=QS.filter(q=>content.includes(q.c)&&q.d===d);
+    if(!same.length)same=QS.filter(q=>content.includes(q.c));
+  }
+  const q=pick(same);R.used.add(q);return q;
+}
+function prepare(q){
+  const s={q,picked:null,done:false,hidden:new Set(),order:[],tipShown:false};
+  if(q.t==='mc')s.opts=shuffle(q.a.map((a,i)=>({label:a,ok:i===0})));
+  else if(q.t==='tf')s.opts=[{label:S.tf_true,ok:q.ans===true},{label:S.tf_false,ok:q.ans===false}];
+  else s.opts=shuffle(q.a.map((a,i)=>({label:a,rank:i})));
+  return s;
+}
+function nextQ(){clearTimeout(pendT);hush();R.cur=prepare(drawQ(diffFor()));R.phase='ask';$('#fbArea').innerHTML='';renderRide();}
+
+function renderTrack(){
+  const pos=R.station*4+R.step;
+  const posL=i=>i===0?'8px;transform:none':i===3?'calc(100% - 24px)':'calc(6px + var(--tw) + (100% - var(--tw) - 12px) * '+(i/3).toFixed(4)+')';
+  $('#stations').innerHTML=[0,1,2,3].map(i=>'<div class="stn'+(R.station>=i&&i>0?' on':'')+'" style="left:'+posL(i)+'"><span class="flag">'+(i===0?esc(t('start')):i)+'</span><span class="pole"></span></div>').join('');
+  const cars=R.station;
+  const tr=$('#train');
+  tr.innerHTML=Array.from({length:cars},(_,i)=>carSvg(T(['--sun','--leaf','--grape'][i]))).join('')+ENGINE;
+  const tw=84+cars*40;
+  $('#track').style.setProperty('--tw',tw+'px');
+  tr.style.setProperty('--p',(pos/12).toFixed(3));
+}
+function renderRide(){
+  const lv=S.lv[diffFor()-1][L()];
+  $('#rideTitle').textContent=t('station',{n:Math.min(3,R.station+1)});
+  $('#starbox').textContent='⭐ '+R.stars;
+  $('#lvl').textContent=lv;
+  $('#steam').textContent=R.fogs?'☁️ × '+R.fogs:'';
+  renderTrack();
+  const s=R.cur,q=s.q,asking=R.phase==='ask';
+  const canExpress=q.t==='mc'&&s.opts.length>=4&&s.hidden.size===0;
+  const H=[['express','🚄',canExpress],['tip','🧢',!s.tipShown],['swap','🔀',true]];
+  $('#helpers').innerHTML=H.map(([k,ic,ok])=>{
+    const avail=R.help[k]&&ok&&asking&&s.picked===null;
+    return '<button class="help" type="button" data-help="'+k+'"'+(avail?'':' disabled')+'><span class="hi" aria-hidden="true">'+ic+'</span><b>'+esc(t('h_'+k))+'</b><small>'+esc(R.help[k]?t('h_'+k+'_d'):t('used'))+'</small></button>';
+  }).join('');
+  const cat=CAT[q.c];
+  let h='<div class="qmeta"><span class="qcat" style="--c:var('+cat.c+')">'+cat.ico+' '+esc(cat.n[L()])+'</span><button class="small" type="button" id="readBtn">'+esc(t('read'))+'</button></div>';
+  h+='<p class="qtext">'+esc(tx(q.q))+'</p>';
+  if(q.pic)h+='<div class="qpic" aria-label="'+esc(String([...q.pic].length))+'">'+q.pic+'</div>';
+  if(s.tipShown)h+='<p class="tipbox">🧢 '+esc(tx(q.tip))+'</p>';
+  if(q.t==='order')h+='<p class="hint">'+esc(t('order_hint'))+'</p>';
+  const keys=['A','B','C','D'];
+  const btns=s.opts.map((o,i)=>{
+    let cls='ans';
+    if(s.hidden.has(i))cls+=' gone';
+    if(q.t!=='order'){
+      if(s.picked===i&&!s.done)cls+=' pending';
+      if(s.done){if(o.ok)cls+=' good';else if(s.picked===i)cls+=' bad';else cls+=' dim';}
+    }else if(s.done){cls+=s.orderOk?' good':' bad';}
+    const lock=s.done||s.picked!==null||s.hidden.has(i)||(q.t==='order'&&s.order.includes(i));
+    const key=q.t==='mc'?'<span class="key" style="--c:var('+COLS[[3,0,2,4][i]]+')">'+keys[i]+'</span>':'';
+    const ord=q.t==='order'?'<span class="ordtag">'+(s.order.includes(i)?s.order.indexOf(i)+1:'')+'</span>':'';
+    return '<button class="'+cls+'" type="button" data-a="'+i+'"'+(lock?' disabled':'')+'>'+key+'<span>'+esc(tx(o.label))+'</span>'+ord+'</button>';
+  }).join('');
+  h+=q.t==='tf'?'<div class="tfrow">'+btns+'</div>':'<div class="answers">'+btns+'</div>';
+  if(q.t==='order'&&s.order.length&&s.picked===null&&!s.done)h+='<button class="small" type="button" id="ordReset">↺ '+esc(t('order_reset'))+'</button>';
+  if(s.picked!==null&&!s.done)h+='<div class="pendbar"><span>'+esc(t('checking'))+'</span><span class="bar"><i></i></span><button class="small" type="button" id="changeBtn">'+esc(t('change'))+'</button></div>';
+  $('#qcard').innerHTML=h;
+}
+function readAloud(){
+  const s=R.cur,q=s.q;
+  let txt=tx(q.q);
+  if(q.pic)txt+=' ';
+  if(q.t==='mc')txt+=' '+s.opts.map((o,i)=>s.hidden.has(i)?'':['A','B','C','D'][i]+': '+tx(o.label)+'.').join(' ');
+  else txt+=' '+s.opts.map(o=>tx(o.label)+'.').join(' ');
+  speak(txt);
+}
+$('#qcard').addEventListener('click',e=>{
+  if(!R||R.phase!=='ask')return;
+  const s=R.cur;
+  if(e.target.closest('#readBtn')){readAloud();return;}
+  if(e.target.closest('#changeBtn')){clearTimeout(pendT);s.picked=null;if(s.q.t==='order')s.order=[];renderRide();return;}
+  if(e.target.closest('#ordReset')){s.order=[];renderRide();return;}
+  const b=e.target.closest('[data-a]');if(!b||b.disabled)return;
+  const i=+b.dataset.a;tap();
+  if(s.q.t==='order'){
+    s.order.push(i);
+    if(s.order.length<s.opts.length){renderRide();return;}
+    s.picked='order';
+  }else s.picked=i;
+  if(me.undo){renderRide();pendT=setTimeout(resolve,2000);}else resolve();
+});
+$('#helpers').addEventListener('click',e=>{
+  const b=e.target.closest('[data-help]');if(!b||b.disabled)return;
+  const k=b.dataset.help,s=R.cur;R.help[k]=false;tap();
+  if(k==='express'){const wrong=shuffle(s.opts.map((o,i)=>o.ok?-1:i).filter(i=>i>=0)).slice(0,2);wrong.forEach(i=>s.hidden.add(i));}
+  if(k==='tip')s.tipShown=true;
+  if(k==='swap'){nextQ();return;}
+  renderRide();
+});
+function resolve(){
+  const s=R.cur,q=s.q;
+  let ok;
+  if(q.t==='order'){ok=s.order.every((oi,pos)=>s.opts[oi].rank===pos);s.orderOk=ok;}
+  else ok=!!s.opts[s.picked].ok;
+  s.done=true;R.phase='feedback';hush();
+  let reachedNow=0,finished=false,stopped=false;
+  if(ok){
+    R.stars++;R.step++;
+    if(R.step>=4){R.station++;R.step=0;reachedNow=R.station;if(R.station>=3)finished=true;}
+    choo();confetti(reachedNow?50:14);
+  }else{
+    R.fogs++;R.step=0;fogSnd();
+    const f=$('#fog');f.hidden=false;f.classList.remove('go');void f.offsetWidth;f.classList.add('go');setTimeout(()=>{f.hidden=true;},1650);
+  }
+  renderRide();
+  const right=q.t==='order'?s.opts.slice().sort((a,b)=>a.rank-b.rank).map(o=>tx(o.label)).join(' → '):tx(s.opts.find(o=>o.ok).label);
+  let fb='<div class="feedback '+(ok?'good':'bad')+'" role="status"><h3>'+(ok?'🚂 '+esc(t('right')):'☁️ '+esc(t('wrong')))+'</h3>';
+  if(!ok)fb+='<p>'+esc(t('answer_is',{a:right}))+'</p>';
+  if(reachedNow&&!finished)fb+='<p><b>'+esc(t('reached',{n:reachedNow}))+'</b></p>';
+  fb+='<p>'+esc(t('didyou',{t:tx(q.tip)}))+'</p>';
+  if(!ok&&!stopped&&R.station<3)fb+='<p>'+esc(t('goback'))+'</p>';
+  fb+='<button class="big" type="button" id="nextBtn">'+esc(t('next'))+'</button></div>';
+  $('#fbArea').innerHTML=fb;
+  const nb=$('#nextBtn');
+  nb.addEventListener('click',()=>{if(finished||stopped)endRide(finished);else nextQ();});
+  try{nb.scrollIntoView({behavior:reduce?'auto':'smooth',block:'nearest'});}catch(e){}
+  if(sound)speak(ok?(lang==='tl'?'Tama!':'Correct!'):t('answer_is',{a:right}));
+}
+function endRide(won){
+  hush();
+  const prevBest=me.best;
+  me.stars+=R.stars;if(R.stars>me.best)me.best=R.stars;savePlayers();
+  const nb=R.stars>prevBest&&R.stars>0;
+  let h=won?(R.fogs?t('win_h2'):t('win_h')):t('lose_h'),p;
+  if(won)p=t('win_p',{s:R.stars});else if(R.station>0)p=t('lose_p',{st:R.station,s:R.stars});else p=t('lose_p0',{s:R.stars});
+  if(won)confetti(90);
+  $('#endArea').innerHTML='<div class="endpanel"><div class="endcard" role="dialog" aria-modal="true" aria-labelledby="endH"><svg viewBox="0 0 200 190" aria-hidden="true"><use href="#noodleBody"/></svg><h3 id="endH">'+esc(h)+'</h3><p>'+esc(p)+'</p>'+(nb?'<p><b>'+esc(t('newbest'))+'</b></p>':'')+'<button class="big" type="button" id="againBtn">'+esc(t('again'))+'</button><button class="big alt" type="button" id="homeBtn">'+esc(t('home'))+'</button></div></div>';
+  $('#againBtn').focus();
+  $('#againBtn').onclick=()=>{$('#endArea').innerHTML='';startRide();};
+  $('#homeBtn').onclick=()=>{$('#endArea').innerHTML='';R=null;go('home');paintHome();};
+}
+$('#rideBack').addEventListener('click',()=>{
+  if(!R)return go('home');
+  $('#endArea').innerHTML='<div class="endpanel"><div class="endcard" role="dialog" aria-modal="true" aria-labelledby="lvH"><h3 id="lvH">'+esc(t('leave'))+'</h3><button class="big" type="button" id="stayBtn">'+esc(t('leave_no'))+'</button><button class="big alt" type="button" id="leaveBtn">'+esc(t('leave_yes'))+'</button></div></div>';
+  $('#stayBtn').focus();
+  $('#stayBtn').onclick=()=>{$('#endArea').innerHTML='';};
+  $('#leaveBtn').onclick=()=>{$('#endArea').innerHTML='';clearTimeout(pendT);hush();if(R&&R.stars){me.stars+=R.stars;if(R.stars>me.best)me.best=R.stars;savePlayers();}R=null;go('home');paintHome();};
+});
+
+/* ---------- top controls ---------- */
+$('#snd').addEventListener('click',()=>{sound=!sound;store.set('sound',sound);if(!sound)hush();else tap();paintStatic();});
+$('#langSeg').addEventListener('click',e=>{const b=e.target.closest('[data-lang]');if(!b)return;lang=b.dataset.lang;store.set('lang',lang);tap();paintStatic();paintHome();});
+$('#sizeSeg').addEventListener('click',e=>{const b=e.target.closest('[data-size]');if(!b)return;size=+b.dataset.size;store.set('size',size);tap();paintSize();});
+addEventListener('keydown',e=>{
+  if(!R||screens.ride.hidden||$('#endArea').innerHTML)return;
+  if(R.phase==='feedback'&&(e.key==='Enter'||e.key===' ')){const nb=$('#nextBtn');if(nb&&document.activeElement!==nb){e.preventDefault();nb.click();}return;}
+  if(R.phase==='ask'&&R.cur.q.t!=='order'){
+    const m={a:0,b:1,c:2,d:3,'1':0,'2':1,'3':2,'4':3}[e.key.toLowerCase()];
+    if(m!==undefined){const b=document.querySelector('[data-a="'+m+'"]');if(b&&!b.disabled)b.click();}
+  }
+});
+
+paintSize();paintStatic();paintHome();updHint();
+}
+</script>
+</body>
+</html>
