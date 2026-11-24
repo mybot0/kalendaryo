@@ -611,11 +611,21 @@ r.get('/games', async (req, res) => {
 const BRAIN_TRAIN = path.join(__dirname, '..', 'public', 'brain-train', 'index.html');
 const brainTrain = async (req, res) => {
   res.setHeader('X-Frame-Options', 'SAMEORIGIN');
-  res.setHeader('Content-Security-Policy', SECURITY['Content-Security-Policy'].replace("frame-ancestors 'none'", "frame-ancestors 'self'"));
+  res.setHeader('Content-Security-Policy', SECURITY['Content-Security-Policy'].replace("frame-ancestors 'none'", "frame-ancestors 'self'")
+    .replace('font-src https://fonts.gstatic.com', "font-src 'self' https://fonts.gstatic.com"));
   res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-cache' });
   res.end(req.method === 'HEAD' ? undefined : fs.readFileSync(BRAIN_TRAIN));
 };
 r.get('/brain-train', brainTrain); r.get('/brain-train/index.html', brainTrain);
+// Brain Train's two fonts (Lilita One, Nunito; OFL) are self-hosted copies in public/brain-train/fonts, so the game
+// needs nothing from outside kalendaryo.co. Only these three files are served.
+const BRAIN_TRAIN_FONTS = new Set(['lilita-one-latin-400-normal.woff2', 'nunito-latin-600-normal.woff2', 'nunito-latin-800-normal.woff2']);
+r.get('/brain-train/fonts/:name', async (req, res) => {
+  if (!BRAIN_TRAIN_FONTS.has(req.params.name)) fail(404, 'not_found', 'Not found.');
+  const bytes = fs.readFileSync(path.join(__dirname, '..', 'public', 'brain-train', 'fonts', req.params.name));
+  res.writeHead(200, { 'Content-Type': 'font/woff2', 'Cache-Control': 'public, max-age=31536000, immutable', 'Content-Length': bytes.length });
+  res.end(req.method === 'HEAD' ? undefined : bytes);
+});
 
 const server = http.createServer(async (req, res) => {
   owner.touch(req);
