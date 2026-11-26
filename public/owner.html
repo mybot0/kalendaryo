@@ -230,8 +230,10 @@ button, .btn { font: 700 14px 'Figtree', sans-serif; border: 0; cursor: pointer;
         '<section class="card where"><h2>Where visitors are</h2>' + countries + '<p class="note">Last 30 days. City and country only.</p></section></div>' +
       '<section class="card where"><h2>Where they came from</h2>' + sources + '<p class="note">Last 7 days, real people only. Share your link with a tag to see each post: kalendaryo.co/?s=fb · kalendaryo.co/?s=ig</p></section>' +
       '<section class="card"><h2>Recent visitors</h2>' + recent + '<p class="note">The last 20 visits by real people: the page opened in a browser and they stayed 3 seconds or tapped. Bots, link previews and your own visits are not counted. “Device” is a short code, not a name.</p></section>' +
-      (d.asks && d.asks.length ? '' : asks) + '<section class="card"><h2><span class="pill">HOMES</span>' + d.homes.length + (d.homes.length === 1 ? ' home' : ' homes') + '</h2>' + homes + '</section>' + trips +
+      (d.asks && d.asks.length ? '' : asks) + '<div id="kalradio-slot"></div><section class="card"><h2><span class="pill">HOMES</span>' + d.homes.length + (d.homes.length === 1 ? ' home' : ' homes') + '</h2>' + homes + '</section>' + trips +
       '<p class="note">Database: ' + mb(t.db_bytes) + ' used. “View” opens that home or trip read-only for 2 hours; your visit doesn’t count as theirs. “Delete” removes it for good, only when you click it.</p>';
+    // TOUCH POINT R7 (KalRadio): its own section (kalradio/server/owner-section.js), only when the server added it.
+    const rslot = document.getElementById('kalradio-slot'); if (rslot && window.KalRadioOwner) rslot.replaceWith(window.KalRadioOwner.el(api));
     const slot = document.getElementById('inbox-slot'); if (slot) { slot.replaceWith(inbox.el); inbox.el.parentNode.insertBefore(alerts.el, inbox.el); alerts.paint(); }
     if (typing && typing[0].isConnected) { typing[0].focus({ preventScroll: true }); try { typing[0].setSelectionRange(typing[1], typing[2]); } catch (e) {} }
     const goto = /^#t=(\d+)$/.exec(location.hash); if (goto) { history.replaceState(null, '', '/owner'); inbox.openThread(Number(goto[1])); }

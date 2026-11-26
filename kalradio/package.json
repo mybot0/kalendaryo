@@ -1,0 +1,8 @@
+{
+  "name": "kalradio",
+  "version": "1.0.0",
+  "private": true,
+  "description": "KalRadio: live radio from the places your family calls home. Build needs no packages; these are only for tools/gen-map.js.",
+  "scripts": { "build": "node build.js", "map": "node tools/gen-map.js 0.35 && node build.js" },
+  "devDependencies": { "d3-geo": "3.1.2", "topojson-client": "3.1.0", "topojson-simplify": "3.0.3", "world-atlas": "2.0.2" }
+}

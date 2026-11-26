@@ -113,7 +113,8 @@
       { id: 'family',   label: 'People',   icon: 'users',    ready: true },
       { id: 'settings', label: 'Settings', icon: 'settings', ready: true },
       { id: 'care',     label: 'Care',     icon: 'pill',     ready: true }, // a home can hide it (Settings → Care)
-      { id: 'games',    label: 'Games',    icon: 'game',     ready: true }  // kids' games (client/games)
+      { id: 'games',    label: 'Games',    icon: 'game',     ready: true }, // kids' games (client/games)
+      { id: 'radio',    label: 'Radio',    icon: 'radio',    ready: true, hidden: !window.KAL_RADIO } // TOUCH POINT R4: KalRadio (kalradio/), shown only when the server has it
     ]
   };
   // Lists that use `id` also get `value`, so they can feed selectors directly.

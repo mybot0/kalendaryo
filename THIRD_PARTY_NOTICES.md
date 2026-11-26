@@ -34,6 +34,11 @@ Do not use screenshots of emoji in ads or videos without checking the emoji make
 - All icons, the tile icons (Pares-Pares cards, Hangry Snake, Brain Train), the gamepad icon, the doodle background art and the layouts.
 - All website and guide text.
 
+## KalRadio (kalradio/)
+
+KalRadio has its own list: kalradio/THIRD_PARTY_NOTICES.md (Radio Browser station list, Natural Earth map data,
+world-atlas, map build tools, the ipwho.is / ipapi.co country lookup). Its page, text, icons and code were made for KalRadio.
+
 ## Made with AI help
 
 Parts of the code, the icons and the website text were made with help from Claude (Anthropic) and reviewed by us.

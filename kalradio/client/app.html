@@ -1,0 +1,918 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>KalRadio</title>
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#F4F3EE">
+<meta name="description" content="Live radio from the places your family calls home. Free, no sign-up, no ads.">
+<script>try{var t=localStorage.getItem('kal.theme')||'light';if(t==='dark'||(t==='auto'&&matchMedia('(prefers-color-scheme: dark)').matches))document.documentElement.dataset.theme='dark'}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;600;700;800&family=Outfit:wght@600;700;800&display=swap">
+<style>
+/* Colors, fonts and sizes copied from Kalendaryo's theme.css (main app style). */
+:root {
+  color-scheme: light;
+  --bg: #F4F3EE; --surface: #FFFFFF; --surface-2: #F8F7F3; --line: #E4E2DA;
+  --ink: #26302B; --ink-2: #5C675F; --ink-3: #8A948C;
+  --primary: #3F7360; --primary-ink: #FFFFFF; --primary-soft: #E4EFE9;
+  --danger: #B3402F; --danger-soft: #FBE9E5; --focus: #2F6B8F;
+  --radius: 18px; --radius-sm: 12px;
+  --shadow: 0 1px 2px rgba(38,48,43,.06), 0 4px 14px rgba(38,48,43,.06);
+  --font: 'Figtree', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-head: 'Outfit', 'Figtree', system-ui, sans-serif;
+  --tap: 48px;
+  --land: #D3E6DA; --land-line: #B4D1C0; --pin-city: #E9806E;
+}
+/* Page background (copied from Kalendaryo base.css, so this folder works on its own). */
+:root {
+  --page-art:
+    radial-gradient(700px 500px at 5% 0%, var(--glow1, rgba(244,224,220,.75)), transparent 70%),
+    radial-gradient(640px 520px at 100% 25%, var(--glow2, rgba(233,227,246,.8)), transparent 70%),
+    radial-gradient(700px 520px at 40% 100%, var(--glow3, rgba(251,244,217,.8)), transparent 70%),
+    url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%22680%22%20height%3D%22680%22%20viewBox%3D%220%200%20680%20680%22%3E%3Cg%20fill%3D%22none%22%20stroke%3D%22%233F7360%22%20stroke-opacity%3D%220.13%22%20stroke-width%3D%221.5%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cg%20transform%3D%22translate%2845%2016%29%20rotate%28-3%2024%2024%29%20scale%282.46%29%22%3E%3Cpath%20d%3D%22M5%2010l1-6%204%203h4l4-3%201%206v3a7%207%200%200%201-14%200z%22/%3E%3Ccircle%20cx%3D%229.5%22%20cy%3D%2212%22%20r%3D%22.6%22/%3E%3Ccircle%20cx%3D%2214.5%22%20cy%3D%2212%22%20r%3D%22.6%22/%3E%3Cpath%20d%3D%22M11%2015l1%201%201-1%22/%3E%3C/g%3E%3Cg%20transform%3D%22translate%28246%2020%29%20rotate%285%2024%2024%29%20scale%282.56%29%22%3E%3Ccircle%20cx%3D%2210%22%20cy%3D%2212%22%20r%3D%226%22/%3E%3Cpath%20d%3D%22M16%2012h6%22/%3E%3Cpath%20d%3D%22M8%2011c1-1%202-1%203%200%22/%3E%3C/g%3E%3Cg%20transform%3D%22translate%28426%2056%29%20rotate%2817%2024%2024%29%20scale%282.68%29%22%3E%3Cpath%20d%3D%22M6%2016V11a6%206%200%200%201%2012%200v5l2%202H4z%22/%3E%3Cpath%20d%3D%22M10%2020a2%202%200%200%200%204%200%22/%3E%3C/g%3E%3Cg%20transform%3D%22translate%28524%2079%29%20rotate%28-13%2024%2024%29%20scale%282.60%29%22%3E%3Cpath%20d%3D%22M4%2010h16l-2%209H6z%22/%3E%3Cpath%20d%3D%22M8%2010l3-6M16%2010l-3-6M9%2013v3M12%2013v3M15%2013v3%22/%3E%3C/g%3E%3Cg%20transform%3D%22translate%2819%20205%29%20rotate%28-11%2024%2024%29%20scale%282.97%29%22%3E%3Ccircle%20cx%3D%228%22%20cy%3D%2212%22%20r%3D%224%22/%3E%3Cpath%20d%3D%22M12%2012h9M18%2012v3M21%2012v2%22/%3E%3C/g%3E%3Cg%20transform%3D%22translate%28227%20231%29%20rotate%282%2024%2024%29%20scale%282.66%29%22%3E%3Cpath%20d%3D%22M12%2020s-7-4.5-7-10a4%204%200%200%201%207-2.5A4%204%200%200%201%2019%2010c0%205.5-7%2010-7%2010z%22/%3E%3C/g%3E%3Cg%20transform%3D%22translate%28355%20185%29%20rotate%286%2024%2024%29%20scale%282.54%29%22%3E%3Ccircle%20cx%3D%2212%22%20cy%3D%2215%22%20r%3D%223.5%22/%3E%3Ccircle%20cx%3D%227%22%20cy%3D%2210%22%20r%3D%221.6%22/%3E%3Ccircle%20cx%3D%2210.5%22%20cy%3D%226.5%22%20r%3D%221.6%22/%3E%3Ccircle%20cx%3D%2214.5%22%20cy%3D%226.5%22%20r%3D%221.6%22/%3E%3Ccircle%20cx%3D%2218%22%20cy%3D%2210%22%20r%3D%221.6%22/%3E%3C/g%3E%3Cg%20transform%3D%22translate%28554%20205%29%20rotate%28-2%2024%2024%29%20scale%282.81%29%22%3E%3Cpath%20d%3D%22M12%204l2.4%205%205.4.6-4%203.7%201.1%205.4L12%2016l-4.9%202.7%201.1-5.4-4-3.7%205.4-.6z%22/%3E%3C/g%3E%3Cg%20transform%3D%22translate%2834%20414%29%20rotate%28-9%2024%2024%29%20scale%282.89%29%22%3E%3Cpath%20d%3D%22M5%209h10v7a4%204%200%200%201-4%204H9a4%204%200%200%201-4-4z%22/%3E%3Cpath%20d%3D%22M15%2011h2a2%202%200%200%201%200%204h-2%22/%3E%3Cpath%20d%3D%22M8%203c0%201.5%201%201.5%201%203M12%203c0%201.5%201%201.5%201%203%22/%3E%3C/g%3E%3Cg%20transform%3D%22translate%28226%20392%29%20rotate%288%2024%2024%29%20scale%283.01%29%22%3E%3Cpath%20d%3D%22M4%2011l8-7%208%207v9H4z%22/%3E%3Cpath%20d%3D%22M10%2020v-5h4v5%22/%3E%3C/g%3E%3Cg%20transform%3D%22translate%28373%20428%29%20rotate%28-3%2024%2024%29%20scale%282.48%29%22%3E%3Cpath%20d%3D%22M8%204L4%207l2%203%202-1v11h8V9l2%201%202-3-4-3c-1%201.5-2.5%202-4%202S9%205.5%208%204z%22/%3E%3C/g%3E%3Cg%20transform%3D%22translate%28581%20362%29%20rotate%28-17%2024%2024%29%20scale%282.74%29%22%3E%3Cpath%20d%3D%22M5%206h14v13H5zM5%2010h14M9%204v4M15%204v4%22/%3E%3C/g%3E%3Cg%20transform%3D%22translate%2863%20581%29%20rotate%2814%2024%2024%29%20scale%282.80%29%22%3E%3Cpath%20d%3D%22M7%2014h10l-1.5%207h-7z%22/%3E%3Cpath%20d%3D%22M12%2014V9%22/%3E%3Cpath%20d%3D%22M12%209c-3%200-5-2-5-5%203%200%205%202%205%205zM12%2010c3%200%205-2%205-5-3%200-5%202-5%205z%22/%3E%3C/g%3E%3Cg%20transform%3D%22translate%28205%20576%29%20rotate%283%2024%2024%29%20scale%282.82%29%22%3E%3Ccircle%20cx%3D%2212%22%20cy%3D%2212%22%20r%3D%224%22/%3E%3Cpath%20d%3D%22M12%202v3M12%2019v3M2%2012h3M19%2012h3M4.9%204.9l2.1%202.1M17%2017l2.1%202.1M4.9%2019.1L7%2017M17%207l2.1-2.1%22/%3E%3C/g%3E%3Cg%20transform%3D%22translate%28386%20587%29%20rotate%28-1%2024%2024%29%20scale%283.06%29%22%3E%3Cpath%20d%3D%22M5%2010l1-6%204%203h4l4-3%201%206v3a7%207%200%200%201-14%200z%22/%3E%3Ccircle%20cx%3D%229.5%22%20cy%3D%2212%22%20r%3D%22.6%22/%3E%3Ccircle%20cx%3D%2214.5%22%20cy%3D%2212%22%20r%3D%22.6%22/%3E%3Cpath%20d%3D%22M11%2015l1%201%201-1%22/%3E%3C/g%3E%3Cg%20transform%3D%22translate%28573%20525%29%20rotate%285%2024%2024%29%20scale%282.89%29%22%3E%3Ccircle%20cx%3D%2210%22%20cy%3D%2212%22%20r%3D%226%22/%3E%3Cpath%20d%3D%22M16%2012h6%22/%3E%3Cpath%20d%3D%22M8%2011c1-1%202-1%203%200%22/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  --page-art-size: auto, auto, auto, 680px 680px;
+  --page-art-repeat: no-repeat, no-repeat, no-repeat, repeat;
+}
+/* Dark mode: same colors as Kalendaryo dark.css. Switched on by <html data-theme="dark">, read from Kalendaryo's own setting. */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #171C1A; --surface: #222A26; --surface-2: #2A332E; --line: #37423C;
+  --ink: #ECEFEA; --ink-2: #B9C3BC; --ink-3: #8C968F;
+  --primary: #72B597; --primary-ink: #0F1F18; --primary-soft: #2B4037;
+  --danger: #E88A78; --danger-soft: #3D2622; --focus: #8FC4EA;
+  --shadow: 0 1px 2px rgba(0,0,0,.35), 0 6px 18px rgba(0,0,0,.25);
+  --glow1: rgba(120,70,60,.20); --glow2: rgba(80,70,120,.20); --glow3: rgba(120,100,40,.14);
+  --land: #34483E; --land-line: #46604F; --pin-city: #E9806E;
+}
+:root[data-theme="dark"] .banner { background: #3A3320; border-color: #5A4E2A; color: #F3E7C0; }
+:root[data-theme="dark"] .chip.city.on { background: #45302B; color: #F4B5A8; }
+:root[data-theme="dark"] .pin::before { box-shadow: 0 0 0 3px var(--surface), 0 1px 4px rgba(0,0,0,.5); }
+:root[data-theme="dark"] .pin.sel::before { box-shadow: 0 0 0 3px var(--surface), 0 0 0 6px var(--ink); }
+:root[data-theme="dark"] .toast { background: var(--ink); color: var(--bg); }
+/* Inside a Kalendaryo home (embed=1): Kalendaryo shows its own frame, so the page has no top bar and no background of its own. */
+html.embed body { background: transparent; }
+html.embed .top { display: none; }
+html.embed .main { padding-top: 4px; }
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background-color: var(--bg); background-image: var(--page-art); background-size: var(--page-art-size); background-repeat: var(--page-art-repeat); background-attachment: fixed; color: var(--ink); font: 1rem/1.45 var(--font); min-height: 100vh; }
+[hidden] { display: none !important; }
+button, input { font: inherit; color: inherit; }
+button { cursor: pointer; }
+h1, h2, h3 { font-family: var(--font-head); margin: 0; line-height: 1.2; letter-spacing: -.01em; }
+h1 { font-size: 1.7rem; } h2 { font-size: 1.2rem; } h3 { font-size: 1.05rem; }
+p { margin: 0; }
+:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; border-radius: 6px; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; animation: none !important; } }
+.ic { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+.sub { color: var(--ink-2); font-size: .9rem; }
+.hint { color: var(--ink-3); font-size: .85rem; }
+
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; padding: 0 18px; border-radius: 999px; border: 0; font-weight: 700; background: var(--primary-soft); color: var(--primary); transition: filter .15s, transform .1s; white-space: nowrap; }
+.btn:hover { filter: brightness(.96); } .btn:active { transform: scale(.98); }
+.btn.big { min-height: var(--tap); padding: 0 22px; font-size: 1.02rem; }
+.btn.primary { background: var(--primary); color: var(--primary-ink); }
+.btn.ghost { background: transparent; color: var(--ink-2); }
+.btn:disabled { opacity: .55; cursor: default; }
+.btn.done:disabled { opacity: 1; background: transparent; color: var(--primary); }
+.icon-btn { width: 44px; height: 44px; border-radius: 50%; border: 0; background: var(--surface-2); display: inline-grid; place-items: center; flex: none; color: var(--ink-2); }
+.icon-btn:hover { background: var(--primary-soft); color: var(--primary); }
+
+.top { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 16px 0; max-width: 1280px; margin: 0 auto; }
+.pill { display: inline-flex; align-items: center; min-height: 36px; padding: 0 16px; border-radius: 12px; background: var(--primary); color: #fff; font: 800 1.05rem var(--font-head); }
+.main { padding: 18px 16px 150px; width: 100%; max-width: 1280px; margin: 0 auto; }
+.page-head { display: flex; flex-direction: column; gap: 4px; margin-bottom: 18px; }
+.page-head h1 { display: flex; align-items: center; gap: 10px; }
+.page-head h1 .ic { width: 30px; height: 30px; color: var(--primary); }
+.banner { background: #FFF6D8; border: 1.5px solid #F5DF9A; color: #4A3A00; border-radius: var(--radius); padding: 12px 16px; margin-bottom: 16px; font-weight: 600; }
+
+.grid { display: grid; gap: 16px; grid-template-columns: minmax(0, 1fr); }
+@media (min-width: 900px) {
+  .grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); align-items: start; }
+  .col { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+  .main { padding-bottom: 130px; }
+}
+@media (max-width: 899px) { .col { display: contents; } }
+.card { background: var(--surface); border-radius: var(--radius); padding: 20px; box-shadow: inset 0 5px 0 var(--edge, transparent), var(--shadow); min-width: 0; }
+.card-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+.count { color: var(--ink-2); font-weight: 700; font-size: .9rem; }
+
+.st-list { display: flex; flex-direction: column; gap: 8px; }
+.st { display: flex; align-items: center; gap: 12px; border-radius: var(--radius-sm); box-shadow: inset 0 0 0 1px var(--line); background: var(--surface); padding: 8px 10px 8px 8px; min-height: 64px; }
+.st.on { background: var(--primary-soft); box-shadow: inset 0 0 0 2px var(--primary); }
+.st-play { display: flex; align-items: center; gap: 12px; flex: 1; min-width: 0; border: 0; background: none; text-align: left; padding: 0; min-height: 48px; border-radius: 10px; }
+.st-dot { width: 48px; height: 48px; border-radius: 50%; background: var(--primary); color: #fff; display: grid; place-items: center; flex: none; }
+.st-dot .ic { width: 22px; height: 22px; fill: currentColor; stroke: none; }
+.st.small .st-dot { width: 44px; height: 44px; background: var(--primary-soft); color: var(--primary); }
+.st.on .st-dot { background: var(--primary); color: #fff; }
+.st-text { display: flex; flex-direction: column; min-width: 0; flex: 1; }
+.st-name { font-weight: 700; overflow-wrap: anywhere; line-height: 1.25; }
+.st-place { color: var(--ink-2); font-size: .85rem; overflow-wrap: anywhere; }
+.bars { display: inline-flex; align-items: flex-end; gap: 3px; height: 16px; margin-right: 4px; flex: none; }
+.bars i { width: 4px; border-radius: 2px; background: var(--primary); animation: bar 1s ease-in-out infinite; height: 40%; }
+.bars i:nth-child(2) { animation-delay: .2s; } .bars i:nth-child(3) { animation-delay: .4s; }
+@keyframes bar { 0%, 100% { height: 30%; } 50% { height: 100%; } }
+
+.empty-state { text-align: center; padding: 22px 12px; display: flex; flex-direction: column; align-items: center; gap: 8px; color: var(--ink-2); }
+.empty-icon { width: 56px; height: 56px; border-radius: 50%; background: var(--primary-soft); color: var(--primary); display: grid; place-items: center; }
+.empty-icon .ic { width: 28px; height: 28px; }
+.empty-state h3 { color: var(--ink); }
+.empty-state p { max-width: 34ch; }
+
+.search-row { display: flex; gap: 8px; }
+.search-row input { flex: 1; min-width: 0; min-height: var(--tap); padding: 8px 14px; border: 1.5px solid var(--line); border-radius: var(--radius-sm); background: var(--surface); }
+.search-row input:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 0 3px var(--primary-soft); }
+.sugs { display: flex; flex-direction: column; gap: 6px; margin-top: 10px; }
+.sug { text-align: left; background: var(--surface-2); border: 1.5px solid var(--line); border-radius: var(--radius-sm); padding: 10px 14px; min-height: var(--tap); display: flex; flex-direction: column; }
+.sug:hover { border-color: var(--primary); background: var(--primary-soft); }
+.sug span { color: var(--ink-2); font-size: .85rem; }
+.res-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; margin: 16px 0 10px; flex-wrap: wrap; }
+.note { color: var(--ink-2); padding: 14px 4px 2px; }
+.note.err { color: var(--danger); font-weight: 600; }
+
+.map-wrap { position: relative; width: 100%; background: var(--surface-2); border-radius: var(--radius-sm); box-shadow: inset 0 0 0 1px var(--line); overflow: hidden; }
+.map-wrap svg { display: block; width: 100%; height: auto; }
+.map-wrap path { fill: var(--land); stroke: var(--land-line); stroke-width: 1; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+.pin { position: absolute; width: 28px; height: 28px; margin: -14px 0 0 -14px; border: 0; background: none; padding: 0; display: grid; place-items: center; border-radius: 50%; }
+.pin::before { content: ''; width: 16px; height: 16px; border-radius: 50%; background: var(--primary); box-shadow: 0 0 0 3px #fff, 0 1px 4px rgba(38,48,43,.35); }
+.pin.city::before { background: var(--pin-city); }
+.pin.city::after { content: ''; position: absolute; width: 16px; height: 16px; border-radius: 50%; border: 2px solid var(--pin-city); animation: ring 1.8s ease-out infinite; }
+.pin.sel::before { box-shadow: 0 0 0 3px #fff, 0 0 0 6px var(--ink); }
+@keyframes ring { from { transform: scale(1); opacity: .9; } to { transform: scale(3); opacity: 0; } }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.chip { min-height: 44px; padding: 0 16px; border-radius: 999px; border: 2px solid var(--line); background: var(--surface); font-weight: 700; color: var(--ink-2); display: inline-flex; align-items: center; gap: 8px; }
+.chip b { background: var(--primary-soft); color: var(--primary); border-radius: 999px; min-width: 24px; height: 24px; display: inline-grid; place-items: center; font-size: .8rem; padding: 0 6px; }
+.chip.on { border-color: var(--primary); background: var(--primary-soft); color: var(--primary); }
+.chip.on b { background: var(--primary); color: #fff; }
+.chip.city.on { border-color: var(--pin-city); background: #FCEBE7; color: #9A3F2F; }
+.map-cap { margin-top: 12px; min-height: 2.9em; color: var(--ink-2); }
+.map-cap strong { color: var(--ink); }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 16px; margin-top: 8px; color: var(--ink-2); font-size: .85rem; }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.legend i { width: 12px; height: 12px; border-radius: 50%; background: var(--primary); display: inline-block; }
+.legend i.c { background: var(--pin-city); }
+
+.player { position: fixed; z-index: 40; left: 0; right: 0; bottom: 0; background: var(--surface); border-top: 1px solid var(--line); padding: 10px 16px calc(10px + env(safe-area-inset-bottom)); box-shadow: 0 -6px 24px rgba(38,48,43,.08); }
+.player-in { max-width: 1248px; margin: 0 auto; display: flex; align-items: center; gap: 12px; }
+.player .st-text { flex: 1; }
+.p-status { color: var(--ink-2); font-size: .9rem; display: flex; align-items: center; }
+.p-status.err { color: var(--danger); font-weight: 600; }
+.stop .ic { fill: currentColor; stroke: none; width: 18px; height: 18px; }
+
+.sheet-wrap { position: fixed; inset: 0; z-index: 85; background: rgba(38,48,43,.38); display: flex; align-items: flex-end; justify-content: center; }
+.sheet { background: var(--surface); width: 100%; max-width: 440px; border-radius: 24px 24px 0 0; box-shadow: 0 -8px 40px rgba(0,0,0,.18); padding: 20px 20px calc(20px + env(safe-area-inset-bottom)); display: flex; flex-direction: column; gap: 14px; animation: rise .22s ease-out; }
+@keyframes rise { from { transform: translateY(24px); opacity: 0; } }
+@media (min-width: 700px) { .sheet-wrap { align-items: center; } .sheet { border-radius: 24px; } }
+.sheet-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.pin-input { width: 100%; min-height: 60px; text-align: center; font: 800 1.9rem var(--font-head); letter-spacing: .5em; padding: 8px 0 8px .5em; border: 1.5px solid var(--line); border-radius: var(--radius-sm); background: var(--surface); }
+.pin-input:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 0 3px var(--primary-soft); }
+.form-error { color: var(--danger); font-weight: 600; min-height: 1.4em; }
+.btn-row { display: flex; flex-wrap: wrap; gap: 10px; }
+.btn-row .btn { flex: 1; }
+
+.toast { position: fixed; left: 50%; bottom: calc(104px + env(safe-area-inset-bottom)); transform: translate(-50%, 20px); background: var(--ink); color: #fff; padding: 12px 20px; border-radius: 999px; opacity: 0; pointer-events: none; transition: opacity .2s, transform .2s; z-index: 95; max-width: calc(100vw - 32px); text-align: center; }
+.toast.show { opacity: 1; transform: translate(-50%, 0); pointer-events: auto; }
+.toast { display: flex; align-items: center; gap: 12px; }
+.toast button { border: 0; background: none; color: inherit; font-weight: 800; text-decoration: underline; min-height: 36px; padding: 0 4px; }
+.p-btns { display: flex; gap: 8px; flex: none; }
+@media (max-width: 560px) { .player-in { flex-wrap: wrap; gap: 8px 12px; } .player .st-text { flex-basis: 100%; } .p-btns { width: 100%; } .p-btns .btn { flex: 1; } }
+.st.off .st-dot { background: var(--surface-2); color: var(--ink-2); box-shadow: inset 0 0 0 1.5px var(--line); }
+.st.off .st-dot .ic { fill: none; stroke: currentColor; stroke-width: 2; }
+a.st-play { color: inherit; text-decoration: none; }
+a.st-play:hover .st-name { text-decoration: underline; }
+.st-note { color: var(--ink-2); font-size: .82rem; }
+.st-side { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; flex: none; }
+.mini-link { border: 0; background: none; color: var(--ink-2); font-size: .82rem; text-decoration: underline; min-height: 44px; padding: 0 6px; }
+.st.has-owner { flex-wrap: wrap; row-gap: 0; }
+.st-owner { flex-basis: 100%; display: flex; justify-content: flex-end; margin: -6px 0 -6px; }
+.btn.web { background: var(--surface); color: var(--primary); box-shadow: inset 0 0 0 1.5px var(--primary); text-decoration: none; }
+.st-play { min-width: 0; }
+@media (max-width: 560px) { .btn.web { width: 44px; min-width: 44px; padding: 0; } .btn.web .web-label { display: none; } }
+.mini-link:hover { color: var(--ink); }
+.badge { display: inline-block; margin-left: 6px; font-size: .7rem; font-weight: 800; letter-spacing: .04em; padding: 2px 8px; border-radius: 999px; vertical-align: 2px; background: var(--surface-2); color: var(--ink-2); }
+.badge.approved { background: var(--primary-soft); color: var(--primary); } .badge.removed, .badge.rejected { background: var(--danger-soft); color: var(--danger); }
+.fld { display: flex; flex-direction: column; gap: 4px; font-weight: 700; font-size: .9rem; }
+.fld input, .fld textarea { font: inherit; font-weight: 400; min-height: 44px; padding: 8px 12px; border: 1.5px solid var(--line); border-radius: var(--radius-sm); background: var(--surface); color: var(--ink); }
+.fld textarea { min-height: 84px; resize: vertical; }
+.fld input:focus, .fld textarea:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 0 3px var(--primary-soft); }
+.fld.check { flex-direction: row; align-items: center; gap: 10px; font-weight: 600; }
+.fld.check input { min-height: 0; width: 22px; height: 22px; }
+.fld .hint { font-weight: 400; }
+.sheet.wide { max-width: 560px; max-height: calc(100dvh - 24px); overflow-y: auto; }
+.form-body { display: flex; flex-direction: column; gap: 12px; }
+.btn.danger { background: var(--danger); color: #fff; }
+.review-acts { display: flex; flex-wrap: wrap; gap: 8px; }
+.review-acts .btn { flex: 1 1 auto; }
+.hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+.review-bar { background: var(--ink); color: #fff; border-radius: var(--radius); padding: 12px 16px; margin-bottom: 16px; font-weight: 600; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.credits .mini-link { font-size: .85rem; }
+.credits { margin-top: 22px; color: var(--ink-2); font-size: .8rem; text-align: center; }
+.credits a { color: inherit; }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <!-- Icons drawn by us for this page. -->
+  <symbol id="i-radio" viewBox="0 0 24 24"><rect x="3" y="9" width="18" height="11" rx="3"/><path d="M7 9l9-5"/><circle cx="8.5" cy="14.5" r="2.5"/><path d="M14 13h4M14 16h4"/></symbol>
+  <symbol id="i-play" viewBox="0 0 24 24"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.5-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z"/></symbol>
+  <symbol id="i-stop" viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="2.5"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2.5"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></symbol>
+  <symbol id="i-open" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2.5"/><path d="M8 11V8a4 4 0 0 1 7.5-2"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+  <symbol id="i-out" viewBox="0 0 24 24"><path d="M14 5h5v5M19 5l-8 8M17 14v4a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1h4"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></symbol>
+</svg>
+
+<header class="top">
+  <span class="pill">Kalendaryo</span>
+  <button class="btn" id="modeBtn" type="button" hidden></button>
+</header>
+
+<main class="main">
+  <div class="review-bar" id="reviewBar" hidden></div>
+  <div class="banner" id="demoBanner" hidden>👀 <strong>This is a preview.</strong> Sample stations, no sound.</div>
+  <div class="page-head">
+    <h1><svg class="ic"><use href="#i-radio"/></svg>KalRadio</h1>
+    <p class="sub" id="subLine">Live radio from the places your family calls home.</p>
+  </div>
+
+  <div class="grid">
+    <div class="col">
+      <section class="card" style="--edge:#F4A7BB" aria-labelledby="favH">
+        <div class="card-head"><h2 id="favH">Our stations</h2><span class="count" id="favCount"></span></div>
+        <div id="favList" class="st-list"></div>
+      </section>
+
+      <section class="card" id="findCard" style="--edge:#8CC5A8" aria-labelledby="findH" hidden>
+        <div class="card-head"><h2 id="findH">Find stations</h2><span class="count" id="findTag"></span></div>
+        <form class="search-row" id="searchForm" autocomplete="off">
+          <input id="cityInput" type="text" placeholder="City, country or station" aria-label="City, country or station name" enterkeyhint="search">
+          <button class="btn primary big" type="submit"><svg class="ic"><use href="#i-search"/></svg>Search</button>
+        </form>
+        <div class="sugs" id="sugs"></div>
+        <div id="results"></div>
+      </section>
+    </div>
+
+    <div class="col">
+      <section class="card" style="--edge:#7FB8E8" aria-labelledby="mapH">
+        <div class="card-head"><h2 id="mapH">Map</h2></div>
+        <div class="map-wrap" id="mapWrap"></div>
+        <div class="chips" id="chips" hidden></div>
+        <p class="map-cap" id="mapCap"></p>
+        <div class="legend"><span><i></i>Our stations</span><span id="legCity" hidden><i class="c"></i>Searched city</span></div>
+      </section>
+    </div>
+  </div>
+
+  <p class="credits" id="credits">Only stations we have checked play here. Others open on their own website.<br>Station list: Radio Browser (community list). Map and city names: Natural Earth (public domain).<br><button class="mini-link" type="button" id="askAdd">Broadcaster? Ask to be added</button></p>
+</main>
+
+<div class="player" id="player" hidden>
+  <div class="player-in">
+    <div class="st-text">
+      <span class="st-name" id="pName"></span>
+      <span class="p-status" id="pStatus" role="status"></span>
+    </div>
+    <div class="p-btns"><button class="btn big" id="retryBtn" type="button" hidden>Try again</button><button class="btn primary big stop" id="stopBtn" type="button"><svg class="ic"><use href="#i-stop"/></svg>Stop</button></div>
+  </div>
+</div>
+
+<div class="sheet-wrap" id="pinWrap" hidden>
+  <form class="sheet" id="pinForm" role="dialog" aria-modal="true" aria-labelledby="pinH">
+    <div class="sheet-head"><h2 id="pinH"></h2><button class="icon-btn" type="button" id="pinClose" aria-label="Close"><svg class="ic"><use href="#i-x"/></svg></button></div>
+    <p class="sub" id="pinText"></p>
+    <input class="pin-input" id="pinInput" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="4" autocomplete="off" aria-label="4-digit PIN">
+    <p class="form-error" id="pinErr" role="alert"></p>
+    <div class="btn-row"><button class="btn big" type="button" id="pinCancel">Cancel</button><button class="btn primary big" type="submit" id="pinOk">OK</button></div>
+  </form>
+</div>
+
+<div class="sheet-wrap" id="formWrap" hidden>
+  <form class="sheet" id="formSheet" role="dialog" aria-modal="true" aria-labelledby="formH" novalidate>
+    <div class="sheet-head"><h2 id="formH"></h2><button class="icon-btn" type="button" data-close aria-label="Close"><svg class="ic"><use href="#i-x"/></svg></button></div>
+    <div class="form-body" id="formBody"></div>
+    <p class="form-error" id="formErr" role="alert"></p>
+    <div class="btn-row" id="formBtns"><button class="btn big" type="button" data-close>Cancel</button><button class="btn primary big" type="submit" id="formOk">OK</button></div>
+  </form>
+</div>
+
+<div class="toast" id="toast" role="status"></div>
+<audio id="audio" preload="none"></audio>
+
+<script>
+/*DATA*/
+const DEMO = /*DEMO*/false;
+/* ===== KalRadio settings ======================================================
+ * pin: false  -> anyone on this page can search and change the stations (now).
+ * pin: true   -> a 4-digit adult PIN is needed to search and change stations;
+ *                without it, people can only play "Our stations".
+ * The PIN is only for /radio and the standalone file. Inside a Kalendaryo home,
+ * the home's roles decide: Editors and Owners change stations, Viewers only play.
+ * sendPlayCounts: set to false to stop telling Radio Browser about plays (version 2 setting).
+ * ============================================================================= */
+const KALRADIO = {
+  pin: false,            // true = an adult PIN is needed to search and change stations (not inside a home)
+  sendPlayCounts: true   // true = each play is also counted by Radio Browser (their server sees the listener's address)
+};
+</script>
+<script>
+(function () {
+  'use strict';
+  const $ = (id) => document.getElementById(id);
+  const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const icon = (n) => '<svg class="ic" aria-hidden="true"><use href="#i-' + n + '"/></svg>';
+  const norm = (s) => String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
+
+  /* ---------- saved data (this browser only) ---------- */
+  const KEY = 'kal-family-radio-v1';
+  let store = { pin: null, favs: [] };
+  try { const raw = localStorage.getItem(KEY); if (raw) { const o = JSON.parse(raw); if (o && Array.isArray(o.favs)) store = { pin: o.pin || null, favs: o.favs }; } } catch (e) { /* no storage: keep in memory */ }
+  const save = () => { try { localStorage.setItem(KEY, JSON.stringify(store)); } catch (e) { /* ignore */ } };
+  // A simple kid gate, not real security: the PIN is scrambled, not encrypted.
+  const scramble = (p) => { let h = 5381; const s = 'kal:' + p; for (let i = 0; i < s.length; i++) h = ((h * 33) ^ s.charCodeAt(i)) >>> 0; return h.toString(36); };
+
+  if (DEMO && !store.favs.length) {
+    store.favs = [
+      { id: 'demo-1', name: 'Sample FM 1', url: '', city: 'Cebu', country: 'Philippines', lat: 10.32, lon: 123.9 },
+      { id: 'demo-2', name: 'Sample News Radio', url: '', city: 'Manila', country: 'Philippines', lat: 14.61, lon: 120.98 },
+      { id: 'demo-3', name: 'Sample Morning Radio', url: '', city: 'Vancouver', country: 'Canada', lat: 49.28, lon: -123.12 }
+    ];
+  }
+
+  /* ---------- where the stations are saved ----------
+   * Inside a Kalendaryo home (the page is opened as /radio?embed=1#t=<the person's link key>), the stations
+   * belong to the home and are saved on the server (/api/radio/favs). Otherwise they stay in this browser. */
+  const EMBED = /[?&]embed=1(&|$)/.test(location.search);
+  if (EMBED) document.documentElement.classList.add('embed');
+  const hashT = (() => { const m = /(?:^#|&)t=([^&]+)/.exec(location.hash || ''); try { return m ? decodeURIComponent(m[1]) : ''; } catch (e) { return ''; } })();
+  const home = { on: !!hashT && !DEMO, token: hashT, canEdit: false, loaded: false, err: false };
+  let saving = Promise.resolve();
+  async function homeApi(method, body, path) {
+    const r = await fetch('/api/radio/favs' + (path || ''), { method, keepalive: method !== 'GET', headers: Object.assign({ Authorization: 'Bearer ' + home.token }, body ? { 'Content-Type': 'application/json' } : {}), body: body ? JSON.stringify(body) : undefined, cache: 'no-store' });
+    const d = await r.json().catch(() => ({}));
+    if (!r.ok) { const e = new Error(d.message || 'HTTP ' + r.status); e.status = r.status; throw e; }
+    return d;
+  }
+  async function loadHome() {
+    try { const d = await homeApi('GET'); store.favs = Array.isArray(d.favs) ? d.favs : []; home.canEdit = !!d.canEdit; home.loaded = true; home.err = false; }
+    catch (e) { home.err = e.status === 401 ? 'link' : 'net'; home.loaded = true; home.canEdit = false; }
+    adult = home.canEdit;
+    await fetchStatus(store.favs.map((f) => f.id));
+    renderMode(); renderResults();
+  }
+  // Inside a home, one change is sent at a time; the server's list is then shown, so two people never undo each other.
+  // If a change fails, the list is loaded again, so the screen always shows what is saved.
+  function sendChange(path, body) {
+    saving = saving.then(() => homeApi('POST', body, path)).then(async (d) => { if (Array.isArray(d.favs)) { store.favs = d.favs; await fetchStatus(d.favs.map((f) => f.id)); renderFavs(); renderResults(); renderMap(); } })
+      .catch((e) => { toast(e.status === 403 ? 'Only Editors and Owners can change stations.' : e.status === 400 && e.message ? e.message : 'Could not save. Check your internet.'); return loadHome(); });
+  }
+  function addFav(f, at) {
+    if (at == null || at > store.favs.length) at = store.favs.length;
+    store.favs.splice(at, 0, f);
+    if (home.on) sendChange('/add', { fav: f, at }); else save();
+  }
+  function removeFav(id) {
+    store.favs = store.favs.filter((x) => x.id !== id);
+    if (home.on) sendChange('/remove', { id }); else save();
+  }
+  // Inside a home with a parent PIN (Kalendaryo Settings), Kalendaryo asks for it first. Otherwise: yes at once.
+  let pinAsk = 0; const pinWait = new Map();
+  window.addEventListener('message', (e) => { if (e.origin === location.origin && e.source === window.parent && e.data && e.data.type === 'kalradio:pin-ok' && pinWait.has(e.data.id)) { pinWait.get(e.data.id)(!!e.data.ok); pinWait.delete(e.data.id); } });
+  function mayChange() {
+    if (!home.on || window.parent === window) return Promise.resolve(true);
+    return new Promise((res) => { const id = ++pinAsk; pinWait.set(id, res); window.parent.postMessage({ type: 'kalradio:pin', id }, location.origin); setTimeout(() => { if (pinWait.has(id)) { pinWait.delete(id); res(true); } }, 120000); });
+  }
+
+  /* ---------- state ---------- */
+  let adult = false;
+  let now = null;            // station that is selected in the player
+  let playState = 'idle';    // idle | loading | playing | error
+  let found = null;          // { city, stations, note, err }
+  let selPin = null;
+  let searchToken = 0;
+
+  /* ---------- toast ---------- */
+  let toastT;
+  function toast(msg, undo) {
+    const t = $('toast'); t.textContent = msg;
+    if (undo) { const b = document.createElement('button'); b.type = 'button'; b.textContent = 'Undo'; b.addEventListener('click', () => { t.classList.remove('show'); undo(); }); t.appendChild(b); }
+    const pl = $('player'); t.style.bottom = pl.hidden ? '' : (pl.offsetHeight + 12) + 'px'; // always above the player
+    t.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), undo ? 6000 : 2600);
+  }
+
+  /* ---------- station list (Radio Browser) ---------- */
+  const FALLBACK = ['de1.api.radio-browser.info', 'de2.api.radio-browser.info', 'fi1.api.radio-browser.info', 'nl1.api.radio-browser.info', 'at1.api.radio-browser.info'];
+  let servers = null;
+  function timedFetch(url, ms) {
+    const c = new AbortController(); const t = setTimeout(() => c.abort(), ms);
+    return fetch(url, { signal: c.signal }).finally(() => clearTimeout(t));
+  }
+  function getServers() {
+    if (!servers) servers = (async () => {
+      let list = [];
+      try {
+        const r = await timedFetch('https://all.api.radio-browser.info/json/servers', 6000);
+        if (r.ok) list = (await r.json()).map((s) => s && s.name).filter((n) => /^[a-z0-9.-]+\.radio-browser\.info$/i.test(n || ''));
+      } catch (e) { /* use the fallback list */ }
+      list = Array.from(new Set(list.concat(FALLBACK)));
+      for (let i = list.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [list[i], list[j]] = [list[j], list[i]]; }
+      return list;
+    })();
+    return servers;
+  }
+  async function api(path) {
+    const list = await getServers(); let lastErr;
+    for (let i = 0; i < Math.min(list.length, 4); i++) {
+      try { const r = await timedFetch('https://' + list[i] + path, 9000); if (r.ok) { if (i > 0) servers = Promise.resolve(list.slice(i).concat(list.slice(0, i))); return await r.json(); } lastErr = new Error('HTTP ' + r.status); }
+      catch (e) { lastErr = e; }
+    }
+    throw lastErr || new Error('no server');
+  }
+  const km = (a, b, c, d) => { const R = 6371, r = Math.PI / 180; const x = Math.sin((c - a) * r / 2) ** 2 + Math.cos(a * r) * Math.cos(c * r) * Math.sin((d - b) * r / 2) ** 2; return 2 * R * Math.asin(Math.sqrt(x)); };
+  const OK_CODEC = { MP3: 1, AAC: 1, 'AAC+': 1 };
+  function clean(s) {
+    const url = String(s.url_resolved || s.url || '');
+    if (!/^https:\/\//i.test(url)) return null;                       // https only
+    if (Number(s.hls) === 1) return null;                              // not playable in every browser
+    if (!OK_CODEC[String(s.codec || '').toUpperCase()]) return null;   // formats phones can play
+    if (s.lastcheckok != null && Number(s.lastcheckok) !== 1) return null;
+    const name = String(s.name || '').replace(/\s+/g, ' ').trim().slice(0, 80);
+    if (!name || !s.stationuuid) return null;
+    const lat = s.geo_lat == null || s.geo_lat === '' ? null : Number(s.geo_lat), lon = s.geo_long == null || s.geo_long === '' ? null : Number(s.geo_long);
+    const hasGeo = Number.isFinite(lat) && Number.isFinite(lon) && !(lat === 0 && lon === 0);
+    const web = /^https?:\/\/[^\s"'<>]{3,500}$/i.test(String(s.homepage || '').trim()) ? String(s.homepage).trim() : '';
+    return { id: String(s.stationuuid), name, url, web, country: String(s.country || ''), cc: String(s.countrycode || ''), state: String(s.state || ''), lat: hasGeo ? lat : null, lon: hasGeo ? lon : null, clicks: Number(s.clickcount) || 0 };
+  }
+  async function searchCity(city) {
+    if (DEMO) {
+      await new Promise((r) => setTimeout(r, 350));
+      return ['Sample FM', 'Sample News Radio', 'Sample Music Radio', 'Sample Talk Radio'].map((n, i) => ({ id: 'demo-' + norm(city.name).replace(/\W+/g, '-') + '-' + i, name: n + ' ' + (i + 1), url: '', country: city.country, cc: city.cc, state: '', lat: null, lon: null, clicks: 0 }));
+    }
+    const base = 'hidebroken=true&is_https=true&order=clickcount&reverse=true';
+    const cc = city.cc ? '&countrycode=' + encodeURIComponent(city.cc) : '';
+    const q = encodeURIComponent(city.name);
+    const jobs = [];
+    if (city.lat != null) jobs.push(api('/json/stations/search?' + base + '&limit=200&geo_lat=' + city.lat + '&geo_long=' + city.lon + '&geo_distance=60000').then((a) => ({ kind: 'geo', a })));
+    jobs.push(api('/json/stations/search?' + base + '&limit=100&state=' + q + cc).then((a) => ({ kind: 'text', a })));
+    jobs.push(api('/json/stations/search?' + base + '&limit=60&name=' + q + cc).then((a) => ({ kind: 'text', a })));
+    jobs.push(api('/json/stations/search?' + base + '&limit=60&tag=' + encodeURIComponent(norm(city.name)) + cc).then((a) => ({ kind: 'text', a })));
+    const done = await Promise.allSettled(jobs);
+    if (done.every((d) => d.status === 'rejected')) throw new Error('offline');
+    const byId = new Map(), urls = new Set();
+    for (const d of done) {
+      if (d.status !== 'fulfilled' || !Array.isArray(d.value.a)) continue;
+      for (const raw of d.value.a) {
+        const s = clean(raw); if (!s || byId.has(s.id) || urls.has(s.url)) continue;
+        if (city.lat != null) {
+          const dist = s.lat == null ? null : km(city.lat, city.lon, s.lat, s.lon);
+          // The server's own distance filter is double-checked here.
+          if (d.value.kind === 'geo' && (dist == null || dist > 80)) continue;
+          if (d.value.kind === 'text' && dist != null && dist > 250) continue;
+        }
+        byId.set(s.id, s); urls.add(s.url);
+      }
+    }
+    return Array.from(byId.values()).sort((a, b) => b.clicks - a.clicks).slice(0, 40);
+  }
+
+  // A whole country, or stations by name.
+  async function searchSimple(query) {
+    const base = 'hidebroken=true&is_https=true&order=clickcount&reverse=true';
+    const a = await api('/json/stations/search?' + base + query);
+    const byId = new Map(), urls = new Set();
+    for (const raw of Array.isArray(a) ? a : []) { const st = clean(raw); if (st && !byId.has(st.id) && !urls.has(st.url)) { byId.set(st.id, st); urls.add(st.url); } }
+    return Array.from(byId.values()).slice(0, 60);
+  }
+  function searchAny(q) {
+    if (DEMO || q.kind === 'city') return searchCity(q);
+    if (q.kind === 'country') return searchSimple('&limit=200&countrycode=' + encodeURIComponent(q.cc));
+    return searchSimple('&limit=120&name=' + encodeURIComponent(q.name));
+  }
+
+  /* ---------- which stations may play here (Kalendaryo's approval list) ----------
+   * Only stations the site owner approved play inside KalRadio. Others show a link to their own website.
+   * Removed stations are hidden. Without the Kalendaryo server, nothing plays here (links only). */
+  const status = new Map();   // id -> { s, play, why, web, stream }
+  async function fetchStatus(ids) {
+    ids = Array.from(new Set(ids)).filter((id) => { const x = status.get(id); return !x || x.why === 'offline'; });
+    if (!ids.length) return;
+    if (DEMO) { ids.forEach((id, i) => status.set(id, i % 3 === 2 ? { s: 'pending', play: false, why: 'not_approved' } : { s: 'approved', play: true, stream: '' })); return; }
+    for (let i = 0; i < ids.length; i += 80) {
+      const part = ids.slice(i, i + 80);
+      try {
+        const r = await fetch('/api/radio/status', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ids: part }), cache: 'no-store' });
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        const d = await r.json();
+        part.forEach((id) => status.set(id, (d.stations || {})[id] || { s: 'pending', play: false, why: 'not_approved' }));
+      } catch (e) { part.forEach((id) => status.set(id, { s: 'pending', play: false, why: 'offline' })); }
+    }
+  }
+  const WHY = {
+    not_approved: 'Not checked by Kalendaryo yet.',
+    country: 'Can’t play here in your country.',
+    unknown: 'Can’t play here: we couldn’t confirm your country.',
+    offline: 'Can’t check this station right now.'
+  };
+  const safeUrl = (u) => (/^https?:\/\/[^\s"'<>]{3,500}$/i.test(String(u || '').trim()) ? String(u).trim() : '');
+  function view(st) {
+    const x = status.get(st.id);
+    if (!x) return { kind: 'wait', note: 'Checking…' };
+    if (x.s === 'removed') return { kind: 'gone', note: 'Removed by the station owner.' };
+    if (x.play) return { kind: 'play', stream: x.stream };
+    const web = safeUrl(x.web) || safeUrl(st.web);
+    return { kind: web ? 'link' : 'none', web, note: WHY[x.why] || WHY.not_approved };
+  }
+
+  /* ---------- player ---------- */
+  const audio = $('audio');
+  let waitT;
+  function setPlay(state) { playState = state; clearTimeout(waitT); renderPlayer(); renderFavs(); renderResults(); }
+  function play(st, testUrl) {
+    if (now && now.id === st.id && (playState === 'playing' || playState === 'loading')) { stop(); return; }
+    const v = view(st), src = testUrl || v.stream;
+    if (!testUrl && v.kind !== 'play') return;           // only approved stations play inside KalRadio
+    now = st;
+    if (DEMO) { setPlay('playing'); toast('Preview only. No sound here.'); return; }
+    if (!src) { setPlay('error'); return; }
+    setPlay('loading');
+    if (!testUrl) fetch('/api/radio/play', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: st.id }), keepalive: true }).catch(() => {});
+    try { audio.pause(); audio.src = src; audio.load(); const p = audio.play(); if (p && p.catch) p.catch(() => { if (now === st && playState === 'loading') setPlay('error'); }); }
+    catch (e) { setPlay('error'); return; }
+    waitT = setTimeout(() => { if (now === st && playState === 'loading') { try { audio.pause(); } catch (e) { /* ignore */ } setPlay('error'); } }, 15000);
+    if (KALRADIO.sendPlayCounts && !testUrl) getServers().then((l) => timedFetch('https://' + l[0] + '/json/url/' + encodeURIComponent(st.id), 6000)).catch(() => {});
+  }
+  function stop() { clearTimeout(waitT); try { audio.pause(); audio.removeAttribute('src'); audio.load(); } catch (e) { /* ignore */ } now = null; setPlay('idle'); }
+  audio.addEventListener('playing', () => { if (now) setPlay('playing'); });
+  audio.addEventListener('waiting', () => {
+    if (!now || playState !== 'playing') return;
+    playState = 'loading'; renderPlayer(); const st = now; clearTimeout(waitT);
+    waitT = setTimeout(() => { if (now === st && playState === 'loading') { try { audio.pause(); } catch (e) { /* ignore */ } setPlay('error'); } }, 15000);
+  });
+  audio.addEventListener('error', () => { if (now && audio.getAttribute('src')) setPlay('error'); });
+  audio.addEventListener('ended', () => { if (now) setPlay('error'); });
+  $('stopBtn').addEventListener('click', stop);
+  $('retryBtn').addEventListener('click', () => { if (now) { const st = now; now = null; play(st); } });
+  function renderPlayer() {
+    const p = $('player'); p.hidden = !now; if (!now) return;
+    $('pName').textContent = now.name;
+    const s = $('pStatus'); s.classList.toggle('err', playState === 'error');
+    s.innerHTML = playState === 'playing' ? '<span class="bars" aria-hidden="true"><i></i><i></i><i></i></span>' + (DEMO ? 'Preview only, no sound' : 'Playing live')
+      : playState === 'loading' ? 'Connecting…' : 'Not playing. The station may be off the air, or your internet is slow.';
+    $('retryBtn').hidden = playState !== 'error';
+    $('stopBtn').innerHTML = playState === 'error' ? icon('x') + 'Close' : icon('stop') + 'Stop';
+  }
+
+  /* ---------- favorites ---------- */
+  const isFav = (id) => store.favs.some((f) => f.id === id);
+  const place = (s) => [s.city, s.country].filter(Boolean).join(', ');
+  function stationRow(s, opts) {
+    const v = view(s);
+    const on = now && now.id === s.id && playState !== 'idle';
+    const playing = on && playState !== 'error';
+    let h = '<div class="st' + (opts.small ? ' small' : '') + (on ? ' on' : '') + (v.kind !== 'play' ? ' off' : '') + (opts.owner ? ' has-owner' : '') + '" data-id="' + esc(s.id) + '">';
+    const text = '<span class="st-text"><span class="st-name">' + esc(s.name) + (opts.badge || '') + '</span><span class="st-place">' + esc(opts.sub) + '</span>' +
+      (v.kind !== 'play' && v.note ? '<span class="st-note">' + esc(v.note) + '</span>' : '') + '</span>';
+    if (v.kind === 'play' || (on && playing)) {
+      h += '<button class="st-play" type="button" data-act="play" aria-label="' + (playing ? 'Stop ' : 'Play ') + esc(s.name) + '"><span class="st-dot">' + icon(playing ? 'stop' : 'play') + '</span>' + text + '</button>';
+    } else if (v.kind === 'link') {
+      h += '<a class="st-play" href="' + esc(v.web) + '" target="_blank" rel="noopener noreferrer" aria-label="Listen to ' + esc(s.name) + ' on its website (opens a new tab)"><span class="st-dot">' + icon('out') + '</span>' + text + '</a>';
+    } else {
+      h += '<div class="st-play"><span class="st-dot">' + icon(v.kind === 'wait' ? 'radio' : 'x') + '</span>' + text + '</div>';
+    }
+    h += opts.extra ? opts.extra(v) : '';
+    if (opts.owner) h += '<div class="st-owner"><button class="mini-link" type="button" data-act="owner">Station owner? Remove this station</button></div>';
+    return h + '</div>';
+  }
+  function renderFavs() {
+    const el = $('favList'); $('favCount').textContent = store.favs.length ? String(store.favs.length) : '';
+    if (home.on && !home.loaded) { el.innerHTML = '<p class="note" role="status">Loading your stations…</p>'; return; }
+    if (home.on && home.err) { el.innerHTML = '<p class="note err" role="alert">' + (home.err === 'link' ? 'This link does not open this home anymore. Ask an Owner for a new invite.' : 'We could not load your home’s stations. Check your internet.') + '</p>' + (home.err === 'link' ? '' : '<button class="btn big" type="button" data-act="retry">Try again</button>'); return; }
+    if (!store.favs.length) {
+      el.innerHTML = '<div class="empty-state"><div class="empty-icon">' + icon('radio') + '</div><h3>No stations yet</h3><p>' +
+        (adult ? 'Search below, then add the stations your family likes.' : home.on ? 'Ask an Editor or Owner of this home to add stations.' : 'A grown-up can add stations. Tap “Adults” at the top.') + '</p></div>';
+      return;
+    }
+    el.innerHTML = store.favs.map((f) => stationRow(f, { sub: place(f), extra: (v) => (v.kind === 'link' ? '<a class="btn web" href="' + esc(v.web) + '" target="_blank" rel="noopener noreferrer" aria-label="Listen to ' + esc(f.name) + ' on its website (opens a new tab)"><span class="web-label">Website</span>' + icon('out') + '</a>' : '') +
+      (adult ? '<button class="icon-btn" type="button" data-act="remove" aria-label="Remove ' + esc(f.name) + ' from Our stations">' + icon('x') + '</button>' : '') })).join('');
+  }
+  $('favList').addEventListener('click', (e) => {
+    const b = e.target.closest('[data-act]'); if (!b) return;
+    if (b.dataset.act === 'retry') { home.loaded = false; renderFavs(); loadHome(); return; }
+    const id = b.closest('.st').dataset.id; const f = store.favs.find((x) => x.id === id); if (!f) return;
+    if (b.dataset.act === 'play') play(f);
+    else if (b.dataset.act === 'remove' && adult) {
+      mayChange().then((ok) => {
+        if (!ok || !isFav(id)) return;
+        const i = store.favs.findIndex((x) => x.id === id); removeFav(id); if (now && now.id === id) stop();
+        renderFavs(); renderResults(); renderMap();
+        toast('Removed ' + f.name, () => { if (!isFav(f.id)) { addFav(f, i); renderFavs(); renderResults(); renderMap(); } });
+      });
+    }
+  });
+
+  /* ---------- search (adults) ---------- */
+  function cityObj(c) { const co = COUNTRIES[c[2]] || ['', '']; return { name: c[1] || c[0], ascii: c[0], country: co[0], cc: co[1], lat: c[3], lon: c[4], region: c[5] || '' }; }
+  const countryList = COUNTRIES.map((c, i) => ({ kind: 'country', name: c[0], cc: c[1] })).filter((c) => c.cc && c.name);
+  function suggest(text) {
+    const q = norm(text); if (q.length < 2) return [];
+    const a = [], b = [];
+    for (let i = 0; i < CITIES.length && a.length < 5; i++) { const n = norm(CITIES[i][0]); if (n.startsWith(q)) a.push(CITIES[i]); else if (b.length < 5 && (n.includes(q) || (CITIES[i][1] && norm(CITIES[i][1]).startsWith(q)))) b.push(CITIES[i]); }
+    const cities = a.concat(b).slice(0, 5).map((c) => Object.assign({ kind: 'city' }, cityObj(c)));
+    const countries = countryList.filter((c) => norm(c.name).startsWith(q) || c.cc.toLowerCase() === q).slice(0, 2);
+    return countries.concat(cities, [{ kind: 'name', name: text.trim() }]);
+  }
+  let sugList = [];
+  function renderSugs() {
+    const text = $('cityInput').value; sugList = suggest(text);
+    $('sugs').innerHTML = sugList.map((c, i) => '<button class="sug" type="button" data-i="' + i + '"><strong>' + (c.kind === 'name' ? 'Stations named “' + esc(c.name) + '”' : esc(c.name)) + '</strong><span>' +
+      esc(c.kind === 'country' ? 'Country · all its stations' : c.kind === 'name' ? 'Search by station name' : [c.region, c.country].filter(Boolean).join(', ')) + '</span></button>').join('');
+  }
+  $('cityInput').addEventListener('input', renderSugs);
+  $('sugs').addEventListener('click', (e) => { const b = e.target.closest('.sug'); if (b) runSearch(sugList[+b.dataset.i]); });
+  $('searchForm').addEventListener('submit', (e) => {
+    e.preventDefault(); const text = $('cityInput').value.trim(); if (text.length < 2) { toast('Type a city, country or station name first'); return; }
+    if (!sugList.length) sugList = suggest(text);
+    const exact = sugList.find((c) => c.kind !== 'name' && (norm(c.ascii || c.name) === norm(text) || norm(c.name) === norm(text)));
+    runSearch(exact || sugList.find((c) => c.kind === 'city') || sugList[sugList.length - 1]);
+  });
+  async function runSearch(q) {
+    if (!adult || !q) return;
+    if (!(await mayChange())) return;
+    const my = ++searchToken; $('cityInput').value = q.name; $('sugs').innerHTML = '';
+    found = { city: q, stations: null }; selPin = q.lat != null ? 'city' : null; renderResults(); renderMap();
+    try {
+      const list = await searchAny(q); if (my !== searchToken) return;
+      found = { city: q, stations: list, checking: true }; renderResults();
+      await fetchStatus(list.map((x) => x.id)); if (my !== searchToken) return;
+      found = { city: q, stations: list };
+    } catch (e) { if (my !== searchToken) return; found = { city: q, stations: [], err: true }; }
+    renderResults(); renderMap();
+  }
+  function resultTitle(q) { return q.kind === 'name' ? 'Stations named “' + q.name + '”' : q.kind === 'country' ? q.name : q.name + (q.country ? ', ' + q.country : ''); }
+  function renderResults() {
+    const el = $('results'); if (!found) { el.innerHTML = ''; return; }
+    // Hidden: removed stations, and stations that can neither play here nor link to a website (review mode shows all).
+    const shown = (found.stations || []).filter((st) => REVIEW || (view(st).kind !== 'gone' && view(st).kind !== 'none'));
+    const playable = shown.filter((st) => view(st).kind === 'play').length;
+    const title = '<div class="res-head"><h3>' + esc(resultTitle(found.city)) + '</h3>' + (shown.length && !found.checking ? '<span class="count">' + playable + ' of ' + shown.length + ' play here</span>' : '') + '</div>';
+    if (!found.stations) { el.innerHTML = title + '<p class="note" role="status">Looking for stations…</p>'; return; }
+    if (found.err) { el.innerHTML = title + '<p class="note err" role="alert">We could not reach the station list. Check your internet, then search again.</p>'; return; }
+    if (found.checking) { el.innerHTML = title + '<p class="note" role="status">Checking which stations can play here…</p>'; return; }
+    if (!shown.length) { el.innerHTML = title + '<p class="note">No working stations found. Try a bigger city nearby, or a country.</p>'; return; }
+    el.innerHTML = title + '<div class="st-list">' + shown.map((st) => {
+      const fav = isFav(st.id), x = status.get(st.id) || {};
+      return stationRow(st, { small: true, sub: [st.state, st.country].filter(Boolean).join(', '),
+        badge: REVIEW ? '<span class="badge ' + esc(x.s || 'pending') + '">' + esc((x.s || 'pending').toUpperCase()) + '</span>' : '',
+        owner: !REVIEW,
+        extra: (v) => '<div class="st-side">' +
+          (REVIEW ? '<button class="btn" type="button" data-act="review">Review</button>'
+            : v.kind === 'play' ? (adult ? '<button class="btn' + (fav ? ' done' : '') + '" type="button" data-act="add"' + (fav ? ' disabled' : '') + ' aria-label="' + (fav ? 'Added ' : 'Add ') + esc(st.name) + '">' + icon(fav ? 'check' : 'plus') + (fav ? 'Added' : 'Add') + '</button>' : '')
+            : v.kind === 'link' ? '<a class="btn web" href="' + esc(v.web) + '" target="_blank" rel="noopener noreferrer" aria-label="Listen to ' + esc(st.name) + ' on its website (opens a new tab)"><span class="web-label">Website</span>' + icon('out') + '</a>' : '') + '</div>' });
+    }).join('') + '</div>';
+  }
+  $('results').addEventListener('click', (e) => {
+    const b = e.target.closest('[data-act]'); if (!b || !found || !found.stations) return; const id = b.closest('.st').dataset.id; const st = found.stations.find((x) => x.id === id); if (!st) return;
+    const c = found.city;
+    const asFav = { id: st.id, name: st.name, url: '', web: st.web, city: c.kind === 'city' ? c.name : st.state, country: st.country || c.country || '', lat: c.lat != null ? c.lat : st.lat, lon: c.lon != null ? c.lon : st.lon };
+    if (b.dataset.act === 'play') play(asFav);
+    else if (b.dataset.act === 'owner') openRemove(st);
+    else if (b.dataset.act === 'review') openReview(st);
+    else if (b.dataset.act === 'add' && adult && !isFav(st.id) && view(st).kind === 'play') {
+      if (store.favs.length >= 30) { toast('30 stations is the limit. Remove one first.'); return; }
+      mayChange().then((ok) => { if (!ok || isFav(asFav.id)) return; addFav(asFav); renderFavs(); renderResults(); renderMap(); toast('Added to Our stations'); });
+    }
+  });
+
+  /* ---------- small forms (removal, "ask to be added", owner review) ---------- */
+  let formSubmit = null;
+  function openForm(o) {
+    $('formH').textContent = o.title; $('formBody').innerHTML = o.body; $('formErr').textContent = '';
+    $('formOk').textContent = o.ok || 'OK'; $('formOk').className = 'btn big ' + (o.okClass || 'primary'); $('formOk').hidden = !!o.noOk;
+    $('formSheet').classList.toggle('wide', !!o.wide);
+    formSubmit = o.submit; $('formWrap').hidden = false;
+    if (o.valid) { const check = () => { $('formOk').disabled = !o.valid(); }; $('formBody').oninput = check; check(); } else { $('formBody').oninput = null; $('formOk').disabled = false; }
+    if (o.after) o.after();
+    setTimeout(() => { const f = $('formBody').querySelector('input:not([type=hidden]):not([type=checkbox]), textarea'); if (f) f.focus(); }, 30);
+  }
+  function closeForm() { $('formWrap').hidden = true; formSubmit = null; }
+  $('formWrap').addEventListener('click', (e) => { if (e.target === $('formWrap') || e.target.closest('[data-close]')) closeForm(); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !$('formWrap').hidden) closeForm(); });
+  $('formSheet').addEventListener('submit', async (e) => {
+    e.preventDefault(); if (!formSubmit || $('formOk').disabled) return;
+    $('formOk').disabled = true; $('formErr').textContent = '';
+    try { await formSubmit(); } catch (err) { $('formErr').textContent = err.message || 'Something went wrong. Please try again.'; }
+    $('formOk').disabled = false;
+  });
+  const val = (id) => { const f = document.getElementById(id); return f ? (f.type === 'checkbox' ? f.checked : f.value.trim()) : ''; };
+  async function post(url, body, headers) {
+    const r = await fetch(url, { method: 'POST', headers: Object.assign({ 'Content-Type': 'application/json' }, headers || {}), body: JSON.stringify(body), cache: 'no-store' });
+    const d = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error(d.message || (r.status === 404 ? 'This needs the Kalendaryo website.' : 'Something went wrong. Please try again.'));
+    return d;
+  }
+  const reasonOk = (t) => t.length >= 8 && t.split(/\s+/).filter(Boolean).length >= 2;
+
+  // "Station owner? Remove this station" — removed at once; a reason is required.
+  function openRemove(st) {
+    openForm({ title: 'Remove this station?', ok: 'Remove station', okClass: 'danger',
+      body: '<p class="sub">If you own <strong>' + esc(st.name) + '</strong>, we’ll remove it from KalRadio right away.</p>' +
+        '<label class="fld">Why are you removing it?<textarea id="fReason" maxlength="500" placeholder="For example: we don’t allow other apps to play our stream"></textarea><span class="hint">Required: at least 2 words.</span></label>',
+      valid: () => reasonOk(val('fReason')),
+      submit: async () => {
+        await post('/api/radio/remove', { id: st.id, name: st.name, cc: st.cc, country: st.country, city: st.state || '', website: st.web, reason: val('fReason') });
+        status.set(st.id, { s: 'removed', play: false, why: 'not_approved' });
+        if (now && now.id === st.id) stop();
+        closeForm(); renderResults(); renderFavs(); toast('Removed. Thank you for telling us.');
+      } });
+  }
+  // "Broadcaster? Ask to be added"
+  $('askAdd').addEventListener('click', () => openForm({ title: 'Ask to add your station', ok: 'Send request', wide: true,
+    body: '<p class="sub">Tell us about your station. We check every station before it can play on KalRadio.</p>' +
+      '<label class="fld">Station name<input id="fStation" maxlength="80" autocomplete="organization"></label>' +
+      '<label class="fld">Official website<input id="fWeb" type="url" maxlength="500" placeholder="https://"></label>' +
+      '<label class="fld">Stream link (if you know it)<input id="fStream" type="url" maxlength="500" placeholder="https://"></label>' +
+      '<label class="fld">Your name<input id="fName" maxlength="80" autocomplete="name"></label>' +
+      '<label class="fld">Email<input id="fEmail" type="email" maxlength="120" autocomplete="email"></label>' +
+      '<label class="fld">Anything else?<textarea id="fMsg" maxlength="1000" placeholder="For example: which countries your stream may be played in"></textarea></label>' +
+      '<label class="hp" aria-hidden="true">Leave empty<input id="fHp" tabindex="-1" autocomplete="off"></label>',
+    valid: () => !!val('fStation') && /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(val('fEmail')),
+    submit: async () => {
+      await post('/api/radio/requests', { station_name: val('fStation'), website: val('fWeb'), stream_url: val('fStream'), contact_name: val('fName'), email: val('fEmail'), message: val('fMsg'), hp: val('fHp') });
+      closeForm(); toast('Thank you. We’ll get back to you by email.');
+    } }));
+
+  /* ---------- review mode: only for the site owner (kalendaryo.co/radio#review) ---------- */
+  const REVIEW = !EMBED && !DEMO && /^#review/.test(location.hash);
+  let ownerKey = '';
+  if (REVIEW) { try { ownerKey = sessionStorage.getItem('kal.ownerKey') || localStorage.getItem('kal.ownerKey') || ''; } catch (e) { /* none */ } }
+  const ownerHead = () => ({ 'X-Owner-Key': ownerKey });
+  async function ownerGet(url) {
+    const r = await fetch(url, { headers: ownerHead(), cache: 'no-store' });
+    const d = await r.json().catch(() => ({}));
+    if (r.status === 404) { try { sessionStorage.removeItem('kal.ownerKey'); } catch (e) { /* fine */ } ownerKey = ''; throw new Error('That owner key is not right.'); }
+    if (!r.ok) throw new Error(d.message || 'Something went wrong.');
+    return d;
+  }
+  function askKey(then) {
+    openForm({ title: 'Owner key', ok: 'Open review mode', body: '<p class="sub">Review mode is only for the site owner. Type your owner key (the same one as the owner view).</p><label class="fld">Owner key<input id="fKey" type="password" autocomplete="current-password"></label>',
+      valid: () => !!val('fKey'),
+      submit: async () => { ownerKey = val('fKey'); await ownerGet('/api/owner/radio'); try { sessionStorage.setItem('kal.ownerKey', ownerKey); } catch (e) { /* fine */ } closeForm(); then(); } });
+  }
+  const dateOf = (v) => (v ? String(v).slice(0, 10) : '');
+  async function openReview(st) {
+    let rec = null, log = [];
+    try { const d = await ownerGet('/api/owner/radio/station?id=' + encodeURIComponent(st.id)); rec = d.station; log = d.log || []; } catch (e) { toast(e.message); if (!ownerKey) askKey(() => openReview(st)); return; }
+    const r = rec || {}, cur = r.status || 'pending';
+    const f = (id, label, value, extra) => '<label class="fld">' + label + '<input id="' + id + '" value="' + esc(value == null ? '' : value) + '"' + (extra || '') + '></label>';
+    openForm({ title: 'Review: ' + st.name, noOk: true, wide: true,
+      body: '<p class="sub">Now: <span class="badge ' + esc(cur) + '">' + esc(cur.toUpperCase()) + '</span>' + (r.removal_reason ? ' · Reason: ' + esc(r.removal_reason) : '') + '</p>' +
+        f('rName', 'Station name', r.name || st.name, ' maxlength="80"') +
+        f('rWeb', 'Official website', r.official_website || st.web, ' type="url" placeholder="https://"') +
+        f('rStream', 'Official stream link (https)', r.official_stream_url || st.url, ' type="url" placeholder="https://"') +
+        '<p class="hint">Before you approve: test the stream and open the website.</p><div class="btn-row"><button class="btn" type="button" id="rTest">' + icon('play') + 'Test this stream</button>' + (/^https?:/i.test(r.official_website || st.web || '') ? '<a class="btn" href="' + esc(r.official_website || st.web) + '" target="_blank" rel="noopener noreferrer">' + icon('out') + 'Open website</a>' : '') + '</div>' +
+        f('rCC', 'Station country (2 letters)', r.country_code || st.cc, ' maxlength="2" style="text-transform:uppercase"') +
+        f('rCountry', 'Country name', r.country || st.country, ' maxlength="60"') + f('rCity', 'City', r.city || st.state, ' maxlength="60"') +
+        '<label class="fld check"><input type="checkbox" id="rPerm"' + (r.permission_received ? ' checked' : '') + '>Written permission received</label>' +
+        f('rDate', 'Permission date', dateOf(r.permission_date), ' type="date"') +
+        f('rTerr', 'Countries it may play in', r.territories_allowed || '*', ' placeholder="* = everywhere, or CA, US, PH"') +
+        '<p class="hint">* = everywhere (except the country rule in the owner view: for now, UK listeners only hear UK stations). Or 2-letter codes with commas: CA, US, PH.</p>' +
+        f('rContact', 'Station contact (name, email)', r.owner_contact, ' maxlength="200"') +
+        '<label class="fld">Notes<textarea id="rNotes" maxlength="2000">' + esc(r.review_notes || '') + '</textarea></label>' +
+        '<label class="fld">Reason (needed to remove)<input id="rReason" maxlength="500"></label>' +
+        '<div class="review-acts">' + (cur !== 'approved' ? '<button class="btn primary" type="button" data-do="approve">' + icon('check') + 'Approve</button>' : '') +
+          (cur !== 'rejected' && cur !== 'removed' ? '<button class="btn" type="button" data-do="reject">Reject</button>' : '') +
+          (cur === 'removed' ? '<button class="btn" type="button" data-do="restore">Restore</button>' : '<button class="btn danger" type="button" data-do="remove">Remove now</button>') +
+          '<button class="btn" type="button" data-do="save">Save notes</button></div>' +
+        (log.length ? '<h3>History</h3><ul class="hint">' + log.map((l) => '<li>' + esc(new Date(Number(l.at)).toLocaleString()) + ': ' + esc(l.action) + ' by ' + (l.by_whom === 'public' ? 'station owner' : 'you') + (l.reason ? ' — ' + esc(l.reason) : '') + '</li>').join('') + '</ul>' : ''),
+      after: () => {
+        $('rTest').onclick = () => play(st, val('rStream'));
+        $('formBody').querySelectorAll('[data-do]').forEach((b) => (b.onclick = async () => {
+          $('formErr').textContent = ''; b.disabled = true;
+          try {
+            const r2 = await fetch('/api/owner/radio/station', { method: 'POST', headers: Object.assign({ 'Content-Type': 'application/json' }, ownerHead()), body: JSON.stringify({
+              id: st.id, action: b.dataset.do, name: val('rName'), official_website: val('rWeb'), official_stream_url: val('rStream'), country_code: val('rCC'), country: val('rCountry'), city: val('rCity'),
+              permission_received: val('rPerm'), permission_date: val('rDate'), territories_allowed: val('rTerr'), owner_contact: val('rContact'), review_notes: val('rNotes'), reason: val('rReason') }) });
+            const d = await r2.json().catch(() => ({}));
+            if (!r2.ok) throw new Error(d.message || 'Could not save.');
+            status.delete(st.id); await fetchStatus([st.id]);
+            closeForm(); renderResults(); renderFavs(); toast({ approve: 'Approved.', reject: 'Rejected.', remove: 'Removed.', restore: 'Restored.', save: 'Saved.' }[b.dataset.do]);
+          } catch (err) { $('formErr').textContent = err.message; }
+          b.disabled = false;
+        }));
+      } });
+  }
+  async function startReview() {
+    $('reviewBar').hidden = false;
+    $('reviewBar').innerHTML = 'Review mode · Search any station, then tap Review. Removed stations show here too. <a href="/owner#kalradio" style="color:inherit">Back to owner view</a>';
+    const m = /^#review-([A-Za-z0-9_-]{1,64})$/.exec(location.hash);
+    if (!m) return;
+    try {
+      const a = await api('/json/stations/byuuid/' + encodeURIComponent(m[1]));
+      const raw = Array.isArray(a) && a[0]; if (!raw) { toast('Station not found in Radio Browser.'); return; }
+      const st = clean(raw) || { id: String(raw.stationuuid), name: String(raw.name || 'Station'), url: String(raw.url_resolved || raw.url || ''), web: safeUrl(raw.homepage), cc: String(raw.countrycode || ''), country: String(raw.country || ''), state: String(raw.state || ''), lat: null, lon: null };
+      await fetchStatus([st.id]);
+      found = { city: { kind: 'name', name: st.name }, stations: [st] }; renderResults(); openReview(st);
+    } catch (e) { toast('Could not open that station.'); }
+  }
+
+  /* ---------- map ---------- */
+  $('mapWrap').innerHTML = '<svg id="mapSvg" viewBox="0 0 ' + MAP.w + ' ' + MAP.h + '" role="img" aria-label="World map"><path d="' + MAP.d + '"/></svg><div id="pins"></div>';
+  const ZOOM_W = MAP.w * 40 / 360;                       // zoomed view shows about 40 degrees across
+  const mapXY = (lat, lon) => ({ x: (lon + 180) / 360 * MAP.w, y: (MAP.top - lat) / (MAP.top - MAP.bot) * MAP.h });
+  let groups = [];
+  function currentView() {
+    const c = adult && found && found.city.lat != null ? found.city : null;
+    const t = selPin === 'city' ? c : groups.find((g) => g.key === selPin);
+    if (!t) return { x: 0, y: 0, w: MAP.w, h: MAP.h, world: true };
+    const m = mapXY(t.lat, t.lon), w = ZOOM_W, h = w * MAP.h / MAP.w;
+    return { x: Math.max(0, Math.min(MAP.w - w, m.x - w / 2)), y: Math.max(0, Math.min(MAP.h - h, m.y - h / 2)), w, h, world: false };
+  }
+  function renderMap() {
+    const g = new Map();
+    for (const f of store.favs) { if (f.lat == null || f.lon == null) continue; const k = f.lat.toFixed(1) + ',' + f.lon.toFixed(1); if (!g.has(k)) g.set(k, { key: k, lat: f.lat, lon: f.lon, label: place(f), short: f.city || f.country || 'Place', list: [] }); g.get(k).list.push(f); }
+    groups = Array.from(g.values());
+    const c = adult && found && found.city.lat != null ? found.city : null;
+    if (selPin && selPin !== 'city' && !groups.some((x) => x.key === selPin)) selPin = null;
+    if (selPin === 'city' && !c) selPin = null;
+    const v = currentView();
+    $('mapSvg').setAttribute('viewBox', v.x.toFixed(2) + ' ' + v.y.toFixed(2) + ' ' + v.w.toFixed(2) + ' ' + v.h.toFixed(2));
+    const pinHtml = (lat, lon, cls, key, label) => { const m = mapXY(lat, lon), x = (m.x - v.x) / v.w * 100, y = (m.y - v.y) / v.h * 100; if (x < 1 || x > 99 || y < 2 || y > 98) return ''; return '<button class="pin ' + cls + (selPin === key ? ' sel' : '') + '" type="button" data-k="' + esc(key) + '" style="left:' + x.toFixed(2) + '%;top:' + y.toFixed(2) + '%" aria-label="' + esc(label) + '"></button>'; };
+    let h = groups.map((x) => pinHtml(x.lat, x.lon, '', x.key, x.label + ', ' + x.list.length + ' station' + (x.list.length === 1 ? '' : 's'))).join('');
+    if (c) h += pinHtml(c.lat, c.lon, 'city', 'city', 'Searched city: ' + c.name);
+    $('pins').innerHTML = h; $('legCity').hidden = !c;
+    let chips = '<button class="chip' + (v.world ? ' on' : '') + '" type="button" data-k="">World</button>';
+    chips += groups.map((x) => '<button class="chip' + (selPin === x.key ? ' on' : '') + '" type="button" data-k="' + esc(x.key) + '">' + esc(x.short) + ' <b>' + x.list.length + '</b></button>').join('');
+    if (c && !groups.some((x) => Math.abs(x.lat - c.lat) < 0.15 && Math.abs(x.lon - c.lon) < 0.15)) chips += '<button class="chip city' + (selPin === 'city' ? ' on' : '') + '" type="button" data-k="city">' + esc(c.name) + '</button>';
+    $('chips').innerHTML = chips; $('chips').hidden = !groups.length && !c;
+    const cap = $('mapCap');
+    if (selPin === 'city' && c) cap.innerHTML = '<strong>' + esc(c.name) + (c.country ? ', ' + esc(c.country) : '') + '</strong><br>The city you searched.';
+    else { const x = groups.find((y) => y.key === selPin);
+      if (x) cap.innerHTML = '<strong>' + esc(x.label) + '</strong><br>' + x.list.map((f) => esc(f.name)).join(' · ');
+      else cap.textContent = groups.length ? 'Tap a place to zoom in and see its stations.' : 'Your stations will show here as dots.'; }
+  }
+  function pick(e) { const b = e.target.closest('[data-k]'); if (!b) return; selPin = b.dataset.k || null; renderMap(); }
+  $('mapWrap').addEventListener('click', pick); $('chips').addEventListener('click', pick);
+
+  /* ---------- adults / kids ---------- */
+  function renderMode() {
+    const pinOn = KALRADIO.pin && !home.on && !DEMO;
+    $('modeBtn').hidden = !pinOn;
+    $('findTag').textContent = pinOn ? 'Adults only' : '';
+    $('modeBtn').innerHTML = adult ? icon('open') + 'Lock' : icon('lock') + 'Adults';
+    $('modeBtn').setAttribute('aria-label', adult ? 'Lock adult mode' : 'Open adult mode');
+    $('findCard').hidden = !adult;
+    renderFavs(); renderMap();
+  }
+  let pinStep = null, firstPin = '';
+  function openPin() {
+    pinStep = store.pin ? 'enter' : 'make'; firstPin = '';
+    $('pinH').textContent = store.pin ? 'Adults only' : 'Make an adult PIN';
+    $('pinText').textContent = store.pin ? 'Type the 4-digit PIN to search and change stations.' : 'Pick 4 numbers. Kids can play stations without it, but only adults can search and change them. Please remember it.';
+    $('pinErr').textContent = ''; $('pinInput').value = ''; $('pinWrap').hidden = false; setTimeout(() => $('pinInput').focus(), 30);
+  }
+  function closePin() { $('pinWrap').hidden = true; $('modeBtn').focus(); }
+  $('modeBtn').addEventListener('click', () => { if (adult) { adult = false; found = null; selPin = null; $('cityInput').value = ''; $('sugs').innerHTML = ''; renderResults(); renderMode(); toast('Locked. Kids can play Our stations.'); } else openPin(); });
+  $('pinClose').addEventListener('click', closePin); $('pinCancel').addEventListener('click', closePin);
+  $('pinWrap').addEventListener('click', (e) => { if (e.target === $('pinWrap')) closePin(); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !$('pinWrap').hidden) closePin(); });
+  $('pinInput').addEventListener('input', () => { $('pinInput').value = $('pinInput').value.replace(/\D/g, '').slice(0, 4); $('pinErr').textContent = ''; });
+  $('pinForm').addEventListener('submit', (e) => {
+    e.preventDefault(); const v = $('pinInput').value;
+    if (!/^\d{4}$/.test(v)) { $('pinErr').textContent = 'Type 4 numbers.'; return; }
+    if (pinStep === 'make') { firstPin = v; pinStep = 'again'; $('pinH').textContent = 'Type it again'; $('pinText').textContent = 'Type the same 4 numbers one more time.'; $('pinInput').value = ''; $('pinInput').focus(); return; }
+    if (pinStep === 'again') {
+      if (v !== firstPin) { pinStep = 'make'; firstPin = ''; $('pinH').textContent = 'Make an adult PIN'; $('pinText').textContent = 'The two PINs were different. Pick 4 numbers again.'; $('pinInput').value = ''; $('pinInput').focus(); return; }
+      store.pin = scramble(v); save();
+    } else if (scramble(v) !== store.pin) { $('pinErr').textContent = 'That PIN is not right. Try again.'; $('pinInput').value = ''; $('pinInput').focus(); return; }
+    adult = true; $('pinWrap').hidden = true; renderMode(); toast('Adult mode is on'); setTimeout(() => $('cityInput').focus(), 50);
+  });
+
+  $('demoBanner').hidden = !DEMO;
+  if (home.on) loadHome();
+  else {
+    adult = !KALRADIO.pin || DEMO || REVIEW;
+    fetchStatus(store.favs.map((f) => f.id)).then(() => renderFavs());
+  }
+  renderMode(); renderPlayer(); renderResults();
+  if (REVIEW) { if (ownerKey) startReview(); else askKey(startReview); }
+  // Approvals can change while the page is open (a station removed, a rule changed): check again every 2 minutes.
+  async function recheck() {
+    if (DEMO || document.hidden) return;
+    const ids = store.favs.map((f) => f.id).concat(found && found.stations ? found.stations.map((x) => x.id) : []);
+    if (!ids.length) return;
+    ids.forEach((id) => status.delete(id));
+    await fetchStatus(ids);
+    if (now && !REVIEW && view(now).kind !== 'play') { stop(); toast('This station can’t play here anymore.'); }
+    renderFavs(); renderResults();
+  }
+  setInterval(recheck, 120000);
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) recheck(); });
+})();
+</script>
+</body>
+</html>

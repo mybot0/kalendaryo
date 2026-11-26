@@ -18,6 +18,8 @@ const careJs = ['care-data', 'qr', 'care-board', 'care-page'];
 // Games (from Keybop) also have their own folder (client/games).
 const gamesCss = ['games'];
 const gamesJs = ['games'];
+// TOUCH POINT R3 (KalRadio): its own folder (../kalradio). Added only if the folder is there.
+const radioJs = fs.existsSync(path.join(root, '..', 'kalradio', 'in-app.js')) ? [path.join('..', 'kalradio', 'in-app.js')] : [];
 const js = ['config', 'util', 'theme', 'models', 'recurrence', 'store', 'calendar-data', 'chores-data', 'routines-data', 'rewards-data', 'event-actions', 'data-tools', 'ics',
   'ui-kit', 'look', 'pin', 'event-ui', 'holidays', 'weather', 'sky', 'photos', 'wall', 'notify', 'screens/family', 'screens/routines', 'screens/rewards', 'screens/tasks', 'screens/lists', 'screens/notes', 'screens/photos', 'screens/meals', 'screens/countdowns', 'screens/dashboard', 'screens/calendar', 'screens/settings',
   'shell', 'main'];
@@ -29,7 +31,7 @@ const scripts = [];
 if (web) scripts.push(rd('web/shim.js'));
 for (const j of js) {
   scripts.push(rd('src/js/' + j + '.js'));
-  if (j === 'screens/settings') { careJs.forEach((c) => scripts.push(rd('care/' + c + '.js'))); gamesJs.forEach((c) => scripts.push(rd('games/' + c + '.js'))); }
+  if (j === 'screens/settings') { careJs.forEach((c) => scripts.push(rd('care/' + c + '.js'))); gamesJs.forEach((c) => scripts.push(rd('games/' + c + '.js'))); radioJs.forEach((f) => scripts.push(rd(f))); }
   if (web && j === 'event-ui') scripts.push(rd('web/examples.js'), rd('web/landing.js'), rd('web/setup.js'), rd('web/access.js'), rd('web/me.js'), rd('web/demo.js'), rd('web/guide.js'), rd('web/help.js'), rd('web/help-kal.js'), rd('web/theme-sync.js'));
 }
 for (const s of scripts) if (/<\/script/i.test(s)) throw new Error('a script contains </script');

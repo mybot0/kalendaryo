@@ -538,7 +538,10 @@ r.get('/owner-icons/:size', async (req, res) => {
 r.get('/owner', async (req, res) => {
   owner.cookie(req, res); // same browser ID as the site, so the owner's own visits are left out
   res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store', 'X-Robots-Tag': 'noindex' });
-  res.end(req.method === 'HEAD' ? undefined : fs.readFileSync(OWNER_PAGE));
+  let ownerHtml = fs.readFileSync(OWNER_PAGE);
+  // TOUCH POINT R6 (KalRadio): adds the KalRadio section's script to the owner view, only when the kalradio/ folder is there.
+  if (kalradio) ownerHtml = Buffer.from(ownerHtml.toString('utf8').replace('</head>', '<script src="/radio/owner-section.js"></script></head>'));
+  res.end(req.method === 'HEAD' ? undefined : ownerHtml);
 });
 
 /* ---------- Care (server/care.js) ---------- */
@@ -578,6 +581,9 @@ const page = async (req, res) => {
     indexHtml = fs.readFileSync(INDEX);
     // TOUCH POINT A (server, part 2): lets the start page show the home/trip choice. Nothing is added when Triply is off.
     if (triply) indexHtml = Buffer.from(indexHtml.toString('utf8').replace('</head>', '<script>window.KAL_TRIPLY=true;</script></head>'));
+    // TOUCH POINT R2 (KalRadio): shows Radio in the side menu only when the kalradio/ folder is there AND KALRADIO_MENU=1
+    // (Render setting). Without it, Radio stays hidden from homes; kalendaryo.co/radio and the owner view section still work.
+    if (kalradio && process.env.KALRADIO_MENU === '1') indexHtml = Buffer.from(indexHtml.toString('utf8').replace('</head>', '<script>window.KAL_RADIO=true;</script></head>'));
     // Owner view: tells the server a real person is here, and where they came from (server/owner.js, HI_JS).
     indexHtml = Buffer.from(indexHtml.toString('utf8').replace('</head>', '<script src="/hi.js" defer></script></head>'));
   }
@@ -616,6 +622,12 @@ const brainTrain = async (req, res) => {
   res.end(req.method === 'HEAD' ? undefined : fs.readFileSync(BRAIN_TRAIN));
 };
 r.get('/brain-train', brainTrain); r.get('/brain-train/index.html', brainTrain);
+
+// TOUCH POINT R1 (KalRadio): kalendaryo.co/radio and the home's stations. Everything else is in the kalradio/ folder.
+// To take KalRadio out: delete the kalradio/ folder (this line then does nothing), or delete these lines too. See kalradio/INTEGRATION.md.
+let kalradio = null;
+try { kalradio = require('../kalradio/server')({ r, db, auth, need, json, send, fail, clean, owner, ownerGuard, ownerPush, ipOf, limit }); }
+catch (e) { if (!(e.code === 'MODULE_NOT_FOUND' && String(e.message).includes('kalradio'))) throw e; }
 
 const server = http.createServer(async (req, res) => {
   owner.touch(req);
