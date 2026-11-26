@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+<defs><linearGradient id="gC" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#A9D2EC"/><stop offset=".6" stop-color="#F6D6C4"/><stop offset="1" stop-color="#F9E8CF"/></linearGradient>
+<filter id="sC" x="-30%" y="-30%" width="160%" height="170%"><feDropShadow dx="0" dy="14" stdDeviation="14" flood-color="#26302B" flood-opacity=".22"/></filter></defs>
+<rect width="512" height="512" rx="112" fill="url(#gC)"/>
+<circle cx="380" cy="360" r="70" fill="#FFF4C7" opacity=".9"/>
+<g fill="#fff" opacity=".85"><ellipse cx="120" cy="150" rx="62" ry="20"/><ellipse cx="104" cy="136" rx="30" ry="20"/></g>
+<g transform="translate(256 250) rotate(-12)" filter="url(#sC)">
+  <path d="M150 -10 L-150 -95 L-60 10 Z" fill="#FFFFFF" stroke="none" stroke-width="0" stroke-linejoin="round"/>
+  <path d="M150 -10 L-60 10 L-95 85 Z" fill="#E4EEF5" stroke="none" stroke-width="0" stroke-linejoin="round"/>
+  <path d="M150 -10 L-60 10 L-30 40 Z" fill="#CFDDE8"/></g>
+</svg>

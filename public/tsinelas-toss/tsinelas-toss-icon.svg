@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+<defs><linearGradient id="tsSky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#A9D2EC"/><stop offset=".55" stop-color="#F7D3BE"/><stop offset="1" stop-color="#F9E8CF"/></linearGradient>
+<linearGradient id="tsCan" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#B7BFC6"/><stop offset=".45" stop-color="#E6EAED"/><stop offset="1" stop-color="#AEB6BD"/></linearGradient>
+<filter id="tsSh" x="-30%" y="-30%" width="160%" height="170%"><feDropShadow dx="0" dy="10" stdDeviation="10" flood-color="#26302B" flood-opacity=".22"/></filter></defs>
+<rect width="512" height="512" rx="112" fill="url(#tsSky)"/>
+<circle cx="392" cy="150" r="58" fill="#FFF4C7" opacity=".9"/>
+<path d="M0 372 H512 V400 Q512 512 400 512 H112 Q0 512 0 400 Z" fill="#E7E2D7"/>
+<rect x="40" y="402" width="200" height="9" rx="4.5" fill="#fff"/>
+<ellipse cx="330" cy="384" rx="78" ry="14" fill="#26302B" opacity=".14"/>
+<g filter="url(#tsSh)" stroke="#26302B" stroke-width="5" stroke-linejoin="round">
+  <path d="M268 196 h124 v176 a62 16 0 0 1 -124 0 z" fill="url(#tsCan)"/>
+  <ellipse cx="330" cy="196" rx="62" ry="16" fill="#DDE2E6"/>
+  <path d="M268 250 h124 v62 h-124 z" fill="#6FA8D6" stroke="none"/>
+  <path d="M268 250 h124 M268 312 h124" fill="none" stroke-width="3"/>
+  <path d="M268 196 v176 a62 16 0 0 0 124 0 v-176" fill="none"/>
+</g>
+<g fill="none" stroke="#fff" stroke-width="9" stroke-linecap="round" opacity=".9"><path d="M56 214 h70"/><path d="M40 252 h62"/><path d="M70 290 h48"/></g>
+<g transform="translate(176 250) rotate(-24)" filter="url(#tsSh)">
+  <path d="M0 -92c30 0 38 28 34 52-3 20-10 30-10 42 0 18 12 30 9 50-3 24-18 30-33 30s-30-6-33-30c-3-20 9-32 9-50 0-12-7-22-10-42-4-24 4-52 34-52z" fill="#E08A7B" stroke="#26302B" stroke-width="5"/>
+  <path d="M-27 -8 L0 -58 L27 -8" fill="none" stroke="#26302B" stroke-width="17" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M-27 -8 L0 -58 L27 -8" fill="none" stroke="#fff" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="0" cy="-58" r="7" fill="#fff" stroke="#26302B" stroke-width="3"/>
+</g>
+</svg>
