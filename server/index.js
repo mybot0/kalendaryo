@@ -622,6 +622,29 @@ const brainTrain = async (req, res) => {
   res.end(req.method === 'HEAD' ? undefined : fs.readFileSync(BRAIN_TRAIN));
 };
 r.get('/brain-train', brainTrain); r.get('/brain-train/index.html', brainTrain);
+// kalendaryo.co/paper-week and /tsinelas-toss: two more games that are their own page, sent byte-for-byte like Brain Train
+// (no build step, no /hi.js, nothing added; framed only by Kalendaryo itself). Their fonts are inside the page as data: URLs,
+// so on these two pages only, font-src also allows data:. Each game's icons (for the Games page tiles) come from its folder.
+const ownGame = (folder) => {
+  const file = path.join(__dirname, '..', 'public', folder, 'index.html');
+  const csp = SECURITY['Content-Security-Policy'].replace("frame-ancestors 'none'", "frame-ancestors 'self'").replace('font-src https://fonts.gstatic.com', 'font-src https://fonts.gstatic.com data:');
+  const page = async (req, res) => {
+    res.setHeader('X-Frame-Options', 'SAMEORIGIN');
+    res.setHeader('Content-Security-Policy', csp);
+    res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-cache' });
+    res.end(req.method === 'HEAD' ? undefined : fs.readFileSync(file));
+  };
+  r.get('/' + folder, page); r.get('/' + folder + '/index.html', page);
+  const icons = { [folder + '-icon.svg']: 'image/svg+xml', [folder + '-icon-192.png']: 'image/png', [folder + '-icon-512.png']: 'image/png' };
+  for (const [name, type] of Object.entries(icons)) {
+    r.get('/' + folder + '/' + name, async (req, res) => {
+      res.writeHead(200, { 'Content-Type': type, 'Cache-Control': 'public, max-age=604800' });
+      res.end(req.method === 'HEAD' ? undefined : fs.readFileSync(path.join(__dirname, '..', 'public', folder, name)));
+    });
+  }
+};
+ownGame('paper-week');
+ownGame('tsinelas-toss');
 
 // TOUCH POINT R1 (KalRadio): kalendaryo.co/radio and the home's stations. Everything else is in the kalradio/ folder.
 // To take KalRadio out: delete the kalradio/ folder (this line then does nothing), or delete these lines too. See kalradio/INTEGRATION.md.
