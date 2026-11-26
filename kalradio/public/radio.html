@@ -79,7 +79,7 @@ p { margin: 0; }
 .btn.done:disabled { opacity: 1; background: transparent; color: var(--primary); }
 /* V3.1: star = in "Our stations" (grey outline off, filled Kalendaryo green on) */
 .star { display: inline-flex; align-items: center; justify-content: center; width: 48px; height: 48px; min-width: 44px; padding: 0; border: 0; border-radius: 999px; background: transparent; color: var(--ink-3); cursor: pointer; transition: transform .15s, color .15s; }
-.star .ic { width: 28px; height: 28px; stroke-width: 1.7; }
+.star .ic { display: block; width: 28px; height: 28px; stroke-width: 1.7; }
 .star[aria-pressed="true"] { color: var(--primary); }
 .star[aria-pressed="true"] .ic { fill: currentColor; }
 .star:hover { background: var(--primary-soft); } .star:active { transform: scale(.92); }
@@ -220,7 +220,11 @@ a.st-play:hover .st-name { text-decoration: underline; }
 /* ---------- V3.2 compact layout ---------- */
 .search-row { position: sticky; top: 0; z-index: 6; background: var(--surface); padding: 8px 0; margin-top: -8px; }
 .sugs:empty { display: none; }
-.res-head { margin: 8px 0 8px; }
+.res-head { margin: 8px 0 8px; align-items: baseline; }
+.res-head h3 { flex: 1 1 auto; min-width: 0; margin: 0; overflow-wrap: anywhere; }
+.res-head .count { flex: none; white-space: nowrap; }
+.search-row .btn { flex: none; }
+#favList .star { flex: none; }
 .st.small { min-height: 56px; padding: 4px 4px 4px 6px; gap: 10px; }
 .st.small .st-play { min-height: 48px; }
 .st.small .st-name, .st.small .st-place { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; overflow-wrap: normal; }
@@ -623,6 +627,16 @@ const KALRADIO = {
 
   /* ---------- favorites ---------- */
   const isFav = (id) => store.favs.some((f) => f.id === id);
+  // V3.3: the saved station that is "the same" as a search result: same id, else same stream link, else same name and country
+  // (a station saved by an earlier version, or found again under a new id, still shows its filled star).
+  const keyName = (x) => norm(String(x || '')).replace(/[^a-z0-9]+/g, '');
+  const keyCo = (x) => keyName(String(x || '').replace(/^the\s+/i, ''));
+  function favOf(st) {
+    if (!st) return null;
+    const u = safeHttps(st.url);
+    return store.favs.find((f) => f.id === st.id) || (u && store.favs.find((f) => safeHttps(f.url) === u)) ||
+      store.favs.find((f) => keyName(f.name) && keyName(f.name) === keyName(st.name) && (!f.country || !st.country || keyCo(f.country) === keyCo(st.country))) || null;
+  }
   const place = (s) => [s.city, s.country].filter(Boolean).join(', ');
   function stationRow(s, opts) {
     const v = view(s);
@@ -654,7 +668,7 @@ const KALRADIO = {
     }
     el.classList.add('strip');
     el.innerHTML = store.favs.map((f) => stationRow(f, { sub: place(f), extra: (v) => (v.kind === 'link' ? '<a class="btn web" href="' + esc(v.web) + '" target="_blank" rel="noopener noreferrer" aria-label="Listen to ' + esc(f.name) + ' on its website (opens a new tab)"><span class="web-label">Website</span>' + icon('out') + '</a>' : '') +
-      (adult ? '<button class="icon-btn" type="button" data-act="remove" aria-label="Remove ' + esc(f.name) + ' from Our stations">' + icon('x') + '</button>' : '') })).join('');
+      (adult ? '<button class="star" type="button" data-act="remove" aria-pressed="true" aria-label="Remove ' + esc(f.name) + ' from Our stations">' + icon('star') + '</button>' : '') })).join('');
   }
   $('favList').addEventListener('click', (e) => {
     const b = e.target.closest('[data-act]'); if (!b) return;
@@ -721,7 +735,7 @@ const KALRADIO = {
     if (found.checking) { el.innerHTML = title + '<p class="note" role="status">Checking which stations can play here…</p>'; return; }
     if (!shown.length) { el.innerHTML = title + '<p class="note">No working stations found. Try a bigger city nearby, or a country.</p>'; return; }
     el.innerHTML = title + '<div class="st-list">' + shown.map((st) => {
-      const fav = isFav(st.id), x = status.get(st.id) || {};
+      const fav = !!favOf(st), x = status.get(st.id) || {};
       return stationRow(st, { small: true, sub: [st.state, st.country].filter(Boolean).join(', '),
         badge: REVIEW ? '<span class="badge ' + esc(x.s || 'pending') + '">' + esc((x.s || 'pending').toUpperCase()) + '</span>' : '',
         owner: !REVIEW && !OPEN,
@@ -738,17 +752,17 @@ const KALRADIO = {
     if (b.dataset.act === 'play') play(asFav);
     else if (b.dataset.act === 'owner') openRemove(st);
     else if (b.dataset.act === 'review') openReview(st);
-    else if (b.dataset.act === 'star' && adult && isFav(st.id)) {
+    else if (b.dataset.act === 'star' && adult && favOf(st)) {
       mayChange().then((ok) => {
-        if (!ok || !isFav(st.id)) return;
-        const i = store.favs.findIndex((x) => x.id === st.id), f = store.favs[i]; removeFav(st.id);
+        const saved = favOf(st); if (!ok || !saved) return;
+        const i = store.favs.findIndex((x) => x.id === saved.id), f = store.favs[i]; removeFav(saved.id);
         renderFavs(); renderResults(); renderMap();
         toast('Removed ' + f.name, () => { if (!isFav(f.id)) { addFav(f, i); renderFavs(); renderResults(); renderMap(); } });
       });
     }
-    else if (b.dataset.act === 'star' && adult && !isFav(st.id) && view(st).kind === 'play') {
+    else if (b.dataset.act === 'star' && adult && !favOf(st) && view(st).kind === 'play') {
       if (store.favs.length >= 30) { toast('30 stations is the limit. Remove one first.'); return; }
-      mayChange().then((ok) => { if (!ok || isFav(asFav.id)) return; addFav(asFav); renderFavs(); renderResults(); renderMap(); toast('Added to Our stations'); });
+      mayChange().then((ok) => { if (!ok || favOf(st)) return; addFav(asFav); renderFavs(); renderResults(); renderMap(); toast('Added to Our stations'); });
     }
   });
 
