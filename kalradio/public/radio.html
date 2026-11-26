@@ -77,6 +77,13 @@ p { margin: 0; }
 .btn.ghost { background: transparent; color: var(--ink-2); }
 .btn:disabled { opacity: .55; cursor: default; }
 .btn.done:disabled { opacity: 1; background: transparent; color: var(--primary); }
+/* V3.1: star = in "Our stations" (grey outline off, filled Kalendaryo green on) */
+.star { display: inline-flex; align-items: center; justify-content: center; width: 48px; height: 48px; min-width: 44px; padding: 0; border: 0; border-radius: 999px; background: transparent; color: var(--ink-3); cursor: pointer; transition: transform .15s, color .15s; }
+.star .ic { width: 28px; height: 28px; stroke-width: 1.7; }
+.star[aria-pressed="true"] { color: var(--primary); }
+.star[aria-pressed="true"] .ic { fill: currentColor; }
+.star:hover { background: var(--primary-soft); } .star:active { transform: scale(.92); }
+.star:focus-visible { outline: 3px solid var(--primary); outline-offset: 2px; }
 .icon-btn { width: 44px; height: 44px; border-radius: 50%; border: 0; background: var(--surface-2); display: inline-grid; place-items: center; flex: none; color: var(--ink-2); }
 .icon-btn:hover { background: var(--primary-soft); color: var(--primary); }
 
@@ -222,6 +229,7 @@ a.st-play:hover .st-name { text-decoration: underline; }
   <symbol id="i-open" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2.5"/><path d="M8 11V8a4 4 0 0 1 7.5-2"/></symbol>
   <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
   <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 3.8l2.45 5.1 5.6.72-4.1 3.9 1.03 5.55L12 16.4l-4.98 2.67 1.03-5.55-4.1-3.9 5.6-.72z"/></symbol>
   <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
   <symbol id="i-out" viewBox="0 0 24 24"><path d="M14 5h5v5M19 5l-8 8M17 14v4a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1h4"/></symbol>
   <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></symbol>
@@ -501,6 +509,7 @@ const KALRADIO = {
    * Only stations the site owner approved play inside KalRadio. Others show a link to their own website.
    * Removed stations are hidden. Without the Kalendaryo server, nothing plays here (links only). */
   const status = new Map();   // id -> { s, play, why, web, stream }
+  let OPEN = false;            // V3 "play everything" mode (the server says so); hides "Station owner? Remove this station"
   async function fetchStatus(ids) {
     ids = Array.from(new Set(ids)).filter((id) => { const x = status.get(id); return !x || x.why === 'offline'; });
     if (!ids.length) return;
@@ -511,7 +520,7 @@ const KALRADIO = {
         const r = await fetch('/api/radio/status', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ids: part }), cache: 'no-store' });
         if (!r.ok) throw new Error('HTTP ' + r.status);
         const d = await r.json();
-        if (d.open) { const oc = $('onlyChecked'); if (oc) oc.hidden = true; } // V3 "play everything": every station plays (KALRADIO_APPROVED_ONLY=1 turns it off)
+        if (d.open) { OPEN = true; const oc = $('onlyChecked'); if (oc) oc.hidden = true; } // V3 "play everything": every station plays (KALRADIO_APPROVED_ONLY=1 turns it off)
         part.forEach((id) => status.set(id, (d.stations || {})[id] || { s: 'pending', play: false, why: 'not_approved' }));
       } catch (e) { part.forEach((id) => status.set(id, { s: 'pending', play: false, why: 'offline' })); }
     }
@@ -673,10 +682,10 @@ const KALRADIO = {
       const fav = isFav(st.id), x = status.get(st.id) || {};
       return stationRow(st, { small: true, sub: [st.state, st.country].filter(Boolean).join(', '),
         badge: REVIEW ? '<span class="badge ' + esc(x.s || 'pending') + '">' + esc((x.s || 'pending').toUpperCase()) + '</span>' : '',
-        owner: !REVIEW,
+        owner: !REVIEW && !OPEN,
         extra: (v) => '<div class="st-side">' +
           (REVIEW ? '<button class="btn" type="button" data-act="review">Review</button>'
-            : v.kind === 'play' ? (adult ? '<button class="btn' + (fav ? ' done' : '') + '" type="button" data-act="add"' + (fav ? ' disabled' : '') + ' aria-label="' + (fav ? 'Added ' : 'Add ') + esc(st.name) + '">' + icon(fav ? 'check' : 'plus') + (fav ? 'Added' : 'Add') + '</button>' : '')
+            : v.kind === 'play' ? (adult ? '<button class="star" type="button" data-act="star" aria-pressed="' + fav + '" aria-label="' + (fav ? 'Remove ' + esc(st.name) + ' from Our stations' : 'Add ' + esc(st.name) + ' to Our stations') + '">' + icon('star') + '</button>' : '')
             : v.kind === 'link' ? '<a class="btn web" href="' + esc(v.web) + '" target="_blank" rel="noopener noreferrer" aria-label="Listen to ' + esc(st.name) + ' on its website (opens a new tab)"><span class="web-label">Website</span>' + icon('out') + '</a>' : '') + '</div>' });
     }).join('') + '</div>';
   }
@@ -687,7 +696,15 @@ const KALRADIO = {
     if (b.dataset.act === 'play') play(asFav);
     else if (b.dataset.act === 'owner') openRemove(st);
     else if (b.dataset.act === 'review') openReview(st);
-    else if (b.dataset.act === 'add' && adult && !isFav(st.id) && view(st).kind === 'play') {
+    else if (b.dataset.act === 'star' && adult && isFav(st.id)) {
+      mayChange().then((ok) => {
+        if (!ok || !isFav(st.id)) return;
+        const i = store.favs.findIndex((x) => x.id === st.id), f = store.favs[i]; removeFav(st.id);
+        renderFavs(); renderResults(); renderMap();
+        toast('Removed ' + f.name, () => { if (!isFav(f.id)) { addFav(f, i); renderFavs(); renderResults(); renderMap(); } });
+      });
+    }
+    else if (b.dataset.act === 'star' && adult && !isFav(st.id) && view(st).kind === 'play') {
       if (store.favs.length >= 30) { toast('30 stations is the limit. Remove one first.'); return; }
       mayChange().then((ok) => { if (!ok || isFav(asFav.id)) return; addFav(asFav); renderFavs(); renderResults(); renderMap(); toast('Added to Our stations'); });
     }
