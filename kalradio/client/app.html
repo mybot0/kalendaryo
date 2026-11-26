@@ -269,7 +269,7 @@ a.st-play:hover .st-name { text-decoration: underline; }
     </div>
   </div>
 
-  <p class="credits" id="credits">Only stations we have checked play here. Others open on their own website.<br>Station list: Radio Browser (community list). Map and city names: Natural Earth (public domain).<br><button class="mini-link" type="button" id="askAdd">Broadcaster? Ask to be added</button></p>
+  <p class="credits" id="credits"><span id="onlyChecked">Only stations we have checked play here. Others open on their own website.<br></span>Station list: Radio Browser (community list). Map and city names: Natural Earth (public domain).<br><button class="mini-link" type="button" id="askAdd">Broadcaster? Ask to be added</button></p>
 </main>
 
 <div class="player" id="player" hidden>
@@ -508,6 +508,7 @@ const KALRADIO = {
         const r = await fetch('/api/radio/status', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ids: part }), cache: 'no-store' });
         if (!r.ok) throw new Error('HTTP ' + r.status);
         const d = await r.json();
+        if (d.open) { const oc = $('onlyChecked'); if (oc) oc.hidden = true; } // V3 "play everything": every station plays (KALRADIO_APPROVED_ONLY=1 turns it off)
         part.forEach((id) => status.set(id, (d.stations || {})[id] || { s: 'pending', play: false, why: 'not_approved' }));
       } catch (e) { part.forEach((id) => status.set(id, { s: 'pending', play: false, why: 'offline' })); }
     }
@@ -519,11 +520,12 @@ const KALRADIO = {
     offline: 'Can’t check this station right now.'
   };
   const safeUrl = (u) => (/^https?:\/\/[^\s"'<>]{3,500}$/i.test(String(u || '').trim()) ? String(u).trim() : '');
+  const safeHttps = (u) => (/^https:\/\//i.test(safeUrl(u)) ? safeUrl(u) : ''); // V3: Radio Browser's own stream link, https only (like the Netlify test)
   function view(st) {
     const x = status.get(st.id);
     if (!x) return { kind: 'wait', note: 'Checking…' };
     if (x.s === 'removed') return { kind: 'gone', note: 'Removed by the station owner.' };
-    if (x.play) return { kind: 'play', stream: x.stream };
+    if (x.play && (x.stream || safeHttps(st.url))) return { kind: 'play', stream: x.stream || safeHttps(st.url) };
     const web = safeUrl(x.web) || safeUrl(st.web);
     return { kind: web ? 'link' : 'none', web, note: WHY[x.why] || WHY.not_approved };
   }
@@ -540,7 +542,7 @@ const KALRADIO = {
     if (DEMO) { setPlay('playing'); toast('Preview only. No sound here.'); return; }
     if (!src) { setPlay('error'); return; }
     setPlay('loading');
-    if (!testUrl) fetch('/api/radio/play', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: st.id }), keepalive: true }).catch(() => {});
+    if (!testUrl) fetch('/api/radio/play', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: st.id, name: st.name, country: st.country }), keepalive: true }).catch(() => {});
     try { audio.pause(); audio.src = src; audio.load(); const p = audio.play(); if (p && p.catch) p.catch(() => { if (now === st && playState === 'loading') setPlay('error'); }); }
     catch (e) { setPlay('error'); return; }
     waitT = setTimeout(() => { if (now === st && playState === 'loading') { try { audio.pause(); } catch (e) { /* ignore */ } setPlay('error'); } }, 15000);
@@ -678,7 +680,7 @@ const KALRADIO = {
   $('results').addEventListener('click', (e) => {
     const b = e.target.closest('[data-act]'); if (!b || !found || !found.stations) return; const id = b.closest('.st').dataset.id; const st = found.stations.find((x) => x.id === id); if (!st) return;
     const c = found.city;
-    const asFav = { id: st.id, name: st.name, url: '', web: st.web, city: c.kind === 'city' ? c.name : st.state, country: st.country || c.country || '', lat: c.lat != null ? c.lat : st.lat, lon: c.lon != null ? c.lon : st.lon };
+    const asFav = { id: st.id, name: st.name, url: safeHttps(st.url), web: st.web, city: c.kind === 'city' ? c.name : st.state, country: st.country || c.country || '', lat: c.lat != null ? c.lat : st.lat, lon: c.lon != null ? c.lon : st.lon };
     if (b.dataset.act === 'play') play(asFav);
     else if (b.dataset.act === 'owner') openRemove(st);
     else if (b.dataset.act === 'review') openReview(st);

@@ -13,7 +13,7 @@
  *   POST /api/radio/requests       "Broadcaster? Ask to be added"
  * A home (Kalendaryo link):
  *   GET  /api/radio/favs           the home's "Our stations"
- *   POST /api/radio/favs/add       add an APPROVED station (Editors and Owners)
+ *   POST /api/radio/favs/add       add an APPROVED station (V3: any station not removed) (Editors and Owners)
  *   POST /api/radio/favs/remove    remove a station (Editors and Owners)
  * Site owner (X-Owner-Key, the same key as the owner view):
  *   GET  /api/owner/radio          the KalRadio section of the owner view
@@ -26,6 +26,9 @@
  * Settings (environment):
  *   KALRADIO_GEO=0            turn off the visitor-country lookup (then nothing can play: country unknown)
  *   KALRADIO_COUNTRY_HEADER   read the visitor's country from this request header instead (e.g. cf-ipcountry)
+ *   KALRADIO_APPROVED_ONLY=1  Version 2 rules: only approved stations play. Without it (Version 3, the default),
+ *                             every station plays from its own https link, like the first Netlify test; removed
+ *                             stations stay hidden. For testing only: switch this on before sharing /radio.
  *
  * Tables (made on first use): kalradio_favs, kalradio_stations, kalradio_log, kalradio_requests,
  * kalradio_plays, kalradio_settings. A station with no kalradio_stations row is "pending".
@@ -96,9 +99,12 @@ CREATE TABLE IF NOT EXISTS kalradio_plays (
   station_uuid TEXT NOT NULL,
   n INT NOT NULL DEFAULT 0,
   PRIMARY KEY (day, station_uuid));
+ALTER TABLE kalradio_plays ADD COLUMN IF NOT EXISTS name TEXT;    -- V3: names of stations that have no review record
+ALTER TABLE kalradio_plays ADD COLUMN IF NOT EXISTS country TEXT;
 CREATE TABLE IF NOT EXISTS kalradio_settings (key TEXT PRIMARY KEY, value JSONB NOT NULL);`;
 
 const UUID_RE = /^[A-Za-z0-9_-]{1,64}$/;
+const openMode = () => process.env.KALRADIO_APPROVED_ONLY !== '1'; // Version 3: every station plays (see the settings above)
 const CC_RE = /^[A-Z]{2}$/;
 
 module.exports = function createKalRadio({ r, db, auth, need, json, send, fail, clean, owner, ownerGuard, ownerPush, ipOf, limit }) {
@@ -200,13 +206,20 @@ module.exports = function createKalRadio({ r, db, auth, need, json, send, fail, 
     const [where, rules, rows] = await Promise.all([countryOf(req), settings(),
       ids.length ? db.q('SELECT * FROM kalradio_stations WHERE station_uuid = ANY($1)', [ids]) : { rows: [] }]);
     const stations = {};
+    const open = openMode();
+    if (open) ids.forEach((id) => { stations[id] = { s: 'pending', play: true }; });   // V3: plays from its own https link
     for (const st of rows.rows) {
+      if (open && st.status !== 'removed') {
+        stations[st.station_uuid] = st.status === 'approved' && st.official_stream_url
+          ? { s: 'approved', play: true, web: st.official_website || '', stream: st.official_stream_url } : { s: st.status, play: true, web: st.official_website || '' };
+        continue;
+      }
       if (st.status === 'approved') {
         const why = st.official_stream_url ? blockReason(st, where, rules) : 'not_approved';
         stations[st.station_uuid] = { s: 'approved', play: !why, why, web: st.official_website || '', stream: why ? undefined : st.official_stream_url };
       } else stations[st.station_uuid] = { s: st.status, play: false, why: 'not_approved', web: st.status === 'removed' ? '' : st.official_website || '' };
     }
-    send(res, 200, { country: where, stations });
+    send(res, 200, { country: where, open, stations });
   });
 
   /* ---------- counting plays (per station per day; who listened is never saved) ---------- */
@@ -214,7 +227,11 @@ module.exports = function createKalRadio({ r, db, auth, need, json, send, fail, 
     const id = String(req.body.id || '');
     if (!UUID_RE.test(id) || !hits('kr-play:' + ip(req), 120, 3600000)) return send(res, 200, { ok: false });
     await ready();
-    await db.q(`INSERT INTO kalradio_plays (day, station_uuid, n) SELECT CURRENT_DATE, station_uuid, 1 FROM kalradio_stations WHERE station_uuid=$1 AND status='approved'
+    if (openMode()) await db.q(`INSERT INTO kalradio_plays (day, station_uuid, n, name, country) SELECT CURRENT_DATE, $1, 1, $2, $3
+      WHERE NOT EXISTS (SELECT 1 FROM kalradio_stations WHERE station_uuid=$1 AND status='removed')
+      ON CONFLICT (day, station_uuid) DO UPDATE SET n = kalradio_plays.n + 1, name = COALESCE(kalradio_plays.name, EXCLUDED.name), country = COALESCE(kalradio_plays.country, EXCLUDED.country)`,
+      [id, clean(req.body.name, 80) || null, clean(req.body.country, 60) || null]);
+    else await db.q(`INSERT INTO kalradio_plays (day, station_uuid, n) SELECT CURRENT_DATE, station_uuid, 1 FROM kalradio_stations WHERE station_uuid=$1 AND status='approved'
       ON CONFLICT (day, station_uuid) DO UPDATE SET n = kalradio_plays.n + 1`, [id]);
     send(res, 200, { ok: true });
   });
@@ -286,10 +303,18 @@ module.exports = function createKalRadio({ r, db, auth, need, json, send, fail, 
     if (!UUID_RE.test(id)) fail(400, 'bad_station', 'This station cannot be saved.');
     await ready();
     const st = (await db.q("SELECT * FROM kalradio_stations WHERE station_uuid=$1 AND status='approved'", [id])).rows[0];
-    if (!st) fail(400, 'not_approved', 'Only approved stations can be added.');
-    // What is saved comes from our approval record, not from the browser.
-    const fav = { id, name: st.name || clean(f.name, 80) || 'Station', url: st.official_stream_url, city: st.city || clean(f.city, 60), country: st.country || clean(f.country, 60),
-      lat: num(f.lat, 90), lon: num(f.lon, 180) };
+    let fav;
+    if (st) {
+      // What is saved comes from our approval record, not from the browser.
+      fav = { id, name: st.name || clean(f.name, 80) || 'Station', url: st.official_stream_url, city: st.city || clean(f.city, 60), country: st.country || clean(f.country, 60),
+        lat: num(f.lat, 90), lon: num(f.lon, 180) };
+    } else if (openMode()) {
+      // V3: any station that is not removed, with its own https stream link.
+      const gone = (await db.q("SELECT 1 FROM kalradio_stations WHERE station_uuid=$1 AND status='removed'", [id])).rows[0];
+      const url = httpsUrl(f.url);
+      if (gone || !url) fail(400, 'bad_station', 'This station cannot be saved.');
+      fav = { id, name: clean(f.name, 80) || 'Station', url, city: clean(f.city, 60), country: clean(f.country, 60), lat: num(f.lat, 90), lon: num(f.lon, 180) };
+    } else fail(400, 'not_approved', 'Only approved stations can be added.');
     const at = Number.isInteger(req.body.at) ? req.body.at : null;
     const favs = await changeList(req.me.family_id, (list) => {
       if (list.some((x) => x.id === id)) return list;
@@ -375,10 +400,10 @@ module.exports = function createKalRadio({ r, db, auth, need, json, send, fail, 
          GROUP BY 1,2,3 ORDER BY n DESC LIMIT 10`).catch(() => []),
       q("SELECT COALESCE(sum(n),0)::int AS n FROM kalradio_plays WHERE day > CURRENT_DATE - 7"),
       q("SELECT COALESCE(sum(n),0)::int AS n FROM kalradio_plays WHERE day > CURRENT_DATE - 30"),
-      q(`SELECT p.station_uuid AS id, s.name, s.country, sum(p.n)::int AS n FROM kalradio_plays p LEFT JOIN kalradio_stations s USING (station_uuid)
-         WHERE p.day > CURRENT_DATE - 7 GROUP BY 1,2,3 ORDER BY n DESC LIMIT 10`),
-      q(`SELECT p.station_uuid AS id, s.name, s.country, sum(p.n)::int AS n FROM kalradio_plays p LEFT JOIN kalradio_stations s USING (station_uuid)
-         WHERE p.day > CURRENT_DATE - 30 GROUP BY 1,2,3 ORDER BY n DESC LIMIT 10`),
+      q(`SELECT p.station_uuid AS id, COALESCE(max(s.name), max(p.name)) AS name, COALESCE(max(s.country), max(p.country)) AS country, sum(p.n)::int AS n
+         FROM kalradio_plays p LEFT JOIN kalradio_stations s USING (station_uuid) WHERE p.day > CURRENT_DATE - 7 GROUP BY 1 ORDER BY n DESC LIMIT 10`),
+      q(`SELECT p.station_uuid AS id, COALESCE(max(s.name), max(p.name)) AS name, COALESCE(max(s.country), max(p.country)) AS country, sum(p.n)::int AS n
+         FROM kalradio_plays p LEFT JOIN kalradio_stations s USING (station_uuid) WHERE p.day > CURRENT_DATE - 30 GROUP BY 1 ORDER BY n DESC LIMIT 10`),
       q(`SELECT station_uuid AS id, name, country, country_code, city, territories_allowed, permission_received, official_website, extract(epoch FROM reviewed_at)*1000 AS at
          FROM kalradio_stations WHERE status='approved' ORDER BY name`),
       q(`SELECT s.station_uuid AS id, s.name, s.country, s.removal_reason AS reason, s.prev_status, extract(epoch FROM s.updated_at)*1000 AS at,
