@@ -94,6 +94,28 @@ p { margin: 0; }
 .tagline { flex-basis: 100%; }
 @media (max-width: 600px) { .tagline { display: none; } .top { padding: 10px 12px 0; } .brand { font-size: 1.3rem; } }
 .pill { display: inline-flex; align-items: center; min-height: 36px; padding: 0 16px; border-radius: 12px; background: var(--primary); color: #fff; font: 800 1.05rem var(--font-head); }
+/* V3.4: the Kalendaryo pill is a link (to "Create a hub", or to the person's own hubs) and glows like Wall mode in the app:
+   5 soft pulses with a ring that ripples out, then 5 s rest, then again (copied from client/web/web.css .wall-glow). */
+a.pill { text-decoration: none; -webkit-tap-highlight-color: transparent; animation: kr-pill-glow 13s linear infinite; }
+a.pill:hover { filter: brightness(.93); }
+a.pill:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
+@keyframes kr-pill-glow {
+  0% { box-shadow: 0 8px 18px 0 rgba(63,115,96,0), 0 0 0 0 rgba(63,115,96,0); }
+  0.008% { box-shadow: 0 8px 18px 0 rgba(63,115,96,.45), 0 0 0 0 rgba(63,115,96,.6); animation-timing-function: cubic-bezier(.5,1,.89,1); }
+  12.292% { box-shadow: 0 8px 18px 0 rgba(63,115,96,.45), 0 0 0 14px rgba(63,115,96,0); animation-timing-function: steps(1, end); }
+  12.315% { box-shadow: 0 8px 18px 0 rgba(63,115,96,.45), 0 0 0 0 rgba(63,115,96,.6); animation-timing-function: cubic-bezier(.5,1,.89,1); }
+  24.600% { box-shadow: 0 8px 18px 0 rgba(63,115,96,.45), 0 0 0 14px rgba(63,115,96,0); animation-timing-function: steps(1, end); }
+  24.623% { box-shadow: 0 8px 18px 0 rgba(63,115,96,.45), 0 0 0 0 rgba(63,115,96,.6); animation-timing-function: cubic-bezier(.5,1,.89,1); }
+  36.908% { box-shadow: 0 8px 18px 0 rgba(63,115,96,.45), 0 0 0 14px rgba(63,115,96,0); animation-timing-function: steps(1, end); }
+  36.931% { box-shadow: 0 8px 18px 0 rgba(63,115,96,.45), 0 0 0 0 rgba(63,115,96,.6); animation-timing-function: cubic-bezier(.5,1,.89,1); }
+  49.215% { box-shadow: 0 8px 18px 0 rgba(63,115,96,.45), 0 0 0 14px rgba(63,115,96,0); animation-timing-function: steps(1, end); }
+  49.238% { box-shadow: 0 8px 18px 0 rgba(63,115,96,.45), 0 0 0 0 rgba(63,115,96,.6); animation-timing-function: cubic-bezier(.5,1,.89,1); }
+  61.523% { box-shadow: 0 8px 18px 0 rgba(63,115,96,.45), 0 0 0 14px rgba(63,115,96,0); animation-timing-function: ease; }
+  64.615% { box-shadow: 0 8px 18px 0 rgba(63,115,96,0), 0 0 0 0 rgba(63,115,96,0); }
+  100% { box-shadow: 0 8px 18px 0 rgba(63,115,96,0), 0 0 0 0 rgba(63,115,96,0); }
+}
+@media (prefers-reduced-motion: reduce) { a.pill { animation: none; } }
+
 .main { padding: 18px 16px 150px; width: 100%; max-width: 1280px; margin: 0 auto; }
 .page-head { display: flex; flex-direction: column; gap: 4px; margin-bottom: 18px; }
 .page-head h1 { display: flex; align-items: center; gap: 10px; }
@@ -277,7 +299,7 @@ a.st-play:hover .st-name { text-decoration: underline; }
 </svg>
 
 <header class="top">
-  <span class="pill">Kalendaryo</span>
+  <a class="pill" id="kalPill" href="/#new" target="_top" aria-label="Kalendaryo: create your family hub">Kalendaryo</a>
   <h1 class="brand"><svg class="ic"><use href="#i-radio"/></svg>KalRadio</h1>
   <button class="btn" id="modeBtn" type="button" hidden></button>
   <p class="sub tagline" id="subLine">Live radio from the places your family calls home.</p>
@@ -401,6 +423,14 @@ const KALRADIO = {
    * belong to the home and are saved on the server (/api/radio/favs). Otherwise they stay in this browser. */
   const EMBED = /[?&]embed=1(&|$)/.test(location.search);
   if (EMBED) document.documentElement.classList.add('embed');
+  // V3.4: the Kalendaryo pill. A person who already has a hub on this device (the app's own list, "kal.families")
+  // goes to the start page with their hubs; everyone else goes straight to "Create a hub".
+  (function () {
+    const a = document.getElementById('kalPill'); if (!a) return;
+    let has = false;
+    try { const l = JSON.parse(localStorage.getItem('kal.families') || '[]'); has = Array.isArray(l) && l.some((x) => x && x.t); } catch (e) { /* no storage */ }
+    if (has) { a.href = '/'; a.setAttribute('aria-label', 'Kalendaryo: open your family hub'); }
+  })();
   const hashT = (() => { const m = /(?:^#|&)t=([^&]+)/.exec(location.hash || ''); try { return m ? decodeURIComponent(m[1]) : ''; } catch (e) { return ''; } })();
   const home = { on: !!hashT && !DEMO, token: hashT, canEdit: false, loaded: false, err: false };
   let saving = Promise.resolve();
