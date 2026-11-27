@@ -30,6 +30,7 @@
     "colour": "#3d8bff",
     "blurb": "<b>Fly a paper plane through the week!</b> Tap to glide past the pages. English or Tagalog.",
     "icon": { "img": "paper-week-icon.svg" },
+    "fontData": true,
     "oneRow": true
   },
   {
@@ -38,6 +39,7 @@
     "colour": "#ffc531",
     "blurb": "<b>Tumbang preso in 3D!</b> Knock the can with your slipper, then run home before the taya tags you. English or Tagalog.",
     "icon": { "img": "tsinelas-toss-icon.svg" },
+    "fontData": true,
     "oneRow": true
   }
 ]

@@ -1,4 +1,4 @@
-/* games.css — Games (from Keybop): Pares-Pares and Hangry Snake.
+/* games.css — the Games page, its tiles and the bar above each game. The games themselves are in games/ (each has its own page).
    Everything is inside .kg so it never changes Kalendaryo's own buttons and cards.
    The look is Keybop's (thick outlines, hard shadows, bright colors) on Kalendaryo's background. */
 .kg {
@@ -70,40 +70,8 @@
   .kg-layer.kg-riding .kg-bar { display: none; }
 }
 .kg-main { flex: 1; min-height: 0; position: relative; overflow: hidden; }
-.kg-panel { position: absolute; inset: 0; display: grid; place-items: center; background: color-mix(in srgb, var(--bg) 88%, transparent); padding: 16px; z-index: 5; }
-.kg-pcard { display: flex; flex-direction: column; align-items: center; gap: 14px; text-align: center; background: var(--kg-card); border: 3px solid var(--kg-ink); border-radius: 26px; box-shadow: 7px 7px 0 var(--kg-ink); padding: 24px; max-width: 360px; }
-.kg-pcard h3 { font: 400 34px/1 var(--kg-display); margin: 0; color: var(--kg-ink); }
-.kg-pcard p { margin: 0; color: var(--kg-ink-soft); font-weight: 700; }
 
-/* Pares-Pares: square cards that fill the play area (sizes are set by games.js) */
-.kg-mem { height: 100%; display: flex; align-items: center; justify-content: center; padding: 4px 16px 20px; }
-.kg-mgrid { display: grid; }
-.kg .kg-mcard { position: relative; border: 0; background: none; padding: 0; perspective: 600px; border-radius: 16px; }
-.kg-minner { position: absolute; inset: 0; transition: transform .35s; transform-style: preserve-3d; }
-.kg-mcard.up .kg-minner { transform: rotateY(180deg); }
-.kg-mface { position: absolute; inset: 0; display: grid; place-items: center; backface-visibility: hidden; -webkit-backface-visibility: hidden; border: 3px solid var(--kg-ink); border-radius: 16px; box-shadow: 0 4px 0 var(--kg-ink); }
-.kg-mface.q { background: var(--kg-sky); color: #fff; font-family: var(--kg-display); }
-.kg-mface.v { background: var(--kg-card); transform: rotateY(180deg); }
-.kg-mcard.done .kg-mface.v { background: #c9f5dc; }
-
-/* Hangry Snake: the board fills the screen; big arrows always at the bottom */
-.kg-snake { height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; padding: 4px 16px 16px; }
-.kg-opts { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px 18px; }
 .kg-angry { color: #e8322a; font-size: 1.1em; }
-.kg-speed { display: flex; align-items: center; gap: 8px; font-weight: 800; color: var(--kg-ink); }
-.kg-speed span { margin-right: 4px; }
-.kg .kg-speed button { width: 44px; height: 44px; border: 3px solid var(--kg-ink); border-radius: 12px; background: var(--kg-card); color: var(--kg-ink); font: 400 22px/1 var(--kg-display); box-shadow: 0 4px 0 var(--kg-ink); padding: 0; }
-.kg .kg-speed button[aria-pressed="true"] { background: var(--kg-leaf); color: #fff; }
-.kg-snake canvas { border: 3px solid var(--kg-ink); border-radius: 14px; touch-action: none; display: block; }
-.kg-dpad { display: none; grid-template-columns: repeat(3, 80px); grid-template-rows: repeat(2, 80px); gap: 10px; }
-.kg-dpad.on { display: grid; }
-.kg .kg-dpad button { border: 3px solid var(--kg-ink); background: var(--kg-card); color: var(--kg-ink); border-radius: 20px; font-size: 30px; box-shadow: 0 5px 0 var(--kg-ink); touch-action: none; padding: 0; }
-.kg .kg-dpad button:active { transform: translateY(4px); box-shadow: 0 1px 0 var(--kg-ink); }
-.kg-dpad .u { grid-column: 2; grid-row: 1; } .kg-dpad .l { grid-column: 1; grid-row: 2; } .kg-dpad .d { grid-column: 2; grid-row: 2; } .kg-dpad .r { grid-column: 3; grid-row: 2; }
-@media (min-width: 700px) and (min-height: 600px) {
-  .kg-dpad { grid-template-columns: repeat(3, 110px); grid-template-rows: repeat(2, 110px); gap: 14px; }
-  .kg .kg-dpad button { font-size: 42px; border-radius: 24px; box-shadow: 0 7px 0 var(--kg-ink); }
-}
 
 /* confetti */
 .kg-fx { position: fixed; inset: 0; z-index: 130; pointer-events: none; overflow: hidden; }
@@ -114,14 +82,6 @@
 .kg-title { display: flex; align-items: center; gap: .3em; }
 .kg-title-ic { width: 1.1em; height: 1.1em; flex: none; }
 .kg-ico svg { display: block; }
-
-/* Speed and Mode in one row; a bit smaller on phones */
-@media (max-width: 600px) {
-  .kg-opts { gap: 8px 14px; }
-  .kg-speed { gap: 5px; }
-  .kg-speed span { font-size: 13px; margin-right: 2px; }
-  .kg .kg-speed button { width: 38px; height: 38px; font-size: 19px; }
-}
 
 /* Hangry Snake logo in the game (sticker letters) */
 .kg-logo { display: inline-flex; align-items: center; gap: 4px; transform: rotate(-3deg); vertical-align: middle; }

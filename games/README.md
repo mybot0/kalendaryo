@@ -46,6 +46,7 @@ games/
 
    - `icon`: `{ "img": "file.svg" }` shows the picture; `{ "inline": "file.svg" }` puts the drawing itself in the tile.
    - `oneRow`: on phones, "← Games" and the title share one row (more room for the game).
+   - `fontData`: add `"fontData": true` only if the game's fonts are inside its page as data: URLs (Paper Week and Tsinelas Toss). Other games keep the strict rule.
    - The game's page can show its own score in Kalendaryo's bar by sending
      `parent.postMessage({ type: 'kg:score', text: '…' }, location.origin)` (see pares-pares).
 3. Build (`cd client && node build.js web`), run the tests, and push. Nothing in `server/index.js` changes.

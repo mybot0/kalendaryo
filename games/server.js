@@ -4,8 +4,9 @@
  * A game of type "page" is one folder with its own complete index.html. For each one this serves:
  *   /<route> and /<route>/index.html   the folder's index.html, byte-for-byte (no build step, no /hi.js, nothing added)
  *   /<route>/<file>.svg / .png          the folder's icon pictures (for the Games page tiles and home-screen icons)
- * Game pages may only be shown in a frame by Kalendaryo itself (same site). Their fonts may be inside the page
- * as data: URLs, so font-src also allows data: on game pages. The rest of the site's security rules stay the same.
+ * Game pages may only be shown in a frame by Kalendaryo itself (same site). A game whose fonts are inside its page
+ * as data: URLs says "fontData": true in games.json; only those pages also get data: in font-src.
+ * The rest of the site's security rules stay the same.
  *
  * Kalendaryo mounts this with one line in server/index.js (TOUCH POINT G1). client/build.js uses tiles() to put
  * the same list on the Games page (TOUCH POINT G2).
@@ -33,12 +34,13 @@ function tiles() {
 }
 
 function mount({ r, SECURITY }) {
-  const csp = SECURITY['Content-Security-Policy']
-    .replace("frame-ancestors 'none'", "frame-ancestors 'self'")
-    .replace('font-src https://fonts.gstatic.com', 'font-src https://fonts.gstatic.com data:');
+  const framed = SECURITY['Content-Security-Policy'].replace("frame-ancestors 'none'", "frame-ancestors 'self'");
+  // Only a game whose fonts are inside its page ("fontData": true in games.json) also gets data: in font-src.
+  const withFontData = framed.replace('font-src https://fonts.gstatic.com', 'font-src https://fonts.gstatic.com data:');
   for (const g of list()) {
     if (g.type !== 'page') continue;
     const folder = path.join(DIR, g.folder), file = path.join(folder, 'index.html');
+    const csp = g.fontData ? withFontData : framed;
     const page = async (req, res) => {
       res.setHeader('X-Frame-Options', 'SAMEORIGIN');
       res.setHeader('Content-Security-Policy', csp);
