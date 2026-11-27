@@ -30,7 +30,7 @@ Do not use screenshots of emoji in ads or videos without checking the emoji make
 ## Made by us
 
 - All app code, including the games (from our own Keybop).
-- Brain Train (public/brain-train) and its mascot Choo-Choo Noodle.
+- Brain Train (games/brain-train) and its mascot Choo-Choo Noodle.
 - All icons, the tile icons (Pares-Pares cards, Hangry Snake, Brain Train), the gamepad icon, the doodle background art and the layouts.
 - All website and guide text.
 

@@ -18,6 +18,10 @@ const careJs = ['care-data', 'qr', 'care-board', 'care-page'];
 // Games (from Keybop) also have their own folder (client/games).
 const gamesCss = ['games'];
 const gamesJs = ['games'];
+// TOUCH POINT G2 (Games): the list of games for the tiles comes from games/games.json (each game's own folder).
+// It goes in just before games.js. Without the games/ folder the Games page still shows its two built-in games.
+const gamesListFile = path.join(root, '..', 'games', 'server.js');
+const gamesList = fs.existsSync(gamesListFile) ? 'window.KAL_GAMES = ' + JSON.stringify(require(gamesListFile).tiles()) + ';' : '';
 // TOUCH POINT R3 (KalRadio): its own folder (../kalradio). Added only if the folder is there.
 const radioJs = fs.existsSync(path.join(root, '..', 'kalradio', 'in-app.js')) ? [path.join('..', 'kalradio', 'in-app.js')] : [];
 const js = ['config', 'util', 'theme', 'models', 'recurrence', 'store', 'calendar-data', 'chores-data', 'routines-data', 'rewards-data', 'event-actions', 'data-tools', 'ics',
@@ -31,7 +35,7 @@ const scripts = [];
 if (web) scripts.push(rd('web/shim.js'));
 for (const j of js) {
   scripts.push(rd('src/js/' + j + '.js'));
-  if (j === 'screens/settings') { careJs.forEach((c) => scripts.push(rd('care/' + c + '.js'))); gamesJs.forEach((c) => scripts.push(rd('games/' + c + '.js'))); radioJs.forEach((f) => scripts.push(rd(f))); }
+  if (j === 'screens/settings') { careJs.forEach((c) => scripts.push(rd('care/' + c + '.js'))); if (gamesList) scripts.push(gamesList); gamesJs.forEach((c) => scripts.push(rd('games/' + c + '.js'))); radioJs.forEach((f) => scripts.push(rd(f))); }
   if (web && j === 'event-ui') scripts.push(rd('web/examples.js'), rd('web/landing.js'), rd('web/setup.js'), rd('web/access.js'), rd('web/me.js'), rd('web/demo.js'), rd('web/guide.js'), rd('web/help.js'), rd('web/help-kal.js'), rd('web/theme-sync.js'));
 }
 for (const s of scripts) if (/<\/script/i.test(s)) throw new Error('a script contains </script');
@@ -59,7 +63,7 @@ console.log(file, fs.statSync(file).size, 'bytes');
 // kalendaryo.co/games: the games on their own small page (same game code as inside the app).
 if (web) {
   const gstyles = ['theme', 'base', 'dark'].map((c) => rd('src/styles/' + c + '.css')).concat(gamesCss.map((c) => rd('games/' + c + '.css')));
-  const gscripts = ['src/js/config.js', 'src/js/util.js'].map(rd).concat(gamesJs.map((c) => rd('games/' + c + '.js')),
+  const gscripts = ['src/js/config.js', 'src/js/util.js'].map(rd).concat(gamesList ? [gamesList] : [], gamesJs.map((c) => rd('games/' + c + '.js')),
     ["(function(){ PL.games.mountStandalone(document.getElementById('games-root')); })();"]);
   const g = ['<!doctype html>', '<html lang="en">', '<head>', '<meta charset="utf-8">', '<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">',
     '<meta name="robots" content="noindex">', '<meta name="theme-color" content="#F4F3EE">', '<title>Kalendaryo Games</title>',

@@ -1,0 +1,28 @@
+[
+  { "id": "memory", "type": "builtin", "title": "Pares-Pares" },
+  { "id": "snake", "type": "builtin", "title": "Hangry Snake" },
+  {
+    "id": "brain", "type": "page", "title": "Brain Train",
+    "folder": "brain-train", "route": "/brain-train",
+    "colour": "#26bf72",
+    "blurb": "<b>A trivia train ride!</b> Answer right and the train moves to the next station. English or Tagalog.",
+    "icon": { "inline": "tile-icon.svg" },
+    "oneRow": true
+  },
+  {
+    "id": "paper", "type": "page", "title": "Paper Week",
+    "folder": "paper-week", "route": "/paper-week",
+    "colour": "#3d8bff",
+    "blurb": "<b>Fly a paper plane through the week!</b> Tap to glide past the pages. English or Tagalog.",
+    "icon": { "img": "paper-week-icon.svg" },
+    "oneRow": true
+  },
+  {
+    "id": "tsinelas", "type": "page", "title": "Tsinelas Toss",
+    "folder": "tsinelas-toss", "route": "/tsinelas-toss",
+    "colour": "#ffc531",
+    "blurb": "<b>Tumbang preso in 3D!</b> Knock the can with your slipper, then run home before the taya tags you. English or Tagalog.",
+    "icon": { "img": "tsinelas-toss-icon.svg" },
+    "oneRow": true
+  }
+]
