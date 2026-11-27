@@ -1,0 +1,579 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#F4F3EE">
+<title>Hangry Snake · Kalendaryo Games</title>
+<meta name="description" content="So hungry, it’s ANGRY! A snake game: eat the fruit and grow longer.">
+<script>try{var t=localStorage.getItem('kal.theme')||'light';if(t==='dark'||(t==='auto'&&matchMedia('(prefers-color-scheme: dark)').matches))document.documentElement.dataset.theme='dark'}catch(e){}</script>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;600;700;800&family=Outfit:wght@600;700;800&family=Lilita+One&family=Nunito:wght@600;800&display=swap">
+<style>
+/* theme.css — colors, fonts, sizes. Light only (by choice). Change the look here. */
+:root {
+  color-scheme: light;
+  --bg: #F4F3EE;
+  --surface: #FFFFFF;
+  --surface-2: #F8F7F3;
+  --line: #E4E2DA;
+  --ink: #26302B;
+  --ink-2: #5C675F;
+  --ink-3: #8A948C;
+  --primary: #3F7360;
+  --primary-ink: #FFFFFF;
+  --primary-soft: #E4EFE9;
+  --danger: #B3402F;
+  --danger-soft: #FBE9E5;
+  --focus: #2F6B8F;
+  --radius: 18px;
+  --radius-sm: 12px;
+  --shadow: 0 1px 2px rgba(38,48,43,.06), 0 4px 14px rgba(38,48,43,.06);
+  --font: 'Figtree', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-head: 'Outfit', 'Figtree', system-ui, sans-serif;
+  --text-scale: 1;
+  --tap: 48px;
+}
+
+/* base.css — reset and everyday text/layout helpers. */
+*, *::before, *::after { box-sizing: border-box; }
+html { font-size: calc(100% * var(--text-scale)); -webkit-text-size-adjust: 100%; }
+html.has-sheet body { overflow: hidden; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 1rem/1.45 var(--font); min-height: 100vh; }
+/* App background: soft pastel glow plus faded household doodles (original line drawings), behind every page. */
+/* The art is kept in variables so full-screen layers (photo viewer, …) can use the same background. */
+:root {
+  --page-art:
+    radial-gradient(700px 500px at 5% 0%, var(--glow1, rgba(244,224,220,.75)), transparent 70%),
+    radial-gradient(640px 520px at 100% 25%, var(--glow2, rgba(233,227,246,.8)), transparent 70%),
+    radial-gradient(700px 520px at 40% 100%, var(--glow3, rgba(251,244,217,.8)), transparent 70%),
+    url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%22680%22%20height%3D%22680%22%20viewBox%3D%220%200%20680%20680%22%3E%3Cg%20fill%3D%22none%22%20stroke%3D%22%233F7360%22%20stroke-opacity%3D%220.13%22%20stroke-width%3D%221.5%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cg%20transform%3D%22translate%2845%2016%29%20rotate%28-3%2024%2024%29%20scale%282.46%29%22%3E%3Cpath%20d%3D%22M5%2010l1-6%204%203h4l4-3%201%206v3a7%207%200%200%201-14%200z%22/%3E%3Ccircle%20cx%3D%229.5%22%20cy%3D%2212%22%20r%3D%22.6%22/%3E%3Ccircle%20cx%3D%2214.5%22%20cy%3D%2212%22%20r%3D%22.6%22/%3E%3Cpath%20d%3D%22M11%2015l1%201%201-1%22/%3E%3C/g%3E%3Cg%20transform%3D%22translate%28246%2020%29%20rotate%285%2024%2024%29%20scale%282.56%29%22%3E%3Ccircle%20cx%3D%2210%22%20cy%3D%2212%22%20r%3D%226%22/%3E%3Cpath%20d%3D%22M16%2012h6%22/%3E%3Cpath%20d%3D%22M8%2011c1-1%202-1%203%200%22/%3E%3C/g%3E%3Cg%20transform%3D%22translate%28426%2056%29%20rotate%2817%2024%2024%29%20scale%282.68%29%22%3E%3Cpath%20d%3D%22M6%2016V11a6%206%200%200%201%2012%200v5l2%202H4z%22/%3E%3Cpath%20d%3D%22M10%2020a2%202%200%200%200%204%200%22/%3E%3C/g%3E%3Cg%20transform%3D%22translate%28524%2079%29%20rotate%28-13%2024%2024%29%20scale%282.60%29%22%3E%3Cpath%20d%3D%22M4%2010h16l-2%209H6z%22/%3E%3Cpath%20d%3D%22M8%2010l3-6M16%2010l-3-6M9%2013v3M12%2013v3M15%2013v3%22/%3E%3C/g%3E%3Cg%20transform%3D%22translate%2819%20205%29%20rotate%28-11%2024%2024%29%20scale%282.97%29%22%3E%3Ccircle%20cx%3D%228%22%20cy%3D%2212%22%20r%3D%224%22/%3E%3Cpath%20d%3D%22M12%2012h9M18%2012v3M21%2012v2%22/%3E%3C/g%3E%3Cg%20transform%3D%22translate%28227%20231%29%20rotate%282%2024%2024%29%20scale%282.66%29%22%3E%3Cpath%20d%3D%22M12%2020s-7-4.5-7-10a4%204%200%200%201%207-2.5A4%204%200%200%201%2019%2010c0%205.5-7%2010-7%2010z%22/%3E%3C/g%3E%3Cg%20transform%3D%22translate%28355%20185%29%20rotate%286%2024%2024%29%20scale%282.54%29%22%3E%3Ccircle%20cx%3D%2212%22%20cy%3D%2215%22%20r%3D%223.5%22/%3E%3Ccircle%20cx%3D%227%22%20cy%3D%2210%22%20r%3D%221.6%22/%3E%3Ccircle%20cx%3D%2210.5%22%20cy%3D%226.5%22%20r%3D%221.6%22/%3E%3Ccircle%20cx%3D%2214.5%22%20cy%3D%226.5%22%20r%3D%221.6%22/%3E%3Ccircle%20cx%3D%2218%22%20cy%3D%2210%22%20r%3D%221.6%22/%3E%3C/g%3E%3Cg%20transform%3D%22translate%28554%20205%29%20rotate%28-2%2024%2024%29%20scale%282.81%29%22%3E%3Cpath%20d%3D%22M12%204l2.4%205%205.4.6-4%203.7%201.1%205.4L12%2016l-4.9%202.7%201.1-5.4-4-3.7%205.4-.6z%22/%3E%3C/g%3E%3Cg%20transform%3D%22translate%2834%20414%29%20rotate%28-9%2024%2024%29%20scale%282.89%29%22%3E%3Cpath%20d%3D%22M5%209h10v7a4%204%200%200%201-4%204H9a4%204%200%200%201-4-4z%22/%3E%3Cpath%20d%3D%22M15%2011h2a2%202%200%200%201%200%204h-2%22/%3E%3Cpath%20d%3D%22M8%203c0%201.5%201%201.5%201%203M12%203c0%201.5%201%201.5%201%203%22/%3E%3C/g%3E%3Cg%20transform%3D%22translate%28226%20392%29%20rotate%288%2024%2024%29%20scale%283.01%29%22%3E%3Cpath%20d%3D%22M4%2011l8-7%208%207v9H4z%22/%3E%3Cpath%20d%3D%22M10%2020v-5h4v5%22/%3E%3C/g%3E%3Cg%20transform%3D%22translate%28373%20428%29%20rotate%28-3%2024%2024%29%20scale%282.48%29%22%3E%3Cpath%20d%3D%22M8%204L4%207l2%203%202-1v11h8V9l2%201%202-3-4-3c-1%201.5-2.5%202-4%202S9%205.5%208%204z%22/%3E%3C/g%3E%3Cg%20transform%3D%22translate%28581%20362%29%20rotate%28-17%2024%2024%29%20scale%282.74%29%22%3E%3Cpath%20d%3D%22M5%206h14v13H5zM5%2010h14M9%204v4M15%204v4%22/%3E%3C/g%3E%3Cg%20transform%3D%22translate%2863%20581%29%20rotate%2814%2024%2024%29%20scale%282.80%29%22%3E%3Cpath%20d%3D%22M7%2014h10l-1.5%207h-7z%22/%3E%3Cpath%20d%3D%22M12%2014V9%22/%3E%3Cpath%20d%3D%22M12%209c-3%200-5-2-5-5%203%200%205%202%205%205zM12%2010c3%200%205-2%205-5-3%200-5%202-5%205z%22/%3E%3C/g%3E%3Cg%20transform%3D%22translate%28205%20576%29%20rotate%283%2024%2024%29%20scale%282.82%29%22%3E%3Ccircle%20cx%3D%2212%22%20cy%3D%2212%22%20r%3D%224%22/%3E%3Cpath%20d%3D%22M12%202v3M12%2019v3M2%2012h3M19%2012h3M4.9%204.9l2.1%202.1M17%2017l2.1%202.1M4.9%2019.1L7%2017M17%207l2.1-2.1%22/%3E%3C/g%3E%3Cg%20transform%3D%22translate%28386%20587%29%20rotate%28-1%2024%2024%29%20scale%283.06%29%22%3E%3Cpath%20d%3D%22M5%2010l1-6%204%203h4l4-3%201%206v3a7%207%200%200%201-14%200z%22/%3E%3Ccircle%20cx%3D%229.5%22%20cy%3D%2212%22%20r%3D%22.6%22/%3E%3Ccircle%20cx%3D%2214.5%22%20cy%3D%2212%22%20r%3D%22.6%22/%3E%3Cpath%20d%3D%22M11%2015l1%201%201-1%22/%3E%3C/g%3E%3Cg%20transform%3D%22translate%28573%20525%29%20rotate%285%2024%2024%29%20scale%282.89%29%22%3E%3Ccircle%20cx%3D%2210%22%20cy%3D%2212%22%20r%3D%226%22/%3E%3Cpath%20d%3D%22M16%2012h6%22/%3E%3Cpath%20d%3D%22M8%2011c1-1%202-1%203%200%22/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  --page-art-size: auto, auto, auto, 680px 680px;
+  --page-art-repeat: no-repeat, no-repeat, no-repeat, repeat;
+}
+body {
+  background-color: var(--bg);
+  background-image: var(--page-art);
+  background-size: var(--page-art-size);
+  background-repeat: var(--page-art-repeat);
+  background-attachment: fixed;
+}
+
+[hidden] { display: none !important; }
+button, input, select, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; }
+h1, h2, h3 { font-family: var(--font-head); margin: 0; line-height: 1.2; letter-spacing: -.01em; }
+h1 { font-size: 1.7rem; } h2 { font-size: 1.2rem; } h3 { font-size: 1.05rem; }
+p { margin: 0; }
+:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; border-radius: 6px; }
+.reduce-motion *, .reduce-motion *::before, .reduce-motion *::after { transition: none !important; animation: none !important; }
+
+.stack { display: flex; flex-direction: column; gap: 12px; }
+.card { background: var(--surface); border-radius: var(--radius); box-shadow: var(--shadow); padding: 20px; }
+.card-list { display: flex; flex-direction: column; gap: 8px; }
+.sub { color: var(--ink-2); font-size: .9rem; }
+.spacer { flex: 1; }
+.pre { white-space: pre-wrap; }
+.mini-h { font-size: .8rem; text-transform: uppercase; letter-spacing: .06em; color: var(--ink-3); margin: 8px 0 4px; font-family: var(--font); font-weight: 700; }
+.link-btn { background: none; border: 0; color: var(--primary); font-weight: 700; display: inline-flex; align-items: center; gap: 2px; min-height: 36px; padding: 0 6px; border-radius: 8px; }
+.link-btn:hover { background: var(--primary-soft); }
+.link-btn .ic { width: 18px; height: 18px; }
+.btn-row { display: flex; flex-wrap: wrap; gap: 10px; }
+.page-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 18px; }
+.plain-list { margin: 0; padding-left: 1.2em; color: var(--ink-2); }
+.form-error { color: var(--danger); font-weight: 600; }
+.ic { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+
+/*
+ * dark.css — dark mode colors for Kalendaryo. Switched on by <html data-theme="dark"> (theme.js).
+ * Same idea as cozy.css: everything for dark mode is in this one file.
+ * Pastel things (event chips, person colors, yellow buttons) stay pastel with dark text, so they stay readable.
+ */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #171C1A;
+  --surface: #222A26;
+  --surface-2: #2A332E;
+  --line: #37423C;
+  --ink: #ECEFEA;
+  --ink-2: #B9C3BC;
+  --ink-3: #8C968F;
+  --primary: #72B597;
+  --primary-ink: #0F1F18;
+  --primary-soft: #2B4037;
+  --danger: #E88A78;
+  --danger-soft: #3D2622;
+  --focus: #8FC4EA;
+  --shadow: 0 1px 2px rgba(0,0,0,.35), 0 6px 18px rgba(0,0,0,.25);
+  --ink-on-color: #26302B; /* text on pastel backgrounds */
+  /* page glow (base.css) */
+  --glow1: rgba(120,70,60,.20); --glow2: rgba(80,70,120,.20); --glow3: rgba(120,100,40,.14);
+}
+
+
+
+/* Pastel backgrounds keep dark text */
+:root[data-theme="dark"] :is(.reminder, .mv-ev, .wk-item, .btn.gold, .toast-act, .hol-bar, .hol-pill, .star-chip, .kid-back, .kid-card, .wall-room, .gc-also, .li-also, .find-box, .status-banner, .land-demo) { color: var(--ink-on-color); }
+:root[data-theme="dark"] .btn.gold .ic { color: var(--ink-on-color); }
+
+/* Grey text on pastel cards */
+:root[data-theme="dark"] .land-demo .sub { color: #5C675F; }
+
+/* Text on the main color uses the dark ink (white on light green is hard to read) */
+:root[data-theme="dark"] :is(.seg-btn.on, .tour-state, .g-next:not(.trip)) { color: var(--primary-ink); }
+
+/* Guided tour and its switch */
+:root[data-theme="dark"] :is(.g-box, .g-box::before, .tour-switch) { background: var(--surface); color: var(--ink); }
+:root[data-theme="dark"] .tour-switch.off .tour-state { background: var(--surface-2); color: var(--ink-2); }
+
+/* Person-colored tiles: a dark tint of the person's color instead of a bright pastel */
+:root[data-theme="dark"] :is(.star-tile, .member-tile, .family-card, .member-head) { background: color-mix(in srgb, var(--c) 24%, var(--surface)); }
+
+/* Wall mode */
+:root[data-theme="dark"] :is(.wall-panel, .arr-hint) { background: rgba(34,42,38,.93); color: var(--ink); }
+:root[data-theme="dark"] .wall.photos .wall-top { background: rgba(23,28,26,.8); }
+:root[data-theme="dark"] .wch-kid { background: color-mix(in srgb, var(--t) 22%, var(--surface)); color: var(--ink); }
+
+:root[data-theme="dark"] .wall-veil { background: rgba(23,28,26,.55); }
+
+/* Sky strip lines */
+:root[data-theme="dark"] .sky .sky-clouds path { fill: #E9EEF3; stroke: #A9BCCD; }
+:root[data-theme="dark"] .sky.sky-dark .sky-clouds path { fill: #9AA7B4; stroke: #C4CFDA; }
+:root[data-theme="dark"] .sky .sky-rain path { stroke: #6FB0F0; }
+
+/* Empty boxes: an even lighter fade in the dark */
+:root[data-theme="dark"] :is(.widget:has(.empty-state), .main .card:has(> .empty-state)) {
+  background: linear-gradient(180deg, var(--surface) 62%, color-mix(in srgb, var(--edge, #555) 6%, var(--surface)) 100%);
+}
+
+/* Drawings and photos: a little softer so they don't glow */
+:root[data-theme="dark"] :is(.empty-art svg, .photo-tile img, .wall-photo-img) { filter: brightness(.85) saturate(.92); }
+
+/* Forms */
+:root[data-theme="dark"] :is(input, select, textarea) { background: var(--surface-2); color: var(--ink); border-color: var(--line); }
+:root[data-theme="dark"] ::placeholder { color: var(--ink-3); }
+
+/* Menu: the Dark mode / Light mode line sits at the bottom on computers; on phones it lives in Settings. */
+.theme-btn { display: none; }
+@media (min-width: 900px) {
+  .rail { display: flex; flex-direction: column; }
+  .theme-btn { display: flex; margin-top: auto; }
+}
+/* Wide screens that are not tall (iPad sideways, small laptops): a little less space between menu lines so every
+   line fits, Dark mode included. The menu uses the height you can see (dvh) and scrolls on its own if it still does not fit. */
+@media (min-width: 900px) {
+  .rail { height: 100dvh; overflow-y: auto; overscroll-behavior: contain; }
+}
+@media (min-width: 900px) and (max-height: 820px) {
+  .rail { padding-top: 16px; padding-bottom: 12px; }
+  .brand { padding-bottom: 14px; }
+  .nav { gap: 2px; }
+  .nav-btn { min-height: 44px; }
+}
+
+/* wall Notes card: a dimmer sticky note at night */
+:root[data-theme="dark"] .wn { background: #E9D98F; }
+:root[data-theme="dark"] .sky .sky-path text { fill: #D9BE8C; }
+
+/* games.css — Games (from Keybop): Pares-Pares and Hangry Snake.
+   Everything is inside .kg so it never changes Kalendaryo's own buttons and cards.
+   The look is Keybop's (thick outlines, hard shadows, bright colors) on Kalendaryo's background. */
+.kg {
+  --kg-ink: #1b1a3a; --kg-ink-soft: #4a4870; --kg-card: #ffffff;
+  --kg-tomato: #ff5b4d; --kg-sun: #ffc531; --kg-leaf: #26bf72; --kg-sky: #3d8bff; --kg-grape: #8b5cf6; --kg-pink: #ff7eb6;
+  --kg-display: 'Lilita One', 'Arial Rounded MT Bold', 'Trebuchet MS', system-ui, sans-serif;
+  --kg-body: 'Nunito', 'Trebuchet MS', system-ui, sans-serif;
+  font-family: var(--kg-body); font-weight: 600; color: var(--kg-ink);
+}
+.kg *, .kg *::before, .kg *::after { box-sizing: border-box; }
+.kg button { font: inherit; color: inherit; cursor: pointer; }
+.kg :focus-visible { outline: 4px solid var(--kg-grape); outline-offset: 3px; }
+
+/* full-screen layers (the games list from Wall mode, and every game) */
+.kg-layer { position: fixed; inset: 0; z-index: 120; display: flex; flex-direction: column; overflow: hidden;
+  background-color: var(--bg); background-image: var(--page-art); background-size: var(--page-art-size); background-repeat: var(--page-art-repeat);
+  padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
+
+/* chips and big buttons */
+.kg .kg-chip { display: inline-block; border: 3px solid var(--kg-ink); background: var(--kg-card); color: var(--kg-ink); border-radius: 99px; padding: 6px 14px; font-weight: 800; font-size: 15px; line-height: 1.2; box-shadow: 0 4px 0 var(--kg-ink); }
+.kg button.kg-chip:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--kg-ink); }
+.kg .kg-big { display: inline-block; font: 400 24px/1 var(--kg-display); background: var(--kg-card); color: var(--kg-ink); border: 3px solid var(--kg-ink); border-radius: 16px; padding: 14px 22px; box-shadow: 0 6px 0 var(--kg-ink); transition: transform .08s, box-shadow .08s; }
+.kg .kg-big:active { transform: translateY(5px); box-shadow: 0 1px 0 var(--kg-ink); }
+.kg .kg-back { border: 3px solid var(--kg-ink); background: var(--kg-card); color: var(--kg-ink); border-radius: 14px; padding: 8px 14px; font-weight: 800; box-shadow: 0 4px 0 var(--kg-ink); white-space: nowrap; }
+.kg .kg-back:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--kg-ink); }
+
+/* games list */
+.kg-pick { flex: 1; min-height: 0; overflow: auto; padding: 16px 16px 40px; }
+.kg-pick-in { max-width: 1000px; margin: 0 auto; display: flex; flex-direction: column; gap: 22px; }
+.kg-top { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.kg-title { margin: 0; font: 400 clamp(34px, 6vw, 46px)/1 var(--kg-display); color: var(--ink); }
+.kg-tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); gap: 22px; }
+.kg .kg-tile { display: flex; flex-direction: column; gap: 8px; text-align: left; background: var(--kg-card); color: var(--kg-ink); border: 3px solid var(--kg-ink); border-radius: 22px; padding: 24px; box-shadow: 6px 6px 0 var(--kg-ink); transition: transform .1s, box-shadow .1s; min-width: 0; }
+.kg .kg-tile:hover { transform: translate(-2px, -2px); box-shadow: 8px 8px 0 var(--kg-ink); }
+.kg .kg-tile:active { transform: translate(4px, 4px); box-shadow: 2px 2px 0 var(--kg-ink); }
+.kg-tilehead { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+.kg-ico { width: 84px; height: 84px; border-radius: 18px; display: grid; place-items: center; font-size: 48px; background: var(--c); border: 3px solid var(--kg-ink); }
+.kg-age { font-weight: 800; font-size: 12px; letter-spacing: .06em; text-transform: uppercase; background: var(--kg-ink); color: #fff; padding: 4px 10px; border-radius: 99px; white-space: nowrap; }
+.kg .kg-tile h3 { font: 400 32px/1.1 var(--kg-display); margin: 4px 0 0; color: var(--kg-ink); }
+.kg .kg-tile p b { color: var(--kg-ink); font-weight: 900; }
+.kg .kg-tile p { margin: 0; color: var(--kg-ink-soft); font-size: 15px; font-weight: 700; }
+/* the Games page inside the app (from the side menu) */
+.games-page .kg-tiles { margin-top: 6px; }
+.games-page .page-head .kg-chip { font-size: 14px; }
+
+/* kalendaryo.co/games (standalone page) */
+.kg-standalone { min-height: 100vh; min-height: 100dvh; padding-top: calc(16px + env(safe-area-inset-top, 0px)); }
+.kg-brand { text-decoration: none; }
+.kg-brand-pill { display: inline-block; background: var(--primary, #3F7360); color: #fff; font: 800 20px/1 'Outfit', 'Figtree', system-ui, sans-serif; padding: 9px 16px; border-radius: 14px; }
+.kg-sub { margin: -10px 0 0; color: var(--ink-2, #4a4870); font: 600 17px/1.4 'Figtree', system-ui, sans-serif; }
+.kg-foot { margin: 8px 0 0; text-align: center; color: var(--ink-2, #4a4870); font: 600 15px/1.5 'Figtree', system-ui, sans-serif; }
+.kg-foot a { color: var(--primary, #3F7360); font-weight: 800; }
+
+/* game bar */
+.kg-bar { display: flex; align-items: center; gap: 12px; padding: 12px 16px; }
+.kg-bar h2 { margin: 0; flex: 1; min-width: 0; font: 400 clamp(22px, 4vw, 30px)/1 var(--kg-display); text-align: center; color: var(--ink); }
+.kg-score { min-width: 84px; text-align: right; font: 400 20px/1.1 var(--kg-display); color: var(--ink); white-space: nowrap; }
+@media (max-width: 600px) { .kg-bar { flex-wrap: wrap; row-gap: 6px; } .kg-bar h2 { order: 3; flex-basis: 100%; font-size: 26px; } .kg-score { margin-left: auto; } }
+/* Brain Train only (class kg-bar-one, set in games.js): one row on phones, so the game gets more of the screen.
+   Below 600px, the same width where the game switches to its phone layout. */
+@media (max-width: 599px) {
+  .kg-bar.kg-bar-one { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 8px; padding: 6px 12px 8px; }
+  .kg-bar.kg-bar-one .kg-back { justify-self: start; min-height: 44px; padding: 6px 12px; }
+  .kg-bar.kg-bar-one h2 { order: 0; flex-basis: auto; font-size: 24px; white-space: nowrap; }
+  .kg-bar.kg-bar-one .kg-score { justify-self: end; min-width: 0; margin: 0; }
+}
+/* Short phones only (iPhone SE and the like): while a Brain Train ride is on, the bar is put away; the game's own Back stays. */
+@media (max-width: 599px) and (max-height: 599px) {
+  .kg-layer.kg-riding .kg-bar { display: none; }
+}
+.kg-main { flex: 1; min-height: 0; position: relative; overflow: hidden; }
+.kg-panel { position: absolute; inset: 0; display: grid; place-items: center; background: color-mix(in srgb, var(--bg) 88%, transparent); padding: 16px; z-index: 5; }
+.kg-pcard { display: flex; flex-direction: column; align-items: center; gap: 14px; text-align: center; background: var(--kg-card); border: 3px solid var(--kg-ink); border-radius: 26px; box-shadow: 7px 7px 0 var(--kg-ink); padding: 24px; max-width: 360px; }
+.kg-pcard h3 { font: 400 34px/1 var(--kg-display); margin: 0; color: var(--kg-ink); }
+.kg-pcard p { margin: 0; color: var(--kg-ink-soft); font-weight: 700; }
+
+/* Pares-Pares: square cards that fill the play area (sizes are set by games.js) */
+.kg-mem { height: 100%; display: flex; align-items: center; justify-content: center; padding: 4px 16px 20px; }
+.kg-mgrid { display: grid; }
+.kg .kg-mcard { position: relative; border: 0; background: none; padding: 0; perspective: 600px; border-radius: 16px; }
+.kg-minner { position: absolute; inset: 0; transition: transform .35s; transform-style: preserve-3d; }
+.kg-mcard.up .kg-minner { transform: rotateY(180deg); }
+.kg-mface { position: absolute; inset: 0; display: grid; place-items: center; backface-visibility: hidden; -webkit-backface-visibility: hidden; border: 3px solid var(--kg-ink); border-radius: 16px; box-shadow: 0 4px 0 var(--kg-ink); }
+.kg-mface.q { background: var(--kg-sky); color: #fff; font-family: var(--kg-display); }
+.kg-mface.v { background: var(--kg-card); transform: rotateY(180deg); }
+.kg-mcard.done .kg-mface.v { background: #c9f5dc; }
+
+/* Hangry Snake: the board fills the screen; big arrows always at the bottom */
+.kg-snake { height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; padding: 4px 16px 16px; }
+.kg-opts { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px 18px; }
+.kg-angry { color: #e8322a; font-size: 1.1em; }
+.kg-speed { display: flex; align-items: center; gap: 8px; font-weight: 800; color: var(--kg-ink); }
+.kg-speed span { margin-right: 4px; }
+.kg .kg-speed button { width: 44px; height: 44px; border: 3px solid var(--kg-ink); border-radius: 12px; background: var(--kg-card); color: var(--kg-ink); font: 400 22px/1 var(--kg-display); box-shadow: 0 4px 0 var(--kg-ink); padding: 0; }
+.kg .kg-speed button[aria-pressed="true"] { background: var(--kg-leaf); color: #fff; }
+.kg-snake canvas { border: 3px solid var(--kg-ink); border-radius: 14px; touch-action: none; display: block; }
+.kg-dpad { display: none; grid-template-columns: repeat(3, 80px); grid-template-rows: repeat(2, 80px); gap: 10px; }
+.kg-dpad.on { display: grid; }
+.kg .kg-dpad button { border: 3px solid var(--kg-ink); background: var(--kg-card); color: var(--kg-ink); border-radius: 20px; font-size: 30px; box-shadow: 0 5px 0 var(--kg-ink); touch-action: none; padding: 0; }
+.kg .kg-dpad button:active { transform: translateY(4px); box-shadow: 0 1px 0 var(--kg-ink); }
+.kg-dpad .u { grid-column: 2; grid-row: 1; } .kg-dpad .l { grid-column: 1; grid-row: 2; } .kg-dpad .d { grid-column: 2; grid-row: 2; } .kg-dpad .r { grid-column: 3; grid-row: 2; }
+@media (min-width: 700px) and (min-height: 600px) {
+  .kg-dpad { grid-template-columns: repeat(3, 110px); grid-template-rows: repeat(2, 110px); gap: 14px; }
+  .kg .kg-dpad button { font-size: 42px; border-radius: 24px; box-shadow: 0 7px 0 var(--kg-ink); }
+}
+
+/* confetti */
+.kg-fx { position: fixed; inset: 0; z-index: 130; pointer-events: none; overflow: hidden; }
+.kg-fx .bit { position: absolute; top: 0; left: 0; will-change: transform; }
+
+@media (prefers-reduced-motion: reduce) { .kg *, .kg-fx * { animation-duration: .01ms !important; transition-duration: .01ms !important; } }
+
+.kg-title { display: flex; align-items: center; gap: .3em; }
+.kg-title-ic { width: 1.1em; height: 1.1em; flex: none; }
+.kg-ico svg { display: block; }
+
+/* Speed and Mode in one row; a bit smaller on phones */
+@media (max-width: 600px) {
+  .kg-opts { gap: 8px 14px; }
+  .kg-speed { gap: 5px; }
+  .kg-speed span { font-size: 13px; margin-right: 2px; }
+  .kg .kg-speed button { width: 38px; height: 38px; font-size: 19px; }
+}
+
+/* Hangry Snake logo in the game (sticker letters) */
+.kg-logo { display: inline-flex; align-items: center; gap: 4px; transform: rotate(-3deg); vertical-align: middle; }
+.kg-logo svg { width: 60px; height: 60px; flex: none; }
+.kg-logo-t { display: inline-flex; flex-direction: column; align-items: center; font: 400 34px/.95 var(--kg-display); letter-spacing: .03em; color: #fff;
+  text-shadow: 3px 0 0 var(--kg-ink), -3px 0 0 var(--kg-ink), 0 3px 0 var(--kg-ink), 0 -3px 0 var(--kg-ink), 2px 2px 0 var(--kg-ink), -2px -2px 0 var(--kg-ink), 2px -2px 0 var(--kg-ink), -2px 2px 0 var(--kg-ink), 5px 5px 0 var(--kg-ink); }
+.kg-logo-t .a { color: #ff5b4d; }
+.kg-logo-t .s { font-size: .8em; margin-top: 2px; }
+@media (max-width: 600px) { .kg-logo svg { width: 52px; height: 52px; } .kg-logo-t { font-size: 30px; } }
+
+/* This game's own page. Inside Kalendaryo (in a frame) the page shows only the game: Kalendaryo's background and
+   "← Games" bar stay outside, so it looks exactly as before. Opened directly, it shows the same full-screen layer itself. */
+html.kg-framed, html.kg-framed body { background: transparent; min-height: 0; }
+.kg-frame-root { position: fixed; inset: 0; }
+a.kg-back { display: inline-block; text-decoration: none; }
+</style>
+</head>
+<body>
+<script>
+(function () {
+  "use strict";
+  const rand = (a, b) => a + Math.random() * (b - a);
+  const pick = (a) => a[Math.floor(Math.random() * a.length)];
+  const shuffle = (a) => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+  function el(tag, cls, html) { const e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; }
+  const store = {
+    get(k, d) { try { const v = localStorage.getItem('kal.games:' + k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } },
+    set(k, v) { try { localStorage.setItem('kal.games:' + k, JSON.stringify(v)); } catch (e) { /* private mode */ } }
+  };
+  const reduce = () => !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const coarse = () => !!(window.matchMedia && matchMedia('(pointer: coarse)').matches);
+  const COL = { tomato: '#ff5b4d', sun: '#ffc531', leaf: '#26bf72', sky: '#3d8bff', grape: '#8b5cf6', pink: '#ff7eb6', ink: '#1b1a3a' };
+  const COLS = [COL.tomato, COL.sun, COL.leaf, COL.sky, COL.grape, COL.pink];
+  // A full-screen layer goes inside whatever is full screen (Wall mode), otherwise on the page.
+  const fsEl = () => document.fullscreenElement || document.webkitFullscreenElement || null;
+  const host = () => fsEl() || document.body;
+
+  /* ---------- sound ---------- */
+  let sound = store.get('sound', true), ac = null;
+  function beep(freq, dur, type, vol) {
+    if (!sound) return;
+    try {
+      ac = ac || new (window.AudioContext || window.webkitAudioContext)();
+      if (ac.state === 'suspended') ac.resume();
+      const o = ac.createOscillator(), g = ac.createGain(), t = ac.currentTime;
+      o.type = type || 'triangle'; o.frequency.value = freq;
+      g.gain.setValueAtTime(vol || .12, t); g.gain.exponentialRampToValueAtTime(.0001, t + (dur || .16));
+      o.connect(g); g.connect(ac.destination); o.start(t); o.stop(t + (dur || .16) + .02);
+    } catch (e) { /* no audio */ }
+  }
+  const SCALE = [261.63, 293.66, 329.63, 392, 440, 523.25, 587.33, 659.25, 783.99, 880];
+  const note = (i) => beep(SCALE[Math.abs(i) % SCALE.length]);
+  function voice(t) {
+    if (!sound) return;
+    try { if (!('speechSynthesis' in window)) return; speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(t); u.rate = .85; u.pitch = 1.25; speechSynthesis.speak(u); } catch (e) { /* no voice */ }
+  }
+  /* ---------- effects ---------- */
+  function confetti(n) {
+    if (reduce()) n = Math.min(n, 6);
+    let fx = host().querySelector(':scope > .kg-fx');
+    if (!fx) { fx = el('div', 'kg-fx'); fx.setAttribute('aria-hidden', 'true'); host().append(fx); }
+    for (let i = 0; i < n; i++) {
+      if (fx.childElementCount > 140) break;
+      const s = el('span', 'bit');
+      if (Math.random() < .4) { s.textContent = pick(['🎉', '⭐', '✨', '🎈']); s.style.fontSize = rand(20, 38) + 'px'; }
+      else { const w = rand(8, 14); Object.assign(s.style, { width: w + 'px', height: w * 1.5 + 'px', background: pick(COLS), border: '2px solid ' + COL.ink, borderRadius: '3px' }); }
+      s.style.left = rand(0, 100) + 'vw'; fx.appendChild(s);
+      const a = s.animate([{ transform: 'translate(0,-8vh) rotate(0deg)' }, { transform: 'translate(' + rand(-18, 18) + 'vw,108vh) rotate(' + rand(-720, 720) + 'deg)' }],
+        { duration: rand(1500, 2800), delay: rand(0, 350), easing: 'cubic-bezier(.3,.1,.6,1)', fill: 'both' });
+      a.onfinish = () => s.remove();
+    }
+  }
+  function panel(root, title, text, btns) {
+    const p = el('div', 'kg-panel'), c = el('div', 'kg-pcard'), hd = el('h3'), t = el('p');
+    hd.textContent = title; t.textContent = text; c.append(hd, t);
+    btns.forEach(([label, fn]) => { const b = el('button', 'kg-big'); b.type = 'button'; b.textContent = label; b.onclick = () => { p.remove(); fn(); }; c.append(b); });
+    p.append(c); root.append(p);
+    const f = c.querySelector('button'); if (f) f.focus();
+  }
+  function rr(ctx, x, y, w, hh, r) { ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + hh, r); ctx.arcTo(x + w, y + hh, x, y + hh, r); ctx.arcTo(x, y + hh, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath(); }
+
+  /* ================= Hangry Snake (snake) ================= */
+  function makeSnake(root, api) {
+    const N = 16; // squares on the short side; the long side gets more, so the board fills the screen
+    let NX = N, NY = N;
+    const wrap = el('div', 'kg-snake'), cv = el('canvas'), spd = el('div', 'kg-speed'), mod = el('div', 'kg-speed'), opts = el('div', 'kg-opts'), pad = el('div', 'kg-dpad' + (coarse() ? ' on' : ''));
+    cv.setAttribute('aria-label', 'Hangry Snake board');
+    pad.innerHTML = '<button class="u" type="button" aria-label="Up">▲</button><button class="l" type="button" aria-label="Left">◀</button><button class="d" type="button" aria-label="Down">▼</button><button class="r" type="button" aria-label="Right">▶</button>';
+    // Speed: 1 = slow (half of 2, the default), 2 = normal, 3 = fast. The last choice is remembered on this device.
+    const SPEED = { 1: 2, 2: 1, 3: 0.65 };
+    let speed = SPEED[store.get('speed:snake', 1)] ? store.get('speed:snake', 1) : 1;
+    spd.innerHTML = '<span>Speed</span>' + [1, 2, 3].map((n) => '<button type="button" data-s="' + n + '" aria-label="Speed ' + n + '">' + n + '</button>').join('');
+    const paintSpd = () => spd.querySelectorAll('button').forEach((b) => b.setAttribute('aria-pressed', String(+b.dataset.s === speed)));
+    spd.addEventListener('click', (e) => { const b = e.target.closest('button'); if (!b) return; speed = +b.dataset.s; store.set('speed:snake', speed); paintSpd(); b.blur(); });
+    paintSpd();
+    // Mode: 1 = one apple (the default), 2 = lots of fruit, 3 = lots of fruit that blinks and then disappears.
+    const MODES = { 1: 'One apple', 2: 'Lots of fruit', 3: 'Fruit disappears! Be quick.' };
+    let mode = MODES[store.get('mode:snake', 1)] ? store.get('mode:snake', 1) : 1;
+    mod.innerHTML = '<span>Mode</span>' + [1, 2, 3].map((n) => '<button type="button" data-m="' + n + '" aria-label="Mode ' + n + ': ' + MODES[n] + '">' + n + '</button>').join('');
+    const paintMod = () => { mod.querySelectorAll('button').forEach((b) => b.setAttribute('aria-pressed', String(+b.dataset.m === mode))); mod.title = 'Mode ' + mode + ': ' + MODES[mode]; };
+    mod.addEventListener('click', (e) => { const b = e.target.closest('button'); if (!b) return; const m = +b.dataset.m; b.blur(); if (m === mode) return; mode = m; store.set('mode:snake', mode); paintMod(); reset(); });
+    paintMod();
+    opts.append(spd, mod);
+    wrap.append(opts, cv, pad); root.append(wrap);
+    const ctx = cv.getContext('2d');
+    let cell = 20, sized = false;
+    let snake, dir, moved, fruits = [], eaten, ms, acc, last, raf, started = false, flash, clock = 0, best = 0;
+    const FRUIT = ['🍎', '🍌', '🍇', '🍓', '🍊', '🥭', '🍉', '🍒', '🍐', '🍑'];
+    const bestKey = () => (mode === 1 ? 'best:snake' : 'best:snake:m' + mode);
+    function size() {
+      if (!root.clientWidth) return;
+      const dpr = Math.min(2, devicePixelRatio || 1);
+      const padH = (pad.classList.contains('on') ? (pad.offsetHeight || 180) + 34 : 40) + (opts.offsetHeight || 44) + 14;
+      const aw = root.clientWidth - 32, ah = root.clientHeight - padH;
+      if (!sized || !started) { // before the first move the board may change shape (full screen, turning the iPad)
+        cell = Math.max(12, Math.floor(Math.min(aw, ah) / N)); const nx = Math.max(N, Math.floor(aw / cell)), ny = Math.max(N, Math.floor(ah / cell));
+        const changed = sized && (nx !== NX || ny !== NY); NX = nx; NY = ny; sized = true;
+        if (changed && snake) reset();
+      }
+      cell = Math.max(10, Math.floor(Math.min(aw / NX, ah / NY)));
+      const BW = cell * NX, BH = cell * NY;
+      cv.width = BW * dpr; cv.height = BH * dpr; cv.style.width = BW + 'px'; cv.style.height = BH + 'px';
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    size();
+    const ro = new ResizeObserver(size); ro.observe(root);
+    const label = () => api.score((mode === 1 ? '🍎 ' : '🍓 ') + eaten + ' · best ' + best);
+    function addFruit() {
+      let p, tries = 0;
+      do { p = { x: Math.floor(Math.random() * NX), y: Math.floor(Math.random() * NY) }; tries++; }
+      while (tries < 500 && (snake.some((q) => q.x === p.x && q.y === p.y) || fruits.some((f) => f.x === p.x && f.y === p.y)));
+      p.e = mode === 1 ? '🍎' : FRUIT[Math.floor(Math.random() * FRUIT.length)];
+      p.end = mode === 3 ? clock + 4000 + Math.random() * 5000 : Infinity; // mode 3: gone after 4 to 9 seconds
+      fruits.push(p);
+    }
+    const fruitCount = () => (mode === 1 ? 1 : 5);
+    function fillFruit() { while (fruits.length < fruitCount()) addFruit(); }
+    function reset() {
+      const cx = Math.floor(NX / 2), cy = Math.floor(NY / 2);
+      snake = [{ x: cx, y: cy }, { x: cx - 1, y: cy }, { x: cx - 2, y: cy }]; dir = { x: 1, y: 0 }; moved = { x: 0, y: 0 };
+      eaten = 0; ms = 150; acc = 0; last = 0; clock = 0; started = false; flash = 0; best = store.get(bestKey(), 0); fruits = []; fillFruit(); label();
+    }
+    function setDir(dx, dy) {
+      if (!started) {
+        const hd = snake[0];
+        snake = [hd, { x: (hd.x - dx + NX) % NX, y: (hd.y - dy + NY) % NY }, { x: (hd.x - 2 * dx + NX + NX) % NX, y: (hd.y - 2 * dy + NY + NY) % NY }];
+        dir = { x: dx, y: dy }; started = true; return;
+      }
+      if (dx === -moved.x && dy === -moved.y) return;
+      dir = { x: dx, y: dy };
+    }
+    function step() {
+      moved = dir;
+      const hx = (snake[0].x + dir.x + NX) % NX, hy = (snake[0].y + dir.y + NY) % NY;
+      const fi = fruits.findIndex((f) => f.x === hx && f.y === hy), grow = fi >= 0;
+      const bodyCells = grow ? snake : snake.slice(0, -1);
+      const idx = bodyCells.findIndex((s) => s.x === hx && s.y === hy);
+      if (idx >= 0) { snake = bodyCells.slice(0, Math.max(3, idx)); flash = 1; api.beep(180, .25, 'sawtooth', .08); }
+      else snake = bodyCells;
+      snake.unshift({ x: hx, y: hy });
+      if (grow) {
+        eaten++; ms = Math.max(85, 150 - eaten * 4);
+        if (eaten > best) { best = eaten; store.set(bestKey(), best); }
+        label(); api.note(eaten); api.confetti(5); fruits.splice(fi, 1); fillFruit();
+      }
+    }
+    function draw() {
+      const bw = cell * NX, bh = cell * NY;
+      for (let y = 0; y < NY; y++) for (let x = 0; x < NX; x++) { ctx.fillStyle = (x + y) % 2 ? '#cdeed6' : '#dff5e3'; ctx.fillRect(x * cell, y * cell, cell, cell); }
+      ctx.font = Math.floor(cell * .8) + 'px "Segoe UI Emoji","Apple Color Emoji","Noto Color Emoji",sans-serif';
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      fruits.forEach((f) => {
+        const left = f.end - clock;
+        if (left < 1500 && Math.floor(left / 180) % 2) return; // blink before it disappears
+        ctx.fillText(f.e, f.x * cell + cell / 2, f.y * cell + cell / 2 + 1);
+      });
+      snake.forEach((s, i) => {
+        const p = i === 0 ? 1 : 3;
+        ctx.fillStyle = COL.leaf; rr(ctx, s.x * cell + p, s.y * cell + p, cell - p * 2, cell - p * 2, cell * .32); ctx.fill();
+        ctx.lineWidth = 2; ctx.strokeStyle = COL.ink; ctx.stroke();
+      });
+      const hd = snake[0], ex = hd.x * cell + cell / 2 + dir.x * cell * .12, ey = hd.y * cell + cell / 2 + dir.y * cell * .12;
+      const ox = dir.y !== 0 ? cell * .2 : 0, oy = dir.y !== 0 ? 0 : cell * .2;
+      [[-1, -1], [1, 1]].forEach(([a, b]) => {
+        const px = ex + (dir.y !== 0 ? a * ox : 0), py = ey + (dir.y !== 0 ? 0 : b * oy);
+        ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(px, py, cell * .13, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = COL.ink; ctx.beginPath(); ctx.arc(px + dir.x * cell * .03, py + dir.y * cell * .03, cell * .07, 0, Math.PI * 2); ctx.fill();
+      });
+      if (flash > 0) { ctx.fillStyle = 'rgba(255,91,77,' + (flash * .3).toFixed(2) + ')'; ctx.fillRect(0, 0, bw, bh); }
+      if (!started) {
+        ctx.fillStyle = 'rgba(27,26,58,.55)'; ctx.fillRect(0, bh / 2 - cell * 1.4, bw, cell * 2.8);
+        ctx.fillStyle = '#fff'; ctx.font = '400 ' + Math.floor(cell * 1.05) + 'px "Lilita One","Trebuchet MS",sans-serif';
+        ctx.fillText(coarse() ? 'Swipe or tap arrows' : 'Press an arrow key', bw / 2, bh / 2);
+      }
+    }
+    function frame(ts) {
+      raf = requestAnimationFrame(frame);
+      const dt = Math.min(100, last ? ts - last : 0); last = ts;
+      if (started) {
+        acc += dt; clock += dt; const t = ms * SPEED[speed]; while (acc >= t) { acc -= t; step(); }
+        if (mode === 3) { const n = fruits.length; fruits = fruits.filter((f) => f.end > clock); if (fruits.length < n) fillFruit(); }
+      }
+      flash = Math.max(0, flash - dt / 900);
+      draw();
+    }
+    let sx = 0, sy = 0;
+    cv.addEventListener('pointerdown', (e) => { sx = e.clientX; sy = e.clientY; });
+    cv.addEventListener('pointerup', (e) => {
+      const dx = e.clientX - sx, dy = e.clientY - sy;
+      if (Math.max(Math.abs(dx), Math.abs(dy)) < 18) return;
+      if (Math.abs(dx) > Math.abs(dy)) setDir(dx > 0 ? 1 : -1, 0); else setDir(0, dy > 0 ? 1 : -1);
+    });
+    [['.u', 0, -1], ['.l', -1, 0], ['.d', 0, 1], ['.r', 1, 0]].forEach(([s, dx, dy]) => {
+      pad.querySelector(s).addEventListener('pointerdown', (e) => { e.preventDefault(); setDir(dx, dy); });
+    });
+    reset(); raf = requestAnimationFrame(frame);
+    const KEYS = { ArrowUp: [0, -1], w: [0, -1], W: [0, -1], ArrowLeft: [-1, 0], a: [-1, 0], A: [-1, 0], ArrowDown: [0, 1], s: [0, 1], S: [0, 1], ArrowRight: [1, 0], d: [1, 0], D: [1, 0] };
+    return {
+      key(e) { const k = KEYS[e.key]; if (k) { e.preventDefault(); setDir(k[0], k[1]); } },
+      destroy() { cancelAnimationFrame(raf); ro.disconnect(); }
+    };
+  }
+
+  const GAME = { make: makeSnake, back: '/games', barTitle: '<span class="kg-logo" role="img" aria-label="Hangry Snake"><svg viewBox="0 0 64 64" width="72" height="72"><g stroke="#1b1a3a" stroke-linecap="round" stroke-linejoin="round"><path d="M8 54c2-9 10-9 17-9s13-3 13-11" fill="none" stroke-width="14"/><path d="M8 54c2-9 10-9 17-9s13-3 13-11" fill="none" stroke="#26bf72" stroke-width="8"/><circle cx="36" cy="25" r="15" fill="#26bf72" stroke-width="3"/><circle cx="27" cy="29" r="3" fill="#ff7eb6" stroke="none" opacity=".9"/><circle cx="47" cy="27" r="3" fill="#ff7eb6" stroke="none" opacity=".9"/><circle cx="31" cy="22" r="5" fill="#fff" stroke-width="2.5"/><circle cx="42" cy="20" r="5" fill="#fff" stroke-width="2.5"/><circle cx="32.5" cy="23" r="2.2" fill="#1b1a3a" stroke="none"/><circle cx="40.5" cy="21" r="2.2" fill="#1b1a3a" stroke="none"/><path d="M25 14l9 5M48 11l-8 6" fill="none" stroke-width="3.5"/><path d="M33 33q4-3 8-1" fill="none" stroke-width="3"/><path d="M17 12c-3 0-4-3-2-4 0-3 4-3 5-1 2-1 4 1 3 3 1 2-1 3-3 2-1 1-3 1-3 0z" fill="#fff" stroke-width="2"/><path d="M53 6c-2.5 0-3.5-2.5-1.5-3.5 0-2.5 3.5-2.5 4-1 1.8-1 3.5 1 2.5 2.5 1 1.8-1 2.8-2.5 1.8-1 1-2.5 1-2.5.2z" fill="#fff" stroke-width="2"/><path d="M51 44c-3-2.5-9-1.5-9 5 0 5 4 9.5 6.5 9.5 1 0 1.5-.6 2.5-.6s1.5.6 2.5.6c2.5 0 6.5-4.5 6.5-9.5 0-6.5-6-7.5-9-5z" fill="#c9182b" stroke-width="2.5"/><path d="M51 44c0-2.5 1-4.5 3-5.5" fill="none" stroke-width="2.5"/><path d="M53 41.5c2-2.5 5-2.5 6.5-1.5-1.5 2.5-4 3-6.5 1.5z" fill="#26bf72" stroke-width="2"/><path d="M46 48.5q.5-2 2.5-2.5" fill="none" stroke="#fff" stroke-width="2"/></g></svg><span class="kg-logo-t" aria-hidden="true"><span>H<span class="a">ANGRY</span></span><span class="s">SNAKE</span></span></span>' };
+
+  /* ---------- this page ---------- */
+  // Inside Kalendaryo (Games → this game) the page is in a frame: the score and confetti go to Kalendaryo's bar and screen,
+  // and the page takes Kalendaryo's text size, dark mode and reduced motion. Opened directly, it shows its own
+  // "← Games" bar, exactly like inside Kalendaryo. Scores and the sound setting are the same on both (localStorage "kal.games:").
+  const framed = (() => { try { return window.self !== window.top; } catch (e) { return true; } })();
+  const html = document.documentElement;
+  const toParent = (m) => { try { parent.postMessage(m, location.origin); } catch (e) { /* ignore */ } };
+  // The sound button is on the Games page; follow it when it changes.
+  window.addEventListener('storage', (e) => {
+    if (e.key !== 'kal.games:sound') return;
+    sound = store.get('sound', true);
+    if (!sound) { try { speechSynthesis.cancel(); } catch (err) { /* ignore */ } }
+  });
+  let root, scoreEl = null;
+  if (framed) {
+    html.classList.add('kg-framed');
+    try {
+      const p = parent.document.documentElement;
+      const ts = getComputedStyle(p).getPropertyValue('--text-scale').trim(); if (ts) html.style.setProperty('--text-scale', ts);
+      if (p.dataset.theme) html.dataset.theme = p.dataset.theme; else delete html.dataset.theme;
+      html.classList.toggle('reduce-motion', p.classList.contains('reduce-motion'));
+    } catch (e) { /* another site: keep this page's own look */ }
+    root = el('div', 'kg kg-main kg-frame-root');
+    document.body.append(root);
+  } else {
+    const back = el('a', 'kg-back'); back.href = GAME.back; back.textContent = '← Games';
+    const title = el('h2'); title.innerHTML = GAME.barTitle;
+    scoreEl = el('div', 'kg-score'); scoreEl.setAttribute('aria-live', 'polite');
+    const bar = el('div', 'kg-bar'); bar.append(back, title, scoreEl);
+    const main = el('div', 'kg-main');
+    const box = el('div'); box.style.cssText = 'display:flex;flex-direction:column;height:100%';
+    box.append(bar, main);
+    const layer = el('div', 'kg kg-layer'); layer.append(box);
+    document.body.append(layer);
+    root = main;
+  }
+  const close = () => { if (framed) toParent({ type: 'kg:close' }); else location.href = GAME.back; };
+  const api = {
+    score: framed ? (t) => toParent({ type: 'kg:score', text: String(t) }) : (t) => { scoreEl.textContent = t; },
+    confetti: framed ? (n) => toParent({ type: 'kg:confetti', n }) : confetti,
+    voice, note, beep, close
+  };
+  const game = GAME.make(root, api);
+  // Keys: this page's own (when it has the focus), and the ones Kalendaryo passes on (when Kalendaryo has the focus).
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') { if (!framed) { e.preventDefault(); close(); } return; }
+    if (game.key) game.key(e);
+  });
+  window.__kgKey = (e) => { if (game.key) game.key(e); };
+  window.addEventListener('pagehide', () => { try { game.destroy(); } catch (e) { /* ignore */ } });
+})();
+</script>
+</body>
+</html>

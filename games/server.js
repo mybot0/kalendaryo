@@ -24,7 +24,7 @@ function tiles() {
   return list().map((g) => {
     if (g.type !== 'page') return { id: g.id, type: g.type };
     const t = { id: g.id, type: g.type, title: g.title, route: g.route, colour: g.colour, blurb: g.blurb };
-    for (const k of ['titleHtml', 'logoHtml', 'oneRow']) if (g[k] !== undefined) t[k] = g[k];
+    for (const k of ['titleHtml', 'logoHtml', 'oneRow', 'keys']) if (g[k] !== undefined) t[k] = g[k];
     if (g.icon && g.icon.inline) t.icoHtml = fs.readFileSync(path.join(DIR, g.folder, g.icon.inline), 'utf8');
     if (g.icon && g.icon.img) t.icoSrc = g.route + '/' + g.icon.img;
     if (t.logoHtml && t.icoHtml) t.logoHtml = t.logoHtml.replace('{icon}', t.icoHtml);

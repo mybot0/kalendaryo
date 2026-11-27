@@ -1,6 +1,21 @@
 [
-  { "id": "memory", "type": "builtin", "title": "Pares-Pares" },
-  { "id": "snake", "type": "builtin", "title": "Hangry Snake" },
+  {
+    "id": "memory", "type": "page", "title": "Pares-Pares",
+    "folder": "pares-pares", "route": "/pares-pares",
+    "colour": "#8b5cf6",
+    "blurb": "<b>A memory game!</b> Flip two cards and find every pair.",
+    "icon": { "inline": "tile-icon.svg" }
+  },
+  {
+    "id": "snake", "type": "page", "title": "Hangry Snake",
+    "titleHtml": "H<span class=\"kg-angry\">ANGRY</span> Snake",
+    "logoHtml": "<span class=\"kg-logo\" role=\"img\" aria-label=\"Hangry Snake\">{icon}<span class=\"kg-logo-t\" aria-hidden=\"true\"><span>H<span class=\"a\">ANGRY</span></span><span class=\"s\">SNAKE</span></span></span>",
+    "folder": "hangry-snake", "route": "/hangry-snake",
+    "colour": "#ff5b4d",
+    "blurb": "<b>So hungry, it’s ANGRY!</b> A snake game: eat the fruit and grow longer. Walls wrap around, so nobody crashes.",
+    "icon": { "inline": "tile-icon.svg" },
+    "keys": true
+  },
   {
     "id": "brain", "type": "page", "title": "Brain Train",
     "folder": "brain-train", "route": "/brain-train",
