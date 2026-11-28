@@ -258,10 +258,11 @@
   const countText = (p) => (p.total && p.done === p.total ? 'All done' : p.done + ' of ' + p.total + ' done');
 
   /* ---------- panels ---------- */
-  function agendaPanel() {
+  // max: how many "Coming up" events to list. The board's left box scrolls, so it can hold more than fit on screen.
+  function agendaPanel(max) {
     const today = D.today();
     const items = PL.cal.instances(today, today);
-    const later = PL.cal.instances(D.addDays(today, 1), D.addDays(today, 30)).slice(0, 14);
+    const later = PL.cal.instances(D.addDays(today, 1), D.addDays(today, 30)).slice(0, max || 14);
     const who = (i) => { const ps = PL.cal.people(i); return ps.length ? ps.map((p) => p.name).join(', ') : ''; };
     const when = (i) => (i.allDay ? 'All day' : D.fmtTime(i.start, PL.state.settings.hour12 !== false));
     return h('div', { class: 'ag' },
@@ -602,7 +603,7 @@
       return el;
     }
     function buildPanel(p) {
-      if (p.id === 'agenda') { agendaEl.replaceChildren(h('div', { class: 'wall-panel-body', inert: '' }, agendaPanel())); return agendaEl; }
+      if (p.id === 'agenda') return agendaBox();
       if (p.id === 'photos') { tileEl.className = 'wall-panel wall-photo'; tileEl.classList.toggle('empty', !PL.photos.list().length); return tileEl; }
       let body;
       try { body = p.id === 'chores' ? choresPanel(kid.show) : render(p.id); } catch (e) { console.warn('wall panel', p.id, e); body = h('p', { class: 'sub' }, 'Could not show this.'); }
@@ -621,6 +622,54 @@
       return el;
     };
 
+    /* Today and coming up: on an iPad or computer the list scrolls with a finger. The bottom fades only while more is
+     * below. 30 s after the last touch it slides back to the top, so the board always opens on today.
+     * On a phone (the whole board scrolls) and while arranging, it stays a plain box, as before. */
+    let agendaIdleT = null;
+    const AGENDA_BACK_MS = 30000;
+    const still = () => document.documentElement.classList.contains('reduce-motion') || !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+    const agendaScrolls = () => !arranging && !root.classList.contains('scroll');
+    function agendaFade(b) { b.classList.toggle('clip', b.scrollTop + b.clientHeight < b.scrollHeight - 2); }
+    function agendaBack(b) {
+      clearTimeout(agendaIdleT);
+      agendaIdleT = setTimeout(() => { if (!b.isConnected || !b.scrollTop) return; try { b.scrollTo({ top: 0, behavior: still() ? 'auto' : 'smooth' }); } catch (e) { b.scrollTop = 0; } }, AGENDA_BACK_MS);
+    }
+    function agendaBox() {
+      const old = agendaEl.querySelector('.wall-panel-body');
+      const top = old && old.classList.contains('ag-scroll') ? old.scrollTop : 0;
+      if (!agendaScrolls()) {
+        agendaEl.replaceChildren(h('div', { class: 'wall-panel-body', inert: '' }, agendaPanel()));
+        return agendaEl;
+      }
+      const b = h('div', { class: 'wall-panel-body ag-scroll', tabindex: '0' }, agendaPanel(80));
+      b.addEventListener('scroll', () => { agendaFade(b); agendaBack(b); }, { passive: true });
+      b.addEventListener('pointerdown', () => agendaBack(b));
+      agendaEl.replaceChildren(b);
+      if (top) { b.scrollTop = top; agendaBack(b); }
+      return agendaEl;
+    }
+    // Weather, Meals, Countdowns and the other boxes never fade. When their content is a little too tall for the box,
+    // they make it fit: a smaller drawing, a tighter forecast, or fewer rows with "+N more".
+    const over = (b) => b.scrollHeight > b.clientHeight + 2;
+    function fitPanel(b) {
+      if (!over(b)) return;
+      const art = b.querySelector('.empty-state .empty-art');
+      if (art && art.offsetHeight) {
+        const want = art.offsetHeight - (b.scrollHeight - b.clientHeight) - 4;
+        if (want >= 36) art.style.width = Math.floor(art.offsetWidth * want / art.offsetHeight) + 'px';
+        else art.hidden = true;
+        if (!over(b)) return;
+      }
+      const wx = b.querySelector('.wx');
+      if (wx) { wx.classList.add('wx-tight'); if (!over(b)) return; }
+      const rows = b.querySelector('.upcoming, .stack');
+      if (rows && rows.children.length > 1) {
+        const kids = [...rows.children], more = h('p', { class: 'wl-more' });
+        rows.after(more);
+        for (let i = kids.length - 1, n = 1; i > 0 && over(b); i--, n++) { kids[i].hidden = true; more.textContent = '+' + n + ' more'; }
+      }
+    }
+
     function paintPanels() {
       const s = settings();
       const photosOn = s.photo !== 'off' && PL.photos.list().length > 0;
@@ -636,8 +685,15 @@
       if (arranging && draftShape !== shape) { draft = seedLayout(enabled, shape, W, H); draftShape = shape; }
       const own = !scroll && (arranging ? draft : s.layout[shape]);
       if (own) paintFree(enabled, own, shape); else paintAuto(enabled, s, W, H, scroll);
-      // Fade the bottom of a panel only when its content does not fit.
-      requestAnimationFrame(() => root.querySelectorAll('.wall-panel-body').forEach((b) => b.classList.toggle('clip', b.scrollHeight > b.clientHeight + 2)));
+      // Only "Today and coming up" may fade (while more is below). The other boxes make their content fit instead.
+      // Chores keeps its fade: it is a list of people, and a box that is too short still shows there are more.
+      requestAnimationFrame(() => root.querySelectorAll('.wall-panel-body').forEach((b) => {
+        if (b.classList.contains('ag-scroll')) return agendaFade(b);
+        const pid = (b.closest('.wall-panel') || {}).dataset || {};
+        if (pid.pid === 'agenda' || pid.pid === 'chores') return b.classList.toggle('clip', over(b));
+        b.classList.remove('clip');
+        if (!root.classList.contains('scroll')) fitPanel(b);
+      }));
     }
 
     function paintAuto(enabled, s, W, H, scroll) {
@@ -994,7 +1050,7 @@
     }
     const soon = () => { clearTimeout(renderT); renderT = setTimeout(() => { if (root.querySelector('.dragging, .resizing')) return soon(); paint(); nextPhotoIfBlank(); }, 250); };
     function close() {
-      timers.forEach((t) => (t && t.stop ? t.stop() : clearInterval(t))); clearTimeout(idleT); clearTimeout(renderT); kid.close();
+      timers.forEach((t) => (t && t.stop ? t.stop() : clearInterval(t))); clearTimeout(idleT); clearTimeout(renderT); clearTimeout(agendaIdleT); kid.close();
       document.removeEventListener('keydown', onKey); removeEventListener('resize', soon);
       document.removeEventListener('fullscreenchange', onFull); document.removeEventListener('webkitfullscreenchange', onFull);
       try { if (lock) lock.release(); } catch (e) { /* ignore */ }
