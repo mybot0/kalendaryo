@@ -88,10 +88,13 @@
 .wall-panel-body { flex: 1; min-height: 0; overflow: hidden; }
 .wall-panel-body.clip { -webkit-mask-image: linear-gradient(#000 80%, transparent); mask-image: linear-gradient(#000 80%, transparent); }
 /* Today and coming up scrolls with a finger on an iPad or computer (wall.js agendaBox). */
-.wall-panel-body.ag-scroll { overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; touch-action: pan-y; scrollbar-width: none; }
-.wall-panel-body.ag-scroll::-webkit-scrollbar { display: none; }
-.wall-panel-body.ag-scroll:focus { outline: none; }
-.wall-panel-body.ag-scroll:focus-visible { outline: 3px solid var(--primary); outline-offset: 2px; border-radius: 12px; }
+/* The other list boxes (Chores, Meals, Countdowns, lists, People) scroll the same way when they are too long (wall.js listBox). */
+.wall-panel-body:is(.ag-scroll, .ls-scroll) { overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; touch-action: pan-y; scrollbar-width: none; }
+.wall-panel-body:is(.ag-scroll, .ls-scroll)::-webkit-scrollbar { display: none; }
+.wall-panel-body:is(.ag-scroll, .ls-scroll):focus { outline: none; }
+.wall-panel-body:is(.ag-scroll, .ls-scroll):focus-visible { outline: 3px solid var(--primary); outline-offset: 2px; border-radius: 12px; }
+.wall-panel-body.ls-scroll { display: block; }
+.ls-scroll .wl-wrap, .ls-scroll .wl-box { flex: none; min-height: auto; overflow: visible; }
 /* Weather in a short box: each day on two lines (day, then picture and temperatures), so the forecast fits. */
 .wx.wx-tight { gap: 8px; }
 .wx-tight .wx-day { flex-direction: row; flex-wrap: wrap; justify-content: center; align-items: baseline; column-gap: 5px; row-gap: 0; padding: 6px 4px; }
